@@ -1,0 +1,59 @@
+target/
+.settings/
+.classpath
+.project
+test-output/
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+# Sphinx documentation
+docs/_build/
+
+# for vim
+*.swp
+
+# for application
+libs/*.jar
+libs/*.pom
+
+
+## IDE
+.idea
+*.iml
+
+## nohup
+nohup.out
+
+## rpm
+*.rpm
+
+## Maven
+target/
+
+## back up
+*.*-e
+
+## for tool
+jars
+
+## temp dir for work
+/tmp

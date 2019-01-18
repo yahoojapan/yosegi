@@ -1,0 +1,1 @@
+{ "column_name" : "root" , "child_column" : [ { "column_name" : "pagedata" , "child_column" : [ { "column_name" : "query" , "compressor_class" : "java.lang.String" }  ]  } ] }

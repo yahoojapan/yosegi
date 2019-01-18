@@ -1,0 +1,249 @@
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>jp.co.yahoo.yosegi</groupId>
+  <artifactId>yosegi</artifactId>
+  <version>0.9.0</version>
+  <packaging>jar</packaging>
+  <name>Yosegi</name>
+  <description>Yosegi package.</description>
+  <url>https://github.com/yahoojapan/yosegi</url>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:git@github.com:yahoojapan/yosegi</connection>
+    <developerConnection>scm:git:git@github.com:yahoojapan/yosegi</developerConnection>
+    <url>scm:git:https://github.com/yahoojapan/yosegi</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <organization>
+    <name>Yahoo Japan Corporation</name>
+    <url>https://www.yahoo.co.jp/</url>
+  </organization>
+
+  <developers>
+    <developer>
+      <id>koijima</id>
+      <name>Koji Ijima</name>
+      <organization>Yahoo Japan Corporation</organization>
+    </developer>
+    <developer>
+      <id>yoto</id>
+      <name>Yasunori Ohto</name>
+      <organization>Yahoo Japan Corporation</organization>
+    </developer>
+  </developers>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <target_jdk_version>1.8</target_jdk_version>
+    <maven-surefire-plugin.version>3.0.0-M2</maven-surefire-plugin.version>
+    <maven-surefire-report-plugin.version>${maven-surefire-plugin.version}</maven-surefire-report-plugin.version>
+    <maven-clover2-plugin.version>4.0.6</maven-clover2-plugin.version>
+    <buildtype>test</buildtype>
+    <spotbugs-maven-plugin.version>3.1.8</spotbugs-maven-plugin.version>
+    <spotbugs.version>3.1.9</spotbugs.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>net.jpountz.lz4</groupId>
+      <artifactId>lz4</artifactId>
+      <version>1.2.0</version>
+      <optional>true</optional>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.luben</groupId>
+      <artifactId>zstd-jni</artifactId>
+      <version>1.3.3-3</version>
+      <optional>true</optional>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
+      <version>1.18</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.9.8</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.arrow</groupId>
+      <artifactId>arrow-vector</artifactId>
+      <version>0.11.0</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>5.3.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>5.3.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>5.3.2</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven-surefire-plugin.version}</version>
+        <configuration>
+          <useSystemClassLoader>false</useSystemClassLoader>
+          <forkCount>2</forkCount>
+          <reuseForks>true</reuseForks>
+          <argLine>-Xmx1536m -XX:MaxPermSize=512m</argLine>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.3.2</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.1.1</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.3</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.2.1</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.10.1</version>
+        <configuration>
+          <show>package</show>
+          <source>1.8</source>
+          <encoding>UTF-8</encoding>
+          <docencoding>UTF-8</docencoding>
+          <charset>UTF-8</charset>
+          <links>
+            <link>http://docs.oracle.com/javase/8/docs/api/</link>
+          </links>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <version>0.13</version>
+        <configuration>
+          <excludes>
+            <exclude>**/*.json</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-checkstyle-plugin</artifactId>
+      <version>3.0.0</version>
+      <executions>
+        <execution>
+          <phase>test</phase>
+          <goals>
+            <goal>check</goal>
+          </goals>
+        </execution>
+      </executions>
+      <configuration>
+        <configLocation>google_checks.xml</configLocation>
+        <violationSeverity>warning</violationSeverity>
+        <encoding>UTF-8</encoding>
+        <consoleOutput>false</consoleOutput>
+        <outputFile>${project.build.directory}/site/checkstyle/checkstyle-result.xml</outputFile>
+      </configuration>
+    </plugin>
+    </plugins>
+  </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>2.7</version>
+        <configuration>
+          <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+        <version>${spotbugs-maven-plugin.version}</version>
+      </plugin>
+    </plugins>
+  </reporting>
+
+</project>

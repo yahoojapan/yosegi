@@ -1,0 +1,5 @@
+{ "col1" : true , "col2" : "hoge" , "col3" : [ { "f1" : "f1" , "f2" : "f2" } , { "f1" : "f1" , "f2" : "f2" }  ] }
+{ "col1" : true , "col2" : "hoge" }
+{ "col1" : true , "col2" : "hoge" , "col3" : [ { "f1" : "f1" , "f2" : "f2" }  ] }
+{ "col1" : true , "col2" : "hoge" , "col3" : [] }
+{ "col1" : true , "col2" : "hoge" , "col3" : [ { "f1" : "f1" , "f2" : "f2" } , { "f1" : "f1" , "f2" : "f2" } , { "f1" : "f1" , "f2" : "f2" } , { "f1" : "f1" , "f2" : "f2" }  ] }

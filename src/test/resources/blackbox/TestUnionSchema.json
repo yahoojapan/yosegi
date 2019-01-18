@@ -1,0 +1,8 @@
+{ "other2" : 2 , "union" : { "array" : [ { "key1" : "1" , "key2" : "2" } , { "key1" : "1" , "key2" : "2" , "key3" : "3" } ] , "array_parallel" : [ true , false ] , "union_other" : "a" }, "other" : 1 }
+{ "other2" : 2 , "union" : { "array" : [ { "key1" : "1" , "key2" : "2" } , { "key1" : "1" , "key2" : "2" , "key3" : "3" } ] , "array_parallel" : [ true , false ] , "union_other" : 2 }, "other" : 1 }
+{ "other2" : 2 , "other" : 1 }
+{ "other2" : 2 , "union" : [ { "key1" : "1" , "key2" : "2" } , { "key1" : "hogehoge" , "key2" : "2" , "key3" : "3" } ] , "other" : 1 }
+{ "other2" : 2 , "other" : 1 }
+{ "other2" : 2 , "union" : true , "other" : 1 }
+{ "other2" : 2 , "union" : "hoge" , "other" : 1 }
+{ "other2" : 2 , "union" : [ { "key3" : 1 , "key4" : "2" } , { "key5" : "1" , "key6" : "2" , "key7" : "3" , "union_in_array" : [ 1 ,2 ,3 ,4 ] } ] , "other" : 1 }

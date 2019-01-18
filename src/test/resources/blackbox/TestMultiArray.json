@@ -1,0 +1,2 @@
+{ "array1" : [ { "array1-string" : "a" , "array1-integer" : 1 , "array2" : [ { "array2-string" : "a"  , "array2-integer" : 1 } , { "array2-string" : "b"  , "array2-integer" : 2 } , { "array2-string" : "c"  , "array2-integer" : 3 } ] } ] }
+{ "array1" : [ { "spread" : { "array2" : [ { "str" : "a" , "array3" : [ 1 , 2 , 3 ] } ] } } ] }
