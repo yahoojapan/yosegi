@@ -202,29 +202,32 @@
         <configuration>
           <excludes>
             <exclude>**/*.json</exclude>
+            <exclude>.gitignore</exclude>
+            <exclude>.circleci/config.yml</exclude>
+            <exclude>.github/PULL_REQUEST_TEMPLATE.md</exclude>
           </excludes>
         </configuration>
       </plugin>
-    <plugin>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-checkstyle-plugin</artifactId>
-      <version>3.0.0</version>
-      <executions>
-        <execution>
-          <phase>test</phase>
-          <goals>
-            <goal>check</goal>
-          </goals>
-        </execution>
-      </executions>
-      <configuration>
-        <configLocation>google_checks.xml</configLocation>
-        <violationSeverity>warning</violationSeverity>
-        <encoding>UTF-8</encoding>
-        <consoleOutput>false</consoleOutput>
-        <outputFile>${project.build.directory}/site/checkstyle/checkstyle-result.xml</outputFile>
-      </configuration>
-    </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <phase>test</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <configLocation>google_checks.xml</configLocation>
+          <violationSeverity>warning</violationSeverity>
+          <encoding>UTF-8</encoding>
+          <consoleOutput>false</consoleOutput>
+          <outputFile>${project.build.directory}/site/checkstyle/checkstyle-result.xml</outputFile>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
