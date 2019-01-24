@@ -57,9 +57,53 @@ public final class ColumnBinaryMakerNameShortCut {
     CLASS_NAME_PAIR.set( UnsafeOptimizeDumpStringColumnBinaryMaker.class.getName()  , "XOD11" );
 
     CLASS_NAME_PAIR.set( ConstantColumnBinaryMaker.class.getName()   , "C0" );
+
+    // The following are legacy classes.
+    // These classes require a legacy jar.
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.DumpDoubleColumnBinaryMaker"  , "D4" );
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.DumpFloatColumnBinaryMaker"   , "D5" );
+
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.RangeDumpDoubleColumnBinaryMaker" , "RD0" );
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.RangeDumpFloatColumnBinaryMaker"  , "RD5" );
+
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.OptimizeLongColumnBinaryMaker"   , "OD0" );
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.OptimizeLongColumnBinaryMaker"   , "O0" );
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.OptimizeFloatColumnBinaryMaker"  , "O1" );
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.OptimizeDoubleColumnBinaryMaker" , "O2" );
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.OptimizeStringColumnBinaryMaker" , "O11" );
+
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.OptimizeDumpLongColumnBinaryMaker"   , "OD10" );
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.OptimizeDumpStringColumnBinaryMaker" , "OD11" );
+
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.OptimizeIndexDumpStringColumnBinaryMaker" , "OI11" );
   }
 
   private ColumnBinaryMakerNameShortCut() {}
+
+  /**
+   * Register the shortcut name.
+   */
+  public static void register( final String className , final String shortCutName ) {
+    if ( getClassName( shortCutName ) != null ) {
+      throw new RuntimeException( "It is already registered. " + shortCutName );
+    }
+    if ( getShortCutName( className ) != null ) {
+      throw new RuntimeException( "It is already registered. " + className );
+    }
+    CLASS_NAME_PAIR.set( className , shortCutName );
+  }
 
   /**
    * Get shortcut name from class name.
