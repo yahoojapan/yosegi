@@ -65,6 +65,10 @@ For easy usage please see the [quick start](docs/java/quickstart.md).
 ## Apache Hadoop
 
 ## Apache Hive
+Yosegi supports Apache Hive.
+Please see the repository of [yosegi-hive](https://github.com/yahoojapan/yosegi-hive) for details.
+
+For easy usage please see [quick start](https://github.com/yahoojapan/yosegi-hive/blob/master/docs/quickstart.md).
 
 ## Apache Spark
 
@@ -92,7 +96,7 @@ Please send a blank e-mail to the following address.
 Please accept [Contributer licence agreement](https://gist.github.com/ydnjp/3095832f100d5c3d2592)
 when participating as a developer.
 
-We invite you to [JIRA]() as a bug tracking,
+We invite you to [JIRA](https://yosegi.atlassian.net/projects/YOSEGI) as a bug tracking,
 when you mentioned in the above Mailing list.
 
 Please read the [developer document](docs/developing.md).
