@@ -61,6 +61,9 @@ Please treat this project under this license.
 For easy usage please see the [quick start](docs/java/quickstart.md).
 
 ## CLI
+Please see the repository of [yosegi-tools](https://github.com/yahoojapan/yosegi-tools) for details.
+
+If you want to know what kind of function it has, look at the [command list](https://github.com/yahoojapan/yosegi-tools/blob/master/docs/command_list.md).
 
 ## Apache Hadoop
 
