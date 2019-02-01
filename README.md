@@ -74,6 +74,10 @@ Please see the repository of [yosegi-hive](https://github.com/yahoojapan/yosegi-
 For easy usage please see [quick start](https://github.com/yahoojapan/yosegi-hive/blob/master/docs/quickstart.md).
 
 ## Apache Spark
+Yosegi supports Apache Spark.
+Please see the repository of [yosegi-spark](https://github.com/yahoojapan/yosegi-spark) for details.
+
+For easy usage please see [quick start](https://github.com/yahoojapan/yosegi-spark/blob/master/docs/quickstart.md).
 
 ## Where can I get more help, if I need it?
 Support and discussion of Yosegi are on the Mailing list.
