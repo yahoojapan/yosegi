@@ -61,12 +61,23 @@ Please treat this project under this license.
 For easy usage please see the [quick start](docs/java/quickstart.md).
 
 ## CLI
+Please see the repository of [yosegi-tools](https://github.com/yahoojapan/yosegi-tools) for details.
+
+If you want to know what kind of function it has, look at the [command list](https://github.com/yahoojapan/yosegi-tools/blob/master/docs/command_list.md).
 
 ## Apache Hadoop
 
 ## Apache Hive
+Yosegi supports Apache Hive.
+Please see the repository of [yosegi-hive](https://github.com/yahoojapan/yosegi-hive) for details.
+
+For easy usage please see [quick start](https://github.com/yahoojapan/yosegi-hive/blob/master/docs/quickstart.md).
 
 ## Apache Spark
+Yosegi supports Apache Spark.
+Please see the repository of [yosegi-spark](https://github.com/yahoojapan/yosegi-spark) for details.
+
+For easy usage please see [quick start](https://github.com/yahoojapan/yosegi-spark/blob/master/docs/quickstart.md).
 
 ## Where can I get more help, if I need it?
 Support and discussion of Yosegi are on the Mailing list.
@@ -92,7 +103,7 @@ Please send a blank e-mail to the following address.
 Please accept [Contributer licence agreement](https://gist.github.com/ydnjp/3095832f100d5c3d2592)
 when participating as a developer.
 
-We invite you to [JIRA]() as a bug tracking,
+We invite you to [JIRA](https://yosegi.atlassian.net/projects/YOSEGI) as a bug tracking,
 when you mentioned in the above Mailing list.
 
 Please read the [developer document](docs/developing.md).
