@@ -81,7 +81,9 @@ For easy usage please see [quick start](https://github.com/yahoojapan/yosegi-spa
 
 ## Where can I get more help, if I need it?
 Support and discussion of Yosegi are on the Mailing list.
-Please refer the following subsection named "How to contribute".
+
+* Mailing list: yosegi@googlegroups.com
+* Bug trackter:[JIRA](https://yosegi.atlassian.net/projects/YOSEGI)
 
 We plan to support and discussion of Yosegi on the Mailing list.
 However, please contact us via GitHub until ML is opened.
@@ -89,24 +91,9 @@ However, please contact us via GitHub until ML is opened.
 # How to contribute
 We welcome to join this project widely.
 
-## Mailing list
-User support and discussion of Yosegi development are on the following Mailing list.
-Please send a blank e-mail to the following address.
+For information on how to start contributing to the project, please refer to the [Yosegi contribution guide](CONTRIBUTING.md).
 
-* address: yosegi@googlegroups.com
-* subscribe: yosegi+subscribe@googlegroups.com
-* unsubscribe: yosegi+unsubscribe@googlegroups.com
-
-[Archive](https://groups.google.com/forum/#!forum/yosegi) is useful for what was communicated at this project.
-
-## for Developer
-Please accept [Contributer licence agreement](https://gist.github.com/ydnjp/3095832f100d5c3d2592)
-when participating as a developer.
-
-We invite you to [JIRA](https://yosegi.atlassian.net/projects/YOSEGI) as a bug tracking,
-when you mentioned in the above Mailing list.
-
-Please read the [developer document](docs/developing.md).
+# Building
 
 ## System requirement
 Following environments are required.
