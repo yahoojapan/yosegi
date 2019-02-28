@@ -21,11 +21,12 @@ package jp.co.yahoo.yosegi.binary.maker;
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
+import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.binary.maker.index.RangeLongIndex;
 import jp.co.yahoo.yosegi.binary.maker.index.SequentialNumberCellIndex;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.blockindex.LongRangeBlockIndex;
-import jp.co.yahoo.yosegi.compressor.DataType;
+import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
@@ -662,6 +663,7 @@ public class UnsafeOptimizeDumpLongColumnBinaryMaker implements IColumnBinaryMak
   public ColumnBinary toBinary(
       final ColumnBinaryMakerConfig commonConfig ,
       final ColumnBinaryMakerCustomConfigNode currentConfigNode ,
+      final CompressResultNode compressResultNode ,
       final IColumn column ) throws IOException {
     ColumnBinaryMakerConfig currentConfig = commonConfig;
     if ( currentConfigNode != null ) {
@@ -718,8 +720,13 @@ public class UnsafeOptimizeDumpLongColumnBinaryMaker implements IColumnBinaryMak
     binaryMaker.create(
         valueArray , binaryRaw , nullBinaryLength , valueLength , order , rowCount );
 
+    CompressResult compressResult = compressResultNode.getCompressResult(
+        this.getClass().getName() ,
+        "c0"  ,
+        currentConfig.compressionPolicy ,
+        currentConfig.allowedRatio );
     byte[] compressBinary = currentConfig.compressorClass.compress(
-        binaryRaw , 0 , binaryRaw.length , DataType.NUMBER );
+        binaryRaw , 0 , binaryRaw.length , compressResult );
 
     byte[] binary =
         new byte[ Long.BYTES * 2 + Byte.BYTES * 2 + Integer.BYTES + compressBinary.length ];

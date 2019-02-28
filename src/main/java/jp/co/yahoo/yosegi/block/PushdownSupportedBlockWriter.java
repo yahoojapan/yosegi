@@ -21,6 +21,7 @@ package jp.co.yahoo.yosegi.block;
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
+import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.binary.FindColumnBinaryMaker;
 import jp.co.yahoo.yosegi.binary.maker.IColumnBinaryMaker;
 import jp.co.yahoo.yosegi.binary.optimizer.BinaryMakerOptimizer;
@@ -54,6 +55,7 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
   private final BlockIndexNode blockIndexNode = new BlockIndexNode();
 
   private ColumnBinaryMakerCustomConfigNode configNode;
+  private CompressResultNode compressResultNode;
   private ByteArrayData dataBuffer;
   private ByteArrayData metaBuffer;
   private int blockSize;
@@ -85,6 +87,12 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
       defaultConfig.compressorClass =
           FindCompressor.get( config.get( "spread.column.maker.default.compress.class" ) );
     }
+    if ( config.containsKey( "compress.optimize.allowed.ratio" ) ) {
+      double allowedRatio = config.getDouble( "compress.optimize.allowed.ratio" , 1.25d );
+      if ( 0 < Double.valueOf( allowedRatio ).compareTo( 0d ) ) {
+        defaultConfig.allowedRatio = allowedRatio;
+      }
+    }
 
     if ( config.containsKey( "spread.column.maker.setting" ) ) {
       JacksonMessageReader jsonReader = new JacksonMessageReader();
@@ -99,6 +107,7 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
     } else {
       configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     }
+    compressResultNode = new CompressResultNode();
 
     dataBuffer = new ByteArrayData( blockSize );
     metaBuffer = new ByteArrayData( blockSize );
@@ -170,7 +179,11 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
       if ( childConfigNode != null ) {
         maker = childConfigNode.getCurrentConfig().getColumnMaker( column.getColumnType() );
       }
-      result.add( maker.toBinary( commonConfig , childConfigNode , column ) );
+      result.add( maker.toBinary(
+          commonConfig ,
+          childConfigNode ,
+          compressResultNode.getChild( column.getColumnName() ) ,
+          column ) );
     }
     return result;
   }

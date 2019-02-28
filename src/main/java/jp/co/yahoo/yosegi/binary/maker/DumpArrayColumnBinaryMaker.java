@@ -21,8 +21,10 @@ package jp.co.yahoo.yosegi.binary.maker;
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
+import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.binary.FindColumnBinaryMaker;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
+import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
@@ -53,6 +55,7 @@ public class DumpArrayColumnBinaryMaker implements IColumnBinaryMaker {
   public ColumnBinary toBinary(
       final ColumnBinaryMakerConfig commonConfig ,
       final ColumnBinaryMakerCustomConfigNode currentConfigNode ,
+      final CompressResultNode compressResultNode ,
       final IColumn column ) throws IOException {
     ColumnBinaryMakerConfig currentConfig = commonConfig;
     if ( currentConfigNode != null ) {
@@ -73,8 +76,13 @@ public class DumpArrayColumnBinaryMaker implements IColumnBinaryMaker {
       }
     }
 
+    CompressResult compressResult = compressResultNode.getCompressResult(
+        this.getClass().getName() ,
+        "c0"  ,
+        currentConfig.compressionPolicy ,
+        currentConfig.allowedRatio );
     byte[] compressData = currentConfig.compressorClass.compress(
-        binaryRaw , 0 , binaryRaw.length );
+        binaryRaw , 0 , binaryRaw.length , compressResult );
 
     IColumn childColumn = column.getColumn( 0 );
     List<ColumnBinary> columnBinaryList = new ArrayList<ColumnBinary>();
@@ -88,7 +96,11 @@ public class DumpArrayColumnBinaryMaker implements IColumnBinaryMaker {
             .getCurrentConfig().getColumnMaker( childColumn.getColumnType() );
       }
     }
-    columnBinaryList.add( maker.toBinary( commonConfig , childColumnConfigNode , childColumn ) );
+    columnBinaryList.add( maker.toBinary(
+        commonConfig ,
+        childColumnConfigNode ,
+        compressResultNode.getChild( childColumn.getColumnName() ) ,
+        childColumn ) );
 
     return new ColumnBinary(
         this.getClass().getName() ,

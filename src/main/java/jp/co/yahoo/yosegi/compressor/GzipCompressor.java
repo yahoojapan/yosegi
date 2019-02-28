@@ -38,7 +38,7 @@ public class GzipCompressor implements ICompressor {
       final byte[] data ,
       final int start ,
       final int length ,
-      final DataType dataType ) throws IOException {
+      final CompressResult compressResult ) throws IOException {
     ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
     GZIPOutputStream out = new GZIPOutputStream( byteArrayOut );
 

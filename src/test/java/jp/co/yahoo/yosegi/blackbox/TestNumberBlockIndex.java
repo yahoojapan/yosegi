@@ -278,10 +278,10 @@ public class TestNumberBlockIndex{
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
 
-    ColumnBinary c1 = maker.toBinary( defaultConfig , null , column );
-    ColumnBinary c2 = maker.toBinary( defaultConfig , null , column2 );
-    ColumnBinary c3 = maker.toBinary( defaultConfig , null , column3 );
-    ColumnBinary c4 = maker.toBinary( defaultConfig , null , column4 );
+    ColumnBinary c1 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
+    ColumnBinary c2 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column2 );
+    ColumnBinary c3 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column3 );
+    ColumnBinary c4 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column4 );
 
     FindColumnBinaryMaker.get( c1.makerClassName ).setBlockIndexNode( node , c1 , 0 );
     FindColumnBinaryMaker.get( c2.makerClassName ).setBlockIndexNode( node , c2 , 1 );
@@ -314,10 +314,10 @@ public class TestNumberBlockIndex{
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
 
-    ColumnBinary c1 = maker.toBinary( defaultConfig , null , column );
-    ColumnBinary c2 = maker.toBinary( defaultConfig , null , column2 );
-    ColumnBinary c3 = maker.toBinary( defaultConfig , null , column3 );
-    ColumnBinary c4 = maker.toBinary( defaultConfig , null , column4 );
+    ColumnBinary c1 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
+    ColumnBinary c2 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column2 );
+    ColumnBinary c3 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column3 );
+    ColumnBinary c4 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column4 );
 
     FindColumnBinaryMaker.get( c1.makerClassName ).setBlockIndexNode( node , c1 , 0 );
     FindColumnBinaryMaker.get( c2.makerClassName ).setBlockIndexNode( node , c2 , 1 );
@@ -350,10 +350,10 @@ public class TestNumberBlockIndex{
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
 
-    ColumnBinary c1 = maker.toBinary( defaultConfig , null , column );
-    ColumnBinary c2 = maker.toBinary( defaultConfig , null , column2 );
-    ColumnBinary c3 = maker.toBinary( defaultConfig , null , column3 );
-    ColumnBinary c4 = maker.toBinary( defaultConfig , null , column4 );
+    ColumnBinary c1 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
+    ColumnBinary c2 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column2 );
+    ColumnBinary c3 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column3 );
+    ColumnBinary c4 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column4 );
 
     FindColumnBinaryMaker.get( c1.makerClassName ).setBlockIndexNode( node , c1 , 0 );
     FindColumnBinaryMaker.get( c2.makerClassName ).setBlockIndexNode( node , c2 , 1 );
@@ -386,10 +386,10 @@ public class TestNumberBlockIndex{
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
 
-    ColumnBinary c1 = maker.toBinary( defaultConfig , null , column );
-    ColumnBinary c2 = maker.toBinary( defaultConfig , null , column2 );
-    ColumnBinary c3 = maker.toBinary( defaultConfig , null , column3 );
-    ColumnBinary c4 = maker.toBinary( defaultConfig , null , column4 );
+    ColumnBinary c1 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
+    ColumnBinary c2 = maker.toBinary( defaultConfig , null , new CompressResultNode() ,  column2 );
+    ColumnBinary c3 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column3 );
+    ColumnBinary c4 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column4 );
 
     FindColumnBinaryMaker.get( c1.makerClassName ).setBlockIndexNode( node , c1 , 0 );
     FindColumnBinaryMaker.get( c2.makerClassName ).setBlockIndexNode( node , c2 , 1 );
@@ -422,10 +422,10 @@ public class TestNumberBlockIndex{
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
 
-    ColumnBinary c1 = maker.toBinary( defaultConfig , null , column );
-    ColumnBinary c2 = maker.toBinary( defaultConfig , null , column2 );
-    ColumnBinary c3 = maker.toBinary( defaultConfig , null , column3 );
-    ColumnBinary c4 = maker.toBinary( defaultConfig , null , column4 );
+    ColumnBinary c1 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
+    ColumnBinary c2 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column2 );
+    ColumnBinary c3 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column3 );
+    ColumnBinary c4 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column4 );
 
     FindColumnBinaryMaker.get( c1.makerClassName ).setBlockIndexNode( node , c1 , 0 );
     FindColumnBinaryMaker.get( c2.makerClassName ).setBlockIndexNode( node , c2 , 1 );
@@ -458,10 +458,10 @@ public class TestNumberBlockIndex{
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
 
-    ColumnBinary c1 = maker.toBinary( defaultConfig , null , column );
-    ColumnBinary c2 = maker.toBinary( defaultConfig , null , column2 );
-    ColumnBinary c3 = maker.toBinary( defaultConfig , null , column3 );
-    ColumnBinary c4 = maker.toBinary( defaultConfig , null , column4 );
+    ColumnBinary c1 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
+    ColumnBinary c2 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column2 );
+    ColumnBinary c3 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column3 );
+    ColumnBinary c4 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column4 );
 
     FindColumnBinaryMaker.get( c1.makerClassName ).setBlockIndexNode( node , c1 , 0 );
     FindColumnBinaryMaker.get( c2.makerClassName ).setBlockIndexNode( node , c2 , 1 );

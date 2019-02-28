@@ -29,6 +29,21 @@ import java.util.zip.Deflater;
 
 public class GzipCommonsCompressor extends AbstractCommonsCompressor {
 
+  private int getCompressLevel( final CompressionPolicy compressionPolicy ) {
+    switch ( compressionPolicy ) {
+      case BEST_SPEED:
+        return Deflater.BEST_SPEED;
+      case SPEED:
+        return 6 - 2;
+      case DEFAULT:
+        return 6;
+      case BEST_COMPRESSION:
+        return Deflater.BEST_COMPRESSION;
+      default:
+        return 6;
+    }
+  }
+
   @Override
   public InputStream createInputStream( final InputStream in ) throws IOException {
     return new GzipCompressorInputStream( in );
@@ -36,9 +51,15 @@ public class GzipCommonsCompressor extends AbstractCommonsCompressor {
 
   @Override
   public OutputStream createOutputStream(
-      final OutputStream out , final DataType dataType ) throws IOException {
+      final OutputStream out , final CompressResult compressResult ) throws IOException {
     GzipParameters op = new GzipParameters();
-    op.setCompressionLevel(  6 );
+    int level = getCompressLevel( compressResult.getCompressionPolicy() ); 
+    int optLevel = compressResult.getCurrentLevel();
+    if ( ( level - optLevel ) < 1 ) {
+      compressResult.setEnd();
+      optLevel = compressResult.getCurrentLevel();
+    }
+    op.setCompressionLevel( level - optLevel );
     return new GzipCompressorOutputStream( out , op );
   }
 

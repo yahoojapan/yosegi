@@ -21,11 +21,12 @@ package jp.co.yahoo.yosegi.binary.maker;
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
+import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.binary.maker.index.BufferDirectSequentialStringCellIndex;
 import jp.co.yahoo.yosegi.binary.maker.index.RangeStringIndex;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.blockindex.StringRangeBlockIndex;
-import jp.co.yahoo.yosegi.compressor.DataType;
+import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
@@ -525,10 +526,11 @@ public class UnsafeOptimizeStringColumnBinaryMaker implements IColumnBinaryMaker
   public ColumnBinary toBinary(
       final ColumnBinaryMakerConfig commonConfig ,
       final ColumnBinaryMakerCustomConfigNode currentConfigNode ,
+      final CompressResultNode compressResultNode ,
       final IColumn column ) throws IOException {
     if ( column.size() == 0 ) {
       return new UnsupportedColumnBinaryMaker()
-          .toBinary( commonConfig , currentConfigNode , column );
+          .toBinary( commonConfig , currentConfigNode , compressResultNode , column );
     }
 
     ColumnBinaryMakerConfig currentConfig = commonConfig;
@@ -621,8 +623,13 @@ public class UnsafeOptimizeStringColumnBinaryMaker implements IColumnBinaryMaker
     for ( byte[] obj : stringList ) {
       wrapBuffer.put( obj );
     }
-    byte[] compressBinaryRaw =
-        currentConfig.compressorClass.compress( binaryRaw , 0 , binaryRaw.length , DataType.TEXT );
+    CompressResult compressResult = compressResultNode.getCompressResult(
+        this.getClass().getName() ,
+        "c0"  ,
+        currentConfig.compressionPolicy ,
+        currentConfig.allowedRatio );
+    byte[] compressBinaryRaw = currentConfig.compressorClass.compress(
+        binaryRaw , 0 , binaryRaw.length , compressResult );
 
     int minCharLength = Character.BYTES * min.length();
     int maxCharLength = Character.BYTES * max.length();

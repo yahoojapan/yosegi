@@ -77,11 +77,11 @@ public class TestStringBlockIndex{
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
 
-    ColumnBinary c1 = maker.toBinary( defaultConfig , null , column );
-    ColumnBinary c2 = maker.toBinary( defaultConfig , null , column2 );
-    ColumnBinary c3 = maker.toBinary( defaultConfig , null , column3 );
-    ColumnBinary c4 = maker.toBinary( defaultConfig , null , column4 );
-    ColumnBinary c5 = maker.toBinary( defaultConfig , null , column5 );
+    ColumnBinary c1 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
+    ColumnBinary c2 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column2 );
+    ColumnBinary c3 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column3 );
+    ColumnBinary c4 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column4 );
+    ColumnBinary c5 = maker.toBinary( defaultConfig , null , new CompressResultNode() , column5 );
 
     FindColumnBinaryMaker.get( c3.makerClassName ).setBlockIndexNode( node , c1 , 0 );
     FindColumnBinaryMaker.get( c3.makerClassName ).setBlockIndexNode( node , c2 , 1 );

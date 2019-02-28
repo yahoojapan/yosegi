@@ -65,7 +65,7 @@ public class TestFloatPrimitiveColumn {
     IColumnBinaryMaker maker = FindColumnBinaryMaker.get( targetClassName );
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
-    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , column );
+    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
     return FindColumnBinaryMaker.get( columnBinary.makerClassName ).toColumn( columnBinary );
   }
 
@@ -75,7 +75,7 @@ public class TestFloatPrimitiveColumn {
     IColumnBinaryMaker maker = FindColumnBinaryMaker.get( targetClassName );
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
-    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , column );
+    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
     return  FindColumnBinaryMaker.get( columnBinary.makerClassName ).toColumn( columnBinary );
   }
 
@@ -88,7 +88,7 @@ public class TestFloatPrimitiveColumn {
     IColumnBinaryMaker maker = FindColumnBinaryMaker.get( targetClassName );
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
-    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , column );
+    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
     return FindColumnBinaryMaker.get( columnBinary.makerClassName ).toColumn( columnBinary );
   }
 
@@ -99,7 +99,7 @@ public class TestFloatPrimitiveColumn {
     IColumnBinaryMaker maker = FindColumnBinaryMaker.get( targetClassName );
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
-    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , column );
+    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
     return FindColumnBinaryMaker.get( columnBinary.makerClassName ).toColumn( columnBinary );
   }
 
