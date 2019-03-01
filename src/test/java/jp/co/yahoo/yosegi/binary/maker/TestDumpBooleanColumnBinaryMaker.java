@@ -35,6 +35,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
+import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveColumn;
@@ -139,7 +140,7 @@ public class TestDumpBooleanColumnBinaryMaker {
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
 
     IColumnBinaryMaker maker = new DumpBooleanColumnBinaryMaker();
-    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , column );
+    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
 
     assertEquals( columnBinary.columnName , "boolean" );
     assertEquals( columnBinary.rowCount , 2 );
@@ -167,7 +168,7 @@ public class TestDumpBooleanColumnBinaryMaker {
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
 
     IColumnBinaryMaker maker = new DumpBooleanColumnBinaryMaker();
-    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , column );
+    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
 
     assertEquals( columnBinary.columnName , "boolean" );
     assertEquals( columnBinary.rowCount , 3 );

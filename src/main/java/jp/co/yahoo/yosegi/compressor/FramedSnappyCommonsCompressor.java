@@ -34,7 +34,7 @@ public class FramedSnappyCommonsCompressor extends AbstractCommonsCompressor {
 
   @Override
   public OutputStream createOutputStream(
-      final OutputStream out , final DataType dataType ) throws IOException {
+      final OutputStream out , final CompressResult compressResult ) throws IOException {
     return new FramedSnappyCompressorOutputStream( out );
   }
 

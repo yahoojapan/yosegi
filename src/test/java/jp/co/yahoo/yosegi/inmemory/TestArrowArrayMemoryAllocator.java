@@ -70,7 +70,7 @@ public class TestArrowArrayMemoryAllocator{
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
 
     IColumnBinaryMaker maker = new DumpArrayColumnBinaryMaker();
-    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , column );
+    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
 
     BufferAllocator allocator = new RootAllocator( 1024 * 1024 * 10 );
     SchemaChangeCallBack callBack = new SchemaChangeCallBack();

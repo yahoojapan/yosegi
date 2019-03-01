@@ -33,7 +33,6 @@ import jp.co.yahoo.yosegi.binary.maker.UnsafeRangeDumpDoubleColumnBinaryMaker;
 import jp.co.yahoo.yosegi.binary.maker.UnsafeRangeDumpFloatColumnBinaryMaker;
 import jp.co.yahoo.yosegi.binary.maker.UnsupportedColumnBinaryMaker;
 import jp.co.yahoo.yosegi.compressor.CompressionPolicy;
-import jp.co.yahoo.yosegi.compressor.DataType;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.GzipCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
@@ -63,6 +62,7 @@ public class ColumnBinaryMakerConfig {
   public IColumnBinaryMaker stringMakerClass;
 
   public CompressionPolicy compressionPolicy;
+  public double allowedRatio;
 
   /**
    * Initialize with the default value.
@@ -94,6 +94,7 @@ public class ColumnBinaryMakerConfig {
     bytesMakerClass = FindColumnBinaryMaker.get( DumpBytesColumnBinaryMaker.class.getName() );
 
     compressionPolicy = CompressionPolicy.DEFAULT;
+    allowedRatio = 1.15d;
   }
 
   /**
@@ -113,6 +114,8 @@ public class ColumnBinaryMakerConfig {
     this.longMakerClass = otherConfig.longMakerClass;
     this.shortMakerClass = otherConfig.shortMakerClass;
     this.stringMakerClass = otherConfig.stringMakerClass;
+    this.compressionPolicy = otherConfig.compressionPolicy;
+    this.allowedRatio = otherConfig.allowedRatio;
   }
 
   /**

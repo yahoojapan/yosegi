@@ -21,8 +21,10 @@ package jp.co.yahoo.yosegi.binary.maker;
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
+import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.binary.FindColumnBinaryMaker;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
+import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
@@ -94,6 +96,7 @@ public class DumpUnionColumnBinaryMaker implements IColumnBinaryMaker {
   private ColumnBinary mergeColumn(
       final ColumnBinaryMakerConfig commonConfig ,
       final ColumnBinaryMakerCustomConfigNode currentConfigNode ,
+      final CompressResultNode compressResultNode ,
       final IColumn column ,
       final List<IColumn> childColumnList ) throws IOException {
     int max = -1;
@@ -115,13 +118,15 @@ public class DumpUnionColumnBinaryMaker implements IColumnBinaryMaker {
     PrimitiveColumn primitiveColumn = new PrimitiveColumn( type , column.getColumnName() );
     primitiveColumn.setCellManager( column.getCellManager() );
 
-    return maker.toBinary( commonConfig , currentConfigNode , primitiveColumn );
+    return maker.toBinary(
+        commonConfig , currentConfigNode , compressResultNode , primitiveColumn );
   }
 
   @Override
   public ColumnBinary toBinary(
       final ColumnBinaryMakerConfig commonConfig ,
       final ColumnBinaryMakerCustomConfigNode currentConfigNode ,
+      final CompressResultNode compressResultNode ,
       final IColumn column ) throws IOException {
     ColumnBinaryMakerConfig currentConfig = commonConfig;
     if ( currentConfigNode != null ) {
@@ -130,7 +135,8 @@ public class DumpUnionColumnBinaryMaker implements IColumnBinaryMaker {
     List<IColumn> childColumnList = column.getListColumn();
     MargeType mergeType = checkMargeType( childColumnList );
     if ( mergeType != MargeType.MIX ) {
-      return mergeColumn( commonConfig , currentConfigNode , column , childColumnList );
+      return mergeColumn(
+          commonConfig , currentConfigNode , compressResultNode , column , childColumnList );
     }
     List<ColumnBinary> columnBinaryList = new ArrayList<ColumnBinary>();
     for ( IColumn childColumn : childColumnList ) {
@@ -142,7 +148,11 @@ public class DumpUnionColumnBinaryMaker implements IColumnBinaryMaker {
           maker = childNode.getCurrentConfig().getColumnMaker( childColumn.getColumnType() );
         }
       }
-      columnBinaryList.add( maker.toBinary( commonConfig , childNode , childColumn ) );
+      columnBinaryList.add( maker.toBinary(
+          commonConfig ,
+          childNode ,
+          compressResultNode.getChild( childColumn.getColumnName() ) ,
+          childColumn ) );
     }
 
     byte[] rawBinary = new byte[ column.size() ];
@@ -151,8 +161,13 @@ public class DumpUnionColumnBinaryMaker implements IColumnBinaryMaker {
       wrapBuffer.put( ColumnTypeFactory.getColumnTypeByte( column.get(i).getType() ) );
     }
 
+    CompressResult compressResult = compressResultNode.getCompressResult(
+        this.getClass().getName() ,
+        "c0"  ,
+        currentConfig.compressionPolicy ,
+        currentConfig.allowedRatio );
     byte[] compressData =
-        currentConfig.compressorClass.compress( rawBinary , 0 , rawBinary.length );
+        currentConfig.compressorClass.compress( rawBinary , 0 , rawBinary.length , compressResult );
 
     return new ColumnBinary(
         this.getClass().getName() ,

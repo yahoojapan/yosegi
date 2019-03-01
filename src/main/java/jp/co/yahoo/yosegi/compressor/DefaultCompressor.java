@@ -30,7 +30,7 @@ public class DefaultCompressor implements ICompressor {
       final byte[] data ,
       final int start ,
       final int length ,
-      final DataType dataType ) throws IOException {
+      final CompressResult compressResult ) throws IOException {
     byte[] result = new byte[length];
     System.arraycopy( data , start , result , 0 , length );
     return result;

@@ -21,10 +21,11 @@ package jp.co.yahoo.yosegi.binary.maker;
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
+import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.binary.maker.index.RangeFloatIndex;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.blockindex.FloatRangeBlockIndex;
-import jp.co.yahoo.yosegi.compressor.DataType;
+import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
@@ -56,6 +57,7 @@ public class UnsafeRangeDumpFloatColumnBinaryMaker implements IColumnBinaryMaker
   public ColumnBinary toBinary(
       final ColumnBinaryMakerConfig commonConfig ,
       final ColumnBinaryMakerCustomConfigNode currentConfigNode ,
+      final CompressResultNode compressResultNode ,
       final IColumn column ) throws IOException {
     ColumnBinaryMakerConfig currentConfig = commonConfig;
     if ( currentConfigNode != null ) {
@@ -103,18 +105,23 @@ public class UnsafeRangeDumpFloatColumnBinaryMaker implements IColumnBinaryMaker
     byte byteOrderByte = order == ByteOrder.BIG_ENDIAN ? (byte)0 : (byte)1;
     parentsBinaryRaw[column.size()] = byteOrderByte;
 
+    CompressResult compressResult = compressResultNode.getCompressResult(
+        this.getClass().getName() ,
+        "c0"  ,
+        currentConfig.compressionPolicy ,
+        currentConfig.allowedRatio );
     byte[] compressBinaryRaw;
     if ( hasNull ) {
       rawLength =  parentsBinaryRaw.length - ( Float.BYTES * ( column.size() - rowCount ) );
       compressBinaryRaw = currentConfig.compressorClass.compress(
-          parentsBinaryRaw , 0 , rawLength , DataType.NUMBER );
+          parentsBinaryRaw , 0 , rawLength , compressResult );
     } else {
       rawLength = Byte.BYTES + column.size() * Float.BYTES;
       compressBinaryRaw = currentConfig.compressorClass.compress(
           parentsBinaryRaw ,
           column.size() ,
           parentsBinaryRaw.length - column.size() ,
-          DataType.NUMBER );
+          compressResult );
     }
     byte[] binary = new byte[ HEADER_SIZE + compressBinaryRaw.length ];
     ByteBuffer wrapBuffer = ByteBuffer.wrap( binary );

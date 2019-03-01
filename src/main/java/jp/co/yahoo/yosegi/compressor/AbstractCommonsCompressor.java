@@ -33,16 +33,16 @@ public abstract class AbstractCommonsCompressor implements ICompressor {
   abstract InputStream createInputStream( final InputStream in ) throws IOException;
 
   abstract OutputStream createOutputStream(
-      final OutputStream out , final DataType dataType ) throws IOException;
+      final OutputStream out , final CompressResult compressResult ) throws IOException;
 
   @Override
   public byte[] compress(
       final byte[] data ,
       final int start ,
       final int length ,
-      final DataType dataType ) throws IOException {
+      final CompressResult compressResult ) throws IOException {
     ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
-    OutputStream out = createOutputStream( byteArrayOut , dataType );
+    OutputStream out = createOutputStream( byteArrayOut , compressResult );
 
     out.write( data , start , length );
     out.close();
@@ -53,6 +53,7 @@ public abstract class AbstractCommonsCompressor implements ICompressor {
     wrapBuffer.put( compressByte );
 
     byteArrayOut.close();
+    compressResult.feedBack( length , compressByte.length );
 
     return retVal;
   }

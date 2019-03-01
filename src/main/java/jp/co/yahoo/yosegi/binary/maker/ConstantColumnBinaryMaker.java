@@ -21,6 +21,7 @@ package jp.co.yahoo.yosegi.binary.maker;
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
+import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.binary.maker.index.RangeByteIndex;
 import jp.co.yahoo.yosegi.binary.maker.index.RangeDoubleIndex;
 import jp.co.yahoo.yosegi.binary.maker.index.RangeFloatIndex;
@@ -71,6 +72,7 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
   public ColumnBinary toBinary(
       final ColumnBinaryMakerConfig commonConfig ,
       final ColumnBinaryMakerCustomConfigNode currentConfigNode ,
+      final CompressResultNode compressResultNode ,
       final IColumn column ) throws IOException {
     throw new UnsupportedOperationException(
         "Constant binary maker not support column to binary." );

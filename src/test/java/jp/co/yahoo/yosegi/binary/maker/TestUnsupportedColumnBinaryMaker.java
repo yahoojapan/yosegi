@@ -30,6 +30,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
+import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
 import jp.co.yahoo.yosegi.spread.column.NullColumn;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
@@ -42,7 +43,7 @@ public class TestUnsupportedColumnBinaryMaker {
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
 
     IColumnBinaryMaker maker = new UnsupportedColumnBinaryMaker();
-    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , NullColumn.getInstance() );
+    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , NullColumn.getInstance() );
     IColumn result = maker.toColumn( columnBinary );
     assertTrue( result instanceof NullColumn );
   }
