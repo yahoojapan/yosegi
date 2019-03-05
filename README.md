@@ -39,7 +39,6 @@ which does not require the schema at the time of data storage
 with compression and read performance equal to (or higher in case)
 than other formats.
 
-
 ## Use cases
 ### Data Analysis
 Analyzing big data requires store data compactly and get data smoothly.
