@@ -66,6 +66,10 @@ Please see the repository of [yosegi-tools](https://github.com/yahoojapan/yosegi
 If you want to know what kind of function it has, look at the [command list](https://github.com/yahoojapan/yosegi-tools/blob/master/docs/command_list.md).
 
 ## Apache Hadoop
+Yosegi supports Apache Hadoop.
+Please see the repository of [yosegi-hadoop](https://github.com/yahoojapan/yosegi-hadoop) for details.
+
+For easy usage please see [quick start](https://github.com/yahoojapan/yosegi-hadoop/blob/master/docs/quickstart.md).
 
 ## Apache Hive
 Yosegi supports Apache Hive.
