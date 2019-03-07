@@ -27,6 +27,21 @@ import java.io.OutputStream;
 
 public class BZip2CommonsCompressor extends AbstractCommonsCompressor {
 
+  private int getCompressLevel( final CompressionPolicy compressionPolicy ) {
+    switch ( compressionPolicy ) {
+      case BEST_SPEED:
+        return BZip2CompressorOutputStream.MIN_BLOCKSIZE;
+      case SPEED:
+        return 3;
+      case DEFAULT:
+        return 6;
+      case BEST_COMPRESSION:
+        return BZip2CompressorOutputStream.MAX_BLOCKSIZE;
+      default:
+        return 6;
+    }
+  }
+
   @Override
   public InputStream createInputStream( final InputStream in ) throws IOException {
     return new BZip2CompressorInputStream( in );
@@ -35,7 +50,13 @@ public class BZip2CommonsCompressor extends AbstractCommonsCompressor {
   @Override
   public OutputStream createOutputStream(
       final OutputStream out , final CompressResult compressResult ) throws IOException {
-    return new BZip2CompressorOutputStream( out );
+    int level = getCompressLevel( compressResult.getCompressionPolicy() );
+    int optLevel = compressResult.getCurrentLevel();
+    if ( ( level - optLevel ) < BZip2CompressorOutputStream.MIN_BLOCKSIZE ) {
+      compressResult.setEnd();
+      optLevel = compressResult.getCurrentLevel();
+    }
+    return new BZip2CompressorOutputStream( out , level - optLevel );
   }
 
 }
