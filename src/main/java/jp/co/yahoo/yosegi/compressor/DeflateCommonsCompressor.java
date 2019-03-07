@@ -20,12 +20,29 @@ package jp.co.yahoo.yosegi.compressor;
 
 import org.apache.commons.compress.compressors.deflate.DeflateCompressorInputStream;
 import org.apache.commons.compress.compressors.deflate.DeflateCompressorOutputStream;
+import org.apache.commons.compress.compressors.deflate.DeflateParameters;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.zip.Deflater;
 
 public class DeflateCommonsCompressor extends AbstractCommonsCompressor {
+
+  private int getCompressLevel( final CompressionPolicy compressionPolicy ) {
+    switch ( compressionPolicy ) {
+      case BEST_SPEED:
+        return Deflater.BEST_SPEED;
+      case SPEED:
+        return 4;
+      case DEFAULT:
+        return 6;
+      case BEST_COMPRESSION:
+        return Deflater.BEST_COMPRESSION;
+      default:
+        return 6;
+    }
+  }
 
   @Override
   public InputStream createInputStream( final InputStream in ) throws IOException {
@@ -35,7 +52,15 @@ public class DeflateCommonsCompressor extends AbstractCommonsCompressor {
   @Override
   public OutputStream createOutputStream(
       final OutputStream out , final CompressResult compressResult ) throws IOException {
-    return new DeflateCompressorOutputStream( out );
+    DeflateParameters op = new DeflateParameters();
+    int level = getCompressLevel( compressResult.getCompressionPolicy() );
+    int optLevel = compressResult.getCurrentLevel();
+    if ( ( level - optLevel ) < 1 ) {
+      compressResult.setEnd();
+      optLevel = compressResult.getCurrentLevel();
+    }
+    op.setCompressionLevel( level - optLevel );
+    return new DeflateCompressorOutputStream( out , op );
   }
 
 }
