@@ -27,11 +27,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-
 public class GzipCompressor implements ICompressor {
+
+  private int getCompressLevel( final CompressionPolicy compressionPolicy ) {
+    switch ( compressionPolicy ) {
+      case BEST_SPEED:
+        return Deflater.BEST_SPEED;
+      case SPEED:
+        return 6 - 2;
+      case DEFAULT:
+        return 6;
+      case BEST_COMPRESSION:
+        return Deflater.BEST_COMPRESSION;
+      default:
+        return 6;
+    }
+  }
 
   @Override
   public byte[] compress(
@@ -39,8 +54,20 @@ public class GzipCompressor implements ICompressor {
       final int start ,
       final int length ,
       final CompressResult compressResult ) throws IOException {
+    int level = getCompressLevel( compressResult.getCompressionPolicy() ); 
+    int optLevel = compressResult.getCurrentLevel();
+    if ( ( level - optLevel ) < 1 ) {
+      compressResult.setEnd();
+      optLevel = compressResult.getCurrentLevel();
+    }
+
+    int setLevel = level - optLevel;
     ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
-    GZIPOutputStream out = new GZIPOutputStream( byteArrayOut );
+    GZIPOutputStream out = new GZIPOutputStream( byteArrayOut ) {
+      {
+        this.def.setLevel( setLevel );
+      }
+    };
 
     out.write( data , start , length );
     out.flush();
@@ -53,6 +80,8 @@ public class GzipCompressor implements ICompressor {
 
     byteArrayOut.close();
     out.close();
+
+    compressResult.feedBack( length , compressByte.length );
 
     return retVal;
   }
