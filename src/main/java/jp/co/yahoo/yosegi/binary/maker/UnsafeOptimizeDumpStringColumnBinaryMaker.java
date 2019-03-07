@@ -404,7 +404,7 @@ public class UnsafeOptimizeDumpStringColumnBinaryMaker implements IColumnBinaryM
         hasNull = true;
         continue;
       }
-      byte[] obj = strObj.getBytes( "UTF-8" );
+      byte[] obj = byteCell.getRow().getBytes();
       if ( maxLength < obj.length ) {
         maxLength = obj.length;
       }

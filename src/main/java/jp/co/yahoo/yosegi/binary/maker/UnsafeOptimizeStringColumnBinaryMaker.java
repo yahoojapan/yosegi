@@ -567,7 +567,7 @@ public class UnsafeOptimizeStringColumnBinaryMaker implements IColumnBinaryMaker
       }
       if ( ! dicMap.containsKey( strObj ) ) {
         dicMap.put( strObj , stringList.size() );
-        byte[] obj = strObj.getBytes( "UTF-8" );
+        byte[] obj = byteCell.getRow().getBytes();
         stringList.add( obj );
         if ( maxLength < obj.length ) {
           maxLength = obj.length;
