@@ -67,6 +67,10 @@ public final class ArrowColumnFactory {
    * Convert Arrow's vector to IColumn.
    */
   public static IColumn convert( final String name , final ValueVector vector ) {
+    if ( vector.getNullCount() == vector.getValueCount() ) {
+      return NullColumn.getInstance();
+    }
+
     ColumnFactory factory = dispatch.get( vector.getClass() );
     if ( factory == null ) {
       throw new UnsupportedOperationException(

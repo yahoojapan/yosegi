@@ -22,10 +22,18 @@ import jp.co.yahoo.yosegi.spread.column.ArrowColumnFactory;
 
 import org.apache.arrow.vector.FieldVector;
 import org.apache.arrow.vector.ValueVector;
+import org.apache.arrow.vector.VectorSchemaRoot;
 
 import java.util.List;
 
 public final class ArrowSpreadUtil {
+
+  /**
+   * Create a Spread from the VectorSchemaRoot and the row size.
+   */
+  public static Spread toSpread( final VectorSchemaRoot root ) {
+    return toSpread( root.getRowCount() , root.getFieldVectors() );
+  }
 
   /**
    * Create a Spread from the Arrow Vector list and the row size.
