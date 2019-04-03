@@ -21,34 +21,40 @@ package jp.co.yahoo.yosegi.message.formatter.text;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.parser.IParser;
 import jp.co.yahoo.yosegi.util.ByteArrayData;
+import jp.co.yahoo.yosegi.util.SwitchDispatcherFactory;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class TextDoubleFormatter implements ITextFormatter {
+  @FunctionalInterface
+  private interface DispatchedFunc {
+    public void accept(ByteArrayData buffer, Object obj) throws IOException;
+  }
 
-  private byte[] convert( final double target ) throws IOException {
-    return Double.valueOf( target ).toString().getBytes("UTF-8");
+  private static SwitchDispatcherFactory.Func<Class, DispatchedFunc> dispatcher;
+
+  static {
+    SwitchDispatcherFactory<Class, DispatchedFunc> sw = new SwitchDispatcherFactory();
+    sw.set(Short.class,   (buffer, obj) -> buffer.append(convert(((Short)  obj).doubleValue())));
+    sw.set(Integer.class, (buffer, obj) -> buffer.append(convert(((Integer)obj).doubleValue())));
+    sw.set(Long.class,    (buffer, obj) -> buffer.append(convert(((Long)   obj).doubleValue())));
+    sw.set(Float.class,   (buffer, obj) -> buffer.append(convert(((Float)  obj).doubleValue())));
+    sw.set(Double.class,  (buffer, obj) -> buffer.append(convert(((Double) obj).doubleValue())));
+    sw.set(PrimitiveObject.class,
+        (buffer, obj) -> buffer.append(convert(((PrimitiveObject)obj).getDouble())));
+    dispatcher = sw.create();
+  }
+
+  private static byte[] convert(final double target) throws IOException {
+    return Double.valueOf(target).toString().getBytes("UTF-8");
   }
 
   @Override
-  public void write( final ByteArrayData buffer , final Object obj ) throws IOException {
-    if ( obj instanceof Short ) {
-      double target = ( (Short) obj ).doubleValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Integer ) {
-      double target = ( (Integer) obj ).doubleValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Long ) {
-      double target = ( (Long) obj ).doubleValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Float ) {
-      double target = ( (Float) obj ).doubleValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Double ) {
-      double target = ( (Double) obj ).doubleValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof PrimitiveObject ) {
-      buffer.append( convert( ( (PrimitiveObject)obj ).getDouble() ) );
+  public void write( final ByteArrayData buffer, final Object obj) throws IOException {
+    DispatchedFunc ret = dispatcher.get(obj.getClass());
+    if (Objects.nonNull(ret)) {
+      ret.accept(buffer, obj);
     }
   }
 
@@ -59,5 +65,5 @@ public class TextDoubleFormatter implements ITextFormatter {
       final IParser parser ) throws IOException {
     buffer.append( convert( ( (PrimitiveObject)obj ).getDouble() ) );
   }
-
 }
+

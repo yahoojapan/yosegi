@@ -21,34 +21,40 @@ package jp.co.yahoo.yosegi.message.formatter.text;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.parser.IParser;
 import jp.co.yahoo.yosegi.util.ByteArrayData;
+import jp.co.yahoo.yosegi.util.SwitchDispatcherFactory;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class TextLongFormatter implements ITextFormatter {
+  @FunctionalInterface
+  private interface DispatchedFunc {
+    public void accept(ByteArrayData buffer, Object obj) throws IOException;
+  }
 
-  private byte[] convert( final long target ) throws IOException {
-    return Long.valueOf( target ).toString().getBytes("UTF-8");
+  private static SwitchDispatcherFactory.Func<Class, DispatchedFunc> dispatcher;
+
+  static {
+    SwitchDispatcherFactory<Class, DispatchedFunc> sw = new SwitchDispatcherFactory();
+    sw.set(Short.class,   (buffer, obj) -> buffer.append(convert(((Short)  obj).longValue())));
+    sw.set(Integer.class, (buffer, obj) -> buffer.append(convert(((Integer)obj).longValue())));
+    sw.set(Long.class,    (buffer, obj) -> buffer.append(convert(((Long)   obj).longValue())));
+    sw.set(Float.class,   (buffer, obj) -> buffer.append(convert(((Float)  obj).longValue())));
+    sw.set(Double.class,  (buffer, obj) -> buffer.append(convert(((Double) obj).longValue())));
+    sw.set(PrimitiveObject.class,
+        (buffer, obj) -> buffer.append(convert(((PrimitiveObject)obj).getLong())));
+    dispatcher = sw.create();
+  }
+
+  private static byte[] convert(final long target) throws IOException {
+    return Long.valueOf(target).toString().getBytes("UTF-8");
   }
 
   @Override
-  public void write( final ByteArrayData buffer , final Object obj ) throws IOException {
-    if ( obj instanceof Short ) {
-      long target = ( (Short) obj ).longValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Integer ) {
-      long target = ( (Integer) obj ).longValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Long ) {
-      long target = ( (Long) obj ).longValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Float ) {
-      long target = ( (Float) obj ).longValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Double ) {
-      long target = ( (Double) obj ).longValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof PrimitiveObject) {
-      buffer.append( convert( ( (PrimitiveObject)obj ).getLong() ) );
+  public void write(final ByteArrayData buffer, final Object obj) throws IOException {
+    DispatchedFunc ret = dispatcher.get(obj.getClass());
+    if (Objects.nonNull(ret)) {
+      ret.accept(buffer, obj);
     }
   }
 
@@ -59,5 +65,5 @@ public class TextLongFormatter implements ITextFormatter {
       final IParser parser ) throws IOException {
     buffer.append( convert( ( (PrimitiveObject)obj ).getLong() ) );
   }
-
 }
+

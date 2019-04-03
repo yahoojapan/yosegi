@@ -21,34 +21,40 @@ package jp.co.yahoo.yosegi.message.formatter.text;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.parser.IParser;
 import jp.co.yahoo.yosegi.util.ByteArrayData;
+import jp.co.yahoo.yosegi.util.SwitchDispatcherFactory;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class TextFloatFormatter implements ITextFormatter {
+  @FunctionalInterface
+  private interface DispatchedFunc {
+    public void accept(ByteArrayData buffer, Object obj) throws IOException;
+  }
 
-  private byte[] convert( final float target ) throws IOException {
-    return Float.valueOf( target ).toString().getBytes("UTF-8");
+  private static SwitchDispatcherFactory.Func<Class, DispatchedFunc> dispatcher;
+
+  static {
+    SwitchDispatcherFactory<Class, DispatchedFunc> sw = new SwitchDispatcherFactory();
+    sw.set(Short.class,   (buffer, obj) -> buffer.append(convert(((Short)  obj).floatValue())));
+    sw.set(Integer.class, (buffer, obj) -> buffer.append(convert(((Integer)obj).floatValue())));
+    sw.set(Long.class,    (buffer, obj) -> buffer.append(convert(((Long)   obj).floatValue())));
+    sw.set(Float.class,   (buffer, obj) -> buffer.append(convert(((Float)  obj).floatValue())));
+    sw.set(Double.class,  (buffer, obj) -> buffer.append(convert(((Double) obj).floatValue())));
+    sw.set(PrimitiveObject.class,
+        (buffer, obj) -> buffer.append(convert(((PrimitiveObject)obj).getFloat())));
+    dispatcher = sw.create();
+  }
+
+  private static byte[] convert(final float target) throws IOException {
+    return Float.valueOf(target).toString().getBytes("UTF-8");
   }
 
   @Override
   public void write(final ByteArrayData buffer , final Object obj ) throws IOException {
-    if ( obj instanceof Short ) {
-      float target = ( (Short) obj ).floatValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Integer ) {
-      float target = ( (Integer) obj ).floatValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Long ) {
-      float target = ( (Long) obj ).floatValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Float ) {
-      float target = ( (Float) obj ).floatValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Double ) {
-      float target = ( (Double) obj ).floatValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof PrimitiveObject ) {
-      buffer.append( convert( ( (PrimitiveObject)obj ).getFloat() ) );
+    DispatchedFunc ret = dispatcher.get(obj.getClass());
+    if (Objects.nonNull(ret)) {
+      ret.accept(buffer, obj);
     }
   }
 
@@ -59,5 +65,5 @@ public class TextFloatFormatter implements ITextFormatter {
       final IParser parser ) throws IOException {
     buffer.append( convert( ( (PrimitiveObject)obj ).getFloat() ) );
   }
-
 }
+
