@@ -25,39 +25,28 @@ import jp.co.yahoo.yosegi.util.ByteArrayData;
 import java.io.IOException;
 
 public class TextShortFormatter implements ITextFormatter {
+  private static TextNumericalFormatterFactory.WriteFunc writeFunc;
+  private static TextNumericalFormatterFactory.WriteParserFunc writeParserFunc;
 
-  private byte[] convert( final short target ) throws IOException {
-    return Short.valueOf( target ).toString().getBytes("UTF-8");
+  static {
+    TextNumericalFormatterFactory factory = new TextNumericalFormatterFactory(
+        obj -> Short.valueOf(obj.shortValue()).toString(),
+        obj -> Short.valueOf(obj.getShort()).toString());
+    writeFunc = factory.createWriteFunc();
+    writeParserFunc = factory.createWriteParserFunc();
   }
 
   @Override
-  public void write(final ByteArrayData buffer , final Object obj ) throws IOException {
-    if ( obj instanceof Short ) {
-      short target = ( (Short) obj ).shortValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Integer ) {
-      short target = ( (Integer) obj ).shortValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Long ) {
-      short target = ( (Long) obj ).shortValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Float ) {
-      short target = ( (Float) obj ).shortValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Double ) {
-      short target = ( (Double) obj ).shortValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof PrimitiveObject) {
-      buffer.append( convert( ( (PrimitiveObject)obj ).getShort() ) );
-    }
+  public void write(final ByteArrayData buffer, final Object obj) throws IOException {
+    writeFunc.accept(buffer, obj);
   }
 
   @Override
   public void writeParser(
-      final ByteArrayData buffer ,
-      final PrimitiveObject obj ,
-      final IParser parser ) throws IOException {
-    buffer.append( convert( ( (PrimitiveObject)obj ).getShort() ) );
+      final ByteArrayData buffer,
+      final PrimitiveObject obj,
+      final IParser parser) throws IOException {
+    writeParserFunc.accept(buffer, obj, parser);
   }
-
 }
+

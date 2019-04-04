@@ -25,39 +25,28 @@ import jp.co.yahoo.yosegi.util.ByteArrayData;
 import java.io.IOException;
 
 public class TextDoubleFormatter implements ITextFormatter {
+  private static TextNumericalFormatterFactory.WriteFunc writeFunc;
+  private static TextNumericalFormatterFactory.WriteParserFunc writeParserFunc;
 
-  private byte[] convert( final double target ) throws IOException {
-    return Double.valueOf( target ).toString().getBytes("UTF-8");
+  static {
+    TextNumericalFormatterFactory factory = new TextNumericalFormatterFactory(
+        obj -> Double.valueOf(obj.doubleValue()).toString(),
+        obj -> Double.valueOf(obj.getDouble()).toString());
+    writeFunc = factory.createWriteFunc();
+    writeParserFunc = factory.createWriteParserFunc();
   }
 
   @Override
-  public void write( final ByteArrayData buffer , final Object obj ) throws IOException {
-    if ( obj instanceof Short ) {
-      double target = ( (Short) obj ).doubleValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Integer ) {
-      double target = ( (Integer) obj ).doubleValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Long ) {
-      double target = ( (Long) obj ).doubleValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Float ) {
-      double target = ( (Float) obj ).doubleValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Double ) {
-      double target = ( (Double) obj ).doubleValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof PrimitiveObject ) {
-      buffer.append( convert( ( (PrimitiveObject)obj ).getDouble() ) );
-    }
+  public void write(final ByteArrayData buffer, final Object obj) throws IOException {
+    writeFunc.accept(buffer, obj);
   }
 
   @Override
   public void writeParser(
-      final ByteArrayData buffer ,
-      final PrimitiveObject obj ,
-      final IParser parser ) throws IOException {
-    buffer.append( convert( ( (PrimitiveObject)obj ).getDouble() ) );
+      final ByteArrayData buffer,
+      final PrimitiveObject obj,
+      final IParser parser) throws IOException {
+    writeParserFunc.accept(buffer, obj, parser);
   }
-
 }
+
