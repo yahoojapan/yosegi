@@ -26,26 +26,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class StructContainerField implements INamedContainerField {
-
-  private final String name;
-  private final Properties properties;
+public class StructContainerField extends SimpleField implements INamedContainerField {
   private final List<String> keyList = new ArrayList<String>();
   private final Map<String,IField> fieldContainer = new HashMap<String,IField>();
 
-  public StructContainerField( final String name ) {
-    this.name = name;
-    properties = new Properties();
+  public StructContainerField(final String name) {
+    super(name);
   }
 
   public StructContainerField( final String name , final Properties properties ) {
-    this.name = name;
-    this.properties = properties;
-  }
-
-  @Override
-  public String getName() {
-    return name;
+    super(name, properties);
   }
 
   @Override
@@ -61,35 +51,28 @@ public class StructContainerField implements INamedContainerField {
       throw new IOException(
         fieldName + " is already set. keys::" + fieldContainer.keySet().toString() );
     }
-
     keyList.add( fieldName );
     fieldContainer.put( fieldName , field );
   }
 
-  public void update( final IField field ) throws IOException {
-    String fieldName = field.getName();
-    fieldContainer.put( fieldName , field );
+  public void update(final IField field) throws IOException {
+    fieldContainer.put(field.getName(), field);
   }
 
   @Override
-  public IField get( final String key ) throws IOException {
-    return fieldContainer.get( key );
+  public IField get(final String key) throws IOException {
+    return fieldContainer.get(key);
   }
 
   @Override
-  public boolean containsKey( final String key ) throws IOException {
-    return fieldContainer.containsKey( key );
+  public boolean containsKey(final String key) throws IOException {
+    return fieldContainer.containsKey(key);
   }
 
   @Override
   public String[] getKeys() throws IOException {
     String[] keyArray = new String[ keyList.size() ];
     return keyList.toArray( keyArray );
-  }
-
-  @Override
-  public Properties getProperties() {
-    return properties;
   }
 
   @Override

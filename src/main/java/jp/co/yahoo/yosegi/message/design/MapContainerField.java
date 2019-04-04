@@ -25,38 +25,29 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-public class MapContainerField implements INamedContainerField {
-
-  private final String name;
+public class MapContainerField extends SimpleField implements INamedContainerField {
   private final IField defaultField;
-  private final Properties properties;
   private final Map<String,IField> fieldContainer = new HashMap<String,IField>();
 
   /**
    * Creates an object representing Map with the specified parameters.
    */
-  public MapContainerField( final String name , final IField defaultField ) {
-    this.name = name;
+  public MapContainerField(final String name, final IField defaultField) {
+    super(name);
     this.defaultField = defaultField;
-    properties = new Properties();
   }
 
   /**
    * Creates an object representing Map with the specified parameters.
    */
   public MapContainerField(
-      final String name ,
-      final IField defaultField ,
-      final Properties properties ) {
-    this.name = name;
+      final String name,
+      final IField defaultField,
+      final Properties properties) {
+    super(name, properties);
     this.defaultField = defaultField;
-    this.properties = properties;
-  }
-
-  @Override
-  public String getName() {
-    return name;
   }
 
   @Override
@@ -65,40 +56,25 @@ public class MapContainerField implements INamedContainerField {
   }
 
   @Override
-  public void set( final IField field ) throws IOException {
-    String fieldName = field.getName();
-    fieldContainer.put( fieldName , field );
+  public void set(final IField field) throws IOException {
+    fieldContainer.put(field.getName(), field);
   }
 
   @Override
-  public IField get( final String key ) throws IOException {
-    if ( containsKey( key ) ) {
-      return fieldContainer.get( key );
-    } else {
-      return getField();
-    }
+  public IField get(final String key) throws IOException {
+    return fieldContainer.getOrDefault(key, getField());
   }
 
   @Override
-  public boolean containsKey( final String key ) throws IOException {
-    return fieldContainer.containsKey( key );
+  public boolean containsKey(final String key) throws IOException {
+    return fieldContainer.containsKey(key);
   }
 
   @Override
   public String[] getKeys() throws IOException {
-    String[] keyArray = new String[ fieldContainer.size() ];
-
-    int index = 0;
-    for ( Map.Entry<String,IField> entry : fieldContainer.entrySet() ) {
-      keyArray[index] = entry.getKey();
-      index++;
-    }
-    return keyArray;
-  }
-
-  @Override
-  public Properties getProperties() {
-    return properties;
+    Set keys = fieldContainer.keySet();
+    String[] keyArray = new String[keys.size()];
+    return keys.toArray(keyarray);
   }
 
   @Override

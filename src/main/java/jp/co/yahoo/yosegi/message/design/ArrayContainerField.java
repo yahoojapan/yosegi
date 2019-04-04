@@ -25,47 +25,32 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ArrayContainerField implements IContainerField {
 
-  private final String name;
-  private final Properties properties;
-
+public class ArrayContainerField extends SimpleField implements IContainerField {
   private IField childField;
 
   /**
    * Creates an object representing Array with the specified parameters.
    */
-  public ArrayContainerField( final String name , final IField childField ) {
-    this.name = name;
+  public ArrayContainerField(final String name, final IField childField) {
+    super(name);
     this.childField = childField;
-    properties = new Properties();
   }
 
   /**
    * Creates an object representing Array with the specified parameters.
    */
   public ArrayContainerField(
-      final String name ,
-      final IField childField ,
-      final Properties properties ) {
-    this.name = name;
+      final String name,
+      final IField childField,
+      final Properties properties) {
+    super(name, properties);
     this.childField = childField;
-    this.properties = properties;
   }
 
   @Override
   public IField getField() {
     return childField;
-  }
-
-  @Override
-  public String getName() {
-    return name;
-  }
-
-  @Override
-  public Properties getProperties() {
-    return properties;
   }
 
   @Override
@@ -82,7 +67,7 @@ public class ArrayContainerField implements IContainerField {
     IField targetChildField = targetField.getField();
     if ( targetChildField.getFieldType() != childField.getFieldType() 
         && childField.getFieldType() != FieldType.UNION ) {
-      UnionField newField = new UnionField( name , properties );
+      UnionField newField = new UnionField( getName() , getProperties() );
       newField.set( childField );
       childField = newField;
     }

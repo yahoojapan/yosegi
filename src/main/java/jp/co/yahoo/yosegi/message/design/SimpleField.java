@@ -18,18 +18,27 @@
 
 package jp.co.yahoo.yosegi.message.design;
 
-public class LongField extends SimpleField {
-  public LongField(final String name) {
-    super(name);
+public abstract class SimpleField implements IField {
+  private final String name;
+  private final Properties properties;
+
+  protected SimpleField(final String name) {
+    this(name, new Properties());
   }
 
-  public LongField(final String name, final Properties properties) {
-    super(name, properties);
+  protected SimpleField(final String name, final Properties properties) {
+    this.name = name;
+    this.properties = properties;
   }
 
   @Override
-  public FieldType getFieldType() {
-    return FieldType.LONG;
+  public String getName() {
+    return name;
+  }
+
+  @Override
+  public Properties getProperties() {
+    return properties;
   }
 }
 

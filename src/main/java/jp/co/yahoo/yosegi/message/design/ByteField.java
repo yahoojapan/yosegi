@@ -18,34 +18,18 @@
 
 package jp.co.yahoo.yosegi.message.design;
 
-public class ByteField implements IField {
-
-  private final String name;
-  private final Properties properties;
-
-  public ByteField( final String name ) {
-    this.name = name;
-    properties = new Properties();
+public class ByteField extends SimpleField {
+  public ByteField(final String name) {
+    super(name);
   }
 
-  public ByteField( final String name ,  final Properties properties ) {
-    this.name = name;
-    this.properties = properties;
-  }
-
-  @Override
-  public String getName() {
-    return name;
-  }
-
-  @Override
-  public Properties getProperties() {
-    return properties;
+  public ByteField(final String name, final Properties properties) {
+    super(name, properties);
   }
 
   @Override
   public FieldType getFieldType() {
     return FieldType.BYTE;
   }
-
 }
+

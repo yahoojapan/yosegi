@@ -18,34 +18,18 @@
 
 package jp.co.yahoo.yosegi.message.design;
 
-public class NullField implements IField {
-
-  private final String name;
-  private final Properties properties;
-
-  public NullField( final String name ) {
-    this.name = name;
-    properties = new Properties();
+public class NullField extends SimpleField {
+  public NullField(final String name) {
+    super(name);
   }
 
-  public NullField( final String name ,  final Properties properties ) {
-    this.name = name;
-    this.properties = properties;
-  }
-
-  @Override
-  public String getName() {
-    return name;
-  }
-
-  @Override
-  public Properties getProperties() {
-    return properties;
+  public NullField(final String name, final Properties properties) {
+    super(name, properties);
   }
 
   @Override
   public FieldType getFieldType() {
     return FieldType.NULL;
   }
-
 }
+
