@@ -66,8 +66,8 @@ public class JsonNodeToPrimitiveObject {
   /**
    * Converts JsonNode to PrimitiveObject.
    */
-  public static PrimitiveObject get( final JsonNode jsonNode ) throws IOException {
+  public static PrimitiveObject get(final JsonNode jsonNode) throws IOException {
     return dispatcher.get(jsonNode.getClass()).apply(jsonNode);
   }
-
 }
+

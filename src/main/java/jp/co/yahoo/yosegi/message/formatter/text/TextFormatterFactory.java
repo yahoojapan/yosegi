@@ -64,7 +64,7 @@ public class TextFormatterFactory {
   /**
    * Create an ITextFormatter from a schema.
    */
-  public static ITextFormatter get( final IField schema ) throws IOException {
+  public static ITextFormatter get(final IField schema) throws IOException {
     return dispatcher.get(schema.getClass()).apply(schema);
   }
 }
