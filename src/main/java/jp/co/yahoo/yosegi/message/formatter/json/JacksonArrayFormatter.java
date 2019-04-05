@@ -30,26 +30,18 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class JacksonArrayFormatter implements IJacksonFormatter {
-
+public class JacksonArrayFormatter extends JacksonBaseFormatter implements IJacksonFormatter {
   @Override
-  public JsonNode write( final Object obj ) throws IOException {
-    ArrayNode array = new ArrayNode( JsonNodeFactory.instance );
-    if ( ! ( obj instanceof List ) ) {
+  public JsonNode write(final Object obj) throws IOException {
+    ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+    if (!List.class.isInstance(obj)) {
       return array;
     }
 
     List<Object> listObj = (List)obj;
-    for ( Object childObj : listObj ) {
-      if ( childObj instanceof List ) {
-        array.add( JacksonContainerToJsonObject.getFromList( (List<Object>)childObj ) );
-      } else if ( childObj instanceof Map ) {
-        array.add( JacksonContainerToJsonObject.getFromMap( (Map<Object,Object>)childObj ) );
-      } else {
-        array.add( ObjectToJsonNode.get( childObj ) );
-      }
+    for (Object childObj : listObj) {
+      array.add(writeDispatcher.get(childObj).apply(childObj));
     }
-
     return array;
   }
 
@@ -68,5 +60,5 @@ public class JacksonArrayFormatter implements IJacksonFormatter {
     }
     return array;
   }
-
 }
+
