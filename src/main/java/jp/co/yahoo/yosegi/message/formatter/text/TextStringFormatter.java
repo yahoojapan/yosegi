@@ -21,7 +21,7 @@ package jp.co.yahoo.yosegi.message.formatter.text;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.parser.IParser;
 import jp.co.yahoo.yosegi.util.ByteArrayData;
-import jp.co.yahoo.yosegi.util.CascadingDispatcherFactory;
+import jp.co.yahoo.yosegi.util.SwitchDispatcherFactory;
 
 import java.io.IOException;
 
@@ -31,10 +31,10 @@ public class TextStringFormatter implements ITextFormatter {
     public void accept(ByteArrayData buffer, Object obj) throws IOException;
   }
 
-  protected static final CascadingDispatcherFactory.Func<WriteDispatcherFunc> writeDispatcher;
+  protected static final SwitchDispatcherFactory.Func<Class, WriteDispatcherFunc> writeDispatcher;
 
   static {
-    CascadingDispatcherFactory<WriteDispatcherFunc> sw = new CascadingDispatcherFactory<>();
+    SwitchDispatcherFactory<Class, WriteDispatcherFunc> sw = new SwitchDispatcherFactory<>();
     sw.setDefault((buffer, obj) -> { });
     sw.set(byte[].class, (buf, obj) -> buf.append((byte[])obj));
     sw.set(String.class, (buf, obj) -> buf.append(((String)obj).getBytes("UTF-8")));
@@ -44,7 +44,7 @@ public class TextStringFormatter implements ITextFormatter {
 
   @Override
   public void write(final ByteArrayData buffer, final Object obj) throws IOException {
-    writeDispatcher.get(obj).accept(buffer, obj);
+    writeDispatcher.get(obj.getClass()).accept(buffer, obj);
   }
 
   @Override

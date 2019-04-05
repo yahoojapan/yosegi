@@ -41,7 +41,7 @@ public class JacksonObjectFormatter extends JacksonBaseFormatter implements IJac
     Map<Object,Object> mapObj = (Map<Object,Object>)obj;
     for (Map.Entry<Object,Object> entry : mapObj.entrySet()) {
       String key = entry.getKey().toString();
-      objectNode.put(key, writeDispatcher.get(key).apply(entry.getValue()));
+      objectNode.put(key, writeDispatcher.get(key.getClass()).apply(entry.getValue()));
     }
     return objectNode;
   }

@@ -40,7 +40,7 @@ public class JacksonArrayFormatter extends JacksonBaseFormatter implements IJack
 
     List<Object> listObj = (List)obj;
     for (Object childObj : listObj) {
-      array.add(writeDispatcher.get(childObj).apply(childObj));
+      array.add(writeDispatcher.get(childObj.getClass()).apply(childObj));
     }
     return array;
   }

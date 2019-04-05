@@ -21,7 +21,7 @@ package jp.co.yahoo.yosegi.message.formatter.json;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import jp.co.yahoo.yosegi.message.objects.ObjectToJsonNode;
-import jp.co.yahoo.yosegi.util.CascadingDispatcherFactory;
+import jp.co.yahoo.yosegi.util.SwitchDispatcherFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,10 +33,10 @@ public class JacksonBaseFormatter {
     public JsonNode apply(Object obj) throws IOException;
   }
 
-  protected static final CascadingDispatcherFactory.Func<WriteDispatcherFunc> writeDispatcher;
+  protected static final SwitchDispatcherFactory.Func<Class, WriteDispatcherFunc> writeDispatcher;
 
   static {
-    CascadingDispatcherFactory<WriteDispatcherFunc> sw = new CascadingDispatcherFactory<>();
+    SwitchDispatcherFactory<Class, WriteDispatcherFunc> sw = new SwitchDispatcherFactory<>();
     sw.set(List.class, child -> JacksonContainerToJsonObject.getFromList((List<Object>)child));
     sw.set(List.class, child -> JacksonContainerToJsonObject.getFromMap((Map<Object,Object>)child));
     sw.setDefault(child -> ObjectToJsonNode.get(child));

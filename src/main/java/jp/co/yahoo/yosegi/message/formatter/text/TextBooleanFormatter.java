@@ -21,7 +21,7 @@ package jp.co.yahoo.yosegi.message.formatter.text;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.parser.IParser;
 import jp.co.yahoo.yosegi.util.ByteArrayData;
-import jp.co.yahoo.yosegi.util.CascadingDispatcherFactory;
+import jp.co.yahoo.yosegi.util.SwitchDispatcherFactory;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -32,10 +32,10 @@ public class TextBooleanFormatter implements ITextFormatter {
     public String apply(Object obj) throws IOException;
   }
 
-  protected static final CascadingDispatcherFactory.Func<WriteDispatcherFunc> writeDispatcher;
+  protected static final SwitchDispatcherFactory.Func<Class, WriteDispatcherFunc> writeDispatcher;
 
   static {
-    CascadingDispatcherFactory<WriteDispatcherFunc> sw = new CascadingDispatcherFactory<>();
+    SwitchDispatcherFactory<Class, WriteDispatcherFunc> sw = new SwitchDispatcherFactory<>();
     sw.set(Boolean.class, obj -> ((Boolean)obj).toString());
     sw.set(String.class,  obj -> Boolean.valueOf("true".equals((String)obj)).toString());
     sw.set(PrimitiveObject.class, obj -> convert(obj));
@@ -52,7 +52,7 @@ public class TextBooleanFormatter implements ITextFormatter {
 
   @Override
   public void write(final ByteArrayData buffer, final Object obj) throws IOException {
-    WriteDispatcherFunc func = writeDispatcher.get(obj);
+    WriteDispatcherFunc func = writeDispatcher.get(obj.getClass());
     if (Objects.nonNull(func)) {
       write(buffer, func.apply(obj));
     }
