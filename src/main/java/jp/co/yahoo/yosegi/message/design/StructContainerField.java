@@ -31,11 +31,11 @@ public class StructContainerField extends SimpleField implements INamedContainer
   private final Map<String,IField> fieldContainer = new HashMap<String,IField>();
 
   public StructContainerField(final String name) {
-    super(name);
+    this(name, new Properties());
   }
 
-  public StructContainerField( final String name , final Properties properties ) {
-    super(name, properties);
+  public StructContainerField(final String name, final Properties properties) {
+    super(name, properties, FieldType.STRUCT);
   }
 
   @Override
@@ -71,13 +71,7 @@ public class StructContainerField extends SimpleField implements INamedContainer
 
   @Override
   public String[] getKeys() throws IOException {
-    String[] keyArray = new String[ keyList.size() ];
-    return keyList.toArray( keyArray );
-  }
-
-  @Override
-  public FieldType getFieldType() {
-    return FieldType.STRUCT;
+    return keyList.toArray(new String[keyList.size()]);
   }
 
   @Override
@@ -106,16 +100,13 @@ public class StructContainerField extends SimpleField implements INamedContainer
 
   @Override
   public Map<Object,Object> toJavaObject() throws IOException {
-    LinkedHashMap<Object,Object> schemaJavaObject = new LinkedHashMap<Object,Object>();
-    schemaJavaObject.put( "name" , getName() );
-    schemaJavaObject.put( "type" , getFieldType().toString() );
-    schemaJavaObject.put( "properties" , getProperties().toMap() );
+    LinkedHashMap<Object,Object> schemaJavaObject = toJavaObjectBase();
     List<Object> childList = new ArrayList<Object>();
-    for ( String key : getKeys() ) {
-      childList.add( get( key ).toJavaObject() );
+    for (String key : getKeys()) {
+      childList.add(get(key).toJavaObject());
     }
-    schemaJavaObject.put( "child" , childList );
+    schemaJavaObject.put("child", childList);
     return schemaJavaObject;
   }
-
 }
+

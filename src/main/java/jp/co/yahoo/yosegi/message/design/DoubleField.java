@@ -20,16 +20,11 @@ package jp.co.yahoo.yosegi.message.design;
 
 public class DoubleField extends SimpleField {
   public DoubleField(final String name) {
-    super(name);
+    this(name, new Properties());
   }
 
   public DoubleField(final String name, final Properties properties) {
-    super(name, properties);
-  }
-
-  @Override
-  public FieldType getFieldType() {
-    return FieldType.DOUBLE;
+    super(name, properties, FieldType.DOUBLE);
   }
 }
 

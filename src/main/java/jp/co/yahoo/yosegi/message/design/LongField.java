@@ -20,16 +20,11 @@ package jp.co.yahoo.yosegi.message.design;
 
 public class LongField extends SimpleField {
   public LongField(final String name) {
-    super(name);
+    this(name, new Properties());
   }
 
   public LongField(final String name, final Properties properties) {
-    super(name, properties);
-  }
-
-  @Override
-  public FieldType getFieldType() {
-    return FieldType.LONG;
+    super(name, properties, FieldType.LONG);
   }
 }
 

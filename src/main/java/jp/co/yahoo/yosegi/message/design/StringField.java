@@ -20,16 +20,11 @@ package jp.co.yahoo.yosegi.message.design;
 
 public class StringField extends SimpleField {
   public StringField(final String name) {
-    super(name);
+    this(name, new Properties());
   }
 
   public StringField(final String name, final Properties properties) {
-    super(name, properties);
-  }
-
-  @Override
-  public FieldType getFieldType() {
-    return FieldType.STRING;
+    super(name, properties, FieldType.STRING);
   }
 }
 

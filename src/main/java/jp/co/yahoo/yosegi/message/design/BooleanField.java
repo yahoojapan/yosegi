@@ -20,16 +20,11 @@ package jp.co.yahoo.yosegi.message.design;
 
 public class BooleanField extends SimpleField {
   public BooleanField(final String name) {
-    super(name);
+    this(name, new Properties());
   }
 
   public BooleanField(final String name, final Properties properties) {
-    super(name, properties);
-  }
-
-  @Override
-  public FieldType getFieldType() {
-    return FieldType.BOOLEAN;
+    super(name, properties, FieldType.BOOLEAN);
   }
 }
 

@@ -20,16 +20,11 @@ package jp.co.yahoo.yosegi.message.design;
 
 public class ByteField extends SimpleField {
   public ByteField(final String name) {
-    super(name);
+    this(name, new Properties());
   }
 
   public ByteField(final String name, final Properties properties) {
-    super(name, properties);
-  }
-
-  @Override
-  public FieldType getFieldType() {
-    return FieldType.BYTE;
+    super(name, properties, FieldType.BYTE);
   }
 }
 

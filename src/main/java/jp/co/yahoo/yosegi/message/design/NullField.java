@@ -20,16 +20,11 @@ package jp.co.yahoo.yosegi.message.design;
 
 public class NullField extends SimpleField {
   public NullField(final String name) {
-    super(name);
+    this(name, new Properties());
   }
 
   public NullField(final String name, final Properties properties) {
-    super(name, properties);
-  }
-
-  @Override
-  public FieldType getFieldType() {
-    return FieldType.NULL;
+    super(name, properties, FieldType.NULL);
   }
 }
 

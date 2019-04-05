@@ -33,8 +33,7 @@ public class ArrayContainerField extends SimpleField implements IContainerField 
    * Creates an object representing Array with the specified parameters.
    */
   public ArrayContainerField(final String name, final IField childField) {
-    super(name);
-    this.childField = childField;
+    this(name, childField, new Properties());
   }
 
   /**
@@ -44,18 +43,13 @@ public class ArrayContainerField extends SimpleField implements IContainerField 
       final String name,
       final IField childField,
       final Properties properties) {
-    super(name, properties);
+    super(name, properties, FieldType.ARRAY);
     this.childField = childField;
   }
 
   @Override
   public IField getField() {
     return childField;
-  }
-
-  @Override
-  public FieldType getFieldType() {
-    return FieldType.ARRAY;
   }
 
   @Override
@@ -76,14 +70,11 @@ public class ArrayContainerField extends SimpleField implements IContainerField 
 
   @Override
   public Map<Object,Object> toJavaObject() throws IOException {
-    LinkedHashMap<Object,Object> schemaJavaObject = new LinkedHashMap<Object,Object>();
-    schemaJavaObject.put( "name" , getName() );
-    schemaJavaObject.put( "type" , getFieldType().toString() );
-    schemaJavaObject.put( "properties" , getProperties().toMap() );
+    LinkedHashMap<Object,Object> schemaJavaObject = toJavaObjectBase();
     List<Object> childList = new ArrayList<Object>();
-    childList.add( getField().toJavaObject() );
-    schemaJavaObject.put( "child" , childList );
+    childList.add(getField().toJavaObject());
+    schemaJavaObject.put("child", childList);
     return schemaJavaObject;
   }
-
 }
+

@@ -31,11 +31,11 @@ public class UnionField extends SimpleField implements INamedContainerField {
   private final Map<String,IField> fieldContainer = new HashMap<String,IField>();
 
   public UnionField(final String name) {
-    super(name);
+    this(name, new Properties());
   }
 
   public UnionField(final String name, final Properties properties) {
-    super(name, properties);
+    super(name, properties, FieldType.UNION);
   }
 
   @Override
@@ -65,13 +65,8 @@ public class UnionField extends SimpleField implements INamedContainerField {
 
   @Override
   public String[] getKeys() throws IOException {
-    String[] keyArray = new String[keyList.size()];
-    return keyList.toArray(keyArray);
-  }
+    return keyList.toArray(new String[keyList.size()]);
 
-  @Override
-  public FieldType getFieldType() {
-    return FieldType.UNION;
   }
 
   @Override
@@ -100,16 +95,13 @@ public class UnionField extends SimpleField implements INamedContainerField {
 
   @Override
   public Map<Object,Object> toJavaObject() throws IOException {
-    LinkedHashMap<Object,Object> schemaJavaObject = new LinkedHashMap<Object,Object>();
-    schemaJavaObject.put( "name" , getName() );
-    schemaJavaObject.put( "type" , getFieldType().toString() );
-    schemaJavaObject.put( "properties" , getProperties().toMap() );
+    LinkedHashMap<Object,Object> schemaJavaObject = toJavaObjectBase();
     List<Object> childList = new ArrayList<Object>();
-    for ( String key : getKeys() ) {
-      childList.add( get( key ).toJavaObject() );
+    for (String key : getKeys()) {
+      childList.add(get(key).toJavaObject());
     }
-    schemaJavaObject.put( "child" , childList );
+    schemaJavaObject.put("child", childList);
     return schemaJavaObject;
   }
-
 }
+

@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class MapContainerField extends SimpleField implements INamedContainerField {
   private final IField defaultField;
@@ -35,8 +36,7 @@ public class MapContainerField extends SimpleField implements INamedContainerFie
    * Creates an object representing Map with the specified parameters.
    */
   public MapContainerField(final String name, final IField defaultField) {
-    super(name);
-    this.defaultField = defaultField;
+    this(name, defaultField, new Properties());
   }
 
   /**
@@ -46,7 +46,7 @@ public class MapContainerField extends SimpleField implements INamedContainerFie
       final String name,
       final IField defaultField,
       final Properties properties) {
-    super(name, properties);
+    super(name, properties, FieldType.MAP);
     this.defaultField = defaultField;
   }
 
@@ -72,14 +72,8 @@ public class MapContainerField extends SimpleField implements INamedContainerFie
 
   @Override
   public String[] getKeys() throws IOException {
-    Set keys = fieldContainer.keySet();
-    String[] keyArray = new String[keys.size()];
-    return keys.toArray(keyarray);
-  }
-
-  @Override
-  public FieldType getFieldType() {
-    return FieldType.MAP;
+    Set<String> keys = fieldContainer.keySet();
+    return keys.toArray(new String[keys.size()]);
   }
 
   @Override
@@ -110,17 +104,14 @@ public class MapContainerField extends SimpleField implements INamedContainerFie
 
   @Override
   public Map<Object,Object> toJavaObject() throws IOException {
-    LinkedHashMap<Object,Object> schemaJavaObject = new LinkedHashMap<Object,Object>();
-    schemaJavaObject.put( "name" , getName() );
-    schemaJavaObject.put( "type" , getFieldType().toString() );
-    schemaJavaObject.put( "properties" , getProperties().toMap() );
-    schemaJavaObject.put( "default" , getField().toJavaObject() );
+    LinkedHashMap<Object,Object> schemaJavaObject = toJavaObjectBase();
+    schemaJavaObject.put("default", getField().toJavaObject());
     List<Object> childList = new ArrayList<Object>();
-    for ( String key : getKeys() ) {
-      childList.add( get( key ).toJavaObject() );
+    for (String key : getKeys()) {
+      childList.add(get(key).toJavaObject());
     }
-    schemaJavaObject.put( "child" , childList );
+    schemaJavaObject.put("child", childList);
     return schemaJavaObject;
   }
-
 }
+

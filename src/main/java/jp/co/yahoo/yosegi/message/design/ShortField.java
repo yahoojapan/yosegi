@@ -20,16 +20,11 @@ package jp.co.yahoo.yosegi.message.design;
 
 public class ShortField extends SimpleField {
   public ShortField(final String name) {
-    super(name);
+    this(name, new Properties());
   }
 
   public ShortField(final String name, final Properties properties) {
-    super(name, properties);
-  }
-
-  @Override
-  public FieldType getFieldType() {
-    return FieldType.SHORT;
+    super(name, properties, FieldType.SHORT);
   }
 }
 

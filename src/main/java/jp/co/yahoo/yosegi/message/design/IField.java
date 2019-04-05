@@ -31,17 +31,10 @@ public interface IField {
 
   FieldType getFieldType();
 
-  default void merge( final IField target ) throws IOException {}
+  default void merge(final IField target) throws IOException {}
 
   /**
    * Convert this object to a Java object.
    */
-  default Map<Object,Object> toJavaObject() throws IOException {
-    LinkedHashMap<Object,Object> schemaJavaObject = new LinkedHashMap<Object,Object>();
-    schemaJavaObject.put( "name" , getName() );
-    schemaJavaObject.put( "type" , getFieldType().toString() );
-    schemaJavaObject.put( "properties" , getProperties().toMap() );
-    return schemaJavaObject;
-  }
-
+  Map<Object,Object> toJavaObject() throws IOException;
 }

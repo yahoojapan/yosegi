@@ -18,17 +18,20 @@
 
 package jp.co.yahoo.yosegi.message.design;
 
+import java.io.IOException;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 public abstract class SimpleField implements IField {
   private final String name;
   private final Properties properties;
+  private final FieldType type;
 
-  protected SimpleField(final String name) {
-    this(name, new Properties());
-  }
-
-  protected SimpleField(final String name, final Properties properties) {
+  protected SimpleField(final String name, final Properties properties, FieldType type) {
     this.name = name;
     this.properties = properties;
+    this.type = type;
   }
 
   @Override
@@ -39,6 +42,24 @@ public abstract class SimpleField implements IField {
   @Override
   public Properties getProperties() {
     return properties;
+  }
+
+  @Override
+  public FieldType getFieldType() {
+    return type;
+  }
+
+  protected LinkedHashMap<Object,Object> toJavaObjectBase() throws IOException {
+    LinkedHashMap<Object,Object> schemaJavaObject = new LinkedHashMap<Object,Object>();
+    schemaJavaObject.put("name" , getName());
+    schemaJavaObject.put("type" , getFieldType().toString());
+    schemaJavaObject.put("properties" , getProperties().toMap());
+    return schemaJavaObject;
+  }
+
+  @Override
+  public Map<Object,Object> toJavaObject() throws IOException {
+    return toJavaObjectBase();
   }
 }
 

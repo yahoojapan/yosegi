@@ -20,16 +20,11 @@ package jp.co.yahoo.yosegi.message.design;
 
 public class FloatField extends SimpleField {
   public FloatField(final String name) {
-    super(name);
+    this(name, new Properties());
   }
 
   public FloatField(final String name, final Properties properties) {
-    super(name, properties);
-  }
-
-  @Override
-  public FieldType getFieldType() {
-    return FieldType.FLOAT;
+    super(name, properties, FieldType.FLOAT);
   }
 }
 
