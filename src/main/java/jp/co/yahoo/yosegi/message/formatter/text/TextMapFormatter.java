@@ -27,6 +27,7 @@ import jp.co.yahoo.yosegi.util.ByteArrayData;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class TextMapFormatter implements ITextFormatter {
 
@@ -76,7 +77,7 @@ public class TextMapFormatter implements ITextFormatter {
     for ( Map.Entry<Object,Object> entry : mapObj.entrySet() ) {
       String key = entry.getKey().toString();
       ITextFormatter childFormatter = childFormatterContainer.get( key );
-      if ( childFormatter == null ) {
+      if ( Objects.isNull(childFormatter) ) {
         childFormatter = defaultFormatter;
       }
       if ( index != 0 ) {
@@ -100,7 +101,7 @@ public class TextMapFormatter implements ITextFormatter {
     int index = 0;
     for ( String key : parser.getAllKey() ) {
       ITextFormatter childFormatter = childFormatterContainer.get( key );
-      if ( childFormatter == null ) {
+      if ( Objects.isNull(childFormatter) ) {
         childFormatter = defaultFormatter;
       }
       if ( index != 0 ) {

@@ -16,43 +16,31 @@
  * limitations under the License.
  */
 
-package jp.co.yahoo.yosegi.message.formatter.text;
+package jp.co.yahoo.yosegi.message.formatter.json;
 
-import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
-import jp.co.yahoo.yosegi.message.parser.IParser;
-import jp.co.yahoo.yosegi.util.ByteArrayData;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import jp.co.yahoo.yosegi.message.objects.ObjectToJsonNode;
 import jp.co.yahoo.yosegi.util.SwitchDispatcherFactory;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
-public class TextStringFormatter implements ITextFormatter {
+public class JacksonBaseFormatter {
   @FunctionalInterface
-  private interface WriteDispatcherFunc {
-    public void accept(ByteArrayData buffer, Object obj) throws IOException;
+  public interface WriteDispatcherFunc {
+    public JsonNode apply(Object obj) throws IOException;
   }
 
   protected static final SwitchDispatcherFactory.Func<Class, WriteDispatcherFunc> writeDispatcher;
 
   static {
     SwitchDispatcherFactory<Class, WriteDispatcherFunc> sw = new SwitchDispatcherFactory<>();
-    sw.setDefault((buffer, obj) -> { });
-    sw.set(byte[].class, (buf, obj) -> buf.append((byte[])obj));
-    sw.set(String.class, (buf, obj) -> buf.append(((String)obj).getBytes("UTF-8")));
-    sw.set(PrimitiveObject.class, (buf, obj) -> buf.append(((PrimitiveObject)obj).getBytes()));
+    sw.set(List.class, child -> JacksonContainerToJsonObject.getFromList((List<Object>)child));
+    sw.set(List.class, child -> JacksonContainerToJsonObject.getFromMap((Map<Object,Object>)child));
+    sw.setDefault(child -> ObjectToJsonNode.get(child));
     writeDispatcher = sw.create();
-  }
-
-  @Override
-  public void write(final ByteArrayData buffer, final Object obj) throws IOException {
-    writeDispatcher.get(obj.getClass()).accept(buffer, obj);
-  }
-
-  @Override
-  public void writeParser(
-      final ByteArrayData buffer,
-      final PrimitiveObject obj,
-      final IParser parser) throws IOException {
-    buffer.append(obj.getBytes());
   }
 }
 

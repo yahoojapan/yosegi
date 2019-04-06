@@ -21,8 +21,10 @@ package jp.co.yahoo.yosegi.message.formatter.text;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.parser.IParser;
 import jp.co.yahoo.yosegi.util.ByteArrayData;
+import jp.co.yahoo.yosegi.util.CascadingDispatcherFactory;
 
 import java.io.IOException;
+import java.util.Objects;
 
 
 class TextNumericalFormatterFactory {
@@ -46,6 +48,11 @@ class TextNumericalFormatterFactory {
     public String apply(PrimitiveObject obj) throws IOException;
   }
 
+  @FunctionalInterface
+  private interface WriteDispatcherFunc {
+    public String apply(Object obj) throws IOException;
+  }
+
   private final StringNumber stringNumber;
   private final StringPrimitiveObject stringPrimitiveObject;
 
@@ -61,11 +68,15 @@ class TextNumericalFormatterFactory {
   }
 
   public WriteFunc createWriteFunc() {
+    CascadingDispatcherFactory<WriteDispatcherFunc> sw = new CascadingDispatcherFactory<>();
+    sw.set(Number.class, obj -> stringNumber.apply((Number)obj));
+    sw.set(PrimitiveObject.class, obj -> stringPrimitiveObject.apply((PrimitiveObject)obj));
+    CascadingDispatcherFactory.Func<WriteDispatcherFunc> writeDispatcher = sw.create();
+
     return (buffer, obj) -> {
-      if (obj instanceof Number) {
-        write(buffer, stringNumber.apply((Number)obj));
-      } else if (obj instanceof PrimitiveObject) {
-        write(buffer, stringPrimitiveObject.apply((PrimitiveObject)obj));
+      WriteDispatcherFunc func = writeDispatcher.get(obj);
+      if (Objects.nonNull(func)) {
+        write(buffer, func.apply(obj));
       }
     };
   }
