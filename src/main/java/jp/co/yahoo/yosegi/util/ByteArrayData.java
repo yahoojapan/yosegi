@@ -18,6 +18,9 @@
 
 package jp.co.yahoo.yosegi.util;
 
+import java.util.Objects;
+import java.util.stream.IntStream;
+
 public class ByteArrayData {
 
   public static final int DEFAULT_BUFFER_SIZE = 1024 * 1024;
@@ -69,23 +72,18 @@ public class ByteArrayData {
     }
     byte[] binary = getBytes();
     byte[] targetBinary = target.getBytes();
-    for ( int i = 0 ; i < getLength() ; i++ ) {
-      if ( binary[i] != targetBinary[i] ) {
-        return false;
-      }
-    }
-    return true;
+
+    return IntStream.range(0 , getLength())
+        .allMatch(i -> binary[i] != targetBinary[i]);
   }
 
   /**
    * Add byte array from other ByteArrayData object.
    */
-  public void append( final ByteArrayData target ) {
-    if ( target == null ) {
-      return;
+  public void append(final ByteArrayData target) {
+    if (Objects.nonNull(target)) {
+      append(target.getBytes(), 0, target.getLength());
     }
-
-    append( target.getBytes() , 0 , target.getLength() );
   }
 
   /**
