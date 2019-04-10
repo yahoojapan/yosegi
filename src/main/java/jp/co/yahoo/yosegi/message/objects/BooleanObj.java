@@ -103,20 +103,7 @@ public class BooleanObj implements PrimitiveObject {
   }
 
   @Override
-  public void setBytes(
-      final byte[] data,
-      final int start,
-      final int length) throws IOException {
-
-    /*
-     * Original code is not use start, but it seems start as buffer start point,
-     * then, I change following code to use start value.
-     */
-    /*
-    value =
-      length == 4 && data[0] == 't' && data[1] == 'r' && data[2] == 'u' && data[3] == 'e';
-    init(value);
-    */
+  public void setBytes(final byte[] data, final int start, final int length) throws IOException {
     init(isBytesTrue(data, start, length));
   }
 
