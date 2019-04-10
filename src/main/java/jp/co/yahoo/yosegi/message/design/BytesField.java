@@ -16,37 +16,15 @@
  * limitations under the License.
  */
 
-
 package jp.co.yahoo.yosegi.message.design;
 
-public class BytesField implements IField {
-
-  private final String name;
-  private final Properties properties;
-
-  public BytesField( final String name ) {
-    this.name = name;
-    properties = new Properties();
+public class BytesField extends SimpleField {
+  public BytesField(final String name) {
+    this(name, new Properties());
   }
 
-  public BytesField( final String name ,  final Properties properties ) {
-    this.name = name;
-    this.properties = properties;
+  public BytesField(final String name, final Properties properties) {
+    super(name, properties, FieldType.BYTES);
   }
-
-  @Override
-  public String getName() {
-    return name;
-  }
-
-  @Override
-  public Properties getProperties() {
-    return properties;
-  }
-
-  @Override
-  public FieldType getFieldType() {
-    return FieldType.BYTES;
-  }
-
 }
+
