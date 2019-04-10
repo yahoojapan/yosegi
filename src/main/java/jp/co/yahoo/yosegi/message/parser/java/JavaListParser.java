@@ -88,7 +88,7 @@ public class JavaListParser implements IParser {
   }
 
   @Override
-  public boolean hasParser( final int index ) throws IOException {
+  public boolean hasParser(final int index) throws IOException {
     return (IParser.class.isInstance(JavaParserFactory.get(list.get(index))));
   }
 

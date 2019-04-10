@@ -102,7 +102,7 @@ public class JavaMapParser implements IParser {
   }
 
   @Override
-  public boolean hasParser( final String key ) throws IOException {
+  public boolean hasParser(final String key) throws IOException {
     return (IParser.class.isInstance(JavaParserFactory.get(map.get(key))));
   }
 
