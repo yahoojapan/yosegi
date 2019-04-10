@@ -21,6 +21,7 @@ package jp.co.yahoo.yosegi.block;
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Block {
 
@@ -34,20 +35,14 @@ public class Block {
    * Get the number of Spreads included in Block.
    */
   public int size() {
-    if ( columnBinaryTree == null ) {
-      return 0;
-    }
-    return columnBinaryTree.getChildSize();
+    return Objects.nonNull(columnBinaryTree) ? columnBinaryTree.getChildSize() : 0;
   }
 
   /**
    * Gets a binary representing the Spread of the specified Index contained in the Block.
    */
-  public List<ColumnBinary> get( final int index ) {
-    if ( columnBinaryTree == null ) {
-      return null;
-    }
-    return columnBinaryTree.getChildColumnBinary( index );
+  public List<ColumnBinary> get(final int index) {
+    return Objects.nonNull(columnBinaryTree) ? columnBinaryTree.getChildColumnBinary(index) : null;
   }
-
 }
+
