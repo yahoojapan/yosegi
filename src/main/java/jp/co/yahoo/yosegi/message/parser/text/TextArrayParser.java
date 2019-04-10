@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 public class TextArrayParser implements IParser {
@@ -111,12 +112,7 @@ public class TextArrayParser implements IParser {
   @Override
   public PrimitiveObject get( final int index ) throws IOException {
     while ( parse() && ! ( index < container.size() ) ) {};
-
-    if ( index < container.size() ) {
-      return container.get( index );
-    }
-
-    return null;
+    return (index < container.size()) ? container.get(index) : null;
   }
 
   @Override
@@ -127,7 +123,7 @@ public class TextArrayParser implements IParser {
   @Override
   public IParser getParser( final int index ) throws IOException {
     PrimitiveObject obj = get( index );
-    if ( obj == null ) {
+    if (Objects.isNull(obj)) {
       return new TextNullParser();
     }
 
@@ -171,8 +167,8 @@ public class TextArrayParser implements IParser {
   }
 
   @Override
-  public boolean hasParser( final int index ) throws IOException {
-    return ( childSchema instanceof IContainerField );
+  public boolean hasParser(final int index) throws IOException {
+    return IContainerField.class.isInstance(childSchema);
   }
 
   @Override
@@ -187,11 +183,11 @@ public class TextArrayParser implements IParser {
       IntStream.range( 0 , size() )
           .forEach( i -> {
             try {
-              result.add( getParser(i).toJavaObject() ); 
+              result.add( getParser(i).toJavaObject() );
             } catch ( IOException ex ) {
               throw new UncheckedIOException( "IOException in lambda." , ex );
             }
-          } );   
+          } );
     } else {
       IntStream.range( 0 , size() )
           .forEach( i -> {
