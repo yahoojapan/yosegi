@@ -32,11 +32,7 @@ public final class FindClass {
       Class classObj = Class.forName( targetClassName );
       Object obj = classObj.newInstance();
       return obj;
-    } catch ( ClassNotFoundException ex ) {
-      throw new IOException( ex );
-    } catch ( InstantiationException ex ) {
-      throw new IOException( ex );
-    } catch ( IllegalAccessException ex ) {
+    } catch ( ClassNotFoundException | InstantiationException | IllegalAccessException ex ) {
       throw new IOException( ex );
     }
   }
@@ -52,11 +48,7 @@ public final class FindClass {
       Class classObj = Class.forName( targetClassName , initialize , classLoader );
       Object obj = classObj.newInstance();
       return obj;
-    } catch ( ClassNotFoundException ex ) {
-      throw new IOException( ex );
-    } catch ( InstantiationException ex ) {
-      throw new IOException( ex );
-    } catch ( IllegalAccessException ex ) {
+    } catch ( ClassNotFoundException | InstantiationException | IllegalAccessException ex ) {
       throw new IOException( ex );
     }
   }
