@@ -21,7 +21,7 @@ package jp.co.yahoo.yosegi.message.objects;
 import java.io.IOException;
 
 public class BooleanObj implements PrimitiveObject {
-
+  private static byte[] TRUE = "true".getBytes();
   private Boolean value;
   private Integer numberValue;
 
@@ -30,16 +30,16 @@ public class BooleanObj implements PrimitiveObject {
     numberValue = Integer.valueOf( 0 );
   }
 
+  private void init(final boolean value) {
+    this.value = value;
+    numberValue = Integer.valueOf(value ? 1 : 0);
+  }
+
   /**
    * Create a PrimitiveObject holding the input Boolean.
    */
-  public BooleanObj( final boolean value ) {
-    this.value = value;
-    if ( value ) {
-      numberValue = Integer.valueOf( 1 );
-    } else {
-      numberValue = Integer.valueOf( 0 );
-    }
+  public BooleanObj(final boolean value) {
+    init(value);
   }
 
   @Override
@@ -93,13 +93,8 @@ public class BooleanObj implements PrimitiveObject {
   }
 
   @Override
-  public void setString( final String data ) throws IOException {
-    value = Boolean.valueOf( data );
-    if ( value ) {
-      numberValue = Integer.valueOf( 1 );
-    } else {
-      numberValue = Integer.valueOf( 0 );
-    }
+  public void setString(final String data) throws IOException {
+    init(Boolean.valueOf(data));
   }
 
   @Override
@@ -109,16 +104,32 @@ public class BooleanObj implements PrimitiveObject {
 
   @Override
   public void setBytes(
-      final byte[] data ,
-      final int start ,
-      final int length ) throws IOException {
-    value = 
+      final byte[] data,
+      final int start,
+      final int length) throws IOException {
+
+    /*
+     * Original code is not use start, but it seems start as buffer start point,
+     * then, I change following code to use start value.
+     */
+    /*
+    value =
       length == 4 && data[0] == 't' && data[1] == 'r' && data[2] == 'u' && data[3] == 'e';
-    if ( value ) {
-      numberValue = Integer.valueOf( 1 );
-    } else {
-      numberValue = Integer.valueOf( 0 );
+    init(value);
+    */
+    init(isBytesTrue(data, start, length));
+  }
+
+  private boolean isBytesTrue(final byte[] data, final int start, final int length) {
+    if (length != TRUE.length) {
+      return false;
     }
+    for (int i = start; i < start + length; ++i) {
+      if (TRUE[i] != data[i]) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override
@@ -127,73 +138,38 @@ public class BooleanObj implements PrimitiveObject {
   }
 
   @Override
-  public void setShort( final short data ) throws IOException {
-    value = ( (short)1 == data );
-    if ( value ) {
-      numberValue = Integer.valueOf( 1 );
-    } else {
-      numberValue = Integer.valueOf( 0 );
-    }
+  public void setShort(final short data) throws IOException {
+    init((short)1 == data);
   }
 
   @Override
   public void setInt( final int data ) throws IOException {
-    value = ( (int)1 == data );
-    if ( value ) {
-      numberValue = Integer.valueOf( 1 );
-    } else {
-      numberValue = Integer.valueOf( 0 );
-    }
+    init((int)1 == data);
   }
 
   @Override
   public void setLong( final long data ) throws IOException {
-    value = ( (long)1 == data );
-    if ( value ) {
-      numberValue = Integer.valueOf( 1 );
-    } else {
-      numberValue = Integer.valueOf( 0 );
-    }
+    init((long)1 == data);
   }
 
   @Override
   public void setFloat( final float data ) throws IOException {
-    value = ( (float)1 == data );
-    if ( value ) {
-      numberValue = Integer.valueOf( 1 );
-    } else {
-      numberValue = Integer.valueOf( 0 );
-    }
+    init((float)1 == data);
   }
 
   @Override
   public void setDouble( final double data ) throws IOException {
-    value = ( (double)1 == data );
-    if ( value ) {
-      numberValue = Integer.valueOf( 1 );
-    } else {
-      numberValue = Integer.valueOf( 0 );
-    }
+    init((double)1 == data);
   }
 
   @Override
   public void setBoolean( final boolean data ) throws IOException {
-    value = data;
-    if ( value ) {
-      numberValue = Integer.valueOf( 1 );
-    } else {
-      numberValue = Integer.valueOf( 0 );
-    }
+    init(data);
   }
 
   @Override
   public void set( final PrimitiveObject data ) throws IOException {
-    value = data.getBoolean();
-    if ( value ) {
-      numberValue = Integer.valueOf( 1 );
-    } else {
-      numberValue = Integer.valueOf( 0 );
-    }
+    init(data.getBoolean());
   }
 
   @Override
@@ -211,5 +187,5 @@ public class BooleanObj implements PrimitiveObject {
   public int getObjectSize() {
     return Byte.BYTES;
   }
-
 }
+

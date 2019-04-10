@@ -164,11 +164,7 @@ public class DoubleObj implements PrimitiveObject {
 
   @Override
   public void setBoolean( final boolean data ) throws IOException {
-    if ( data ) {
-      value = Double.valueOf( 1 );
-    } else {
-      value = Double.valueOf( 0 );
-    }
+    value = Double.valueOf(data ? 1 : 0);
   }
 
   @Override

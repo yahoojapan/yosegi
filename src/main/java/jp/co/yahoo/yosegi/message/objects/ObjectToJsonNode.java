@@ -27,37 +27,39 @@ import com.fasterxml.jackson.databind.node.LongNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import jp.co.yahoo.yosegi.util.SwitchDispatcherFactory;
+
 import java.io.IOException;
+import java.util.Objects;
 
 public class ObjectToJsonNode {
+  @FunctionalInterface
+  private interface DispatchedFunc {
+    public JsonNode apply(Object obj) throws IOException;
+  }
+
+  private static SwitchDispatcherFactory.Func<Class, DispatchedFunc> dispatcher;
+
+  static {
+    SwitchDispatcherFactory<Class, DispatchedFunc> sw = new SwitchDispatcherFactory<>();
+    sw.setDefault(obj -> new TextNode(obj.toString()));
+    sw.set(PrimitiveObject.class, obj -> PrimitiveObjectToJsonNode.get((PrimitiveObject)obj));
+    sw.set(String.class,  obj -> new TextNode(       (String)obj));
+    sw.set(Boolean.class, obj -> BooleanNode.valueOf((Boolean)obj));
+    sw.set(Short.class,   obj -> IntNode.valueOf(    ((Short)obj).intValue()));
+    sw.set(Integer.class, obj -> IntNode.valueOf(    (Integer)obj));
+    sw.set(Long.class,    obj -> new LongNode(       (Long)obj));
+    sw.set(Float.class,   obj -> new DoubleNode(     ((Float)obj).doubleValue()));
+    sw.set(Double.class,  obj -> new DoubleNode(     (Double)obj));
+    sw.set(byte[].class,  obj -> new BinaryNode(     (byte[])obj));
+    dispatcher = sw.create();
+  }
 
   /**
    * Judge Java objects and create JsonNode.
    */
-  public static JsonNode get( final Object obj ) throws IOException {
-    if ( obj instanceof PrimitiveObject ) {
-      return PrimitiveObjectToJsonNode.get( (PrimitiveObject)obj );
-    } else if ( obj instanceof String ) {
-      return new TextNode( (String)obj );
-    } else if ( obj instanceof Boolean ) {
-      return BooleanNode.valueOf( (Boolean)obj );
-    } else if ( obj instanceof Short ) {
-      return IntNode.valueOf( ( (Short)obj ).intValue() );
-    } else if ( obj instanceof Integer ) {
-      return IntNode.valueOf( (Integer)obj );
-    } else if ( obj instanceof Long ) {
-      return new LongNode( (Long)obj );
-    } else if ( obj instanceof Float ) {
-      return new DoubleNode( ( (Float)obj ).doubleValue() );
-    } else if ( obj instanceof Double ) {
-      return new DoubleNode( (Double)obj );
-    } else if ( obj instanceof byte[] ) {
-      return new BinaryNode( (byte[])obj );
-    } else if ( obj == null ) {
-      return NullNode.getInstance();
-    } else {
-      return new TextNode( obj.toString() );
-    }
+  public static JsonNode get(final Object obj) throws IOException {
+    return Objects.isNull(obj) ? NullNode.getInstance() : dispatcher.get(obj.getClass()).apply(obj);
   }
-
 }
+
