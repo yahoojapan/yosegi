@@ -62,10 +62,7 @@ public class YosegiArrayParser implements ISettableIndexParser {
 
   @Override
   public PrimitiveObject get( final int index ) throws IOException {
-    if ( length <= index ) {
-      return null;
-    }
-    return PrimitiveConverter.convert( arrayColumn.get( start + index ) );
+    return (index < length ) ? PrimitiveConverter.convert(arrayColumn.get(start + index)) : null;
   }
 
   @Override

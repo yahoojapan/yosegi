@@ -34,6 +34,7 @@ import org.apache.arrow.vector.types.pojo.FieldType;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 public class DirectArrowLoader implements IArrowLoader {
 
@@ -77,14 +78,14 @@ public class DirectArrowLoader implements IArrowLoader {
     IMemoryAllocator memoryAllocator =
         rootMemoryAllocator.create( allocator , rootVector , rowCount );
 
-    if ( node != null ) {
+    if ( Objects.nonNull(node) ) {
       BlockIndexNode blockIndexNode = new BlockIndexNode();
       for ( ColumnBinary columnBinary : columnBinaryList ) {
         IColumnBinaryMaker maker = FindColumnBinaryMaker.get( columnBinary.makerClassName );
         maker.setBlockIndexNode( blockIndexNode , columnBinary , 0 );
       }
       List<Integer> blockIndexList = node.getBlockSpreadIndex( blockIndexNode );
-      if ( blockIndexList != null && blockIndexList.isEmpty() ) {
+      if ( Objects.nonNull(blockIndexList) && blockIndexList.isEmpty() ) {
         memoryAllocator.setValueCount( 0 );
         return rootVector;
       }

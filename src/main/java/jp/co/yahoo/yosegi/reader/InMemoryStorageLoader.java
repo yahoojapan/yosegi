@@ -25,6 +25,7 @@ import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 public class InMemoryStorageLoader implements AutoCloseable {
 
@@ -43,7 +44,7 @@ public class InMemoryStorageLoader implements AutoCloseable {
    */
   public void next( final IMemoryAllocator allocator ) throws IOException {
     List<ColumnBinary> columnBinaryList = reader.nextRaw();
-    if ( columnBinaryList == null ) {
+    if ( Objects.isNull(columnBinaryList) ) {
       return;
     }
     int maxValueCount = 0;
