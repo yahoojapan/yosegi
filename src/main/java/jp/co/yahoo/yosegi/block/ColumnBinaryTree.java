@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class ColumnBinaryTree {
@@ -60,7 +61,7 @@ public class ColumnBinaryTree {
     List<ColumnBinary> result = new ArrayList<ColumnBinary>();
     for ( Map.Entry<String,ColumnBinaryTree> entry : childTreeMap.entrySet() ) {
       ColumnBinary childColumnBinary = entry.getValue().getColumnBinary( index );
-      if ( childColumnBinary != null ) {
+      if (Objects.nonNull(childColumnBinary)) {
         result.add( childColumnBinary );
       }
     }
@@ -72,12 +73,12 @@ public class ColumnBinaryTree {
    */
   public void add( final ColumnBinary columnBinary ) throws IOException {
     currentCount++;
-    currentColumnBinaryList.add( columnBinary );
-    if ( columnBinary == null ) {
-      addChild( null );
-    } else {
+    currentColumnBinaryList.add(columnBinary);
+    if (Objects.nonNull(columnBinary)) {
       metaLength += columnBinary.getMetaSize();
-      addChild( columnBinary.columnBinaryList );
+      addChild(columnBinary.columnBinaryList);
+    } else {
+      addChild(null);
     }
   }
 
@@ -86,10 +87,11 @@ public class ColumnBinaryTree {
    */
   public void addChild( final List<ColumnBinary> columnBinaryList ) throws IOException {
     childCount++;
-    if ( columnBinaryList != null ) {
+    if (Objects.nonNull(columnBinaryList)) {
       for ( ColumnBinary childColumnBinary : columnBinaryList ) {
         ColumnBinaryTree childTree = childTreeMap.get( childColumnBinary.columnName );
-        if ( childTree == null ) {
+
+        if (Objects.isNull(childTree)) {
           childTree = new ColumnBinaryTree();
           while ( childTree.size() < ( getChildSize() - 1 ) ) {
             childTree.add( null );
@@ -133,10 +135,9 @@ public class ColumnBinaryTree {
    * Set a filter to determine if it is necessary to read column data.
    */
   public void setColumnFilter( final ColumnNameNode columnNameNode ) {
-    if ( columnNameNode == null ) {
-      return;
+    if (Objects.nonNull(columnNameNode) ) {
+      this.columnNameNode = columnNameNode;
     }
-    this.columnNameNode = columnNameNode;
   }
 
   public int toColumnBinaryTree(
@@ -214,7 +215,7 @@ public class ColumnBinaryTree {
           List<ColumnBinary> childList = new ArrayList<ColumnBinary>();
           for ( Map.Entry<String,ColumnBinaryTree> entry : childTreeMap.entrySet() ) {
             ColumnBinary childColumnBinary = entry.getValue().getColumnBinary( index );
-            if ( childColumnBinary != null ) {
+            if ( Objects.nonNull(childColumnBinary) ) {
               childList.add( childColumnBinary );
             }
           }
@@ -225,7 +226,7 @@ public class ColumnBinaryTree {
                 metaBinaryLength ,
                 childBuffer ,
                 childList );
-          if ( spreadIndexDict == null
+          if ( Objects.isNull(spreadIndexDict)
               || spreadIndexDict.contains( Integer.valueOf( currentCount ) ) ) {
             if ( allBinaryLength != 0 ) {
               blockReadOffsetList.add( new BlockReadOffset(
@@ -272,7 +273,7 @@ public class ColumnBinaryTree {
         ColumnBinary columnBinary = currentColumnBinaryList.get(i);
         wrapMetaBinaryBuffer.putInt( currentMetaBinaryOffset , i );
         currentMetaBinaryOffset += Integer.BYTES;
-        if ( columnBinary == null ) {
+        if ( Objects.isNull(columnBinary) ) {
           wrapMetaBinaryBuffer.putInt( currentMetaBinaryOffset , 0 );
           currentMetaBinaryOffset += Integer.BYTES;
         } else {
