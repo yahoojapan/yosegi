@@ -21,6 +21,7 @@ package jp.co.yahoo.yosegi.block;
 import jp.co.yahoo.yosegi.util.FindClass;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public final class FindBlockWriter {
 
@@ -29,15 +30,15 @@ public final class FindBlockWriter {
   /**
    * Get IBlockWriter from class name.
    */
-  public static IBlockWriter get( final String target ) throws IOException {
-    if ( target == null || target.isEmpty() ) {
-      throw new IOException( "IBlockWriter class name is null or empty." );
+  public static IBlockWriter get(final String target) throws IOException {
+    if (Objects.isNull(target) || target.isEmpty()) {
+      throw new IOException("IBlockWriter class name is null or empty.");
     }
-    Object obj = FindClass.getObject( target , true , FindBlockWriter.class.getClassLoader() );
-    if ( ! ( obj instanceof IBlockWriter ) ) {
-      throw new IOException( "Invalid IBlockWriter class : " + target );
+    Object obj = FindClass.getObject(target, true, FindBlockWriter.class.getClassLoader());
+    if (!IBlockWriter.class.isInstance(obj)) {
+      throw new IOException("Invalid IBlockWriter class : " + target);
     }
     return (IBlockWriter)obj;
   }
-
 }
+

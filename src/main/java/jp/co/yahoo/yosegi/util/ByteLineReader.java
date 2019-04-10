@@ -20,6 +20,7 @@ package jp.co.yahoo.yosegi.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 public class ByteLineReader {
 
@@ -39,10 +40,10 @@ public class ByteLineReader {
    * Read a given InputStream as a row.
    */
   public ByteLineReader( final InputStream in ) throws IOException {
-    buffer = new byte[INPUT_BUFFER_SIZE];
-    if ( in == null ) {
+    if (Objects.isNull(in)) {
       throw new IOException("InputStream is null");
     }
+    buffer = new byte[INPUT_BUFFER_SIZE];
     this.in = in;
     bufferOffset = 0;
   }

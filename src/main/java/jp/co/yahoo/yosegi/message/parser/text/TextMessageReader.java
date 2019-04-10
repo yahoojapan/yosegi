@@ -40,8 +40,7 @@ public class TextMessageReader implements IMessageReader {
   @Override
   public IParser create(
       final byte[] message , final int start , final int length ) throws IOException {
-    IParser parser = TextParserFactory.get( message , start , length , schema );
-    return parser;
+    return TextParserFactory.get( message , start , length , schema );
   }
-
 }
+

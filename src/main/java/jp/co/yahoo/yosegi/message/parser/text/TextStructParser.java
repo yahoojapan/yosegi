@@ -30,6 +30,7 @@ import jp.co.yahoo.yosegi.message.parser.IParser;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class TextStructParser implements IParser {
 
@@ -93,17 +94,17 @@ public class TextStructParser implements IParser {
         return true;
       }
     }
-    container.put( 
-        keys[container.size()] , 
+    container.put(
+        keys[container.size()] ,
         TextPrimitiveConverter.textObjToPrimitiveObj(
           schema.get(
-            keys[container.size()] 
+            keys[container.size()]
           ) ,
           new BytesObj(
             buffer ,
             readOffset ,
             ( length - ( readOffset - start ) )
-          ) 
+          )
         ) );
     readOffset = endOffset;
 
@@ -119,13 +120,8 @@ public class TextStructParser implements IParser {
     if ( ! containsKey( key ) ) {
       return null;
     }
-
-    PrimitiveObject obj = container.get( key );
-    if ( obj == null ) {
-      return NullObj.getInstance();
-    }
-
-    return obj;
+    PrimitiveObject obj = container.get(key);
+    return Objects.isNull(obj) ? NullObj.getInstance() : obj;
   }
 
   @Override
@@ -136,7 +132,7 @@ public class TextStructParser implements IParser {
   @Override
   public IParser getParser( final String key ) throws IOException {
     PrimitiveObject obj = get( key );
-    if ( obj == null ) {
+    if (Objects.isNull(obj)) {
       return new TextNullParser();
     }
     byte[] parseTarget = obj.getBytes();
@@ -145,10 +141,7 @@ public class TextStructParser implements IParser {
 
   @Override
   public IParser getParser( final int index ) throws IOException {
-    if ( index < fieldNumber ) {
-      return new TextNullParser();
-    }
-    return getParser( keys[index] );
+    return (index < fieldNumber) ? new TextNullParser() : getParser(keys[index]);
   }
 
   @Override
@@ -188,23 +181,18 @@ public class TextStructParser implements IParser {
   }
 
   @Override
-  public boolean hasParser( final String key ) throws IOException {
-    IField childSchema = schema.get( key );
-    return ( childSchema instanceof IContainerField);
+  public boolean hasParser(final String key) throws IOException {
+    return IContainerField.class.isInstance(schema.get(key));
   }
 
   @Override
   public Object toJavaObject() throws IOException {
     Map<String,Object> result = new HashMap<String,Object>();
     for ( String key : getAllKey() ) {
-      if ( hasParser(key) ) {
-        result.put( key , getParser(key).toJavaObject() );
-      } else {
-        result.put( key , get(key) );
-      }
+      Object obj = hasParser(key) ? getParser(key).toJavaObject() : get(key);
+      result.put(key, obj);
     }
-
     return result;
   }
-
 }
+
