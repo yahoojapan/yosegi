@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class PushdownSupportedBlockWriter implements IBlockWriter {
 
@@ -147,7 +148,7 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
   public void append(
         final int spreadSize , final List<ColumnBinary> binaryList ) throws IOException {
     for ( ColumnBinary columnBinary : binaryList ) {
-      if ( columnBinary != null ) {
+      if ( Objects.nonNull(columnBinary) ) {
         IColumnBinaryMaker maker = FindColumnBinaryMaker.get( columnBinary.makerClassName );
         maker.setBlockIndexNode( blockIndexNode , columnBinary , getRegisterSpreadCount() );
       }
@@ -176,7 +177,7 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
       ColumnBinaryMakerCustomConfigNode childConfigNode =
           configNode.getChildConfigNode( column.getColumnName() );
       IColumnBinaryMaker maker = commonConfig.getColumnMaker( column.getColumnType() );
-      if ( childConfigNode != null ) {
+      if ( Objects.nonNull(childConfigNode) ) {
         maker = childConfigNode.getCurrentConfig().getColumnMaker( column.getColumnType() );
       }
       result.add( maker.toBinary(

@@ -61,9 +61,7 @@ public class JacksonArrayParser implements IParser {
   @Override
   public String[] getAllKey() throws IOException {
     String[] keys = new String[size()];
-    for ( int i = 0 ; i < size() ; i++ ) {
-      keys[i] = Integer.toString(i);
-    }
+    IntStream.range(0, size()).forEach(i -> keys[i] = Integer.toString(i));
     return keys;
   }
 

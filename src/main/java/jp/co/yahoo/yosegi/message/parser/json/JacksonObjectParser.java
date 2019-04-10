@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class JacksonObjectParser implements IParser {
 
@@ -71,7 +72,7 @@ public class JacksonObjectParser implements IParser {
 
   @Override
   public boolean containsKey( final String key ) throws IOException {
-    return objectNode.get( key ) != null;
+    return Objects.nonNull(objectNode.get(key));
   }
 
   @Override
@@ -107,15 +108,11 @@ public class JacksonObjectParser implements IParser {
   @Override
   public Object toJavaObject() throws IOException {
     Map<String,Object> result = new HashMap<String,Object>();
-    for ( String key : getAllKey() ) {
-      if ( hasParser(key) ) {
-        result.put( key , getParser(key).toJavaObject() );
-      } else {
-        result.put( key , get(key) );
-      }
+    for (String key : getAllKey()) {
+      Object obj = hasParser(key) ? getParser(key).toJavaObject() : get(key);
+      result.put(key, obj);
     }
-
     return result;
   }
-
 }
+

@@ -18,11 +18,11 @@
 
 package jp.co.yahoo.yosegi.block;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ColumnNameNode {
-
   public final String currentNodeName;
   public final Map<String,ColumnNameNode> childNodeMap;
   public boolean isDisableFlag;
@@ -78,40 +78,59 @@ public class ColumnNameNode {
     return isDisableFlag;
   }
 
+  @FunctionalInterface
+  private interface ToStringPrepareFunc {
+    public void accept(StringBuilder sb);
+  }
+
+  @FunctionalInterface
+  private interface ToStringBodyFunc {
+    public void accept(StringBuilder sb, Map.Entry<String, ColumnNameNode> entry);
+  }
+
+  private String toString(ToStringPrepareFunc prepare, ToStringBodyFunc body) {
+    StringBuilder sb = new StringBuilder();
+    prepare.accept(sb);
+    for (Map.Entry<String, ColumnNameNode> entry : childNodeMap.entrySet()) {
+      body.accept(sb, entry);
+    }
+    return sb.toString();
+  }
+
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append( currentNodeName );
-    sb.append( "\n" );
-    for ( Map.Entry<String,ColumnNameNode> entry : childNodeMap.entrySet() ) {
-      String childNode = entry.getValue().toString( 1 );
-      sb.append( "|-" );
-      sb.append( childNode );
-      sb.append( "\n" );
-    }
-    return new String( sb );
+    return toString(
+        sb -> {
+          sb.append(currentNodeName);
+          sb.append("\n");
+        },
+        (sb, entry) -> {
+          String childNode = entry.getValue().toString(1);
+          sb.append("|-");
+          sb.append(childNode);
+          sb.append("\n");
+        });
   }
 
   /**
    * Attaches depth information and converts it to a String.
    */
-  public String toString( final int depth ) {
-    StringBuilder sbSpace = new StringBuilder();
-    for ( int i = 0 ; i < depth ; i++ ) {
-      sbSpace.append( " " );
-    }
-    String space = new String( sbSpace );
-    StringBuilder sb = new StringBuilder();
-    sb.append( space );
-    sb.append( currentNodeName );
-    for ( Map.Entry<String,ColumnNameNode> entry : childNodeMap.entrySet() ) {
-      String childNode = entry.getValue().toString( depth + 1 );
-      sb.append( "\n" );
-      sb.append( space );
-      sb.append( "|-" );
-      sb.append( childNode );
-    }
-    return new String( sb );
-  }
+  public String toString(final int depth) {
+    char[] space = new char[depth];
+    Arrays.fill(space, ' ');
 
+    return toString(
+      sb -> {
+        sb.append(space);
+        sb.append(currentNodeName);
+      },
+      (sb, entry) -> {
+        String childNode = entry.getValue().toString(depth + 1);
+        sb.append("\n");
+        sb.append(space);
+        sb.append("|-");
+        sb.append(childNode);
+      });
+  }
 }
+
