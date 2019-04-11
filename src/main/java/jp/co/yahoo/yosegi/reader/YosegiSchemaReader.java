@@ -32,6 +32,7 @@ import jp.co.yahoo.yosegi.spread.expression.IndexFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
 
 public class YosegiSchemaReader implements IStreamReader {
 
@@ -66,11 +67,7 @@ public class YosegiSchemaReader implements IStreamReader {
    * Set filter conditions.
    */
   public void setExpressionNode( final IExpressionNode node ) {
-    if ( node == null ) {
-      this.node = new AndExpressionNode();
-    } else {
-      this.node = node;
-    }
+    this.node = Objects.isNull(node) ? new AndExpressionNode() : node;
   }
 
   private boolean nextReader() throws IOException {
@@ -97,20 +94,16 @@ public class YosegiSchemaReader implements IStreamReader {
 
   @Override
   public boolean hasNext() throws IOException {
-    if ( currentSpread == null || currentIndex == currentIndexList.size() ) {
-      if ( ! nextReader() ) {
-        return false;
-      }
+    if (Objects.isNull(currentSpread) || currentIndex == currentIndexList.size()) {
+      return nextReader();
     }
     return true;
   }
 
   @Override
   public IParser next() throws IOException {
-    if ( currentSpread == null || currentIndex == currentIndexList.size() ) {
-      if ( ! nextReader() ) {
-        return null;
-      }
+    if (!hasNext()) {
+      return null;
     }
     currentParser.setIndex( currentIndexList.get( currentIndex ) );
     currentIndex++;
@@ -121,5 +114,5 @@ public class YosegiSchemaReader implements IStreamReader {
   public void close() throws IOException {
     currentReader.close();
   }
-
 }
+

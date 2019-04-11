@@ -27,6 +27,7 @@ import jp.co.yahoo.yosegi.spread.column.IColumn;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class YosegiSpreadParser implements ISettableIndexParser {
 
@@ -58,7 +59,7 @@ public class YosegiSpreadParser implements ISettableIndexParser {
   @Override
   public IParser getParser( final String key ) throws IOException {
     ISettableIndexParser parser = cache.get( key );
-    if ( parser == null ) {
+    if ( Objects.isNull(parser) ) {
       parser = YosegiParserFactory.get( column.getColumn( key ) , currentIndex );
       cache.put( key , parser );
     }
@@ -79,7 +80,7 @@ public class YosegiSpreadParser implements ISettableIndexParser {
 
   @Override
   public boolean containsKey( final String key ) throws IOException {
-    return get( key ) != null;
+    return Objects.nonNull(get(key));
   }
 
   @Override
