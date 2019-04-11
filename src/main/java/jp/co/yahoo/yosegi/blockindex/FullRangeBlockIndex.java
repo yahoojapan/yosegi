@@ -129,7 +129,7 @@ public class FullRangeBlockIndex implements IBlockIndex {
 
   @Override
   public boolean merge( final IBlockIndex blockIndex ) {
-    if ( ! ( blockIndex instanceof FullRangeBlockIndex ) ) {
+    if ( !FullRangeBlockIndex.class.isInstance(blockIndex) ) {
       return false;
     }
     FullRangeBlockIndex fullRangeBlockIndex = (FullRangeBlockIndex)blockIndex;

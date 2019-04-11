@@ -49,7 +49,7 @@ public class IntegerRangeBlockIndex implements IBlockIndex {
 
   @Override
   public boolean merge( final IBlockIndex blockIndex ) {
-    if ( ! ( blockIndex instanceof IntegerRangeBlockIndex ) ) {
+    if ( !IntegerRangeBlockIndex.class.isInstance(blockIndex) ) {
       return false;
     }
     IntegerRangeBlockIndex numberBlockIndex = (IntegerRangeBlockIndex)blockIndex;

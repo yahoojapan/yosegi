@@ -49,7 +49,7 @@ public class LongRangeBlockIndex implements IBlockIndex {
 
   @Override
   public boolean merge( final IBlockIndex blockIndex ) {
-    if ( ! ( blockIndex instanceof LongRangeBlockIndex ) ) {
+    if ( !LongRangeBlockIndex.class.isInstance(blockIndex) ) {
       return false;
     }
     LongRangeBlockIndex numberBlockIndex = (LongRangeBlockIndex)blockIndex;

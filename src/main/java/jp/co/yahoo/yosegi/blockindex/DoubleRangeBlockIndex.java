@@ -49,7 +49,7 @@ public class DoubleRangeBlockIndex implements IBlockIndex {
 
   @Override
   public boolean merge( final IBlockIndex blockIndex ) {
-    if ( ! ( blockIndex instanceof DoubleRangeBlockIndex ) ) {
+    if ( !DoubleRangeBlockIndex.class.isInstance(blockIndex) ) {
       return false;
     }
     DoubleRangeBlockIndex numberBlockIndex = (DoubleRangeBlockIndex)blockIndex;

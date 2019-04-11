@@ -49,7 +49,7 @@ public class ShortRangeBlockIndex implements IBlockIndex {
 
   @Override
   public boolean merge( final IBlockIndex blockIndex ) {
-    if ( ! ( blockIndex instanceof ShortRangeBlockIndex ) ) {
+    if ( !ShortRangeBlockIndex.class.isInstance(blockIndex) ) {
       return false;
     }
     ShortRangeBlockIndex numberBlockIndex = (ShortRangeBlockIndex)blockIndex;

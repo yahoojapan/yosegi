@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class BlockIndexNode {
 
@@ -41,7 +42,7 @@ public class BlockIndexNode {
     if ( isDisable ) {
       return;
     }
-    if ( this.blockIndex == null ) {
+    if ( Objects.isNull(this.blockIndex) ) {
       this.blockIndex = blockIndex;
     } else {
       if ( ! this.blockIndex.merge( blockIndex ) ) {
@@ -63,10 +64,7 @@ public class BlockIndexNode {
    * Get the IBlockIndex of this Node.
    */
   public IBlockIndex getBlockIndex() {
-    if ( blockIndex == null ) {
-      return UnsupportedBlockIndex.INSTANCE;
-    }
-    return blockIndex;
+    return Objects.isNull(blockIndex) ? UnsupportedBlockIndex.INSTANCE : blockIndex;
   }
 
   /**
@@ -92,7 +90,7 @@ public class BlockIndexNode {
     }
     int length = 0;
     length += Integer.BYTES;
-    if ( blockIndex != null ) {
+    if ( Objects.nonNull(blockIndex) ) {
       length += Integer.BYTES;
       length += RangeBlockIndexNameShortCut.getShortCutName(
           blockIndex.getClass().getName() ).getBytes( "UTF-8" ).length;
@@ -122,7 +120,7 @@ public class BlockIndexNode {
     }
     int offset = start;
     ByteBuffer wrapBuffer = ByteBuffer.wrap( buffer );
-    if ( blockIndex == null ) {
+    if ( Objects.isNull(blockIndex) ) {
       wrapBuffer.putInt( offset , 0 );
       offset += Integer.BYTES;
     } else {

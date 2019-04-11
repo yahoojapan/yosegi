@@ -49,7 +49,7 @@ public class FloatRangeBlockIndex implements IBlockIndex {
 
   @Override
   public boolean merge( final IBlockIndex blockIndex ) {
-    if ( ! ( blockIndex instanceof FloatRangeBlockIndex ) ) {
+    if ( !FloatRangeBlockIndex.class.isInstance(blockIndex) ) {
       return false;
     }
     FloatRangeBlockIndex numberBlockIndex = (FloatRangeBlockIndex)blockIndex;

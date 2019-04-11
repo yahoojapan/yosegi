@@ -49,7 +49,7 @@ public class ByteRangeBlockIndex implements IBlockIndex {
 
   @Override
   public boolean merge( final IBlockIndex blockIndex ) {
-    if ( ! ( blockIndex instanceof ByteRangeBlockIndex ) ) {
+    if ( !ByteRangeBlockIndex.class.isInstance(blockIndex) ) {
       return false;
     }
     ByteRangeBlockIndex numberBlockIndex = (ByteRangeBlockIndex)blockIndex;

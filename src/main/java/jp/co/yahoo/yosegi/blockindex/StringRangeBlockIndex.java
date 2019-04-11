@@ -52,7 +52,7 @@ public class StringRangeBlockIndex implements IBlockIndex {
 
   @Override
   public boolean merge( final IBlockIndex blockIndex ) {
-    if ( ! ( blockIndex instanceof StringRangeBlockIndex ) ) {
+    if ( !StringRangeBlockIndex.class.isInstance(blockIndex) ) {
       return false;
     }
     StringRangeBlockIndex stringRangeBlockIndex = (StringRangeBlockIndex)blockIndex;
