@@ -16,27 +16,11 @@
  * limitations under the License.
  */
 
-package jp.co.yahoo.yosegi.compressor;
+package jp.co.yahoo.yosegi.util;
 
-import jp.co.yahoo.yosegi.util.NamePair;
+public interface INamePair {
+  public String getLongName();
 
-public final class CompressorNameShortCut {
-  private static NamePair namePair = new NamePair<CompressorName>(CompressorName.class);
-
-  private CompressorNameShortCut() {}
-
-  /**
-   * Get the shortcut name from the class name.
-   */
-  public static String getShortCutName(final String className) {
-    return namePair.getShortName(className);
-  }
-
-  /**
-   * Get the class name from the shortcut name.
-   */
-  public static String getClassName(final String shortCutName) {
-    return namePair.getLongName(shortCutName);
-  }
+  public String getShortName();
 }
 
