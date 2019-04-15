@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
 public class ShortRangeBlockIndex implements IBlockIndex {
 
@@ -96,33 +97,19 @@ public class ShortRangeBlockIndex implements IBlockIndex {
         }
         switch ( numberFilter.getNumberFilterType() ) {
           case EQUAL:
-            if ( setNumber < min || max < setNumber  ) {
-              return new ArrayList<Integer>();
-            }
-            return null;
+            return (setNumber < min || max < setNumber) ? new ArrayList<Integer>() : null;
           case LT:
-            if ( setNumber <= min ) {
-              return new ArrayList<Integer>();
-            }
-            return null;
+            return (setNumber <= min) ? new ArrayList<Integer>() : null;
           case LE:
-            if ( setNumber < min ) {
-              return new ArrayList<Integer>();
-            }
-            return null;
+            return (setNumber < min) ? new ArrayList<Integer>() : null;
           case GT:
-            if ( max <= setNumber ) {
-              return new ArrayList<Integer>();
-            }
-            return null;
+            return (max <= setNumber) ? new ArrayList<Integer>() : null;
           case GE:
-            if ( max < setNumber ) {
-              return new ArrayList<Integer>();
-            }
-            return null;
+            return (max < setNumber) ? new ArrayList<Integer>() : null;
           default:
             return null;
         }
+
       case NUMBER_RANGE:
         NumberRangeFilter numberRangeFilter = (NumberRangeFilter)filter;
         short setMin;
@@ -133,33 +120,15 @@ public class ShortRangeBlockIndex implements IBlockIndex {
         } catch ( NumberFormatException | IOException ex ) {
           return null;
         }
-        boolean invert = numberRangeFilter.isInvert();
-        if ( invert ) {
+        if (numberRangeFilter.isInvert()) {
           return null;
         }
         boolean minHasEquals = numberRangeFilter.isMinHasEquals();
         boolean maxHasEquals = numberRangeFilter.isMaxHasEquals();
-        if ( minHasEquals && maxHasEquals ) {
-          if ( ( setMax < min || max < setMin ) ) {
-            return new ArrayList<Integer>();
-          }
-          return null;
-        } else if ( minHasEquals ) {
-          if ( ( setMax < min || max <= setMin ) ) {
-            return new ArrayList<Integer>();
-          }
-          return null;
-        } else if ( maxHasEquals ) {
-          if ( ( setMax <= min || max < setMin ) ) {
-            return new ArrayList<Integer>();
-          }
-          return null;
-        } else {
-          if ( ( setMax <= min || max <= setMin ) ) {
-            return new ArrayList<Integer>();
-          }
-          return null;
-        }
+        BooleanSupplier isMin = () -> minHasEquals ? min <= setMax : min < setMax;
+        BooleanSupplier isMax = () -> maxHasEquals ? setMin <= max : setMin < max;
+        return (isMin.getAsBoolean() && isMax.getAsBoolean()) ? null : new ArrayList<Integer>();
+
       default:
         return null;
     }

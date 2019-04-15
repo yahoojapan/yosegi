@@ -20,14 +20,37 @@ package jp.co.yahoo.yosegi.blockindex;
 
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
 import jp.co.yahoo.yosegi.spread.column.filter.NumberFilter;
+import jp.co.yahoo.yosegi.spread.column.filter.NumberFilterType;
 import jp.co.yahoo.yosegi.spread.column.filter.NumberRangeFilter;
+import jp.co.yahoo.yosegi.util.EnumDispatcherFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
 public class DoubleRangeBlockIndex implements IBlockIndex {
+  @FunctionalInterface
+  public interface DispatchedFunc {
+    public boolean apply(Double setNumber, Double min, Double max);
+  }
+
+  private static EnumDispatcherFactory.Func<NumberFilterType, DispatchedFunc>
+      numberFilterTypeDispatcher;
+
+  static {
+    EnumDispatcherFactory<NumberFilterType, DispatchedFunc> sw =
+        new EnumDispatcherFactory<>(NumberFilterType.class);
+    sw.setDefault((setNumber, min, max) -> false);
+    sw.set(NumberFilterType.EQUAL, (setNumber, min, max) ->
+        ((0 < min.compareTo(setNumber) || max.compareTo(setNumber) < 0)));
+    sw.set(NumberFilterType.LT, (setNumber, min, max) -> (0 <= min.compareTo(setNumber)));
+    sw.set(NumberFilterType.LE, (setNumber, min, max) -> (0 <  min.compareTo(setNumber)));
+    sw.set(NumberFilterType.GT, (setNumber, min, max) -> (max.compareTo(setNumber) <= 0));
+    sw.set(NumberFilterType.GE, (setNumber, min, max) -> (max.compareTo(setNumber) <  0));
+    numberFilterTypeDispatcher = sw.create();
+  }
 
   private Double min;
   private Double max;
@@ -94,35 +117,10 @@ public class DoubleRangeBlockIndex implements IBlockIndex {
         } catch ( NumberFormatException | IOException ex ) {
           return null;
         }
-        switch ( numberFilter.getNumberFilterType() ) {
-          case EQUAL:
-            if ( 0 < min.compareTo( setNumber ) || max.compareTo( setNumber ) < 0 ) {
-              return new ArrayList<Integer>();
-            }
-            return null;
-          case LT:
-            if ( 0 <= min.compareTo( setNumber ) ) {
-              return new ArrayList<Integer>();
-            }
-            return null;
-          case LE:
-            if ( 0 < min.compareTo( setNumber ) ) {
-              return new ArrayList<Integer>();
-            }
-            return null;
-          case GT:
-            if ( max.compareTo( setNumber ) <= 0 ) {
-              return new ArrayList<Integer>();
-            }
-            return null;
-          case GE:
-            if ( max.compareTo( setNumber ) < 0 ) {
-              return new ArrayList<Integer>();
-            }
-            return null;
-          default:
-            return null;
-        }
+        return numberFilterTypeDispatcher
+            .get(numberFilter.getNumberFilterType())
+            .apply(setNumber, min, max) ? new ArrayList<Integer>() : null;
+
       case NUMBER_RANGE:
         NumberRangeFilter numberRangeFilter = (NumberRangeFilter)filter;
         Double setMin;
@@ -133,33 +131,15 @@ public class DoubleRangeBlockIndex implements IBlockIndex {
         } catch ( NumberFormatException | IOException ex ) {
           return null;
         }
+        if (numberRangeFilter.isInvert()) {
+          return null;
+        }
         boolean minHasEquals = numberRangeFilter.isMinHasEquals();
         boolean maxHasEquals = numberRangeFilter.isMaxHasEquals();
-        boolean invert = numberRangeFilter.isInvert();
-        if ( invert ) {
-          return null;
-        }
-        if ( minHasEquals && maxHasEquals ) {
-          if ( ( 0 < min.compareTo( setMax ) || max.compareTo( setMin ) < 0 ) ) {
-            return new ArrayList<Integer>();
-          }
-          return null;
-        } else if ( minHasEquals ) {
-          if ( ( 0 < min.compareTo( setMax ) || max.compareTo( setMin ) <= 0 ) ) {
-            return new ArrayList<Integer>();
-          }
-          return null;
-        } else if ( maxHasEquals ) {
-          if ( ( 0 <= min.compareTo( setMax ) || max.compareTo( setMin ) < 0 ) ) {
-            return new ArrayList<Integer>();
-          }
-          return null;
-        } else {
-          if ( ( 0 <= min.compareTo( setMax ) || max.compareTo( setMin ) <= 0 ) ) {
-            return new ArrayList<Integer>();
-          }
-          return null;
-        }
+        BooleanSupplier isMin = () -> minHasEquals ? min <= setMax : min < setMax;
+        BooleanSupplier isMax = () -> maxHasEquals ? setMin <= max : setMin < max;
+        return (isMin.getAsBoolean() && isMax.getAsBoolean()) ? null : new ArrayList<Integer>();
+
       default:
         return null;
     }
