@@ -20,7 +20,9 @@ package jp.co.yahoo.yosegi.blockindex;
 
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
 import jp.co.yahoo.yosegi.spread.column.filter.NumberFilter;
+import jp.co.yahoo.yosegi.spread.column.filter.NumberFilterType;
 import jp.co.yahoo.yosegi.spread.column.filter.NumberRangeFilter;
+import jp.co.yahoo.yosegi.util.EnumDispatcherFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -29,6 +31,26 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 
 public class IntegerRangeBlockIndex implements IBlockIndex {
+  @FunctionalInterface
+  public interface DispatchedFunc {
+    public boolean apply(int setNumber, int min, int max);
+  }
+
+  private static EnumDispatcherFactory.Func<NumberFilterType, DispatchedFunc>
+      numberFilterTypeDispatcher;
+
+  static {
+    EnumDispatcherFactory<NumberFilterType, DispatchedFunc> sw =
+        new EnumDispatcherFactory<>(NumberFilterType.class);
+    sw.setDefault((setNumber, min, max) -> false);
+    sw.set(NumberFilterType.EQUAL, (setNumber, min, max) -> (setNumber < min || max < setNumber));
+    sw.set(NumberFilterType.LT, (setNumber, min, max) -> (setNumber <= min));
+    sw.set(NumberFilterType.LE, (setNumber, min, max) -> (setNumber <  min));
+    sw.set(NumberFilterType.GT, (setNumber, min, max) -> (max <= setNumber));
+    sw.set(NumberFilterType.GE, (setNumber, min, max) -> (max <  setNumber));
+    numberFilterTypeDispatcher = sw.create();
+  }
+
   private int min;
   private int max;
 
@@ -94,20 +116,9 @@ public class IntegerRangeBlockIndex implements IBlockIndex {
         } catch ( NumberFormatException | IOException ex ) {
           return null;
         }
-        switch ( numberFilter.getNumberFilterType() ) {
-          case EQUAL:
-            return (setNumber < min || max < setNumber) ? new ArrayList<Integer>() : null;
-          case LT:
-            return (setNumber <= min) ? new ArrayList<Integer>() : null;
-          case LE:
-            return (setNumber < min) ? new ArrayList<Integer>() : null;
-          case GT:
-            return (max <= setNumber) ? new ArrayList<Integer>() : null;
-          case GE:
-            return (max < setNumber) ? new ArrayList<Integer>() : null;
-          default:
-            return null;
-        }
+        return numberFilterTypeDispatcher
+            .get(numberFilter.getNumberFilterType())
+            .apply(setNumber, min, max) ? new ArrayList<Integer>() : null;
 
       case NUMBER_RANGE:
         NumberRangeFilter numberRangeFilter = (NumberRangeFilter)filter;

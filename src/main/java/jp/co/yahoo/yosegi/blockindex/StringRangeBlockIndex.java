@@ -23,6 +23,8 @@ import jp.co.yahoo.yosegi.spread.column.filter.IStringComparator;
 import jp.co.yahoo.yosegi.spread.column.filter.IStringCompareFilter;
 import jp.co.yahoo.yosegi.spread.column.filter.IStringDictionaryFilter;
 import jp.co.yahoo.yosegi.spread.column.filter.IStringFilter;
+import jp.co.yahoo.yosegi.spread.column.filter.StringFilterType;
+import jp.co.yahoo.yosegi.util.EnumDispatcherFactory;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -31,6 +33,26 @@ import java.util.List;
 import java.util.Set;
 
 public class StringRangeBlockIndex implements IBlockIndex {
+  @FunctionalInterface
+  public interface DispatchedFunc {
+    public boolean apply(String targetStr, String min, String max);
+  }
+
+  private static EnumDispatcherFactory.Func<StringFilterType, DispatchedFunc>
+      stringFilterTypeDispatcher;
+
+  static {
+    EnumDispatcherFactory<StringFilterType, DispatchedFunc> sw =
+        new EnumDispatcherFactory<>(StringFilterType.class);
+    sw.setDefault((targetStr, min, max) -> true);
+    sw.set(StringFilterType.PERFECT, ((targetStr, min, max) ->
+        (min.compareTo(targetStr) <= 0 && 0 <= max.compareTo(targetStr))));
+    sw.set(StringFilterType.FORWARD, ((targetStr, min, max) ->
+        (min.startsWith(targetStr)
+        || (0 <= targetStr.compareTo(min)
+        && targetStr.compareTo(max) <= 0))));
+    stringFilterTypeDispatcher = sw.create();
+  }
 
   private String min;
   private String max;
@@ -107,29 +129,15 @@ public class StringRangeBlockIndex implements IBlockIndex {
       case STRING:
         IStringFilter stringFilter = (IStringFilter)filter;
         String targetStr = stringFilter.getSearchString();
-        switch ( stringFilter.getStringFilterType() ) {
-          case PERFECT:
-            if ( min.compareTo( targetStr ) <= 0
-                && 0 <= max.compareTo( targetStr ) ) {
-              return null;
-            }
-            return new ArrayList<Integer>();
-          case FORWARD:
-            if ( min.startsWith( targetStr )
-                || ( 0 <= targetStr.compareTo( min ) && targetStr.compareTo( max ) <= 0 ) ) {
-              return null;
-            }
-            return new ArrayList<Integer>();
-          default:
-            return null;
-        }
+        return stringFilterTypeDispatcher
+            .get(stringFilter.getStringFilterType())
+            .apply(targetStr, min, max) ? null : new ArrayList<Integer>();
+
       case STRING_COMPARE:
         IStringCompareFilter stringCompareFilter = (IStringCompareFilter)filter;
         IStringComparator comparator = stringCompareFilter.getStringComparator();
-        if ( comparator.isOutOfRange( min , max ) ) {
-          return new ArrayList<Integer>();
-        }
-        return null;
+        return comparator.isOutOfRange(min, max) ? new ArrayList<Integer>() : null;
+
       case STRING_DICTIONARY:
         IStringDictionaryFilter stringDictionaryFilter = (IStringDictionaryFilter)filter;
         Set<String> dictionary = stringDictionaryFilter.getDictionary();
@@ -139,6 +147,7 @@ public class StringRangeBlockIndex implements IBlockIndex {
           }
         }
         return new ArrayList<Integer>();
+
       default:
         return null;
     }
