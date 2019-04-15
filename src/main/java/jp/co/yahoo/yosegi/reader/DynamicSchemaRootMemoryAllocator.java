@@ -35,5 +35,5 @@ public class DynamicSchemaRootMemoryAllocator implements IRootMemoryAllocator {
       final int rowCount ) throws IOException {
     return new ArrowMapMemoryAllocator( allocator , rootVector , rowCount );
   }
- 
+
 }

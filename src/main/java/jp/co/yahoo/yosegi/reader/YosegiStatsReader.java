@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class YosegiStatsReader {
 
@@ -62,7 +63,7 @@ public class YosegiStatsReader {
       SummaryStats stats = new SummaryStats();
       ColumnStats columnStats = new ColumnStats( "ROOT" );
       for ( ColumnBinary columnBinary : columnBinaryList ) {
-        if ( columnBinary != null ) {
+        if ( Objects.nonNull(columnBinary) ) {
           stats.merge( columnBinary.toSummaryStats() );
           columnStats.addChild( columnBinary.columnName , columnBinary.toColumnStats() );
         }

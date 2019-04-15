@@ -16,23 +16,11 @@
  * limitations under the License.
  */
 
-package jp.co.yahoo.yosegi.message.objects;
+package jp.co.yahoo.yosegi.util;
 
-public final class PrimitiveObjectMaker {
+public interface INamePair {
+  public String getLongName();
 
-  private PrimitiveObjectMaker() {}
-
-  /**
-   * Create a new PrimitiveObject from the class name.
-   */
-  public static PrimitiveObject create(final String className)
-      throws ClassNotFoundException , InstantiationException , IllegalAccessException {
-
-    Object primitiveObject = Class.forName(className).newInstance();
-    if (!PrimitiveObject.class.isInstance(primitiveObject)) {
-      throw new ClassNotFoundException(className + " does not PrimitiveObject interface.");
-    }
-    return (PrimitiveObject)primitiveObject;
-  }
+  public String getShortName();
 }
 

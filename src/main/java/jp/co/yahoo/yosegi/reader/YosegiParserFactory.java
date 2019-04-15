@@ -19,49 +19,70 @@
 package jp.co.yahoo.yosegi.reader;
 
 import jp.co.yahoo.yosegi.message.parser.ISettableIndexParser;
+import jp.co.yahoo.yosegi.spread.column.ColumnType;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
+import jp.co.yahoo.yosegi.util.EnumDispatcherFactory;
+
+import java.util.Objects;
 
 public final class YosegiParserFactory {
+  @FunctionalInterface
+  private interface HasDispatchedFunc {
+    public boolean apply(IColumn column, int index);
+  }
+
+  @FunctionalInterface
+  private interface GedDispatchedFunc {
+    public ISettableIndexParser apply(IColumn column, int index);
+  }
+
+  private static EnumDispatcherFactory.Func<ColumnType, HasDispatchedFunc> hasDispatcher;
+  private static EnumDispatcherFactory.Func<ColumnType, GedDispatchedFunc> getDispatcher;
+
+  static {
+    EnumDispatcherFactory<ColumnType, GedDispatchedFunc> sg =
+        new EnumDispatcherFactory<>(ColumnType.class);
+    sg.setDefault((column, index) -> YosegiNullParser.getInstance());
+    sg.set(ColumnType.SPREAD, (column, index) -> new YosegiSpreadParser(column));
+    sg.set(ColumnType.ARRAY,  (column, index) -> new YosegiArrayParser(column));
+    sg.set(ColumnType.UNION,  (column, index) -> {
+      return get(column.getColumn(column.get(index).getType()), index);
+    });
+    getDispatcher = sg.create();
+
+
+    EnumDispatcherFactory<ColumnType, HasDispatchedFunc> sh =
+        new EnumDispatcherFactory<ColumnType, HasDispatchedFunc>(ColumnType.class);
+    sh.setDefault((column, index) -> false);
+    sh.set(ColumnType.SPREAD, (column, index) -> true);
+    sh.set(ColumnType.ARRAY,  (column, index) -> true);
+    sh.set(ColumnType.UNION,  (column, index) -> {
+      return hasParser(column.getColumn(column.get(index).getType()), index);
+    });
+    hasDispatcher = sh.create();
+  }
+
 
   private YosegiParserFactory() {}
 
   /**
    * Convert a column to a parser object.
    */
-  public static ISettableIndexParser get(final IColumn column , final int index ) {
-    if ( column == null ) {
+  public static ISettableIndexParser get(final IColumn column, final int index) {
+    if (Objects.isNull(column)) {
       return null;
     }
-    switch ( column.getColumnType() ) {
-      case SPREAD:
-        return new YosegiSpreadParser( column );
-      case ARRAY:
-        return new YosegiArrayParser( column );
-      case UNION:
-        return get( column.getColumn( column.get( index ).getType() ) , index );
-      default:
-        return YosegiNullParser.getInstance();
-    }
+    return getDispatcher.get(column.getColumnType()).apply(column, index);
   }
 
   /**
    * Determine whether the target column has a child column.
    */
-  public static boolean hasParser( final IColumn column , final int index ) {
-    if ( column == null ) {
+  public static boolean hasParser(final IColumn column, final int index) {
+    if (Objects.isNull(column)) {
       return false;
     }
-    switch ( column.getColumnType() ) {
-      case SPREAD:
-        return true;
-      case ARRAY:
-        return true;
-      case UNION:
-        return hasParser( column.getColumn( column.get( index ).getType() ) , index );
-      default:
-        return false;
-    }
-
+    return hasDispatcher.get(column.getColumnType()).apply(column, index);
   }
-
 }
+

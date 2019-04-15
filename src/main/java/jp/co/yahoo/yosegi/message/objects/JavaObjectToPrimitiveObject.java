@@ -18,36 +18,39 @@
 
 package jp.co.yahoo.yosegi.message.objects;
 
+import jp.co.yahoo.yosegi.util.SwitchDispatcherFactory;
+
+import java.util.function.Function;
+
+
 public final class JavaObjectToPrimitiveObject {
+  private interface DispatchedFunc extends Function<Object, PrimitiveObject> {}
+
+  static SwitchDispatcherFactory.Func<Class, DispatchedFunc> dispatcher;
+
+  static {
+    SwitchDispatcherFactory<Class, DispatchedFunc> sw = new SwitchDispatcherFactory<>();
+    sw.setDefault(obj -> NullObj.getInstance());
+    sw.set(PrimitiveObject.class, obj -> (PrimitiveObject)obj);
+    sw.set(Boolean.class, obj -> new BooleanObj((Boolean)obj));
+    sw.set(Byte.class,    obj -> new ByteObj(   (Byte)   obj));
+    sw.set(byte[].class,  obj -> new BytesObj(  (byte[]) obj));
+    sw.set(Double.class,  obj -> new DoubleObj( (Double) obj));
+    sw.set(Float.class,   obj -> new FloatObj(  (Float)  obj));
+    sw.set(Integer.class, obj -> new IntegerObj((Integer)obj));
+    sw.set(Long.class,    obj -> new LongObj(   (Long)   obj));
+    sw.set(Short.class,   obj -> new ShortObj(  (Short)  obj));
+    sw.set(String.class,  obj -> new StringObj( (String) obj));
+    dispatcher = sw.create();
+  }
 
   private JavaObjectToPrimitiveObject() {}
 
   /**
    * Convert Java objects to PrimitiveObject.
    */
-  public static PrimitiveObject get( final Object obj ) {
-    if ( obj instanceof PrimitiveObject ) {
-      return (PrimitiveObject)obj;
-    } else if ( obj instanceof Boolean ) {
-      return new BooleanObj( (Boolean)obj );
-    } else if ( obj instanceof Byte ) {
-      return new ByteObj( (Byte)obj );
-    } else if ( obj instanceof byte[] ) {
-      return new BytesObj( (byte[])obj );
-    } else if ( obj instanceof Double ) {
-      return new DoubleObj( (Double)obj );
-    } else if ( obj instanceof Float ) {
-      return new FloatObj( (Float)obj );
-    } else if ( obj instanceof Integer ) {
-      return new IntegerObj( (Integer)obj );
-    } else if ( obj instanceof Long ) {
-      return new LongObj( (Long)obj );
-    } else if ( obj instanceof Short ) {
-      return new ShortObj( (Short)obj );
-    } else if ( obj instanceof String ) {
-      return new StringObj( (String)obj );
-    }
-    return NullObj.getInstance();
+  public static PrimitiveObject get(final Object obj) {
+    return dispatcher.get(obj.getClass()).apply(obj);
   }
-
 }
+

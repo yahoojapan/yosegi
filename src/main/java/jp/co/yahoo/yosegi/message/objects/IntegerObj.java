@@ -140,11 +140,7 @@ public class IntegerObj implements PrimitiveObject {
 
   @Override
   public void setBoolean( final boolean data ) throws IOException {
-    if ( data ) {
-      value = Integer.valueOf( 1 );
-    } else {
-      value = Integer.valueOf( 0 );
-    }
+    value = Integer.valueOf(data ? 1 : 0);
   }
 
   @Override
