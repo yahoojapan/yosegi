@@ -23,28 +23,15 @@ import jp.co.yahoo.yosegi.binary.FindColumnBinaryMaker;
 import jp.co.yahoo.yosegi.binary.maker.IColumnBinaryMaker;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionNode;
 
 import org.apache.arrow.memory.BufferAllocator;
-import org.apache.arrow.vector.SchemaChangeCallBack;
 import org.apache.arrow.vector.ValueVector;
-import org.apache.arrow.vector.complex.StructVector;
-import org.apache.arrow.vector.types.pojo.ArrowType.Struct;
-import org.apache.arrow.vector.types.pojo.FieldType;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-public class DirectArrowLoader implements IArrowLoader {
-
-  private final StructVector rootVector;
-  private final YosegiReader reader;
-  private final BufferAllocator allocator;
-  private final IRootMemoryAllocator rootMemoryAllocator;
-
-  private IExpressionNode node;
-
+public class DirectArrowLoader extends ArrowLoader {
   /**
    * FileReader and Arrow memory allocators are set and initialized.
    */
@@ -52,22 +39,7 @@ public class DirectArrowLoader implements IArrowLoader {
       final IRootMemoryAllocator rootMemoryAllocator ,
       final YosegiReader reader ,
       final BufferAllocator allocator ) {
-    this.reader = reader;
-    this.allocator = allocator;
-    this.rootMemoryAllocator = rootMemoryAllocator;
-    SchemaChangeCallBack callBack = new SchemaChangeCallBack();
-    rootVector = new StructVector(
-        "root" , allocator , new FieldType( true , Struct.INSTANCE , null , null ) , callBack );
-  }
-
-  @Override
-  public void setNode( final IExpressionNode node ) {
-    this.node = node;
-  }
-
-  @Override
-  public boolean hasNext() throws IOException {
-    return reader.hasNext();
+    super(rootMemoryAllocator, reader, allocator);
   }
 
   @Override
@@ -102,11 +74,5 @@ public class DirectArrowLoader implements IArrowLoader {
     }
     return rootVector;
   }
-
-  @Override
-  public void close() throws IOException {
-    rootVector.clear();
-    reader.close();
-  }
-
 }
+
