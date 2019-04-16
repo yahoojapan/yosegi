@@ -23,6 +23,7 @@ import jp.co.yahoo.yosegi.util.FindClass;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public final class FindBlockIndex {
 
@@ -35,19 +36,19 @@ public final class FindBlockIndex {
    */
   public static IBlockIndex get( final String target ) throws IOException {
     IBlockIndex cacheResult = CACHE.get( target );
-    if ( cacheResult != null ) {
+    if ( Objects.nonNull(cacheResult) ) {
       return cacheResult.getNewInstance();
     }
 
-    if ( target == null || target.isEmpty() ) {
+    if ( Objects.isNull(target) || target.isEmpty() ) {
       throw new IOException( "IBlockIndex class name is null or empty." );
     }
     Object obj = FindClass.getObject( target , true , FindBlockIndex.class.getClassLoader() );
-    if ( ! ( obj instanceof IBlockIndex ) ) {
+    if ( !IBlockIndex.class.isInstance(obj) ) {
       throw new IOException( "Invalid IBlockIndex class : " + target );
     }
     CACHE.put( target , (IBlockIndex)obj );
     return ( (IBlockIndex)obj ).getNewInstance();
   }
-
 }
+
