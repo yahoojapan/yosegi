@@ -408,6 +408,8 @@ public final class NumberToBinaryUtils {
 
     int calcBinarySize( final int rows );
 
+    int getBaseBytes();
+
     IWriteSupporter toWriteSuppoter(
         final int rows ,
         final byte[] buffer ,
@@ -426,6 +428,11 @@ public final class NumberToBinaryUtils {
     @Override
     public int calcBinarySize( final int rows ) {
       return rows * Integer.BYTES + HEADER_SIZE;
+    }
+
+    @Override
+    public int getBaseBytes() {
+      return Integer.BYTES;
     }
 
     @Override
@@ -466,6 +473,11 @@ public final class NumberToBinaryUtils {
       int byteLength = Byte.BYTES * rows;
       int shortLength = Short.BYTES * rows;
       return shortLength + byteLength + HEADER_SIZE;
+    }
+
+    @Override
+    public int getBaseBytes() {
+      return Byte.BYTES + Short.BYTES;
     }
 
     @Override
@@ -530,6 +542,11 @@ public final class NumberToBinaryUtils {
     }
 
     @Override
+    public int getBaseBytes() {
+      return Short.BYTES;
+    }
+
+    @Override
     public IWriteSupporter toWriteSuppoter( final int rows , final byte[] buffer ,
         final int start , final int length ) throws IOException {
       int shortLength = Short.BYTES * rows;
@@ -579,6 +596,11 @@ public final class NumberToBinaryUtils {
     }
 
     @Override
+    public int getBaseBytes() {
+      return Byte.BYTES;
+    }
+
+    @Override
     public IWriteSupporter toWriteSuppoter( final int rows , final byte[] buffer ,
         final int start , final int length ) throws IOException {
       int byteLength = Byte.BYTES * rows;
@@ -622,6 +644,11 @@ public final class NumberToBinaryUtils {
     @Override
     public int calcBinarySize( final int rows ) {
       return HEADER_SIZE;
+    }
+
+    @Override
+    public int getBaseBytes() {
+      return 0;
     }
 
     @Override

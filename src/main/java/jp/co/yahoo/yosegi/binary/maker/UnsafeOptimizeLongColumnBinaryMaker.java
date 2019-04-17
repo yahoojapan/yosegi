@@ -651,7 +651,14 @@ public class UnsafeOptimizeLongColumnBinaryMaker implements IColumnBinaryMaker {
         final int start ,
         final int length ,
         final ByteOrder order ) throws IOException {
-      int size = length / Integer.BYTES;
+
+      /*
+       * Althrough, getBaseBytes() of IntConverter0 returns zero,
+       * this class is not selected by the upper stream.
+       * TODO: calculation row size method may not clear, then it should be impremented.
+       */
+      int size = length / converter.getBaseBytes();
+
       IReadSupporter wrapBuffer = converter.toReadSupporter( buffer , start , length );
       IntBuffer result = IntBuffer.allocate( size );
       for ( int i = 0 ; i < size ; i++ ) {
