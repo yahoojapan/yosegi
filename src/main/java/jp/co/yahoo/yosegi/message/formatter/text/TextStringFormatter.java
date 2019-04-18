@@ -21,43 +21,28 @@ package jp.co.yahoo.yosegi.message.formatter.text;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.parser.IParser;
 import jp.co.yahoo.yosegi.util.ByteArrayData;
-import jp.co.yahoo.yosegi.util.SwitchDispatcherFactory;
 
 import java.io.IOException;
 
 public class TextStringFormatter implements ITextFormatter {
-  @FunctionalInterface
-  private interface WriteDispatcherFunc {
-    public void accept(ByteArrayData buffer, Object obj) throws IOException;
-  }
-
-  protected static final SwitchDispatcherFactory.Func<Class, WriteDispatcherFunc> writeDispatcher;
-
-  static {
-    /* CAUTION:
-     * this structure is not the same function from original.
-     * If there is a class derived from the following class,
-     * it is necessary to branch by if then else if statement.
-     */
-    SwitchDispatcherFactory<Class, WriteDispatcherFunc> sw = new SwitchDispatcherFactory<>();
-    sw.setDefault((buffer, obj) -> { });
-    sw.set(byte[].class, (buf, obj) -> buf.append((byte[])obj));
-    sw.set(String.class, (buf, obj) -> buf.append(((String)obj).getBytes("UTF-8")));
-    sw.set(PrimitiveObject.class, (buf, obj) -> buf.append(((PrimitiveObject)obj).getBytes()));
-    writeDispatcher = sw.create();
-  }
 
   @Override
-  public void write(final ByteArrayData buffer, final Object obj) throws IOException {
-    writeDispatcher.get(obj.getClass()).accept(buffer, obj);
+  public void write( final ByteArrayData buffer , final Object obj ) throws IOException {
+    if ( obj instanceof byte[] ) {
+      buffer.append( (byte[])obj );
+    } else if ( obj instanceof String ) {
+      buffer.append( ( (String)obj ).getBytes( "UTF-8" ) );
+    } else if ( obj instanceof PrimitiveObject ) {
+      buffer.append( ( (PrimitiveObject)obj ).getBytes() );
+    }
   }
 
   @Override
   public void writeParser(
-      final ByteArrayData buffer,
-      final PrimitiveObject obj,
-      final IParser parser) throws IOException {
-    buffer.append(obj.getBytes());
+      final ByteArrayData buffer ,
+      final PrimitiveObject obj ,
+      final IParser parser ) throws IOException {
+    buffer.append( obj.getBytes() );
   }
-}
 
+}

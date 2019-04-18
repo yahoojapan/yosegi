@@ -21,38 +21,28 @@ package jp.co.yahoo.yosegi.message.formatter.text;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.parser.IParser;
 import jp.co.yahoo.yosegi.util.ByteArrayData;
-import jp.co.yahoo.yosegi.util.CascadingDispatcherFactory;
 
 import java.io.IOException;
 
 public class TextBytesFormatter implements ITextFormatter {
-  @FunctionalInterface
-  public interface WriteDispatcherFunc {
-    public void accept(ByteArrayData buffer, Object obj) throws IOException;
-  }
-
-  protected static final CascadingDispatcherFactory.Func<WriteDispatcherFunc> writeDispatcher;
-
-  static {
-    CascadingDispatcherFactory<WriteDispatcherFunc> sw = new CascadingDispatcherFactory<>();
-    sw.setDefault((buffer, obj) -> { });
-    sw.set(byte[].class, (buf, obj) -> buf.append((byte[])obj));
-    sw.set(String.class, (buf, obj) -> buf.append(((String)obj).getBytes("UTF-8")));
-    sw.set(PrimitiveObject.class, (buf, obj) -> buf.append(((PrimitiveObject)obj).getBytes()));
-    writeDispatcher = sw.create();
-  }
 
   @Override
-  public void write(final ByteArrayData buffer, final Object obj) throws IOException {
-    writeDispatcher.get(obj).accept(buffer, obj);
+  public void write(final ByteArrayData buffer , final Object obj ) throws IOException {
+    if ( obj instanceof byte[] ) {
+      buffer.append( (byte[])obj );
+    } else if ( obj instanceof String ) {
+      buffer.append( ( (String)obj ).getBytes( "UTF-8" ) );
+    } else if ( obj instanceof PrimitiveObject) {
+      buffer.append( ( (PrimitiveObject)obj ).getBytes() );
+    }
   }
 
   @Override
   public void writeParser(
-      final ByteArrayData buffer,
-      final PrimitiveObject obj,
-      final IParser parser) throws IOException {
-    buffer.append(obj.getBytes());
+      final ByteArrayData buffer ,
+      final PrimitiveObject obj ,
+      final IParser parser ) throws IOException {
+    buffer.append( obj.getBytes() );
   }
-}
 
+}
