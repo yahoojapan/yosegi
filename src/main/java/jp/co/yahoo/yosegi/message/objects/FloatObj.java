@@ -160,7 +160,11 @@ public class FloatObj implements PrimitiveObject {
 
   @Override
   public void setBoolean( final boolean data ) throws IOException {
-    value = Float.valueOf(data ? 1 : 0);
+    if ( data ) {
+      value = Float.valueOf( 1 );
+    } else {
+      value = Float.valueOf( 0 );
+    }
   }
 
   @Override
