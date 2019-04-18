@@ -25,28 +25,39 @@ import jp.co.yahoo.yosegi.util.ByteArrayData;
 import java.io.IOException;
 
 public class TextLongFormatter implements ITextFormatter {
-  private static TextNumericalFormatterFactory.WriteFunc writeFunc;
-  private static TextNumericalFormatterFactory.WriteParserFunc writeParserFunc;
 
-  static {
-    TextNumericalFormatterFactory factory = new TextNumericalFormatterFactory(
-        obj -> Long.valueOf(obj.longValue()).toString(),
-        obj -> Long.valueOf(obj.getLong()).toString());
-    writeFunc = factory.createWriteFunc();
-    writeParserFunc = factory.createWriteParserFunc();
+  private byte[] convert( final long target ) throws IOException {
+    return Long.valueOf( target ).toString().getBytes("UTF-8");
   }
 
   @Override
-  public void write(final ByteArrayData buffer, final Object obj) throws IOException {
-    writeFunc.accept(buffer, obj);
+  public void write( final ByteArrayData buffer , final Object obj ) throws IOException {
+    if ( obj instanceof Short ) {
+      long target = ( (Short) obj ).longValue();
+      buffer.append( convert( target ) );
+    } else if ( obj instanceof Integer ) {
+      long target = ( (Integer) obj ).longValue();
+      buffer.append( convert( target ) );
+    } else if ( obj instanceof Long ) {
+      long target = ( (Long) obj ).longValue();
+      buffer.append( convert( target ) );
+    } else if ( obj instanceof Float ) {
+      long target = ( (Float) obj ).longValue();
+      buffer.append( convert( target ) );
+    } else if ( obj instanceof Double ) {
+      long target = ( (Double) obj ).longValue();
+      buffer.append( convert( target ) );
+    } else if ( obj instanceof PrimitiveObject) {
+      buffer.append( convert( ( (PrimitiveObject)obj ).getLong() ) );
+    }
   }
 
   @Override
   public void writeParser(
-      final ByteArrayData buffer,
-      final PrimitiveObject obj,
-      final IParser parser) throws IOException {
-    writeParserFunc.accept(buffer, obj, parser);
+      final ByteArrayData buffer ,
+      final PrimitiveObject obj ,
+      final IParser parser ) throws IOException {
+    buffer.append( convert( ( (PrimitiveObject)obj ).getLong() ) );
   }
-}
 
+}
