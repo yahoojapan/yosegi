@@ -25,14 +25,14 @@ public final class PrimitiveObjectMaker {
   /**
    * Create a new PrimitiveObject from the class name.
    */
-  public static PrimitiveObject create(final String className)
+  public static PrimitiveObject create( final String className )
       throws ClassNotFoundException , InstantiationException , IllegalAccessException {
-
-    Object primitiveObject = Class.forName(className).newInstance();
-    if (!PrimitiveObject.class.isInstance(primitiveObject)) {
-      throw new ClassNotFoundException(className + " does not PrimitiveObject interface.");
+    Class primitiveClass = Class.forName(className);
+    Object primitiveObject = primitiveClass.newInstance();
+    if ( ! ( primitiveObject instanceof PrimitiveObject ) ) {
+      throw new ClassNotFoundException( className + " does not PrimitiveObject interface." );
     }
     return (PrimitiveObject)primitiveObject;
   }
-}
 
+}

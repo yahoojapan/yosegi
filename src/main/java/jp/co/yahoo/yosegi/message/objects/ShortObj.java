@@ -136,7 +136,11 @@ public class ShortObj implements PrimitiveObject {
 
   @Override
   public void setBoolean( final boolean data ) throws IOException {
-    value = Short.valueOf((short)(data ? 1 : 0));
+    if ( data ) {
+      value = Short.valueOf( (short)1 );
+    } else {
+      value = Short.valueOf( (short)0 );
+    }
   }
 
   @Override

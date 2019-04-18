@@ -28,44 +28,39 @@ import com.fasterxml.jackson.databind.node.LongNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import jp.co.yahoo.yosegi.util.EnumDispatcherFactory;
-
 import java.io.IOException;
-import java.util.Objects;
 
 public class PrimitiveObjectToJsonNode {
-  @FunctionalInterface
-  private interface DispatchedFunc {
-    public JsonNode apply(PrimitiveObject obj) throws IOException;
-  }
-
-  private static EnumDispatcherFactory.Func<PrimitiveType, DispatchedFunc> dispatcher;
-
-  static {
-    EnumDispatcherFactory<PrimitiveType, DispatchedFunc> sw =
-        new EnumDispatcherFactory<>(PrimitiveType.class);
-    sw.setDefault(obj -> NullNode.getInstance());
-    sw.set(PrimitiveType.BOOLEAN, obj -> BooleanNode.valueOf(obj.getBoolean()));
-    sw.set(PrimitiveType.BYTE,    obj -> IntNode.valueOf(obj.getInt()));
-    sw.set(PrimitiveType.SHORT,   obj -> IntNode.valueOf(obj.getInt()));
-    sw.set(PrimitiveType.INTEGER, obj -> IntNode.valueOf(obj.getInt()));
-    sw.set(PrimitiveType.LONG,    obj -> new LongNode(   obj.getLong()));
-    sw.set(PrimitiveType.FLOAT,   obj -> new DoubleNode( obj.getDouble()));
-    sw.set(PrimitiveType.DOUBLE,  obj -> new DoubleNode( obj.getDouble()));
-    sw.set(PrimitiveType.STRING,  obj -> new TextNode(   obj.getString()));
-    sw.set(PrimitiveType.BYTES,   obj -> new BinaryNode( obj.getBytes()));
-    dispatcher = sw.create();
-  }
-
 
   /**
    * Convert PrimitiveObject to JsonNode.
    */
-  public static JsonNode get(final PrimitiveObject obj) throws IOException {
-    if (Objects.isNull(obj)) {
+  public static JsonNode get( final PrimitiveObject obj ) throws IOException {
+    if ( obj == null ) {
       return NullNode.getInstance();
     }
-    return dispatcher.get(obj.getPrimitiveType()).apply(obj);
+    switch ( obj.getPrimitiveType() ) {
+      case BOOLEAN:
+        return BooleanNode.valueOf( obj.getBoolean() );
+      case BYTE:
+        return IntNode.valueOf( obj.getInt() );
+      case SHORT:
+        return IntNode.valueOf( obj.getInt() );
+      case INTEGER:
+        return IntNode.valueOf( obj.getInt() );
+      case LONG:
+        return new LongNode( obj.getLong() );
+      case FLOAT:
+        return new DoubleNode( obj.getDouble() );
+      case DOUBLE:
+        return new DoubleNode( obj.getDouble() );
+      case STRING:
+        return new TextNode( obj.getString() );
+      case BYTES:
+        return new BinaryNode( obj.getBytes() );
+      default:
+        return NullNode.getInstance();
+    }
   }
-}
 
+}

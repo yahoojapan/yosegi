@@ -35,7 +35,11 @@ public class PrimitiveObjectContainer {
     PrimitiveObject primitiveObject;
     try {
       primitiveObject = PrimitiveObjectMaker.create( className );
-    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+    } catch ( ClassNotFoundException ex ) {
+      throw new IOException( ex );
+    } catch ( InstantiationException ex ) {
+      throw new IOException( ex );
+    } catch ( IllegalAccessException ex ) {
       throw new IOException( ex );
     }
     register( varName , primitiveObject );

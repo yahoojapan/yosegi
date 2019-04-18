@@ -19,7 +19,6 @@
 package jp.co.yahoo.yosegi.message.objects;
 
 import java.io.IOException;
-import java.util.Objects;
 
 public class StringObj implements PrimitiveObject {
 
@@ -47,7 +46,10 @@ public class StringObj implements PrimitiveObject {
 
   @Override
   public byte[] getBytes() throws IOException {
-    return Objects.isNull(value) ? null : value.getBytes("UTF-8");
+    if ( value == null ) {
+      return null;
+    }
+    return value.getBytes( "UTF-8" );
   }
 
   @Override

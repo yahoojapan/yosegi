@@ -132,7 +132,11 @@ public class ByteObj implements PrimitiveObject {
 
   @Override
   public void setBoolean( final boolean data ) throws IOException {
-    value = Integer.valueOf(data ? 1 : 0).byteValue();
+    if ( data ) {
+      value = Integer.valueOf( 1 ).byteValue();
+    } else {
+      value = Integer.valueOf( 0 ).byteValue();
+    }
   }
 
   @Override

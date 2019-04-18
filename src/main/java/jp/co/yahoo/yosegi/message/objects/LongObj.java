@@ -144,7 +144,11 @@ public class LongObj implements PrimitiveObject {
 
   @Override
   public void setBoolean( final boolean data ) throws IOException {
-    value = Long.valueOf(data ? 1 : 0);
+    if ( data ) {
+      value = Long.valueOf( 1 );
+    } else {
+      value = Long.valueOf( 0 );
+    }
   }
 
   @Override
