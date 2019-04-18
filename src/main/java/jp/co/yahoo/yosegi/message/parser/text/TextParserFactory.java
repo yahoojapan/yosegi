@@ -23,34 +23,10 @@ import jp.co.yahoo.yosegi.message.design.IField;
 import jp.co.yahoo.yosegi.message.design.MapContainerField;
 import jp.co.yahoo.yosegi.message.design.StructContainerField;
 import jp.co.yahoo.yosegi.message.parser.IParser;
-import jp.co.yahoo.yosegi.util.SwitchDispatcherFactory;
 
 import java.io.IOException;
 
 public class TextParserFactory {
-  @FunctionalInterface
-  private interface DispatchedFunc {
-    public IParser apply(
-        final byte[] buffer,
-        final int start,
-        final int length,
-        final IField schema) throws IOException;
-  }
-
-  private static SwitchDispatcherFactory.Func<Class, DispatchedFunc> dispatcher;
-
-  static {
-    SwitchDispatcherFactory<Class, DispatchedFunc> sw = new SwitchDispatcherFactory();
-    sw.setDefault((buffer, start, length, schema) -> new TextNullParser());
-    sw.set(ArrayContainerField.class, (buffer, start, length, schema) ->
-        new TextArrayParser(buffer, start, length, (ArrayContainerField)schema));
-    sw.set(StructContainerField.class, (buffer, start, length, schema) ->
-        new TextStructParser(buffer, start, length, (StructContainerField)schema));
-    sw.set(MapContainerField.class, (buffer, start, length, schema) ->
-        new TextMapParser(buffer, start, length, (MapContainerField)schema));
-    dispatcher = sw.create();
-  }
-
 
   /**
    * Create an object to parse byte array.
@@ -60,7 +36,15 @@ public class TextParserFactory {
       final int start ,
       final int length ,
       final IField schema ) throws IOException {
-    return dispatcher.get(schema.getClass()).apply(buffer, start, length, schema);
+    if ( schema instanceof ArrayContainerField ) {
+      return new TextArrayParser( buffer , start , length , (ArrayContainerField)schema );
+    } else if ( schema instanceof StructContainerField ) {
+      return new TextStructParser( buffer , start , length , (StructContainerField)schema );
+    } else if ( schema instanceof MapContainerField ) {
+      return new TextMapParser( buffer , start , length , (MapContainerField)schema );
+    } else {
+      return new TextNullParser();
+    }
   }
-}
 
+}
