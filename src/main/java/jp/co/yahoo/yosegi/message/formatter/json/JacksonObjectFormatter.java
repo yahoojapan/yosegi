@@ -30,19 +30,29 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class JacksonObjectFormatter extends JacksonBaseFormatter implements IJacksonFormatter {
+public class JacksonObjectFormatter implements IJacksonFormatter {
+
   @Override
-  public JsonNode write(final Object obj) throws IOException {
-    ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
-    if (!Map.class.isInstance(obj)) {
+  public JsonNode write( final Object obj ) throws IOException {
+    ObjectNode objectNode = new ObjectNode( JsonNodeFactory.instance );
+    if ( ! ( obj instanceof Map ) ) {
       return objectNode;
     }
 
     Map<Object,Object> mapObj = (Map<Object,Object>)obj;
-    for (Map.Entry<Object,Object> entry : mapObj.entrySet()) {
+    for ( Map.Entry<Object,Object> entry : mapObj.entrySet() ) {
       String key = entry.getKey().toString();
-      objectNode.put(key, writeDispatcher.get(key.getClass()).apply(entry.getValue()));
+      Object childObj = entry.getValue();
+      if ( childObj instanceof List ) {
+        objectNode.put( key , JacksonContainerToJsonObject.getFromList( (List<Object>)childObj ) );
+      } else if ( childObj instanceof Map ) {
+        objectNode.put(
+            key , JacksonContainerToJsonObject.getFromMap( (Map<Object,Object>)childObj ) );
+      } else {
+        objectNode.put( key , ObjectToJsonNode.get( childObj ) );
+      }
     }
+
     return objectNode;
   }
 
@@ -61,5 +71,5 @@ public class JacksonObjectFormatter extends JacksonBaseFormatter implements IJac
     }
     return objectNode;
   }
-}
 
+}
