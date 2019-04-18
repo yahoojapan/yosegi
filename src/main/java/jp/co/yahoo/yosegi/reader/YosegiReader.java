@@ -36,7 +36,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class YosegiReader implements AutoCloseable {
 
@@ -100,7 +99,7 @@ public class YosegiReader implements AutoCloseable {
     String blockReaderClass = new String( classNameChars );
 
     return new FileHeaderMeta(
-        readBlockSize ,
+        readBlockSize , 
         blockReaderClass ,
         ( MAGIC.length + ( Integer.BYTES * 2 ) + classNameSize ) );
   }
@@ -164,7 +163,12 @@ public class YosegiReader implements AutoCloseable {
    * It is judged whether there is the next Spread.
    */
   public boolean hasNext() throws IOException {
-    return currentBlockReader.hasNext() || !readTargetList.isEmpty();
+    if ( currentBlockReader.hasNext() ) {
+      return true;
+    } else if ( ! readTargetList.isEmpty() ) {
+      return true;
+    }
+    return false;
   }
 
   private boolean setNextBlock() throws IOException {
@@ -184,14 +188,20 @@ public class YosegiReader implements AutoCloseable {
    * Get the next Spread as a Spread.
    */
   public Spread next() throws IOException {
-    return setNextBlock() ? currentBlockReader.next() : new Spread();
+    if ( ! setNextBlock() ) {
+      return new Spread();
+    }
+    return currentBlockReader.next();
   }
 
   /**
    * Get the next Spread as a list of ColumnBinary.
    */
   public List<ColumnBinary> nextRaw() throws IOException {
-    return setNextBlock() ? currentBlockReader.nextRaw() : new ArrayList<ColumnBinary>();
+    if ( ! setNextBlock() ) {
+      return new ArrayList<ColumnBinary>();
+    }
+    return currentBlockReader.nextRaw();
   }
 
   public int getBlockReadCount() {
@@ -218,7 +228,7 @@ public class YosegiReader implements AutoCloseable {
    * Close InputStream and reset internal data.
    */
   public void close() throws IOException {
-    if (Objects.nonNull(in)) {
+    if ( in != null ) {
       in.close();
       in = null;
     }

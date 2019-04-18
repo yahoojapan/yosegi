@@ -81,35 +81,36 @@ public class YosegiArrowReader {
     return new YosegiArrowReader( reader , config );
   }
 
-  private YosegiArrowReader(
-      final IRootMemoryAllocator rootAllocator,
-      final YosegiReader reader,
-      final Configuration config) throws IOException {
-    BufferAllocator allocator = new RootAllocator(Integer.MAX_VALUE);
-    if (config.containsKey("spread.reader.expand.column")
-        || config.containsKey("spread.reader.flatten.column")) {
-      arrowLoader = new DynamicArrowLoader(rootAllocator, reader, allocator);
-    } else {
-      arrowLoader = new DirectArrowLoader(rootAllocator, reader, allocator);
-    }
-  }
-
   /**
    * Initialize without schema definition.
    */
   public YosegiArrowReader(
-      final YosegiReader reader, final Configuration config) throws IOException {
-    this(new DynamicSchemaRootMemoryAllocator(), reader, config);
+      final YosegiReader reader , final Configuration config ) throws IOException {
+    IRootMemoryAllocator rootAllocator = new DynamicSchemaRootMemoryAllocator();
+    BufferAllocator allocator = new RootAllocator( Integer.MAX_VALUE );
+    if ( config.containsKey( "spread.reader.expand.column" )
+        || config.containsKey( "spread.reader.flatten.column" ) ) {
+      arrowLoader = new DynamicArrowLoader( rootAllocator , reader , allocator );
+    } else {
+      arrowLoader = new DirectArrowLoader( rootAllocator , reader , allocator );
+    }
   }
 
   /**
    * Perform schema definition and initialize.
    */
   public YosegiArrowReader(
-      final StructContainerField schema,
-      final YosegiReader reader,
-      final Configuration config) throws IOException {
-    this(new FixedSchemaRootMemoryAllocator(schema), reader, config);
+      final StructContainerField schema ,
+      final YosegiReader reader ,
+      final Configuration config ) throws IOException {
+    IRootMemoryAllocator rootAllocator = new FixedSchemaRootMemoryAllocator( schema );
+    BufferAllocator allocator = new RootAllocator( Integer.MAX_VALUE );
+    if ( config.containsKey( "spread.reader.expand.column" )
+        || config.containsKey( "spread.reader.flatten.column" ) ) {
+      arrowLoader = new DynamicArrowLoader( rootAllocator , reader , allocator );
+    } else {
+      arrowLoader = new DirectArrowLoader( rootAllocator , reader , allocator );
+    }
   }
 
   public void setNode( final IExpressionNode node ) {

@@ -34,7 +34,6 @@ import org.apache.arrow.vector.types.pojo.ArrowType.Struct;
 import org.apache.arrow.vector.types.pojo.FieldType;
 
 import java.io.IOException;
-import java.util.Objects;
 
 public class DynamicArrowLoader implements IArrowLoader {
 
@@ -77,7 +76,7 @@ public class DynamicArrowLoader implements IArrowLoader {
     IMemoryAllocator memoryAllocator =
         rootMemoryAllocator.create( allocator , rootVector , spread.size() );
     IExpressionIndex index = new AllExpressionIndex( spread.size() );
-    if ( Objects.nonNull(node) ) {
+    if ( node != null ) {
       index = IndexFactory.toExpressionIndex( spread , node.exec( spread ) );
       if ( index.size() == 0 ) {
         memoryAllocator.setValueCount( 0 );
