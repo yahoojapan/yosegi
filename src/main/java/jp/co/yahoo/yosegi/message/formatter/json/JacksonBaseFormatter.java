@@ -16,37 +16,31 @@
  * limitations under the License.
  */
 
-package jp.co.yahoo.yosegi.message.parser.java;
+package jp.co.yahoo.yosegi.message.formatter.json;
 
-import jp.co.yahoo.yosegi.message.parser.IParser;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import jp.co.yahoo.yosegi.message.objects.ObjectToJsonNode;
 import jp.co.yahoo.yosegi.util.SwitchDispatcherFactory;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public final class JavaParserFactory {
+public class JacksonBaseFormatter {
   @FunctionalInterface
-  private interface DispatchedFunc {
-    IParser apply(Object obj);
+  public interface WriteDispatcherFunc {
+    public JsonNode apply(Object obj) throws IOException;
   }
 
-  private static SwitchDispatcherFactory.Func<Class, DispatchedFunc> dispatcher;
+  protected static final SwitchDispatcherFactory.Func<Class, WriteDispatcherFunc> writeDispatcher;
 
   static {
-    SwitchDispatcherFactory<Class, DispatchedFunc> sw = new SwitchDispatcherFactory<>();
-    sw.setDefault(obj -> new JavaNullParser());
-    sw.set(List.class, obj -> new JavaListParser((List)obj));
-    sw.set(Map.class,  obj -> new JavaMapParser((Map)obj));
-    dispatcher = sw.create();
-  }
-
-  private JavaParserFactory() {}
-
-  /**
-   * Create IParser from Java objects.
-   */
-  public static IParser get(final Object obj) {
-    return dispatcher.get(obj.getClass()).apply(obj);
+    SwitchDispatcherFactory<Class, WriteDispatcherFunc> sw = new SwitchDispatcherFactory<>();
+    sw.set(List.class, child -> JacksonContainerToJsonObject.getFromList((List<Object>)child));
+    sw.set(List.class, child -> JacksonContainerToJsonObject.getFromMap((Map<Object,Object>)child));
+    sw.setDefault(child -> ObjectToJsonNode.get(child));
+    writeDispatcher = sw.create();
   }
 }
 
