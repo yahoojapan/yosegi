@@ -69,16 +69,20 @@ public final class YosegiParserFactory {
    * Convert a column to a parser object.
    */
   public static ISettableIndexParser get(final IColumn column, final int index) {
-    return Objects.isNull(column) ? null :
-        getDispatcher.get(column.getColumnType()).apply(column, index);
+    if (Objects.isNull(column)) {
+      return null;
+    }
+    return getDispatcher.get(column.getColumnType()).apply(column, index);
   }
 
   /**
    * Determine whether the target column has a child column.
    */
   public static boolean hasParser(final IColumn column, final int index) {
-    return Objects.isNull(column) ? null :
-        hasDispatcher.get(column.getColumnType()).apply(column, index);
+    if (Objects.isNull(column)) {
+      return false;
+    }
+    return hasDispatcher.get(column.getColumnType()).apply(column, index);
   }
 }
 
