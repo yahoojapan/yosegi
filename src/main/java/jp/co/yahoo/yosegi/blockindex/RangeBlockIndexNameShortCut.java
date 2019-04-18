@@ -20,8 +20,6 @@ package jp.co.yahoo.yosegi.blockindex;
 
 import jp.co.yahoo.yosegi.util.NamePair;
 
-import java.util.Objects;
-
 public final class RangeBlockIndexNameShortCut {
   private static NamePair namePair = new NamePair<RangeBlockIndexName>(RangeBlockIndexName.class);
 

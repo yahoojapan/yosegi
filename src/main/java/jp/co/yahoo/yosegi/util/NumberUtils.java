@@ -18,9 +18,12 @@
 
 package jp.co.yahoo.yosegi.util;
 
-import java.util.function.BooleanSupplier;
-
 public final class NumberUtils {
+  @FunctionalInterface
+  private interface ComparationFunc {
+    public boolean get();
+  }
+
   private NumberUtils() {}
 
   /**
@@ -32,9 +35,9 @@ public final class NumberUtils {
       final long max ,
       final boolean maxHasEquals ,
       final long target ) {
-    BooleanSupplier isMin = () -> minHasEquals ? min <= target : min < target;
-    BooleanSupplier isMax = () -> maxHasEquals ? target <= max : target < max;
-    return isMin.getAsBoolean() && isMax.getAsBoolean();
+    ComparationFunc isMin = () -> minHasEquals ? min <= target : min < target;
+    ComparationFunc isMax = () -> maxHasEquals ? target <= max : target < max;
+    return isMin.get() && isMax.get();
   }
 
   /**
@@ -46,9 +49,9 @@ public final class NumberUtils {
       final int max ,
       final boolean maxHasEquals ,
       final int target ) {
-    BooleanSupplier isMin = () -> minHasEquals ? min <= target : min < target;
-    BooleanSupplier isMax = () -> maxHasEquals ? target <= max : target < max;
-    return isMin.getAsBoolean() && isMax.getAsBoolean();
+    ComparationFunc isMin = () -> minHasEquals ? min <= target : min < target;
+    ComparationFunc isMax = () -> maxHasEquals ? target <= max : target < max;
+    return isMin.get() && isMax.get();
   }
 
   /**
@@ -60,9 +63,9 @@ public final class NumberUtils {
       final short max ,
       final boolean maxHasEquals ,
       final short target ) {
-    BooleanSupplier isMin = () -> minHasEquals ? min <= target : min < target;
-    BooleanSupplier isMax = () -> maxHasEquals ? target <= max : target < max;
-    return isMin.getAsBoolean() && isMax.getAsBoolean();
+    ComparationFunc isMin = () -> minHasEquals ? min <= target : min < target;
+    ComparationFunc isMax = () -> maxHasEquals ? target <= max : target < max;
+    return isMin.get() && isMax.get();
   }
 
   /**
@@ -74,9 +77,9 @@ public final class NumberUtils {
       final byte max ,
       final boolean maxHasEquals ,
       final byte target ) {
-    BooleanSupplier isMin = () -> minHasEquals ? min <= target : min < target;
-    BooleanSupplier isMax = () -> maxHasEquals ? target <= max : target < max;
-    return isMin.getAsBoolean() && isMax.getAsBoolean();
+    ComparationFunc isMin = () -> minHasEquals ? min <= target : min < target;
+    ComparationFunc isMax = () -> maxHasEquals ? target <= max : target < max;
+    return isMin.get() && isMax.get();
   }
 
   /**
@@ -89,15 +92,15 @@ public final class NumberUtils {
       final boolean maxHasEquals ,
       final Float target ) {
 
-    BooleanSupplier isMin = () -> {
+    ComparationFunc isMin = () -> {
       int res = min.compareTo(target);
       return minHasEquals ? res <= 0 : res < 0;
     };
-    BooleanSupplier isMax = () -> {
+    ComparationFunc isMax = () -> {
       int res = max.compareTo(target);
       return maxHasEquals ? 0 <= res : 0 < res;
     };
-    return isMin.getAsBoolean() && isMax.getAsBoolean();
+    return isMin.get() && isMax.get();
   }
  
   /**
@@ -110,15 +113,15 @@ public final class NumberUtils {
       final boolean maxHasEquals ,
       final Double target ) {
 
-    BooleanSupplier isMin = () -> {
+    ComparationFunc isMin = () -> {
       int res = min.compareTo(target);
       return minHasEquals ? res <= 0 : res < 0;
     };
-    BooleanSupplier isMax = () -> {
+    ComparationFunc isMax = () -> {
       int res = max.compareTo(target);
       return maxHasEquals ? 0 <= res : 0 < res;
     };
-    return isMin.getAsBoolean() && isMax.getAsBoolean();
+    return isMin.get() && isMax.get();
   }
 }
 
