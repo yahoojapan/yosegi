@@ -31,7 +31,6 @@ import jp.co.yahoo.yosegi.spread.expression.IndexFactory;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
 public class YosegiSchemaSpreadReader implements IStreamReader {
 
@@ -39,30 +38,34 @@ public class YosegiSchemaSpreadReader implements IStreamReader {
   private final IExpressionIndex currentIndexList;
   private int currentIndex;
 
-  private YosegiSchemaSpreadReader(
-      final Spread spread, Function<IExpressionNode,IExpressionNode> filter) throws IOException {
-    SpreadColumn spreadColumn = new SpreadColumn("root");
-    spreadColumn.setSpread(spread);
-
-    currentIndex = 0;
-    IExpressionNode node = new AndExpressionNode();
-    currentIndexList = IndexFactory.toExpressionIndex(spread, filter.apply(node).exec(spread));
-    currentParser = YosegiParserFactory.get(spreadColumn, currentIndexList.get(currentIndex));
-  }
-
   /**
    * Set Spread to read and initialize.
    */
-  public YosegiSchemaSpreadReader(final Spread spread) throws IOException {
-    this(spread, node -> node);
+  public YosegiSchemaSpreadReader( final Spread spread ) throws IOException {
+    SpreadColumn spreadColumn = new SpreadColumn( "root" );
+    spreadColumn.setSpread( spread );
+
+    IExpressionNode node = new AndExpressionNode();
+    currentIndexList = IndexFactory.toExpressionIndex( spread , node.exec( spread ) );
+    currentIndex = 0;
+    currentParser = YosegiParserFactory.get( spreadColumn , currentIndexList.get( currentIndex ) );
   }
 
   /**
    * Set Spread to read and initialize.
    */
   public YosegiSchemaSpreadReader(
-      final Spread spread, final IExpressionNode filterNode) throws IOException {
-    this(spread, node -> Objects.nonNull(filterNode) ? filterNode : node);
+      final Spread spread , final IExpressionNode filterNode ) throws IOException {
+    IExpressionNode node = new AndExpressionNode();
+    if ( Objects.nonNull(filterNode) ) {
+      node = filterNode;
+    }
+    SpreadColumn spreadColumn = new SpreadColumn( "root" );
+    spreadColumn.setSpread( spread );
+
+    currentIndexList = IndexFactory.toExpressionIndex( spread , node.exec( spread ) );
+    currentIndex = 0;
+    currentParser = YosegiParserFactory.get( spreadColumn , currentIndexList.get( currentIndex ) );
   }
 
   @Override
@@ -82,7 +85,6 @@ public class YosegiSchemaSpreadReader implements IStreamReader {
 
   @Override
   public void close() throws IOException {
-    /* nothing to do */
   }
-}
 
+}
