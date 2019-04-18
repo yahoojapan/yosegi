@@ -30,33 +30,10 @@ import jp.co.yahoo.yosegi.message.objects.NullObj;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.objects.ShortObj;
 import jp.co.yahoo.yosegi.message.objects.StringObj;
-import jp.co.yahoo.yosegi.util.EnumDispatcherFactory;
 
 import java.io.IOException;
 
 public final class TextPrimitiveConverter {
-  @FunctionalInterface
-  private interface DispatchedFunc {
-    PrimitiveObject apply(PrimitiveObject fromObj) throws IOException;
-  }
-
-  private static EnumDispatcherFactory.Func<FieldType, DispatchedFunc> dispatcher;
-
-  static {
-    EnumDispatcherFactory<FieldType, DispatchedFunc> sw =
-        new EnumDispatcherFactory<>(FieldType.class);
-    sw.setDefault(fromObj -> fromObj); // including UNION, ARRAY, MAP, STRUCT, BYTES, NULL
-    sw.set(FieldType.BOOLEAN, fromObj -> new BooleanObj(fromObj.getBoolean()));
-    sw.set(FieldType.BYTE,    fromObj -> new ByteObj(   fromObj.getByte()));
-    sw.set(FieldType.DOUBLE,  fromObj -> new DoubleObj( fromObj.getDouble()));
-    sw.set(FieldType.FLOAT,   fromObj -> new FloatObj(  fromObj.getFloat()));
-    sw.set(FieldType.INTEGER, fromObj -> new IntegerObj(fromObj.getInt()));
-    sw.set(FieldType.LONG,    fromObj -> new LongObj(   fromObj.getLong()));
-    sw.set(FieldType.SHORT,   fromObj -> new ShortObj(  fromObj.getShort()));
-    sw.set(FieldType.STRING,  fromObj -> new StringObj( fromObj.getString()));
-    dispatcher = sw.create();
-  }
-
 
   private TextPrimitiveConverter() {}
 
@@ -65,12 +42,40 @@ public final class TextPrimitiveConverter {
    */
   public static PrimitiveObject textObjToPrimitiveObj(
       final IField type ,
-      final PrimitiveObject fromObj) throws IOException {
+      final PrimitiveObject fromObj ) throws IOException {
     try {
-      return dispatcher.get(type.getFieldType()).apply(fromObj);
-    } catch (Exception ex) {
+      switch ( type.getFieldType() ) {
+        case UNION:
+        case ARRAY:
+        case MAP:
+        case STRUCT:
+        case BYTES:
+        case NULL:
+          return fromObj;
+
+        case BOOLEAN:
+          return new BooleanObj( fromObj.getBoolean() );
+        case BYTE:
+          return new ByteObj( fromObj.getByte() );
+        case DOUBLE:
+          return new DoubleObj( fromObj.getDouble() );
+        case FLOAT:
+          return new FloatObj( fromObj.getFloat() );
+        case INTEGER:
+          return new IntegerObj( fromObj.getInt() );
+        case LONG:
+          return new LongObj( fromObj.getLong() );
+        case SHORT:
+          return new ShortObj( fromObj.getShort() );
+        case STRING:
+          return new StringObj( fromObj.getString() );
+
+        default:
+          return fromObj;
+      }
+    } catch ( Exception ex ) {
       return NullObj.getInstance();
     }
   }
-}
 
+}

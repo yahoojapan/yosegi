@@ -29,7 +29,6 @@ import jp.co.yahoo.yosegi.message.parser.IParser;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class TextMapParser implements IParser {
 
@@ -126,7 +125,10 @@ public class TextMapParser implements IParser {
 
   @Override
   public PrimitiveObject get( final String key ) throws IOException {
-    return containsKey(key) ? container.get(key) : null;
+    if ( containsKey( key ) ) {
+      return container.get( key );
+    }
+    return null;
   }
 
   @Override
@@ -137,7 +139,7 @@ public class TextMapParser implements IParser {
   @Override
   public IParser getParser( final String key ) throws IOException {
     PrimitiveObject obj = get( key );
-    if (Objects.isNull(obj)) {
+    if ( obj == null ) {
       return new TextNullParser();
     }
     byte[] parseTarget = obj.getBytes();
@@ -194,18 +196,23 @@ public class TextMapParser implements IParser {
   }
 
   @Override
-  public boolean hasParser(final String key) throws IOException {
-    return IContainerField.class.isInstance(schema.get(key));
+  public boolean hasParser( final String key ) throws IOException {
+    IField childSchema = schema.get( key );
+    return ( childSchema instanceof IContainerField );
   }
 
   @Override
   public Object toJavaObject() throws IOException {
     Map<String,Object> result = new HashMap<String,Object>();
     for ( String key : getAllKey() ) {
-      Object obj = hasParser(key) ? getParser(key).toJavaObject() : get(key);
-      result.put(key, obj);
+      if ( hasParser(key) ) {
+        result.put( key , getParser(key).toJavaObject() );
+      } else {
+        result.put( key , get(key) );
+      }
     }
+
     return result;
   }
-}
 
+}

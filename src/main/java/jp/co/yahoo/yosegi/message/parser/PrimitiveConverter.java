@@ -31,8 +31,12 @@ public final class PrimitiveConverter {
   /**
    * Get PrimitiveObject from ICell.
    */
-  public static PrimitiveObject convert(final ICell target) throws IOException {
-    return PrimitiveCell.class.isInstance(target) ? ((PrimitiveCell)target).getRow() : null;
-  }
-}
+  public static PrimitiveObject convert( final ICell target ) throws IOException {
+    if ( ! ( target instanceof PrimitiveCell) ) {
+      return null;
+    }
 
+    return ( (PrimitiveCell)target ).getRow();
+  }
+
+}
