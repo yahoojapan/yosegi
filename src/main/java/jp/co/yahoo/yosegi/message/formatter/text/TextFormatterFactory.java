@@ -44,7 +44,6 @@ public class TextFormatterFactory {
   private static SwitchDispatcherFactory.Func<Class, DispatchedFunc> dispatcher;
 
   static {
-  static {
     /* CAUTION:
      * this structure is not the same function from original.
      * If there is a class derived from the following class,
