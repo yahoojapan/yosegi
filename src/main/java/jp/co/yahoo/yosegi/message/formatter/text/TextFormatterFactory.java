@@ -31,41 +31,42 @@ import jp.co.yahoo.yosegi.message.design.NullField;
 import jp.co.yahoo.yosegi.message.design.ShortField;
 import jp.co.yahoo.yosegi.message.design.StringField;
 import jp.co.yahoo.yosegi.message.design.StructContainerField;
-import jp.co.yahoo.yosegi.util.SwitchDispatcherFactory;
 
 import java.io.IOException;
 
 public class TextFormatterFactory {
-  @FunctionalInterface
-  private interface DispatchedFunc {
-    public ITextFormatter apply(IField schema) throws IOException;
-  }
-
-  private static SwitchDispatcherFactory.Func<Class, DispatchedFunc> dispatcher;
-
-  static {
-    SwitchDispatcherFactory<Class, DispatchedFunc> sw = new SwitchDispatcherFactory<>();
-    sw.setDefault(sc -> new TextNullFormatter());
-    sw.set(ArrayContainerField.class,  sc -> new TextArrayFormatter((ArrayContainerField)sc));
-    sw.set(StructContainerField.class, sc -> new TextStructFormatter((StructContainerField)sc));
-    sw.set(MapContainerField.class,    sc -> new TextMapFormatter((MapContainerField)sc));
-    sw.set(BooleanField.class, sc -> new TextBooleanFormatter());
-    sw.set(BytesField.class,   sc -> new TextBytesFormatter());
-    sw.set(DoubleField.class,  sc -> new TextDoubleFormatter());
-    sw.set(FloatField.class,   sc -> new TextFloatFormatter());
-    sw.set(IntegerField.class, sc -> new TextIntegerFormatter());
-    sw.set(LongField.class,    sc -> new TextLongFormatter());
-    sw.set(ShortField.class,   sc -> new TextShortFormatter());
-    sw.set(StringField.class,  sc -> new TextStringFormatter());
-    sw.set(NullField.class,    sc -> new TextNullFormatter());
-    dispatcher = sw.create();
-  }
 
   /**
    * Create an ITextFormatter from a schema.
    */
-  public static ITextFormatter get(final IField schema) throws IOException {
-    return dispatcher.get(schema.getClass()).apply(schema);
+  public static ITextFormatter get( final IField schema ) throws IOException {
+    if ( schema instanceof ArrayContainerField ) {
+      return new TextArrayFormatter( (ArrayContainerField)schema );
+    } else if ( schema instanceof StructContainerField ) {
+      return new TextStructFormatter( (StructContainerField)schema );
+    } else if ( schema instanceof MapContainerField ) {
+      return new TextMapFormatter( (MapContainerField)schema );
+    } else if ( schema instanceof BooleanField ) {
+      return new TextBooleanFormatter();
+    } else if ( schema instanceof BytesField ) {
+      return new TextBytesFormatter();
+    } else if ( schema instanceof DoubleField ) {
+      return new TextDoubleFormatter();
+    } else if ( schema instanceof FloatField ) {
+      return new TextFloatFormatter();
+    } else if ( schema instanceof IntegerField ) {
+      return new TextIntegerFormatter();
+    } else if ( schema instanceof LongField) {
+      return new TextLongFormatter();
+    } else if ( schema instanceof ShortField ) {
+      return new TextShortFormatter();
+    } else if ( schema instanceof StringField ) {
+      return new TextStringFormatter();
+    } else if ( schema instanceof NullField ) {
+      return new TextNullFormatter();
+    } else {
+      return new TextNullFormatter();
+    }
   }
-}
 
+}

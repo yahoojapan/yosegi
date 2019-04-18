@@ -31,43 +31,39 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.POJONode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import jp.co.yahoo.yosegi.util.SwitchDispatcherFactory;
-
 import java.io.IOException;
 
 public class JsonNodeToPrimitiveObject {
-  @FunctionalInterface
-  private interface DispatchedFunc {
-    public PrimitiveObject apply(JsonNode jsonNode) throws IOException;
-  }
-
-  private static SwitchDispatcherFactory.Func<Class, DispatchedFunc> dispatcher;
-
-  static {
-    SwitchDispatcherFactory<Class, DispatchedFunc> sw = new SwitchDispatcherFactory();
-    sw.setDefault(jsonNode -> new StringObj(jsonNode.toString()));
-    sw.set(TextNode.class,    jsonNode -> new StringObj(((TextNode)jsonNode).textValue()));
-    sw.set(BooleanNode.class, jsonNode -> new BooleanObj(((BooleanNode)jsonNode).booleanValue()));
-    sw.set(IntNode.class,     jsonNode -> new IntegerObj(((IntNode)jsonNode).intValue()));
-    sw.set(LongNode.class,    jsonNode -> new LongObj(((LongNode)jsonNode).longValue()));
-    sw.set(DoubleNode.class,  jsonNode -> new DoubleObj(((DoubleNode)jsonNode).doubleValue()));
-    sw.set(BinaryNode.class,  jsonNode -> new BytesObj(((BinaryNode)jsonNode).binaryValue()));
-    sw.set(POJONode.class,    jsonNode -> new BytesObj(((POJONode)jsonNode).binaryValue()));
-    sw.set(NullNode.class,    jsonNode -> NullObj.getInstance());
-    sw.set(MissingNode.class, jsonNode -> NullObj.getInstance());
-    sw.set(BigIntegerNode.class,
-        jsonNode -> new StringObj(((BigIntegerNode)jsonNode).bigIntegerValue().toString()));
-    sw.set(DecimalNode.class,
-        jsonNode -> new StringObj(((DecimalNode)jsonNode).decimalValue().toString()));
-    dispatcher = sw.create();
-  }
-
 
   /**
    * Converts JsonNode to PrimitiveObject.
    */
-  public static PrimitiveObject get(final JsonNode jsonNode) throws IOException {
-    return dispatcher.get(jsonNode.getClass()).apply(jsonNode);
+  public static PrimitiveObject get( final JsonNode jsonNode ) throws IOException {
+    if ( jsonNode instanceof TextNode ) {
+      return new StringObj( ( (TextNode)jsonNode ).textValue() );
+    } else if ( jsonNode instanceof BooleanNode ) {
+      return new BooleanObj( ( (BooleanNode)jsonNode ).booleanValue() );
+    } else if ( jsonNode instanceof IntNode ) {
+      return new IntegerObj( ( (IntNode)jsonNode ).intValue() );
+    } else if ( jsonNode instanceof LongNode ) {
+      return new LongObj( ( (LongNode)jsonNode ).longValue() );
+    } else if ( jsonNode instanceof DoubleNode ) {
+      return new DoubleObj( ( (DoubleNode)jsonNode ).doubleValue() );
+    } else if ( jsonNode instanceof BigIntegerNode ) {
+      return new StringObj( ( (BigIntegerNode)jsonNode ).bigIntegerValue().toString() );
+    } else if ( jsonNode instanceof DecimalNode ) {
+      return new StringObj( ( (DecimalNode)jsonNode ).decimalValue().toString() );
+    } else if ( jsonNode instanceof BinaryNode ) {
+      return new BytesObj( ( (BinaryNode)jsonNode ).binaryValue() );
+    } else if ( jsonNode instanceof POJONode ) {
+      return new BytesObj( ( (POJONode)jsonNode ).binaryValue() );
+    } else if ( jsonNode instanceof NullNode ) {
+      return NullObj.getInstance();
+    } else if ( jsonNode instanceof MissingNode ) {
+      return NullObj.getInstance();
+    } else {
+      return new StringObj( jsonNode.toString() );
+    }
   }
-}
 
+}
