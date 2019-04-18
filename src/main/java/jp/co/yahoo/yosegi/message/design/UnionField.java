@@ -26,21 +26,31 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UnionField extends SimpleField implements INamedContainerField {
+public class UnionField implements INamedContainerField  {
+
+  private final String name;
+  private final Properties properties;
   private final List<String> keyList = new ArrayList<String>();
   private final Map<String,IField> fieldContainer = new HashMap<String,IField>();
 
-  public UnionField(final String name) {
-    this(name, new Properties());
+  public UnionField( final String name ) {
+    this.name = name;
+    properties = new Properties();
   }
 
-  public UnionField(final String name, final Properties properties) {
-    super(name, properties, FieldType.UNION);
+  public UnionField( final String name , final Properties properties ) {
+    this.name = name;
+    this.properties = properties;
+  }
+
+  @Override
+  public String getName() {
+    return name;
   }
 
   @Override
   public IField getField() {
-    throw new UnsupportedOperationException("UnionField does not have a default field.");
+    throw new UnsupportedOperationException( "UnionField does not have a default field." );
   }
 
   @Override
@@ -49,24 +59,35 @@ public class UnionField extends SimpleField implements INamedContainerField {
     if ( fieldContainer.containsKey( fieldName ) ) {
       throw new IOException( fieldName + " is already set." );
     }
+
     keyList.add( fieldName );
     fieldContainer.put( fieldName , field );
   }
 
   @Override
-  public IField get(final String key) throws IOException {
-    return fieldContainer.get(key);
+  public IField get( final String key ) throws IOException {
+    return fieldContainer.get( key );
   }
 
   @Override
-  public boolean containsKey(final String key) throws IOException {
-    return fieldContainer.containsKey(key);
+  public boolean containsKey( final String key ) throws IOException {
+    return fieldContainer.containsKey( key );
   }
 
   @Override
   public String[] getKeys() throws IOException {
-    return keyList.toArray(new String[keyList.size()]);
+    String[] keyArray = new String[ keyList.size() ];
+    return keyList.toArray( keyArray );
+  }
 
+  @Override
+  public Properties getProperties() {
+    return properties;
+  }
+
+  @Override
+  public FieldType getFieldType() {
+    return FieldType.UNION;
   }
 
   @Override
@@ -95,13 +116,16 @@ public class UnionField extends SimpleField implements INamedContainerField {
 
   @Override
   public Map<Object,Object> toJavaObject() throws IOException {
-    LinkedHashMap<Object,Object> schemaJavaObject = toJavaObjectBase();
+    LinkedHashMap<Object,Object> schemaJavaObject = new LinkedHashMap<Object,Object>();
+    schemaJavaObject.put( "name" , getName() );
+    schemaJavaObject.put( "type" , getFieldType().toString() );
+    schemaJavaObject.put( "properties" , getProperties().toMap() );
     List<Object> childList = new ArrayList<Object>();
-    for (String key : getKeys()) {
-      childList.add(get(key).toJavaObject());
+    for ( String key : getKeys() ) {
+      childList.add( get( key ).toJavaObject() );
     }
-    schemaJavaObject.put("child", childList);
+    schemaJavaObject.put( "child" , childList );
     return schemaJavaObject;
   }
-}
 
+}

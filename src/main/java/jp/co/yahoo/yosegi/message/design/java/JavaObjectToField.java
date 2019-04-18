@@ -34,90 +34,76 @@ import jp.co.yahoo.yosegi.message.design.ShortField;
 import jp.co.yahoo.yosegi.message.design.StringField;
 import jp.co.yahoo.yosegi.message.design.StructContainerField;
 import jp.co.yahoo.yosegi.message.design.UnionField;
-import jp.co.yahoo.yosegi.message.design.UnionField;
-import jp.co.yahoo.yosegi.util.SwitchDispatcherFactory;
 
 import java.io.IOException;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public final class JavaObjectToField {
-  @FunctionalInterface
-  private interface DispatchedFunc {
-    public IField apply(
-        String name,
-        Properties properties,
-        Map<Object,Object> javaObject) throws IOException;
-  }
-
-  private static SwitchDispatcherFactory.Func<String, DispatchedFunc> dispatcher;
-
-  static {
-    SwitchDispatcherFactory<String, DispatchedFunc> sw = new SwitchDispatcherFactory<>();
-    sw.set("ARRAY", (name, properties, javaObject) -> {
-      IField arrayChild = get(getChild(javaObject).get(0));
-      return new ArrayContainerField(name, arrayChild, properties);
-    });
-    sw.set("UNION", (name, properties, javaObject) -> {
-      UnionField union = new UnionField(name, properties);
-      for (Map<Object,Object> childObj : getChild(javaObject)) {
-        union.set(get(childObj));
-      }
-      return union;
-    });
-    sw.set("MAP", (name, properties, javaObject) -> {
-      IField defaultField = get((Map<Object,Object>)javaObject.get("default"));
-      MapContainerField map = new MapContainerField(name, defaultField, properties);
-      for (Map<Object,Object> childObj : getChild(javaObject)) {
-        map.set(get(childObj));
-      }
-      return map;
-    });
-    sw.set("STRUCT", (name, properties, javaObject) -> {
-      StructContainerField struct = new StructContainerField(name, properties);
-      for (Map<Object,Object> childObj : getChild(javaObject)) {
-        struct.set(get(childObj));
-      }
-      return struct;
-    });
-
-    sw.set("BOOLEAN", (name, properties, javaObject) -> new BooleanField(name, properties));
-    sw.set("BYTE",    (name, properties, javaObject) -> new ByteField(name, properties));
-    sw.set("BYTES",   (name, properties, javaObject) -> new BytesField(name, properties));
-    sw.set("DOUBLE",  (name, properties, javaObject) -> new DoubleField(name, properties));
-    sw.set("FLOAT",   (name, properties, javaObject) -> new FloatField(name, properties));
-    sw.set("INTEGER", (name, properties, javaObject) -> new IntegerField(name, properties));
-    sw.set("LONG",    (name, properties, javaObject) -> new LongField(name, properties));
-    sw.set("SHORT",   (name, properties, javaObject) -> new ShortField(name, properties));
-    sw.set("STRING",  (name, properties, javaObject) -> new StringField(name, properties));
-    sw.set("NULL",    (name, properties, javaObject) -> new NullField(name, properties));
-    dispatcher = sw.create();
-  }
 
   private JavaObjectToField() {}
-
-  private static List<Map<Object,Object>> getChild(final Map<Object,Object> javaObject) {
-    return (List<Map<Object,Object>>)javaObject.get("child");
-  }
-
 
   /**
    * Create an IField from a Java object representing the schema structure.
    */
-  public static IField get(final Map<Object,Object> javaObject) throws IOException {
-    DispatchedFunc dispatchedFunc = dispatcher.get(javaObject.get("type").toString());
-    if (Objects.isNull(dispatchedFunc)) {
-      throw new IOException("Invalid schema type.");
-    }
-
+  public static IField get( final Map<Object,Object> javaObject ) throws IOException {
+    String type = javaObject.get( "type" ).toString();
     Properties properties = new Properties();
-    Map<Object,Object> propertiesObj = (Map<Object,Object>)javaObject.get("properties");
-    for ( Map.Entry<Object,Object> entry : propertiesObj.entrySet()) {
-      properties.set(entry.getKey().toString(), entry.getValue().toString());
+    Map<Object,Object> propertiesObj = (Map<Object,Object>)javaObject.get( "properties" );
+    for ( Map.Entry<Object,Object> entry : propertiesObj.entrySet() ) {
+      properties.set( entry.getKey().toString() , entry.getValue().toString() );
     }
-    return dispatchedFunc.apply(javaObject.get("name").toString(), properties, javaObject);
-  }
-}
+    String name = javaObject.get( "name" ).toString();
+    List<Map<Object,Object>> child = (List<Map<Object,Object>>)javaObject.get( "child" );
 
+    switch ( type ) {
+      case "ARRAY":
+        IField arrayChild = get( child.get(0) );
+        return new ArrayContainerField( name , arrayChild , properties );
+      case "UNION":
+        UnionField union = new UnionField( name , properties );
+        for ( Map<Object,Object> childObj : child ) {
+          union.set( get( childObj ) );
+        }
+        return union;
+      case "MAP":
+        IField defaultField = get( (Map<Object,Object>)javaObject.get( "default" ) );
+        MapContainerField map = new MapContainerField( name , defaultField , properties );
+        for ( Map<Object,Object> childObj : child ) {
+          map.set( get( childObj ) );
+        }
+        return map;
+      case "STRUCT":
+        StructContainerField struct = new StructContainerField( name , properties );
+        for ( Map<Object,Object> childObj : child ) {
+          struct.set( get( childObj ) );
+        }
+        return struct;
+
+      case "BOOLEN":
+        return new BooleanField( name , properties );
+      case "BYTE":
+        return new ByteField( name , properties );
+      case "BYTES":
+        return new BytesField( name , properties );
+      case "DOUBLE":
+        return new DoubleField( name , properties );
+      case "FLOAT":
+        return new FloatField( name , properties );
+      case "INTEGER":
+        return new IntegerField( name , properties );
+      case "LONG":
+        return new LongField( name , properties );
+      case "SHORT":
+        return new ShortField( name , properties );
+      case "STRING":
+        return new StringField( name , properties );
+      case "NULL":
+        return new NullField( name , properties );
+      default:
+        throw new IOException( "Invalid schema type." );
+    }
+  }
+
+}

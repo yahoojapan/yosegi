@@ -25,31 +25,52 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+public class ArrayContainerField implements IContainerField {
 
-public class ArrayContainerField extends SimpleField implements IContainerField {
+  private final String name;
+  private final Properties properties;
+
   private IField childField;
 
   /**
    * Creates an object representing Array with the specified parameters.
    */
-  public ArrayContainerField(final String name, final IField childField) {
-    this(name, childField, new Properties());
+  public ArrayContainerField( final String name , final IField childField ) {
+    this.name = name;
+    this.childField = childField;
+    properties = new Properties();
   }
 
   /**
    * Creates an object representing Array with the specified parameters.
    */
   public ArrayContainerField(
-      final String name,
-      final IField childField,
-      final Properties properties) {
-    super(name, properties, FieldType.ARRAY);
+      final String name ,
+      final IField childField ,
+      final Properties properties ) {
+    this.name = name;
     this.childField = childField;
+    this.properties = properties;
   }
 
   @Override
   public IField getField() {
     return childField;
+  }
+
+  @Override
+  public String getName() {
+    return name;
+  }
+
+  @Override
+  public Properties getProperties() {
+    return properties;
+  }
+
+  @Override
+  public FieldType getFieldType() {
+    return FieldType.ARRAY;
   }
 
   @Override
@@ -61,7 +82,7 @@ public class ArrayContainerField extends SimpleField implements IContainerField 
     IField targetChildField = targetField.getField();
     if ( targetChildField.getFieldType() != childField.getFieldType() 
         && childField.getFieldType() != FieldType.UNION ) {
-      UnionField newField = new UnionField( getName() , getProperties() );
+      UnionField newField = new UnionField( name , properties );
       newField.set( childField );
       childField = newField;
     }
@@ -70,11 +91,14 @@ public class ArrayContainerField extends SimpleField implements IContainerField 
 
   @Override
   public Map<Object,Object> toJavaObject() throws IOException {
-    LinkedHashMap<Object,Object> schemaJavaObject = toJavaObjectBase();
+    LinkedHashMap<Object,Object> schemaJavaObject = new LinkedHashMap<Object,Object>();
+    schemaJavaObject.put( "name" , getName() );
+    schemaJavaObject.put( "type" , getFieldType().toString() );
+    schemaJavaObject.put( "properties" , getProperties().toMap() );
     List<Object> childList = new ArrayList<Object>();
-    childList.add(getField().toJavaObject());
-    schemaJavaObject.put("child", childList);
+    childList.add( getField().toJavaObject() );
+    schemaJavaObject.put( "child" , childList );
     return schemaJavaObject;
   }
-}
 
+}
