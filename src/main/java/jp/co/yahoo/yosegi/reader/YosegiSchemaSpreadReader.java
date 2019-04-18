@@ -30,7 +30,6 @@ import jp.co.yahoo.yosegi.spread.expression.IndexFactory;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 
 public class YosegiSchemaSpreadReader implements IStreamReader {
 
@@ -57,7 +56,7 @@ public class YosegiSchemaSpreadReader implements IStreamReader {
   public YosegiSchemaSpreadReader(
       final Spread spread , final IExpressionNode filterNode ) throws IOException {
     IExpressionNode node = new AndExpressionNode();
-    if ( Objects.nonNull(filterNode) ) {
+    if ( filterNode != null ) {
       node = filterNode;
     }
     SpreadColumn spreadColumn = new SpreadColumn( "root" );
