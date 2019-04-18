@@ -24,8 +24,6 @@ import jp.co.yahoo.yosegi.message.parser.json.JacksonMessageReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.IntStream;
 
 public final class ReadColumnUtil {
 
@@ -37,11 +35,10 @@ public final class ReadColumnUtil {
   public static List<String[]> readColumnSetting( final String settingJson ) throws IOException {
     JacksonMessageReader jsonReader = new JacksonMessageReader();
     List<String[]> result = new ArrayList<String[]>();
-    if ( Objects.isNull(settingJson) || settingJson.isEmpty() ) {
+    if ( settingJson == null || settingJson.isEmpty() ) {
       return result;
     }
     IParser jsonParser = jsonReader.create( settingJson );
-
     for ( int i = 0 ; i < jsonParser.size() ; i++ ) {
       IParser nodeArrayParser = jsonParser.getParser(i);
       String[] nodeArray = new String[nodeArrayParser.size()];

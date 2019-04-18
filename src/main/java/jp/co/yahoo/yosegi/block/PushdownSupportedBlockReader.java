@@ -43,7 +43,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 public class PushdownSupportedBlockReader implements IBlockReader {
@@ -99,7 +98,7 @@ public class PushdownSupportedBlockReader implements IBlockReader {
       for ( int i = 0 ; i < mergeNeedColumn.length ; i++ ) {
         String columnName = mergeNeedColumn[i];
         ColumnNameNode columnNameNode = currentColumnNameNode.getChild( columnName );
-        if ( Objects.isNull(columnNameNode) ) {
+        if ( columnNameNode == null ) {
           columnNameNode = new ColumnNameNode( columnName );
         }
         if ( i == ( mergeNeedColumn.length - 1 ) ) {
@@ -118,7 +117,7 @@ public class PushdownSupportedBlockReader implements IBlockReader {
         for ( int i = 0 ; i < needColumn.length ; i++ ) {
           String columnName = needColumn[i];
           ColumnNameNode columnNameNode = currentColumnNameNode.getChild( columnName );
-          if ( Objects.isNull(columnNameNode) ) {
+          if ( columnNameNode == null ) {
             columnNameNode = new ColumnNameNode( columnName );
             currentColumnNameNode.addChild( columnNameNode );
           }
@@ -158,15 +157,15 @@ public class PushdownSupportedBlockReader implements IBlockReader {
     flattenFunction.flattenIndexNode( blockIndexNode );
 
     List<Integer> blockIndexList = null;
-    if ( Objects.nonNull(blockSkipIndex) ) {
+    if ( blockSkipIndex != null ) {
       blockIndexList = blockSkipIndex.getBlockSpreadIndex( blockIndexNode );
     }
-    if ( Objects.nonNull(blockIndexList) && blockIndexList.isEmpty() ) {
+    if ( blockIndexList != null && blockIndexList.isEmpty() ) {
       InputStreamUtils.skip(
           in , blockSize - ( 4 + compressorClassLength + 4 + blockIndexBinary.length ) );
     } else {
       Set<Integer> spreadIndexDict = null;
-      if ( Objects.nonNull(blockIndexList) ) {
+      if ( blockIndexList != null ) {
         spreadIndexDict = new HashSet<Integer>( blockIndexList );
       }
       setStream(
@@ -245,7 +244,7 @@ public class PushdownSupportedBlockReader implements IBlockReader {
     Spread spread = new Spread();
     int spreadSize = spreadSizeList.get( readCount ).intValue();
     for ( ColumnBinary columnBinary : block.get( readCount ) ) {
-      if ( Objects.nonNull(columnBinary) ) {
+      if ( columnBinary != null ) {
         IColumnBinaryMaker maker = FindColumnBinaryMaker.get( columnBinary.makerClassName );
         spread.addColumn( maker.toColumn( columnBinary ) );
         readSummaryStats.merge( columnBinary.toSummaryStats() );
