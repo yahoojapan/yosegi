@@ -18,7 +18,6 @@
 
 package jp.co.yahoo.yosegi.compressor;
 
-import jp.co.yahoo.yosegi.util.EnumDispatcherFactory;
 import jp.co.yahoo.yosegi.util.io.InputStreamUtils;
 
 import java.io.BufferedInputStream;
@@ -33,16 +32,20 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public class GzipCompressor implements ICompressor {
-  private static EnumDispatcherFactory.Func<CompressionPolicy, Integer> compressLevelDispatcher;
 
-  static {
-    compressLevelDispatcher = (new EnumDispatcherFactory<>(CompressionPolicy.class))
-      .setDefault(6)
-      .set(CompressionPolicy.BEST_SPEED, Deflater.BEST_SPEED)
-      .set(CompressionPolicy.SPEED, 6 - 2)
-      .set(CompressionPolicy.DEFAULT, 6)
-      .set(CompressionPolicy.BEST_COMPRESSION, Deflater.BEST_COMPRESSION)
-      .create();
+  private int getCompressLevel( final CompressionPolicy compressionPolicy ) {
+    switch ( compressionPolicy ) {
+      case BEST_SPEED:
+        return Deflater.BEST_SPEED;
+      case SPEED:
+        return 6 - 2;
+      case DEFAULT:
+        return 6;
+      case BEST_COMPRESSION:
+        return Deflater.BEST_COMPRESSION;
+      default:
+        return 6;
+    }
   }
 
   @Override
@@ -51,7 +54,7 @@ public class GzipCompressor implements ICompressor {
       final int start ,
       final int length ,
       final CompressResult compressResult ) throws IOException {
-    int level = compressLevelDispatcher.get( compressResult.getCompressionPolicy() ); 
+    int level = getCompressLevel( compressResult.getCompressionPolicy() ); 
     int optLevel = compressResult.getCurrentLevel();
     if ( ( level - optLevel ) < 1 ) {
       compressResult.setEnd();

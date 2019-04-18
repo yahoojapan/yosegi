@@ -18,8 +18,6 @@
 
 package jp.co.yahoo.yosegi.compressor;
 
-import jp.co.yahoo.yosegi.util.EnumDispatcherFactory;
-
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 
@@ -28,16 +26,20 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class BZip2CommonsCompressor extends AbstractCommonsCompressor {
-  private static EnumDispatcherFactory.Func<CompressionPolicy, Integer> compressLevelDispatcher;
 
-  static {
-    compressLevelDispatcher = (new EnumDispatcherFactory<>(CompressionPolicy.class))
-      .setDefault(6)
-      .set(CompressionPolicy.BEST_SPEED, BZip2CompressorOutputStream.MIN_BLOCKSIZE)
-      .set(CompressionPolicy.SPEED, 3)
-      .set(CompressionPolicy.DEFAULT, 6)
-      .set(CompressionPolicy.BEST_COMPRESSION, BZip2CompressorOutputStream.MAX_BLOCKSIZE)
-      .create();
+  private int getCompressLevel( final CompressionPolicy compressionPolicy ) {
+    switch ( compressionPolicy ) {
+      case BEST_SPEED:
+        return BZip2CompressorOutputStream.MIN_BLOCKSIZE;
+      case SPEED:
+        return 3;
+      case DEFAULT:
+        return 6;
+      case BEST_COMPRESSION:
+        return BZip2CompressorOutputStream.MAX_BLOCKSIZE;
+      default:
+        return 6;
+    }
   }
 
   @Override
@@ -48,7 +50,7 @@ public class BZip2CommonsCompressor extends AbstractCommonsCompressor {
   @Override
   public OutputStream createOutputStream(
       final OutputStream out , final CompressResult compressResult ) throws IOException {
-    int level = compressLevelDispatcher.get( compressResult.getCompressionPolicy() );
+    int level = getCompressLevel( compressResult.getCompressionPolicy() );
     int optLevel = compressResult.getCurrentLevel();
     if ( ( level - optLevel ) < BZip2CompressorOutputStream.MIN_BLOCKSIZE ) {
       compressResult.setEnd();
