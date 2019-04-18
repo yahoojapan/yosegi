@@ -18,51 +18,13 @@
 
 package jp.co.yahoo.yosegi.blockindex;
 
-import jp.co.yahoo.yosegi.blockindex.BlockIndexType;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
-import jp.co.yahoo.yosegi.util.EnumDispatcherFactory;
-import jp.co.yahoo.yosegi.util.SwitchDispatcherFactory;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Supplier;
 
 public class FullRangeBlockIndex implements IBlockIndex {
-  private interface DispatchedFunc extends Supplier<IBlockIndex> {}
-
-  private static Set<BlockIndexType> fullRangeBlockIndexList;
-  private static EnumDispatcherFactory.Func<BlockIndexType, Byte> getTypeToByteDispatcher;
-  private static SwitchDispatcherFactory.Func<Byte, DispatchedFunc> getByteToBlockIndexDispacher;
-
-  static {
-    EnumDispatcherFactory<BlockIndexType, Byte> getTypeToByteDispatcherFactory =
-        new EnumDispatcherFactory<>(BlockIndexType.class);
-    getTypeToByteDispatcher = getTypeToByteDispatcherFactory
-        .set(BlockIndexType.RANGE_STRING,  (byte)0)
-        .set(BlockIndexType.RANGE_BYTE,    (byte)1)
-        .set(BlockIndexType.RANGE_SHORT,   (byte)2)
-        .set(BlockIndexType.RANGE_INTEGER, (byte)3)
-        .set(BlockIndexType.RANGE_LONG,    (byte)4)
-        .set(BlockIndexType.RANGE_FLOAT,   (byte)5)
-        .set(BlockIndexType.RANGE_DOUBLE,  (byte)6)
-        .create();
-    fullRangeBlockIndexList = getTypeToByteDispatcherFactory.keySet();
-
-    SwitchDispatcherFactory<Byte, DispatchedFunc> getByteToBlockIndexDispacherFactory =
-        (new SwitchDispatcherFactory<Byte, DispatchedFunc>());
-    getByteToBlockIndexDispacherFactory.set((byte)0, () -> new StringRangeBlockIndex());
-    getByteToBlockIndexDispacherFactory.set((byte)1, () -> new ByteRangeBlockIndex());
-    getByteToBlockIndexDispacherFactory.set((byte)2, () -> new ShortRangeBlockIndex());
-    getByteToBlockIndexDispacherFactory.set((byte)3, () -> new IntegerRangeBlockIndex());
-    getByteToBlockIndexDispacherFactory.set((byte)4, () -> new LongRangeBlockIndex());
-    getByteToBlockIndexDispacherFactory.set((byte)5, () -> new FloatRangeBlockIndex());
-    getByteToBlockIndexDispacherFactory.set((byte)6, () -> new DoubleRangeBlockIndex());
-    getByteToBlockIndexDispacher = getByteToBlockIndexDispacherFactory.create();
-  }
 
   public List<RangeBlockIndex> childList = new ArrayList<RangeBlockIndex>();
 
@@ -72,11 +34,20 @@ public class FullRangeBlockIndex implements IBlockIndex {
    * Set an initial value to create a new object.
    */
   public FullRangeBlockIndex( final int spreadIndex , final IBlockIndex index ) {
-    if (!fullRangeBlockIndexList.contains(index.getBlockIndexType())) {
-      throw new UnsupportedOperationException(
-          "Unsupport index type : " + index.getBlockIndexType());
+    switch ( index.getBlockIndexType() ) {
+      case RANGE_STRING:
+      case RANGE_BYTE:
+      case RANGE_SHORT:
+      case RANGE_INTEGER:
+      case RANGE_LONG:
+      case RANGE_FLOAT:
+      case RANGE_DOUBLE:
+        break;
+      default:
+        throw new UnsupportedOperationException(
+            "Unsupport index type : " + index.getBlockIndexType() );
     }
-    childList.add(new RangeBlockIndex(spreadIndex, index));
+    childList.add( new RangeBlockIndex( spreadIndex , index ) );
   }
 
   private final class RangeBlockIndex {
@@ -96,28 +67,55 @@ public class FullRangeBlockIndex implements IBlockIndex {
     public IBlockIndex getBlockIndex() {
       return blockIndex;
     }
+
   }
 
   /**
    * Determine the type of block index and convert it to bytes.
    */
-  public byte getTypeToByte(final BlockIndexType type) {
-    Byte res = getTypeToByteDispatcher.get(type);
-    if (Objects.isNull(res)) {
-      throw new UnsupportedOperationException("Unsupport index type : " + type);
+  public byte getTypeToByte( final BlockIndexType type ) {
+    switch ( type ) {
+      case RANGE_STRING:
+        return 0;
+      case RANGE_BYTE:
+        return 1;
+      case RANGE_SHORT:
+        return 2;
+      case RANGE_INTEGER:
+        return 3;
+      case RANGE_LONG:
+        return 4;
+      case RANGE_FLOAT:
+        return 5;
+      case RANGE_DOUBLE:
+        return 6;
+      default:
+        throw new UnsupportedOperationException( "Unsupport index type : " + type );
     }
-    return res;
   }
 
   /**
    * Determine byte and obtain IBlockIndex.
    */
-  public IBlockIndex getByteToBlockIndex(final byte type) {
-    DispatchedFunc res = getByteToBlockIndexDispacher.get(type);
-    if (Objects.isNull(res)) {
-      throw new UnsupportedOperationException("Unsupport index type");
+  public IBlockIndex getByteToBlockIndex( final byte type ) {
+    switch ( type ) {
+      case 0:
+        return new StringRangeBlockIndex();
+      case 1:
+        return new ByteRangeBlockIndex();
+      case 2:
+        return new ShortRangeBlockIndex();
+      case 3:
+        return new IntegerRangeBlockIndex();
+      case 4:
+        return new LongRangeBlockIndex();
+      case 5:
+        return new FloatRangeBlockIndex();
+      case 6:
+        return new DoubleRangeBlockIndex();
+      default:
+        throw new UnsupportedOperationException( "Unsupport index type"  );
     }
-    return res.get();
   }
 
   public List<RangeBlockIndex> getBlockIndexList() {
@@ -136,6 +134,7 @@ public class FullRangeBlockIndex implements IBlockIndex {
     }
     FullRangeBlockIndex fullRangeBlockIndex = (FullRangeBlockIndex)blockIndex;
     childList.addAll( fullRangeBlockIndex.getBlockIndexList() );
+
     return true;
   }
 
@@ -187,7 +186,7 @@ public class FullRangeBlockIndex implements IBlockIndex {
     List<Integer> result = new ArrayList<Integer>();
     for ( RangeBlockIndex index : childList ) {
       List<Integer> childResult = index.getBlockIndex().getBlockSpreadIndex( filter );
-      if ( Objects.isNull(childResult)) {
+      if ( childResult == null ) {
         result.add( index.getIndex() );
       }
     }
@@ -198,5 +197,5 @@ public class FullRangeBlockIndex implements IBlockIndex {
   public IBlockIndex getNewInstance() {
     return new FullRangeBlockIndex();
   }
-}
 
+}

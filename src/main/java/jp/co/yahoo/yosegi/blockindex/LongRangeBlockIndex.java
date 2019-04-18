@@ -20,36 +20,14 @@ package jp.co.yahoo.yosegi.blockindex;
 
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
 import jp.co.yahoo.yosegi.spread.column.filter.NumberFilter;
-import jp.co.yahoo.yosegi.spread.column.filter.NumberFilterType;
 import jp.co.yahoo.yosegi.spread.column.filter.NumberRangeFilter;
-import jp.co.yahoo.yosegi.util.EnumDispatcherFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 
 public class LongRangeBlockIndex implements IBlockIndex {
-  @FunctionalInterface
-  public interface DispatchedFunc {
-    public boolean apply(long setNumber, long min, long max);
-  }
-
-  private static EnumDispatcherFactory.Func<NumberFilterType, DispatchedFunc>
-      numberFilterTypeDispatcher;
-
-  static {
-    EnumDispatcherFactory<NumberFilterType, DispatchedFunc> sw =
-        new EnumDispatcherFactory<>(NumberFilterType.class);
-    sw.setDefault((setNumber, min, max) -> false);
-    sw.set(NumberFilterType.EQUAL, (setNumber, min, max) -> (setNumber < min || max < setNumber));
-    sw.set(NumberFilterType.LT, (setNumber, min, max) -> (setNumber <= min));
-    sw.set(NumberFilterType.LE, (setNumber, min, max) -> (setNumber <  min));
-    sw.set(NumberFilterType.GT, (setNumber, min, max) -> (max <= setNumber));
-    sw.set(NumberFilterType.GE, (setNumber, min, max) -> (max <  setNumber));
-    numberFilterTypeDispatcher = sw.create();
-  }
 
   private long min;
   private long max;
@@ -71,7 +49,7 @@ public class LongRangeBlockIndex implements IBlockIndex {
 
   @Override
   public boolean merge( final IBlockIndex blockIndex ) {
-    if ( !LongRangeBlockIndex.class.isInstance(blockIndex) ) {
+    if ( ! ( blockIndex instanceof LongRangeBlockIndex ) ) {
       return false;
     }
     LongRangeBlockIndex numberBlockIndex = (LongRangeBlockIndex)blockIndex;
@@ -116,10 +94,35 @@ public class LongRangeBlockIndex implements IBlockIndex {
         } catch ( NumberFormatException | IOException ex ) {
           return null;
         }
-        return numberFilterTypeDispatcher
-            .get(numberFilter.getNumberFilterType())
-            .apply(setNumber, min, max) ? new ArrayList<Integer>() : null;
-
+        switch ( numberFilter.getNumberFilterType() ) {
+          case EQUAL:
+            if ( setNumber < min || max < setNumber  ) {
+              return new ArrayList<Integer>();
+            }
+            return null;
+          case LT:
+            if ( setNumber <= min ) {
+              return new ArrayList<Integer>();
+            }
+            return null;
+          case LE:
+            if ( setNumber < min ) {
+              return new ArrayList<Integer>();
+            }
+            return null;
+          case GT:
+            if ( max <= setNumber ) {
+              return new ArrayList<Integer>();
+            }
+            return null;
+          case GE:
+            if ( max < setNumber ) {
+              return new ArrayList<Integer>();
+            }
+            return null;
+          default:
+            return null;
+        }
       case NUMBER_RANGE:
         NumberRangeFilter numberRangeFilter = (NumberRangeFilter)filter;
         long setMin;
@@ -130,15 +133,33 @@ public class LongRangeBlockIndex implements IBlockIndex {
         } catch ( NumberFormatException | IOException ex ) {
           return null;
         }
-        if (numberRangeFilter.isInvert()) {
+        boolean invert = numberRangeFilter.isInvert();
+        if ( invert ) {
           return null;
         }
         boolean minHasEquals = numberRangeFilter.isMinHasEquals();
         boolean maxHasEquals = numberRangeFilter.isMaxHasEquals();
-        BooleanSupplier isMin = () -> minHasEquals ? min <= setMax : min < setMax;
-        BooleanSupplier isMax = () -> maxHasEquals ? setMin <= max : setMin < max;
-        return (isMin.getAsBoolean() && isMax.getAsBoolean()) ? null : new ArrayList<Integer>();
-
+        if ( minHasEquals && maxHasEquals ) {
+          if ( ( setMax < min || max < setMin ) ) {
+            return new ArrayList<Integer>();
+          }
+          return null;
+        } else if ( minHasEquals ) {
+          if ( ( setMax < min || max <= setMin ) ) {
+            return new ArrayList<Integer>();
+          }
+          return null;
+        } else if ( maxHasEquals ) {
+          if ( ( setMax <= min || max < setMin ) ) {
+            return new ArrayList<Integer>();
+          }
+          return null;
+        } else {
+          if ( ( setMax <= min || max <= setMin ) ) {
+            return new ArrayList<Integer>();
+          }
+          return null;
+        }
       default:
         return null;
     }
