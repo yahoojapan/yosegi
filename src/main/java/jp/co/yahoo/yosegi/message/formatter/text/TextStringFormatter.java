@@ -34,6 +34,11 @@ public class TextStringFormatter implements ITextFormatter {
   protected static final SwitchDispatcherFactory.Func<Class, WriteDispatcherFunc> writeDispatcher;
 
   static {
+    /* CAUTION:
+     * this structure is not the same function from original.
+     * If there is a class derived from the following class,
+     * it is necessary to branch by if then else if statement.
+     */
     SwitchDispatcherFactory<Class, WriteDispatcherFunc> sw = new SwitchDispatcherFactory<>();
     sw.setDefault((buffer, obj) -> { });
     sw.set(byte[].class, (buf, obj) -> buf.append((byte[])obj));

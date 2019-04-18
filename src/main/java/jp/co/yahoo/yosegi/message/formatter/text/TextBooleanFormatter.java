@@ -35,6 +35,11 @@ public class TextBooleanFormatter implements ITextFormatter {
   protected static final SwitchDispatcherFactory.Func<Class, WriteDispatcherFunc> writeDispatcher;
 
   static {
+    /* CAUTION:
+     * this structure is not the same function from original.
+     * If there is a class derived from the following class,
+     * it is necessary to branch by if then else if statement.
+     */
     SwitchDispatcherFactory<Class, WriteDispatcherFunc> sw = new SwitchDispatcherFactory<>();
     sw.set(Boolean.class, obj -> ((Boolean)obj).toString());
     sw.set(String.class,  obj -> Boolean.valueOf("true".equals((String)obj)).toString());

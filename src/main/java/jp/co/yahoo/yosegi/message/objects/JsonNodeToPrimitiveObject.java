@@ -44,6 +44,11 @@ public class JsonNodeToPrimitiveObject {
   private static SwitchDispatcherFactory.Func<Class, DispatchedFunc> dispatcher;
 
   static {
+    /* CAUTION:
+     * this structure is not the same function from original.
+     * If there is a class derived from the following class,
+     * it is necessary to branch by if then else if statement.
+     */
     SwitchDispatcherFactory<Class, DispatchedFunc> sw = new SwitchDispatcherFactory();
     sw.setDefault(jsonNode -> new StringObj(jsonNode.toString()));
     sw.set(TextNode.class,    jsonNode -> new StringObj(((TextNode)jsonNode).textValue()));

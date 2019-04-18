@@ -40,6 +40,11 @@ public class TextParserFactory {
   private static SwitchDispatcherFactory.Func<Class, DispatchedFunc> dispatcher;
 
   static {
+    /* CAUTION:
+     * this structure is not the same function from original.
+     * If there is a class derived from the following class,
+     * it is necessary to branch by if then else if statement.
+     */
     SwitchDispatcherFactory<Class, DispatchedFunc> sw = new SwitchDispatcherFactory();
     sw.setDefault((buffer, start, length, schema) -> new TextNullParser());
     sw.set(ArrayContainerField.class, (buffer, start, length, schema) ->
