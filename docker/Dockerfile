@@ -27,7 +27,7 @@ RUN tar -xzvf apache-maven-3.6.1-bin.tar.gz
 RUN mv apache-maven-3.6.1 /opt/
 
 FROM centos:centos7
-MAINTAINER elmo
+MAINTAINER yosegi
 
 ENV BUILD_WORK_DIR=$BUILD_WORK_DIR
 ENV JAVA_HOME=/usr/local/jdk-11
