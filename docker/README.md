@@ -28,5 +28,5 @@ You can set "BULD_WORK_DIR" and output the artifact.
 
 ```
 mkdir /tmp/yosegi_build
-docker run -e BUILD_WORK_DIR=/tmp/yosegi_build -v /tmp/yosegi_build:/tmp/yosegi_build -it kijima/yosegi_build_image
+docker run -e BUILD_WORK_DIR=/tmp/yosegi_build -v /tmp/yosegi_build:/tmp/yosegi_build -it yahoojp/yosegi_build_image
 ```
