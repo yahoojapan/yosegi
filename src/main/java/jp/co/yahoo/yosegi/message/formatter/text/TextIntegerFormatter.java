@@ -21,34 +21,56 @@ package jp.co.yahoo.yosegi.message.formatter.text;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.parser.IParser;
 import jp.co.yahoo.yosegi.util.ByteArrayData;
+import jp.co.yahoo.yosegi.util.ObjectDispatchByClass;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class TextIntegerFormatter implements ITextFormatter {
+  @FunctionalInterface
+  private interface DispatchedFunc {
+    void accept(ByteArrayData buffer, Object obj) throws IOException;
+  }
 
-  private byte[] convert( final int target ) throws IOException {
+  private static ObjectDispatchByClass.Func<DispatchedFunc> dispatcher;
+
+  static {
+    ObjectDispatchByClass<DispatchedFunc> sw = new ObjectDispatchByClass<>();
+    sw.set(Short.class, (buffer, obj) -> {
+      int target = ((Short)obj).intValue();
+      buffer.append(convert(target));
+    });
+    sw.set(Integer.class, (buffer, obj) -> {
+      int target = ((Integer)obj).intValue();
+      buffer.append(convert(target));
+    });
+    sw.set(Long.class, (buffer, obj) -> {
+      int target = ((Long)obj).intValue();
+      buffer.append(convert(target));
+    });
+    sw.set(Float.class, (buffer, obj) -> {
+      int target = ((Float)obj).intValue();
+      buffer.append(convert(target));
+    });
+    sw.set(Double.class, (buffer, obj) -> {
+      int target = ((Double)obj).intValue();
+      buffer.append(convert(target));
+    });
+    sw.set(PrimitiveObject.class, (buffer, obj) -> {
+      buffer.append(convert(((PrimitiveObject)obj).getInt()));
+    });
+    dispatcher = sw.create();
+  }
+
+  private static byte[] convert( final int target ) throws IOException {
     return Integer.valueOf( target ).toString().getBytes("UTF-8");
   }
 
   @Override
   public void write(final ByteArrayData buffer , final Object obj ) throws IOException {
-    if ( obj instanceof Short ) {
-      int target = ( (Short) obj ).intValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Integer ) {
-      int target = ( (Integer) obj ).intValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Long ) {
-      int target = ( (Long) obj ).intValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Float ) {
-      int target = ( (Float) obj ).intValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof Double ) {
-      int target = ( (Double) obj ).intValue();
-      buffer.append( convert( target ) );
-    } else if ( obj instanceof PrimitiveObject) {
-      buffer.append( convert( ( (PrimitiveObject)obj ).getInt() ) );
+    DispatchedFunc func = dispatcher.get(obj);
+    if (Objects.nonNull(func)) {
+      func.accept(buffer, obj);
     }
   }
 

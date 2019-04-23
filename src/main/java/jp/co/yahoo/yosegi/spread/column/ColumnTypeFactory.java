@@ -22,6 +22,7 @@ import jp.co.yahoo.yosegi.constants.PrimitiveByteLength;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveType;
 import jp.co.yahoo.yosegi.message.parser.IParser;
+import jp.co.yahoo.yosegi.util.ObjectDispatchByClass;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -30,6 +31,39 @@ import java.util.Map;
 import java.util.Objects;
 
 public final class ColumnTypeFactory {
+  @FunctionalInterface
+  private interface ColumnTypeFunc {
+    public ColumnType apply(Object obj) throws IOException;
+  }
+
+  private static ObjectDispatchByClass.Func<ColumnTypeFunc> dispatcher;
+
+  static {
+    ObjectDispatchByClass<ColumnTypeFunc> sw = new ObjectDispatchByClass<>();
+    sw.set(PrimitiveObject.class, obj -> {
+      switch (((PrimitiveObject)obj).getPrimitiveType()) {
+        case STRING:  return ColumnType.STRING;
+        case INTEGER: return ColumnType.INTEGER;
+        case LONG:    return ColumnType.LONG;
+        case DOUBLE:  return ColumnType.DOUBLE;
+        case BOOLEAN: return ColumnType.BOOLEAN;
+        case BYTE:    return ColumnType.BYTE;
+        case BYTES:   return ColumnType.BYTES;
+        case FLOAT:   return ColumnType.FLOAT;
+        case SHORT:   return ColumnType.SHORT;
+        case NULL:    return ColumnType.NULL;
+        default:      return ColumnType.NULL;
+      }
+    });
+    sw.set(Map.class, obj -> ((Map)obj).isEmpty() ? ColumnType.EMPTY_SPREAD : ColumnType.SPREAD);
+    sw.set(List.class, obj -> ((List)obj).isEmpty() ? ColumnType.EMPTY_ARRAY : ColumnType.ARRAY);
+    sw.set(IParser.class, obj -> {
+      IParser parser = (IParser)obj;
+      return (parser.size() == 0) ? ColumnType.EMPTY_SPREAD :
+          parser.isArray() ? ColumnType.ARRAY : ColumnType.SPREAD;
+    });
+    dispatcher = sw.create();
+  }
 
   public static final byte B__UNKNOWN = 0;
   public static final byte B__UNION = 1;
@@ -53,57 +87,15 @@ public final class ColumnTypeFactory {
   /**
    * ColumnType is determined from an object.
    */
-  public static ColumnType get( final Object obj ) throws IOException {
-    if ( obj instanceof PrimitiveObject ) {
-      switch ( ( (PrimitiveObject)obj ).getPrimitiveType() ) {
-        case STRING:
-          return ColumnType.STRING;
-        case INTEGER:
-          return ColumnType.INTEGER;
-        case LONG:
-          return ColumnType.LONG;
-        case DOUBLE:
-          return ColumnType.DOUBLE;
-        case BOOLEAN:
-          return ColumnType.BOOLEAN;
-        case BYTE:
-          return ColumnType.BYTE;
-        case BYTES:
-          return ColumnType.BYTES;
-        case FLOAT:
-          return ColumnType.FLOAT;
-        case SHORT:
-          return ColumnType.SHORT;
-        case NULL:
-        default:
-          return ColumnType.NULL;
-      }
-    } else if ( obj instanceof Map ) {
-      if ( ( (Map)obj ).isEmpty() ) {
-        return ColumnType.EMPTY_SPREAD;
-      }
-      return ColumnType.SPREAD;
-    } else if ( obj instanceof List ) {
-      if ( ( (List)obj ).isEmpty() ) {
-        return ColumnType.EMPTY_ARRAY;
-      }
-      return ColumnType.ARRAY;
-    } else if ( obj instanceof IParser ) {
-      IParser parser = (IParser)obj;
-      if ( parser.size() == 0 ) {
-        return ColumnType.EMPTY_SPREAD;
-      }
-      if ( parser.isArray() ) {
-        return ColumnType.ARRAY;
-      }
-      return ColumnType.SPREAD;
-    }
-
-    if ( obj == null ) {
+  public static ColumnType get(final Object obj) throws IOException {
+    if (Objects.isNull(obj)) {
       return ColumnType.NULL;
-    } else {
-      throw new IOException( "Unsupported object : " + obj.getClass().getName() );
     }
+    ColumnTypeFunc func = dispatcher.get(obj);
+    if (Objects.isNull(func)) {
+      throw new IOException("Unsupported object : " + obj.getClass().getName());
+    }
+    return func.apply(obj);
   }
 
   /**

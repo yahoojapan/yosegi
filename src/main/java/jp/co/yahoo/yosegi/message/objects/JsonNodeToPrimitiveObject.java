@@ -31,39 +31,41 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.POJONode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import jp.co.yahoo.yosegi.util.ObjectDispatchByClass;
+
 import java.io.IOException;
 
 public class JsonNodeToPrimitiveObject {
+  @FunctionalInterface
+  private interface DispatchedFunc {
+    PrimitiveObject apply(JsonNode jsonNode) throws IOException;
+  }
+
+  private static ObjectDispatchByClass.Func<DispatchedFunc> dispatcher;
+
+  static {
+    ObjectDispatchByClass<DispatchedFunc> sw = new ObjectDispatchByClass<>();
+    sw.setDefault(node -> new StringObj(node.toString()));
+    sw.set(TextNode.class,    node -> new StringObj(((TextNode)node).textValue()));
+    sw.set(BooleanNode.class, node -> new BooleanObj(((BooleanNode)node).booleanValue()));
+    sw.set(IntNode.class,     node -> new IntegerObj(((IntNode)node).intValue()));
+    sw.set(LongNode.class,    node -> new LongObj(((LongNode)node).longValue()));
+    sw.set(DoubleNode.class,  node -> new DoubleObj(((DoubleNode)node).doubleValue()));
+    sw.set(BigIntegerNode.class, node ->
+        new StringObj(((BigIntegerNode)node).bigIntegerValue().toString()));
+    sw.set(DecimalNode.class, node -> new StringObj(((DecimalNode)node).decimalValue().toString()));
+    sw.set(BinaryNode.class,  node -> new BytesObj(((BinaryNode)node).binaryValue()));
+    sw.set(POJONode.class,    node -> new BytesObj(((POJONode)node).binaryValue()));
+    sw.set(NullNode.class,    node -> NullObj.getInstance());
+    sw.set(MissingNode.class, node -> NullObj.getInstance());
+    dispatcher = sw.create();
+  }
 
   /**
    * Converts JsonNode to PrimitiveObject.
    */
-  public static PrimitiveObject get( final JsonNode jsonNode ) throws IOException {
-    if ( jsonNode instanceof TextNode ) {
-      return new StringObj( ( (TextNode)jsonNode ).textValue() );
-    } else if ( jsonNode instanceof BooleanNode ) {
-      return new BooleanObj( ( (BooleanNode)jsonNode ).booleanValue() );
-    } else if ( jsonNode instanceof IntNode ) {
-      return new IntegerObj( ( (IntNode)jsonNode ).intValue() );
-    } else if ( jsonNode instanceof LongNode ) {
-      return new LongObj( ( (LongNode)jsonNode ).longValue() );
-    } else if ( jsonNode instanceof DoubleNode ) {
-      return new DoubleObj( ( (DoubleNode)jsonNode ).doubleValue() );
-    } else if ( jsonNode instanceof BigIntegerNode ) {
-      return new StringObj( ( (BigIntegerNode)jsonNode ).bigIntegerValue().toString() );
-    } else if ( jsonNode instanceof DecimalNode ) {
-      return new StringObj( ( (DecimalNode)jsonNode ).decimalValue().toString() );
-    } else if ( jsonNode instanceof BinaryNode ) {
-      return new BytesObj( ( (BinaryNode)jsonNode ).binaryValue() );
-    } else if ( jsonNode instanceof POJONode ) {
-      return new BytesObj( ( (POJONode)jsonNode ).binaryValue() );
-    } else if ( jsonNode instanceof NullNode ) {
-      return NullObj.getInstance();
-    } else if ( jsonNode instanceof MissingNode ) {
-      return NullObj.getInstance();
-    } else {
-      return new StringObj( jsonNode.toString() );
-    }
+  public static PrimitiveObject get(final JsonNode jsonNode) throws IOException {
+    return dispatcher.get(jsonNode).apply(jsonNode);
   }
-
 }
+

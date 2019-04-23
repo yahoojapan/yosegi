@@ -21,25 +21,35 @@ package jp.co.yahoo.yosegi.message.formatter.text;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.parser.IParser;
 import jp.co.yahoo.yosegi.util.ByteArrayData;
+import jp.co.yahoo.yosegi.util.ObjectDispatchByClass;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class TextBooleanFormatter implements ITextFormatter {
+  @FunctionalInterface
+  private interface DispatchedFunc {
+    void accept(ByteArrayData buffer, Object obj) throws IOException;
+  }
+
+  private static ObjectDispatchByClass.Func<DispatchedFunc> dispatcher;
+
+  static {
+    ObjectDispatchByClass<DispatchedFunc> sw = new ObjectDispatchByClass<>();
+    sw.set(Boolean.class, (buffer, obj) -> buffer.append(
+        ((Boolean)obj).toString().getBytes("UTF-8")));
+    sw.set(String.class, (buffer, obj) -> buffer.append(
+        Boolean.valueOf("true".equals((String)obj)).toString().getBytes("UTF-8")));
+    sw.set(PrimitiveObject.class, (buffer, obj) -> buffer.append(
+        Boolean.valueOf(((PrimitiveObject)obj).getBoolean()).toString().getBytes("UTF-8")));
+    dispatcher = sw.create();
+  }
 
   @Override
   public void write( final ByteArrayData buffer , final Object obj ) throws IOException {
-    if ( obj instanceof Boolean ) {
-      buffer.append( ( (Boolean)obj ).toString().getBytes( "UTF-8" ) );
-    } else if ( obj instanceof String ) {
-      buffer.append(
-          Boolean.valueOf(
-            "true".equals( (String)obj )
-          ).toString().getBytes( "UTF-8" ) );
-    } else if ( obj instanceof PrimitiveObject) {
-      buffer.append(
-          Boolean.valueOf(
-            ( (PrimitiveObject)obj ).getBoolean() 
-          ).toString().getBytes( "UTF-8" ) );
+    DispatchedFunc func = dispatcher.get(obj);
+    if (Objects.nonNull(func)) {
+      func.accept(buffer, obj);
     }
   }
 

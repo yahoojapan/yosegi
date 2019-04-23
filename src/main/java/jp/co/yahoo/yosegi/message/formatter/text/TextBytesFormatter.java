@@ -21,19 +21,34 @@ package jp.co.yahoo.yosegi.message.formatter.text;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.parser.IParser;
 import jp.co.yahoo.yosegi.util.ByteArrayData;
+import jp.co.yahoo.yosegi.util.ObjectDispatchByClass;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class TextBytesFormatter implements ITextFormatter {
+  @FunctionalInterface
+  private interface DispatchedFunc {
+    void accept(ByteArrayData buffer, Object obj) throws IOException;
+  }
+
+  private static ObjectDispatchByClass.Func<DispatchedFunc> dispatcher;
+
+  static {
+    ObjectDispatchByClass<DispatchedFunc> sw = new ObjectDispatchByClass<>();
+    sw.set(byte[].class, (buffer, obj) -> buffer.append((byte[])obj));
+    sw.set(String.class, (buffer, obj) -> buffer.append(((String)obj).getBytes("UTF-8")));
+    sw.set(PrimitiveObject.class, (buffer, obj) ->
+        buffer.append(((PrimitiveObject)obj).getBytes()));
+    dispatcher = sw.create();
+  }
+
 
   @Override
-  public void write(final ByteArrayData buffer , final Object obj ) throws IOException {
-    if ( obj instanceof byte[] ) {
-      buffer.append( (byte[])obj );
-    } else if ( obj instanceof String ) {
-      buffer.append( ( (String)obj ).getBytes( "UTF-8" ) );
-    } else if ( obj instanceof PrimitiveObject) {
-      buffer.append( ( (PrimitiveObject)obj ).getBytes() );
+  public void write(final ByteArrayData buffer, final Object obj) throws IOException {
+    DispatchedFunc func = dispatcher.get(obj);
+    if (Objects.nonNull(func)) {
+      func.accept(buffer, obj);
     }
   }
 

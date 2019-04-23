@@ -19,24 +19,32 @@
 package jp.co.yahoo.yosegi.message.parser.java;
 
 import jp.co.yahoo.yosegi.message.parser.IParser;
+import jp.co.yahoo.yosegi.util.ObjectDispatchByClass;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public final class JavaParserFactory {
+  private interface DispatchedFunc extends Function<Object, IParser> {}
+
+  private static ObjectDispatchByClass.Func<DispatchedFunc> dispatcher;
+
+  static {
+    ObjectDispatchByClass<DispatchedFunc> sw = new ObjectDispatchByClass<>();
+    sw.setDefault(obj -> new JavaNullParser());
+    sw.set(List.class, obj -> new JavaListParser((List)obj));
+    sw.set(Map.class,  obj -> new JavaMapParser((Map)obj));
+    dispatcher = sw.create();
+  }
 
   private JavaParserFactory() {}
 
   /**
    * Create IParser from Java objects.
    */
-  public static IParser get( final Object obj ) {
-    if ( obj instanceof List ) {
-      return new JavaListParser( (List)obj );
-    } else if ( obj instanceof Map ) {
-      return new JavaMapParser( (Map)obj );
-    }
-    return new JavaNullParser();
+  public static IParser get(final Object obj) {
+    return dispatcher.get(obj).apply(obj);
   }
-
 }
+

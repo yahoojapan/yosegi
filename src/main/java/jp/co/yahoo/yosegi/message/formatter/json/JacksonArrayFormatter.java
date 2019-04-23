@@ -25,29 +25,40 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import jp.co.yahoo.yosegi.message.objects.ObjectToJsonNode;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObjectToJsonNode;
 import jp.co.yahoo.yosegi.message.parser.IParser;
+import jp.co.yahoo.yosegi.util.ObjectDispatchByClass;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 public class JacksonArrayFormatter implements IJacksonFormatter {
+  @FunctionalInterface
+  private interface DispatchedFunc {
+    void accept(ArrayNode array, Object childObj) throws IOException;
+  }
+
+  private static ObjectDispatchByClass.Func<DispatchedFunc> dispatcher;
+
+  static {
+    ObjectDispatchByClass<DispatchedFunc> sw = new ObjectDispatchByClass<>();
+    sw.setDefault((array, childObj) -> array.add(ObjectToJsonNode.get(childObj)));
+    sw.set(List.class, (array, childObj) ->
+        array.add(JacksonContainerToJsonObject.getFromList((List<Object>)childObj)));
+    sw.set(Map.class, (array, childObj) ->
+        array.add(JacksonContainerToJsonObject.getFromMap((Map<Object,Object>)childObj)));
+    dispatcher = sw.create();
+  }
 
   @Override
   public JsonNode write( final Object obj ) throws IOException {
     ArrayNode array = new ArrayNode( JsonNodeFactory.instance );
-    if ( ! ( obj instanceof List ) ) {
+    if (!(obj instanceof List)) {
       return array;
     }
 
     List<Object> listObj = (List)obj;
     for ( Object childObj : listObj ) {
-      if ( childObj instanceof List ) {
-        array.add( JacksonContainerToJsonObject.getFromList( (List<Object>)childObj ) );
-      } else if ( childObj instanceof Map ) {
-        array.add( JacksonContainerToJsonObject.getFromMap( (Map<Object,Object>)childObj ) );
-      } else {
-        array.add( ObjectToJsonNode.get( childObj ) );
-      }
+      dispatcher.get(childObj).accept(array, childObj);
     }
 
     return array;
