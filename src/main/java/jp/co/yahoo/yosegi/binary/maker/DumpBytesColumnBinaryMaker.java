@@ -93,7 +93,7 @@ public class DumpBytesColumnBinaryMaker implements IColumnBinaryMaker {
         ColumnType.BYTES ,
         rowCount ,
         binaryRaw.length ,
-        totalLength ,
+        totalLength + Integer.BYTES * rowCount ,
         -1 ,
         binary ,
         0 ,

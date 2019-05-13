@@ -63,6 +63,28 @@ import java.util.Map;
 public class UnsafeOptimizeLongColumnBinaryMaker implements IColumnBinaryMaker {
 
   /**
+   * Calculate logical data size from column size and type.
+   */
+  public static int getLogicalSize( final int columnSize , final ColumnType columnType ) {
+    int byteSize = Long.BYTES;
+    switch ( columnType ) {
+      case BYTE:
+        byteSize = Byte.BYTES;
+        break;
+      case SHORT:
+        byteSize = Short.BYTES;
+        break;
+      case INTEGER:
+        byteSize = Integer.BYTES;
+        break;
+      default:
+        byteSize = Long.BYTES;
+        break;
+    }
+    return columnSize * byteSize;
+  }
+
+  /**
    * Determine the type of range of difference between min and max.
    */
   public static ColumnType getDiffColumnType( final long min , final long max ) {
@@ -141,8 +163,6 @@ public class UnsafeOptimizeLongColumnBinaryMaker implements IColumnBinaryMaker {
 
   public interface IDictionaryMaker {
 
-    int getLogicalSize( final int indexLength );
-
     int calcBinarySize( final int dicSize );
 
     void create(
@@ -162,11 +182,6 @@ public class UnsafeOptimizeLongColumnBinaryMaker implements IColumnBinaryMaker {
   }
 
   public static class ByteDictionaryMaker implements IDictionaryMaker {
-
-    @Override
-    public int getLogicalSize( final int indexLength ) {
-      return Byte.BYTES * indexLength;
-    }
 
     @Override
     public int calcBinarySize( final int dicSize ) {
@@ -216,11 +231,6 @@ public class UnsafeOptimizeLongColumnBinaryMaker implements IColumnBinaryMaker {
     }
 
     @Override
-    public int getLogicalSize( final int indexLength ) {
-      return Byte.BYTES * indexLength;
-    }
-
-    @Override
     public int calcBinarySize( final int dicSize ) {
       return Byte.BYTES * dicSize;
     }
@@ -261,11 +271,6 @@ public class UnsafeOptimizeLongColumnBinaryMaker implements IColumnBinaryMaker {
   }
 
   public static class ShortDictionaryMaker implements IDictionaryMaker {
-
-    @Override
-    public int getLogicalSize( final int indexLength ) {
-      return Short.BYTES * indexLength;
-    }
 
     @Override
     public int calcBinarySize( final int dicSize ) {
@@ -315,11 +320,6 @@ public class UnsafeOptimizeLongColumnBinaryMaker implements IColumnBinaryMaker {
     }
 
     @Override
-    public int getLogicalSize( final int indexLength ) {
-      return Short.BYTES * indexLength;
-    }
-
-    @Override
     public int calcBinarySize( final int dicSize ) {
       return Short.BYTES * dicSize;
     }
@@ -365,11 +365,6 @@ public class UnsafeOptimizeLongColumnBinaryMaker implements IColumnBinaryMaker {
 
     public IntDictionaryMaker( final long min , final long max ) {
       converter = NumberToBinaryUtils.getIntConverter( (int)min , (int)max );
-    }
-
-    @Override
-    public int getLogicalSize( final int indexLength ) {
-      return Integer.BYTES * indexLength;
     }
 
     @Override
@@ -425,11 +420,6 @@ public class UnsafeOptimizeLongColumnBinaryMaker implements IColumnBinaryMaker {
     }
 
     @Override
-    public int getLogicalSize( final int indexLength ) {
-      return Integer.BYTES * indexLength;
-    }
-
-    @Override
     public int calcBinarySize( final int dicSize ) {
       return converter.calcBinarySize( dicSize );
     }
@@ -474,11 +464,6 @@ public class UnsafeOptimizeLongColumnBinaryMaker implements IColumnBinaryMaker {
 
     public LongDictionaryMaker( final long min , final long max ) {
       converter = NumberToBinaryUtils.getLongConverter( min , max );
-    }
-
-    @Override
-    public int getLogicalSize( final int indexLength ) {
-      return Long.BYTES * indexLength;
     }
 
     @Override
@@ -758,7 +743,7 @@ public class UnsafeOptimizeLongColumnBinaryMaker implements IColumnBinaryMaker {
         column.getColumnName() ,
         column.getColumnType() ,
         column.size() , binary.length ,
-        dicMaker.getLogicalSize( rowCount ) ,
+        getLogicalSize( rowCount , column.getColumnType() ) ,
         dicList.size() ,
         binary ,
         0 ,

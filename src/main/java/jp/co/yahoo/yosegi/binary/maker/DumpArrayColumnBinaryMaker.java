@@ -64,13 +64,11 @@ public class DumpArrayColumnBinaryMaker implements IColumnBinaryMaker {
 
     byte[] binaryRaw = new byte[ Integer.BYTES * column.size() ];
     IntBuffer intIndexBuffer = ByteBuffer.wrap( binaryRaw ).asIntBuffer();
-    int logicalDataSize = 0;
     for ( int i = 0 ; i < column.size() ; i++ ) {
       ICell cell = column.get(i);
       if ( cell instanceof ArrayCell ) {
         ArrayCell arrayCell = (ArrayCell) cell;
         intIndexBuffer.put( arrayCell.getEnd() - arrayCell.getStart() );
-        logicalDataSize += Integer.BYTES * 2;
       } else {
         intIndexBuffer.put( 0 );
       }
@@ -109,7 +107,7 @@ public class DumpArrayColumnBinaryMaker implements IColumnBinaryMaker {
         ColumnType.ARRAY ,
         column.size() ,
         binaryRaw.length ,
-        logicalDataSize ,
+        0 ,
         -1 ,
         compressData ,
         0 ,
