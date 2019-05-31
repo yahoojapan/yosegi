@@ -24,6 +24,7 @@ import jp.co.yahoo.yosegi.spread.column.ColumnType;
 import jp.co.yahoo.yosegi.spread.column.ICell;
 import jp.co.yahoo.yosegi.spread.column.ICellManager;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveCell;
+import jp.co.yahoo.yosegi.spread.column.PrimitiveColumn;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
 import jp.co.yahoo.yosegi.spread.column.index.DefaultCellIndex;
 import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
@@ -35,6 +36,7 @@ import java.io.UncheckedIOException;
 public class BufferDirectCellManager implements ICellManager {
 
   private final ColumnType columnType;
+  private final PrimitiveColumn.ICellMaker cellMaker;
   private final IDicManager dicManager;
   private final int indexSize;
 
@@ -46,10 +48,11 @@ public class BufferDirectCellManager implements ICellManager {
   public BufferDirectCellManager(
       final ColumnType columnType ,
       final IDicManager dicManager ,
-        final int indexSize ) {
+        final int indexSize ) throws IOException {
     this.columnType = columnType;
     this.dicManager = dicManager;
     this.indexSize = indexSize;
+    cellMaker = PrimitiveColumn.getCellMaker( columnType );
   }
 
   @Override
@@ -67,7 +70,7 @@ public class BufferDirectCellManager implements ICellManager {
       if ( obj == null ) {
         return defaultCell;
       }
-      return new PrimitiveCell( columnType , dicManager.get( index ) );
+      return cellMaker.create( dicManager.get( index ) );
     } catch ( IOException ex ) {
       throw new RuntimeException( ex );
     }

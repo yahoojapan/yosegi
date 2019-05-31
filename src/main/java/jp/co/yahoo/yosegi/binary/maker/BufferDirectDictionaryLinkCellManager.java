@@ -24,6 +24,7 @@ import jp.co.yahoo.yosegi.spread.column.ColumnType;
 import jp.co.yahoo.yosegi.spread.column.ICell;
 import jp.co.yahoo.yosegi.spread.column.IDictionaryCellManager;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveCell;
+import jp.co.yahoo.yosegi.spread.column.PrimitiveColumn;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
 import jp.co.yahoo.yosegi.spread.column.filter.INullFilter;
 import jp.co.yahoo.yosegi.spread.column.index.DefaultCellIndex;
@@ -37,6 +38,7 @@ import java.nio.IntBuffer;
 public class BufferDirectDictionaryLinkCellManager implements IDictionaryCellManager {
 
   private final ColumnType columnType;
+  private final PrimitiveColumn.ICellMaker cellMaker;
   private final IDicManager dicManager;
   private final IntBuffer dicIndexIntBuffer;
   private final int indexSize;
@@ -49,10 +51,11 @@ public class BufferDirectDictionaryLinkCellManager implements IDictionaryCellMan
   public BufferDirectDictionaryLinkCellManager(
       final ColumnType columnType ,
       final IDicManager dicManager ,
-      final IntBuffer dicIndexIntBuffer ) {
+      final IntBuffer dicIndexIntBuffer ) throws IOException {
     this.columnType = columnType;
     this.dicManager = dicManager;
     this.dicIndexIntBuffer = dicIndexIntBuffer;
+    cellMaker = PrimitiveColumn.getCellMaker( columnType );
     indexSize = dicIndexIntBuffer.capacity();
   }
 
@@ -71,7 +74,7 @@ public class BufferDirectDictionaryLinkCellManager implements IDictionaryCellMan
       return defaultCell;
     }
     try {
-      return new PrimitiveCell( columnType , dicManager.get( dicIndex ) );
+      return cellMaker.create( dicManager.get( dicIndex ) );
     } catch ( IOException ex ) {
       throw new RuntimeException( ex );
     }

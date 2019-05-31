@@ -69,6 +69,13 @@ public class YosegiWriter implements AutoCloseable {
   }
 
   /**
+   * Convert Spread to ColumnBinary.
+   */
+  public List<ColumnBinary> convertRow( final Spread spread ) throws IOException {
+    return blockMaker.convertRow( spread );
+  }
+
+  /**
    * Add Spread as a Spread.
    */
   public void append( final Spread spread ) throws IOException {
@@ -82,8 +89,7 @@ public class YosegiWriter implements AutoCloseable {
   public void appendRow(
       final List<ColumnBinary> binaryList, final int spreadSize ) throws IOException {
     if ( ! blockMaker.canAppend( binaryList ) ) {
-      byte[] block = blockMaker.createFixedBlock();
-      out.write( block , 0 , block.length );
+      blockMaker.writeFixedBlock( out );
     }
     blockMaker.append( spreadSize , binaryList );
   }
@@ -92,8 +98,7 @@ public class YosegiWriter implements AutoCloseable {
    * Close.
    */
   public void close() throws IOException {
-    byte[] block = blockMaker.createVariableBlock();
-    out.write( block , 0 , block.length );
+    blockMaker.writeVariableBlock( out );
     blockMaker.close();
     out.close();
   }

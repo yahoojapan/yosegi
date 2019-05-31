@@ -59,7 +59,7 @@ public class ArrowLongConnector implements IArrowPrimitiveConnector {
     if ( vector.isNull( index ) ) {
       return defaultCell;
     }
-    return new PrimitiveCell( ColumnType.LONG , new LongObj( vector.get( index ) ) );
+    return new LongCell( new LongObj( vector.get( index ) ) );
   }
 
   @Override

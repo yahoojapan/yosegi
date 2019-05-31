@@ -58,7 +58,7 @@ public class ArrowBooleanConnector implements IArrowPrimitiveConnector {
     if ( vector.isNull( index ) ) {
       return defaultCell;
     }
-    return new PrimitiveCell( ColumnType.BOOLEAN , new BooleanObj( vector.get( index ) == 1 ) );
+    return new BooleanCell( new BooleanObj( vector.get( index ) == 1 ) );
   }
 
   @Override
