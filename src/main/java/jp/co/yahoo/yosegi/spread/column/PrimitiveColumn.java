@@ -32,7 +32,85 @@ import java.util.stream.IntStream;
 
 public class PrimitiveColumn implements IColumn {
 
+  public interface ICellMaker {
+    PrimitiveCell create( final PrimitiveObject obj );
+  }
+
+  /**
+   * Create cell maker.
+   */
+  public static ICellMaker getCellMaker( final ColumnType columnType ) throws IOException {
+    switch ( columnType ) {
+      case BOOLEAN:
+        return new ICellMaker() {
+          @Override
+          public PrimitiveCell create( final PrimitiveObject obj ) {
+            return new StringCell( obj );
+          }
+        };
+      case BYTE:
+        return new ICellMaker() {
+          @Override
+          public PrimitiveCell create( final PrimitiveObject obj ) {
+            return new ByteCell( obj );
+          }
+        };
+      case BYTES:
+        return new ICellMaker() {
+          @Override
+          public PrimitiveCell create( final PrimitiveObject obj ) {
+            return new BytesCell( obj );
+          }
+        };
+      case DOUBLE:
+        return new ICellMaker() {
+          @Override
+          public PrimitiveCell create( final PrimitiveObject obj ) {
+            return new DoubleCell( obj );
+          }
+        };
+      case FLOAT:
+        return new ICellMaker() {
+          @Override
+          public PrimitiveCell create( final PrimitiveObject obj ) {
+            return new FloatCell( obj );
+          }
+        };
+      case INTEGER:
+        return new ICellMaker() {
+          @Override
+          public PrimitiveCell create( final PrimitiveObject obj ) {
+            return new IntegerCell( obj );
+          }
+        };
+      case LONG:
+        return new ICellMaker() {
+          @Override
+          public PrimitiveCell create( final PrimitiveObject obj ) {
+            return new LongCell( obj );
+          }
+        };
+      case SHORT:
+        return new ICellMaker() {
+          @Override
+          public PrimitiveCell create( final PrimitiveObject obj ) {
+            return new ShortCell( obj );
+          }
+        };
+      case STRING:
+        return new ICellMaker() {
+          @Override
+          public PrimitiveCell create( final PrimitiveObject obj ) {
+            return new StringCell( obj );
+          }
+        };
+      default:
+        throw new IOException( "Unknown column type : " + columnType.toString() );
+    }
+  }
+
   private final ColumnType columnType;
+  private final ICellMaker cellMaker;
   private String columnName;
   private ICellManager cellManager;
   private IColumn parentsColumn = NullColumn.getInstance();
@@ -41,9 +119,11 @@ public class PrimitiveColumn implements IColumn {
   /**
    * Initialized by setting Primitive type and column name.
    */
-  public PrimitiveColumn( final ColumnType columnType , final String columnName ) {
+  public PrimitiveColumn(
+      final ColumnType columnType , final String columnName ) throws IOException {
     this.columnType = columnType;
     this.columnName = columnName;
+    cellMaker = getCellMaker( columnType );
     cellManager = new CellManager();
   }
 
@@ -77,7 +157,7 @@ public class PrimitiveColumn implements IColumn {
     if ( type != getColumnType() ) {
       throw new IOException( "Incorrect input data type : " + obj.getClass().getName() );
     }
-    cellManager.add( new PrimitiveCell( columnType , (PrimitiveObject)obj ) , index );
+    cellManager.add( cellMaker.create( (PrimitiveObject)obj ) , index );
     return ColumnTypeFactory.getColumnTypeToJavaPrimitiveByteSize(
         columnType , (PrimitiveObject)obj );
   }

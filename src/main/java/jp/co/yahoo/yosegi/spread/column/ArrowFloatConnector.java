@@ -58,7 +58,7 @@ public class ArrowFloatConnector implements IArrowPrimitiveConnector {
     if ( vector.isNull( index ) ) {
       return defaultCell;
     }
-    return new PrimitiveCell( ColumnType.FLOAT , new FloatObj( vector.get( index ) ) );
+    return new FloatCell( new FloatObj( vector.get( index ) ) );
   }
 
   @Override

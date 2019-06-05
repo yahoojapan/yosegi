@@ -59,7 +59,7 @@ public class ArrowByteConnector implements IArrowPrimitiveConnector {
     if ( vector.isNull( index ) ) {
       return defaultCell;
     }
-    return new PrimitiveCell( ColumnType.BYTE , new ByteObj( vector.get( index ) ) );
+    return new ByteCell( new ByteObj( vector.get( index ) ) );
   }
 
   @Override

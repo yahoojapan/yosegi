@@ -43,6 +43,7 @@ import jp.co.yahoo.yosegi.spread.column.IColumn;
 import jp.co.yahoo.yosegi.util.ByteArrayData;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -110,7 +111,7 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
     compressResultNode = new CompressResultNode();
 
     dataBuffer = new ByteArrayData( blockSize );
-    metaBuffer = new ByteArrayData( blockSize );
+    metaBuffer = new ByteArrayData( META_BUFFER_SIZE );
     columnTree = new ColumnBinaryTree();
 
     bufferSize = 0;
@@ -217,17 +218,17 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
   }
 
   @Override
-  public byte[] createFixedBlock() throws IOException {
-    return create( blockSize );
+  public void writeFixedBlock( final OutputStream out ) throws IOException {
+    write( out , blockSize );
   }
 
   @Override
-  public byte[] createVariableBlock() throws IOException {
-    return create( -1 );
+  public void writeVariableBlock( final OutputStream out ) throws IOException {
+    write( out , -1 );
   }
 
   @Override
-  public byte[] create( final int dataSize ) throws IOException {
+  public void write( final OutputStream out , final int dataSize ) throws IOException {
     byte[] blockIndexBinary = new byte[
         Integer.BYTES   
         + ( compressor.getClass().getName().length() * 2 )
@@ -244,39 +245,35 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
 
     columnTree.create( metaBuffer , dataBuffer );
 
-    byte[] metaBinary = compressor.compress( metaBuffer.getBytes() , 0 , metaBuffer.getLength() );
-
-    byte[] result;
-    if ( dataSize == -1 ) {
-      result = new byte[
-          headerBytes.length
-          + dataBuffer.getLength()
-          + metaBinary.length
-          + Integer.BYTES
-          + Integer.BYTES
-          + ( Integer.BYTES * spreadSizeList.size() ) ];
-    } else {
-      result = new byte[dataSize];
-    }
-
     int offset = 0;
-    System.arraycopy( headerBytes , 0 , result , offset , headerBytes.length );
+    out.write( headerBytes , 0 , headerBytes.length );
     offset += headerBytes.length;
 
-    ByteBuffer wrapBuffer = ByteBuffer.wrap( result );
-    wrapBuffer.putInt( offset , spreadSizeList.size() );
+
+    ByteBuffer blockMetaBuffer = ByteBuffer.allocate(
+        Integer.BYTES + ( Integer.BYTES * spreadSizeList.size() ) + Integer.BYTES );
+    blockMetaBuffer.putInt( spreadSizeList.size() );
+
     offset += Integer.BYTES;
     for ( Integer spreadSize : spreadSizeList ) {
-      wrapBuffer.putInt( offset , spreadSize.intValue() );
+      blockMetaBuffer.putInt( spreadSize.intValue() );
       offset += Integer.BYTES;
     }
 
-    wrapBuffer.putInt( offset , metaBinary.length );
+    byte[] metaBinary = compressor.compress( metaBuffer.getBytes() , 0 , metaBuffer.getLength() );
+    blockMetaBuffer.putInt( metaBinary.length );
     offset += Integer.BYTES;
 
-    System.arraycopy( metaBinary , 0 , result , offset , metaBinary.length );
+    out.write( blockMetaBuffer.array() );
+
+    out.write( metaBinary , 0 , metaBinary.length );
     offset += metaBinary.length;
-    System.arraycopy( dataBuffer.getBytes() , 0 , result , offset , dataBuffer.getLength() );
+    out.write( dataBuffer.getBytes() , 0 , dataBuffer.getLength() );
+    offset += dataBuffer.getLength();
+    if ( dataSize != -1 ) {
+      int nullLength = dataSize - offset;
+      out.write( new byte[nullLength] );
+    } 
 
     spreadSizeList.clear();
     dataBuffer.clear();
@@ -284,7 +281,6 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
     columnTree.clear();
     headerBytes = new byte[0];
     bufferSize = 0;
-    return result;
   }
 
   @Override

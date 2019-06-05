@@ -16,14 +16,21 @@
  * limitations under the License.
  */
 
-package jp.co.yahoo.yosegi.constants;
+package jp.co.yahoo.yosegi.spread.column;
 
-public final class PrimitiveByteLength {
+import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 
-  // PrimitiveCell + PrimitiveObject
-  public static final int JAVA_OBJECT_LENGTH = 16 + 16;
-  public static final int BOOLEAN_LENGTH = 1;
+import java.io.IOException;
 
-  private PrimitiveByteLength(){}
+public class LongCell extends PrimitiveCell {
+
+  public LongCell( final PrimitiveObject raw ) {
+    super( raw );
+  }
+
+  @Override
+  public ColumnType getType() {
+    return ColumnType.LONG;
+  }
 
 }

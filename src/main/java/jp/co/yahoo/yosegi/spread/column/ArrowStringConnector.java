@@ -58,7 +58,7 @@ public class ArrowStringConnector implements IArrowPrimitiveConnector {
     if ( vector.isNull( index ) ) {
       return defaultCell;
     }
-    return new PrimitiveCell( ColumnType.STRING , new BytesStringObj( vector.get( index ) ) );
+    return new StringCell( new BytesStringObj( vector.get( index ) ) );
   }
 
   @Override

@@ -33,6 +33,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveCell;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveColumn;
+import jp.co.yahoo.yosegi.spread.column.StringCell;
 
 import jp.co.yahoo.yosegi.message.objects.*;
 
@@ -96,7 +97,7 @@ public class TestLazyColumn {
   @Test
   public void T_addCell_1()throws IOException{
     LazyColumn column = new LazyColumn( "dummy" , ColumnType.STRING , new TestColumnMnager() );
-    column.addCell( ColumnType.STRING ,  new PrimitiveCell( ColumnType.STRING , null ) , 3 );
+    column.addCell( ColumnType.STRING ,  new StringCell( null ) , 3 );
   }
 
   @Test

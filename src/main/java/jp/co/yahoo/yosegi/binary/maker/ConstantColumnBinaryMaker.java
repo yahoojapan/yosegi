@@ -298,11 +298,14 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
      * Create a Column from a given ColumnBinary.
      */
     public ConstantCellManager(
-        final ColumnType columnType , final PrimitiveObject value , final int length ) {
+        final ColumnType columnType ,
+        final PrimitiveObject value ,
+        final int length ) throws IOException {
       this.columnType = columnType;
       this.value = value;
       this.length = length;
-      cell = new PrimitiveCell( columnType , value );
+      PrimitiveColumn.ICellMaker cellMaker = PrimitiveColumn.getCellMaker( columnType );
+      cell = cellMaker.create( value );
     }
 
     @Override

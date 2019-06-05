@@ -58,7 +58,7 @@ public class ArrowIntegerConnector implements IArrowPrimitiveConnector {
     if ( vector.isNull( index ) ) {
       return defaultCell;
     }
-    return new PrimitiveCell( ColumnType.INTEGER , new IntegerObj( vector.get( index ) ) );
+    return new IntegerCell( new IntegerObj( vector.get( index ) ) );
   }
 
   @Override

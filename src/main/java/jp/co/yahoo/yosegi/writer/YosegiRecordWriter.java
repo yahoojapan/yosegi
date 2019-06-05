@@ -18,12 +18,14 @@
 
 package jp.co.yahoo.yosegi.writer;
 
+import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.config.Configuration;
 import jp.co.yahoo.yosegi.message.parser.IParser;
 import jp.co.yahoo.yosegi.spread.Spread;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.Map;
 
 public class YosegiRecordWriter implements AutoCloseable {
@@ -81,8 +83,10 @@ public class YosegiRecordWriter implements AutoCloseable {
 
   private void flushSpread() throws IOException {
     if ( spreadSize < currentDataSize || maxRows <= currentRows ) {
-      fileWriter.append( currentSpread );
+      List<ColumnBinary> columnBinary = fileWriter.convertRow( currentSpread );
       currentSpread = new Spread();
+      fileWriter.appendRow( columnBinary , currentRows );
+
       currentDataSize = 0;
       currentRows = 0;
     }

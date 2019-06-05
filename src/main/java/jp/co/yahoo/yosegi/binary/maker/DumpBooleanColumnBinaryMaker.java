@@ -32,6 +32,7 @@ import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.BooleanObj;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.analyzer.IColumnAnalizeResult;
+import jp.co.yahoo.yosegi.spread.column.BooleanCell;
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
 import jp.co.yahoo.yosegi.spread.column.ICell;
 import jp.co.yahoo.yosegi.spread.column.ICellManager;
@@ -156,8 +157,8 @@ public class DumpBooleanColumnBinaryMaker implements IColumnBinaryMaker {
         final byte[] buffer , final PrimitiveObject trueObj , final PrimitiveObject falseObj ) {
       this.buffer = buffer;
       cellArray = new PrimitiveCell[]{
-          new PrimitiveCell( ColumnType.BOOLEAN , falseObj ) ,
-          new PrimitiveCell( ColumnType.BOOLEAN , trueObj ) , null };
+          new BooleanCell( falseObj ) ,
+          new BooleanCell( trueObj ) , null };
     }
 
     @Override

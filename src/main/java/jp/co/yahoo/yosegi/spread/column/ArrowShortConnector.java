@@ -58,7 +58,7 @@ public class ArrowShortConnector implements IArrowPrimitiveConnector {
     if ( vector.isNull( index ) ) {
       return defaultCell;
     }
-    return new PrimitiveCell( ColumnType.SHORT , new ShortObj( vector.get( index ) ) );
+    return new ShortCell( new ShortObj( vector.get( index ) ) );
   }
 
   @Override

@@ -58,7 +58,7 @@ public class ArrowDoubleConnector implements IArrowPrimitiveConnector {
     if ( vector.isNull( index ) ) {
       return defaultCell;
     }
-    return new PrimitiveCell( ColumnType.DOUBLE , new DoubleObj( vector.get( index ) ) );
+    return new DoubleCell( new DoubleObj( vector.get( index ) ) );
   }
 
   @Override

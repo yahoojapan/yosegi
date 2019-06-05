@@ -23,6 +23,7 @@ import jp.co.yahoo.yosegi.config.Configuration;
 import jp.co.yahoo.yosegi.spread.Spread;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 
 public interface IBlockWriter {
@@ -39,11 +40,11 @@ public interface IBlockWriter {
 
   int size();
 
-  byte[] createFixedBlock() throws IOException;
+  void writeFixedBlock( final OutputStream out ) throws IOException;
 
-  byte[] createVariableBlock() throws IOException;
+  void writeVariableBlock( final OutputStream out ) throws IOException;
 
-  byte[] create( final int dataSize ) throws IOException;
+  void write( final OutputStream out , final int dataSize ) throws IOException;
 
   String getReaderClassName();
 

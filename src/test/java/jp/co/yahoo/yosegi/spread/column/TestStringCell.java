@@ -15,15 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package jp.co.yahoo.yosegi.spread.column;
 
-package jp.co.yahoo.yosegi.constants;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.Arguments;
 
-public final class PrimitiveByteLength {
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-  // PrimitiveCell + PrimitiveObject
-  public static final int JAVA_OBJECT_LENGTH = 16 + 16;
-  public static final int BOOLEAN_LENGTH = 1;
+public class TestStringCell {
 
-  private PrimitiveByteLength(){}
+  @Test
+  public void T_getType() {
+    assertEquals( new StringCell( null ).getType(), ColumnType.STRING );
+  }
 
 }

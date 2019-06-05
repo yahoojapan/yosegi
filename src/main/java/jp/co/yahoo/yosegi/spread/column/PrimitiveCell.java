@@ -22,24 +22,17 @@ import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 
 import java.io.IOException;
 
-public class PrimitiveCell implements ICell<PrimitiveObject,PrimitiveObject> {
+public abstract class PrimitiveCell implements ICell<PrimitiveObject,PrimitiveObject> {
 
-  private final ColumnType columnType;
   private PrimitiveObject raw;
 
-  public PrimitiveCell( final ColumnType columnType , final PrimitiveObject raw ) {
+  public PrimitiveCell( final PrimitiveObject raw ) {
     this.raw = raw;
-    this.columnType = columnType;
   }
 
   @Override
   public PrimitiveObject getRow() {
     return raw;
-  }
-
-  @Override
-  public ColumnType getType() {
-    return columnType;
   }
 
   @Override
