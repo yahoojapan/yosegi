@@ -44,7 +44,7 @@ public class YosegiWriter implements AutoCloseable {
   public YosegiWriter( final OutputStream out , final Configuration config ) throws IOException {
     this.out = out;
 
-    int blockSize = config.getInt( "block.size" , 1024 * 1024 * 128 );
+    int blockSize = config.getInt( "block.size" , 1024 * 1024 * 64 );
 
     blockMaker = FindBlockWriter.get(
         config.get( "block.maker.class" , PushdownSupportedBlockWriter.class.getName() ) );
