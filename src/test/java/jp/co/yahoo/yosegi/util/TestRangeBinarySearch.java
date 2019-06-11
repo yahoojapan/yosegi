@@ -1,0 +1,183 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package jp.co.yahoo.yosegi.util;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.Arguments;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
+import java.util.List;
+
+public class TestRangeBinarySearch {
+
+  @Test
+  public void T_newInstace_1() {
+    RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
+  }
+
+  @Test
+  public void T_add_get_1() {
+    RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
+    bs.add( "test0" , 0 );
+    assertEquals( bs.get(0) , "test0" );
+  }
+
+  @Test
+  public void T_add_get_2() {
+    RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
+    bs.add( "test5" , 5 );
+    assertEquals( bs.get(5) , "test5" );
+  }
+
+  @Test
+  public void T_add_get_3() {
+    RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
+    bs.add( "test0" , 0 );
+    bs.add( "test1" , 1 );
+    bs.add( "test2" , 2 );
+    bs.add( "test3" , 3 );
+    bs.add( "test4" , 4 );
+    bs.add( "test5" , 5 );
+    assertEquals( bs.get(0) , "test0" );
+    assertEquals( bs.get(1) , "test1" );
+    assertEquals( bs.get(2) , "test2" );
+    assertEquals( bs.get(3) , "test3" );
+    assertEquals( bs.get(4) , "test4" );
+    assertEquals( bs.get(5) , "test5" );
+    assertEquals( bs.get(6) , null );
+  }
+
+  @Test
+  public void T_add_get_4() {
+    RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
+    bs.add( "test5" , 5 );
+    assertEquals( bs.get(0) , null );
+    assertEquals( bs.get(1) , null );
+    assertEquals( bs.get(2) , null );
+    assertEquals( bs.get(3) , null );
+    assertEquals( bs.get(4) , null );
+    assertEquals( bs.get(5) , "test5" );
+    assertEquals( bs.get(6) , null );
+  }
+
+  @Test
+  public void T_add_get_5() {
+    RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
+    bs.add( "test0" , 0 );
+    bs.add( "test5" , 5 );
+    assertEquals( bs.get(0) , "test0" );
+    assertEquals( bs.get(1) , null );
+    assertEquals( bs.get(2) , null );
+    assertEquals( bs.get(3) , null );
+    assertEquals( bs.get(4) , null );
+    assertEquals( bs.get(5) , "test5" );
+    assertEquals( bs.get(6) , null );
+  }
+
+  @Test
+  public void T_add_get_6() {
+    RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
+    assertThrows( RuntimeException.class ,
+      () -> {
+        bs.add( "test0" , -1 );
+      }
+    );
+  }
+
+  @Test
+  public void T_add_get_7() {
+    RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
+    bs.add( "test0" , 0 );
+    assertThrows( RuntimeException.class ,
+      () -> {
+        bs.add( "test0" , 0 );
+      }
+    );
+  }
+
+  @Test
+  public void T_add_get_8() {
+    RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
+    bs.add( "test0" , 1 );
+    assertThrows( RuntimeException.class ,
+      () -> {
+        bs.add( "test0" , 0 );
+      }
+    );
+  }
+
+  @Test
+  public void T_size_1() {
+    RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
+    assertEquals( bs.size() , 0 );
+    bs.add( "test0" , 0 );
+    assertEquals( bs.size() , 1 );
+    bs.add( "test1" , 1 );
+    assertEquals( bs.size() , 2 );
+  }
+
+  @Test
+  public void T_size_2() {
+    RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
+    assertEquals( bs.size() , 0 );
+    bs.add( "test5" , 5 );
+    assertEquals( bs.size() , 6 );
+    bs.add( "test6" , 6 );
+    assertEquals( bs.size() , 7 );
+  }
+
+  @Test
+  public void T_size_3() {
+    RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
+    assertEquals( bs.size() , 0 );
+    bs.add( "test0" , 0 );
+    assertEquals( bs.size() , 1 );
+    bs.add( "test5" , 5 );
+    assertEquals( bs.size() , 6 );
+  }
+
+  @Test
+  public void T_clear_1() {
+    RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
+    assertEquals( bs.size() , 0 );
+    bs.add( "test0" , 0 );
+    assertEquals( bs.size() , 1 );
+    bs.clear();
+    assertEquals( bs.size() , 0 );
+  }
+
+  @Test
+  public void T_getIndexAndObjectList_1() {
+    RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
+    bs.add( "test0" , 0 );
+    bs.add( "test5" , 5 );
+
+    List<IndexAndObject<String>> indexAndObjList = bs.getIndexAndObjectList();
+    assertEquals( 2 , indexAndObjList.size() );
+    IndexAndObject<String> list1 = indexAndObjList.get(0);
+    assertEquals( list1.get(0) , "test0" );
+
+    IndexAndObject<String> list2 = indexAndObjList.get(1);
+    assertEquals( list2.get(5) , "test5" );
+  }
+
+}

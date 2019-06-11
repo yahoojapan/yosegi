@@ -51,8 +51,10 @@ import jp.co.yahoo.yosegi.message.objects.ShortObj;
 import jp.co.yahoo.yosegi.message.objects.StringObj;
 import jp.co.yahoo.yosegi.message.objects.Utf8BytesLinkObj;
 import jp.co.yahoo.yosegi.spread.analyzer.IColumnAnalizeResult;
+import jp.co.yahoo.yosegi.spread.column.CellMakerFactory;
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
 import jp.co.yahoo.yosegi.spread.column.ICell;
+import jp.co.yahoo.yosegi.spread.column.ICellMaker;
 import jp.co.yahoo.yosegi.spread.column.ICellManager;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveCell;
@@ -285,7 +287,7 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
     }
   }
 
-  public class ConstantCellManager implements ICellManager {
+  public class ConstantCellManager implements ICellManager<ICell> {
 
     private final ColumnType columnType;
     private final ICell cell;
@@ -304,7 +306,7 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
       this.columnType = columnType;
       this.value = value;
       this.length = length;
-      PrimitiveColumn.ICellMaker cellMaker = PrimitiveColumn.getCellMaker( columnType );
+      ICellMaker cellMaker = CellMakerFactory.getCellMaker( columnType );
       cell = cellMaker.create( value );
     }
 

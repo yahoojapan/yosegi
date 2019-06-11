@@ -20,8 +20,10 @@ package jp.co.yahoo.yosegi.binary.maker;
 
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
+import jp.co.yahoo.yosegi.spread.column.CellMakerFactory;
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
 import jp.co.yahoo.yosegi.spread.column.ICell;
+import jp.co.yahoo.yosegi.spread.column.ICellMaker;
 import jp.co.yahoo.yosegi.spread.column.ICellManager;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveCell;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveColumn;
@@ -33,10 +35,10 @@ import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-public class BufferDirectCellManager implements ICellManager {
+public class BufferDirectCellManager implements ICellManager<ICell> {
 
   private final ColumnType columnType;
-  private final PrimitiveColumn.ICellMaker cellMaker;
+  private final ICellMaker cellMaker;
   private final IDicManager dicManager;
   private final int indexSize;
 
@@ -52,7 +54,7 @@ public class BufferDirectCellManager implements ICellManager {
     this.columnType = columnType;
     this.dicManager = dicManager;
     this.indexSize = indexSize;
-    cellMaker = PrimitiveColumn.getCellMaker( columnType );
+    cellMaker = CellMakerFactory.getCellMaker( columnType );
   }
 
   @Override

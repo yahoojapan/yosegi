@@ -167,7 +167,7 @@ public class DumpArrayColumnBinaryMaker implements IColumnBinaryMaker {
     parentNode.getChildNode( columnBinary.columnName ).disable();
   }
 
-  public class ArrayCellManager implements ICellManager {
+  public class ArrayCellManager implements ICellManager<ICell> {
 
     private final ICell[] cellArray;
 
