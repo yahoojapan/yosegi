@@ -21,6 +21,7 @@ package jp.co.yahoo.yosegi.message.formatter.json;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import jp.co.yahoo.yosegi.message.parser.IParser;
+import jp.co.yahoo.yosegi.message.parser.json.JacksonNullParser;
 
 import java.io.IOException;
 
@@ -29,11 +30,23 @@ public class JacksonParserToJsonObject {
   public static final IJacksonFormatter arrayFormatter = new JacksonArrayFormatter();
   public static final IJacksonFormatter objectFormatter = new JacksonObjectFormatter();
 
+  /**
+   * Create a JsonNode from an ArrayParser.
+   */
   public static JsonNode getFromArrayParser( final IParser parser ) throws IOException {
+    if ( parser == null ) {
+      return arrayFormatter.writeParser( new JacksonNullParser() );
+    }
     return arrayFormatter.writeParser( parser );
   }
 
+  /**
+   * Create a JsonNode from an ObjectParser.
+   */
   public static JsonNode getFromObjectParser( final IParser parser ) throws IOException {
+    if ( parser == null ) {
+      return objectFormatter.writeParser( new JacksonNullParser() );
+    }
     return objectFormatter.writeParser( parser );
   }
 
