@@ -30,25 +30,25 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 public class TestMapContainerField {
 
   @Test
-  public void T_newInstance_1() {
+  public void createNewInstanceFromFieldName() {
     IField field = new MapContainerField( "test" , new StringField( "child" ) );
   }
 
   @Test
-  public void T_newInstance_2() {
+  public void createNewInstanceFromFieldNameAndProperties() {
     Properties prop = new Properties();
     prop.set( "key1" , "value1" );
     IField field = new MapContainerField( "test" , new StringField( "child" ) , prop );
   }
 
   @Test
-  public void T_getName_1() {
+  public void getName() {
     IField field = new MapContainerField( "test" , new StringField( "child" ) );
     assertEquals( field.getName() , "test" );
   }
 
   @Test
-  public void T_getProperties_1() {
+  public void getProperties() {
     Properties prop = new Properties();
     prop.set( "key1" , "value1" );
     IField field = new MapContainerField( "test" , new StringField( "child" ) , prop );
@@ -57,13 +57,13 @@ public class TestMapContainerField {
   }
 
   @Test
-  public void T_getFieldType_1() {
+  public void getFieldType() {
     IField field = new MapContainerField( "test" , new StringField( "child" ) );
     assertEquals( FieldType.MAP , field.getFieldType() );
   }
 
   @Test
-  public void T_set_get_1() throws IOException {
+  public void setStringFieldAndGet() throws IOException {
     INamedContainerField field = new MapContainerField( "test" , new StringField( "child" ) );
     field.set( new IntegerField( "key1" ) );
     IField child = field.get( "key1" );
@@ -71,27 +71,27 @@ public class TestMapContainerField {
   }
 
   @Test
-  public void T_set_get_2() throws IOException {
+  public void getDefaultChildField() throws IOException {
     INamedContainerField field = new MapContainerField( "test" , new StringField( "child" ) );
     IField child = field.get( "key1" );
     assertTrue( ( child instanceof StringField ) );
   }
 
   @Test
-  public void T_containsKey_1() throws IOException {
+  public void containsKeyTrue() throws IOException {
     INamedContainerField field = new MapContainerField( "test" , new StringField( "child" ) );
     field.set( new IntegerField( "key1" ) );
     assertTrue( field.containsKey( "key1" ) );
   }
 
   @Test
-  public void T_containsKey_2() throws IOException {
+  public void containsKeyFalse() throws IOException {
     INamedContainerField field = new MapContainerField( "test" , new StringField( "child" ) );
     assertFalse( field.containsKey( "key1" ) );
   }
 
   @Test
-  public void T_merge_1() throws IOException {
+  public void mergeKeyNotExists() throws IOException {
     INamedContainerField field = new MapContainerField( "test" , new StringField( "child" ) );
     assertFalse( field.containsKey( "key1" ) );
     field.set( new StringField( "key1" ) );
@@ -111,7 +111,7 @@ public class TestMapContainerField {
   }
 
   @Test
-  public void T_merge_2() throws IOException {
+  public void mergeKeyExistsAndFieldTypeIsSame() throws IOException {
     INamedContainerField field = new MapContainerField( "test" , new StringField( "child" ) );
     assertFalse( field.containsKey( "key1" ) );
     field.set( new StringField( "key1" ) );
@@ -125,7 +125,7 @@ public class TestMapContainerField {
   }
 
   @Test
-  public void T_merge_3() throws IOException {
+  public void mergeKeyExistsAndFieldTypeIsDifferent() throws IOException {
     INamedContainerField field = new MapContainerField( "test" , new StringField( "child" ) );
     assertFalse( field.containsKey( "key1" ) );
     field.set( new StringField( "key1" ) );
@@ -144,7 +144,7 @@ public class TestMapContainerField {
   }
 
   @Test
-  public void T_merge_4() throws IOException {
+  public void mergeObjectIsDifferent() throws IOException {
     INamedContainerField field = new MapContainerField( "test" , new StringField( "child" ) );
     assertFalse( field.containsKey( "key1" ) );
     field.set( new StringField( "key1" ) );

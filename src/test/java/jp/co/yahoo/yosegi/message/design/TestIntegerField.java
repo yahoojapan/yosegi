@@ -28,25 +28,25 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 public class TestIntegerField {
 
   @Test
-  public void T_newInstance_1() {
+  public void createNewInstanceFromFieldName() {
     IField field = new IntegerField( "test" );
   }
 
   @Test
-  public void T_newInstance_2() {
+  public void createNewInstanceFromFieldNameAndProperties() {
     Properties prop = new Properties();
     prop.set( "key1" , "value1" );
     IField field = new IntegerField( "test" , prop );
   }
 
   @Test
-  public void T_getName_1() {
+  public void getName() {
     IField field = new IntegerField( "test" );
     assertEquals( field.getName() , "test" );
   }
 
   @Test
-  public void T_getProperties_1() {
+  public void getProperties() {
     Properties prop = new Properties();
     prop.set( "key1" , "value1" );
     IField field = new IntegerField( "test" , prop );
@@ -55,7 +55,7 @@ public class TestIntegerField {
   }
 
   @Test
-  public void T_getFieldType_1() {
+  public void getFieldType() {
     IField field = new IntegerField( "test" );
     assertEquals( FieldType.INTEGER , field.getFieldType() );
   }

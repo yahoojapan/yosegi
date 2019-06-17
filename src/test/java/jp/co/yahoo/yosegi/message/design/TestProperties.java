@@ -33,25 +33,25 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 public class TestProperties {
 
   @Test
-  public void T_newInstance_1() {
+  public void createNewInstance() {
     Properties prop = new Properties();
   }
 
   @Test
-  public void T_newInstance_2() {
+  public void createNewInstanceAndSetCustomMap() {
     Map<String,String> map = new HashMap<String,String>();
     Properties prop = new Properties( map );
   }
 
   @Test
-  public void T_set_get_1() {
+  public void setAndGet() {
     Properties prop = new Properties();
     prop.set( "key1" , "value1" );
     assertEquals( prop.get( "key1" ) , "value1" );
   }
 
   @Test
-  public void T_set_get_2() {
+  public void setAndOverwrite() {
     Properties prop = new Properties();
     prop.set( "key1" , "value1" );
     assertEquals( prop.get( "key1" ) , "value1" );
@@ -60,7 +60,7 @@ public class TestProperties {
   }
 
   @Test
-  public void T_set_get_3() {
+  public void getFromCustomMap() {
     Map<String,String> map = new HashMap<String,String>();
     map.put( "key1" , "value1" );
     Properties prop = new Properties( map );
@@ -68,7 +68,7 @@ public class TestProperties {
   }
 
   @Test
-  public void T_set_get_4() {
+  public void overwriteCustomMap() {
     Map<String,String> map = new HashMap<String,String>();
     map.put( "key1" , "value1" );
     Properties prop = new Properties( map );
@@ -78,7 +78,7 @@ public class TestProperties {
   }
 
   @Test
-  public void T_toMap_1() {
+  public void toMap() {
     Properties prop = new Properties();
     prop.set( "key1" , "value1" );
     prop.set( "key2" , "value2" );
@@ -89,14 +89,14 @@ public class TestProperties {
   }
 
   @Test
-  public void T_toMap_2() {
+  public void toMapFromEmptyMap() {
     Properties prop = new Properties();
     Map<String,String> map = prop.toMap();
     assertEquals( map.size() , 0 );
   }
 
   @Test
-  public void T_getKey_1() {
+  public void getKey() {
     Properties prop = new Properties();
     prop.set( "key1" , "value1" );
     prop.set( "key2" , "value2" );
@@ -107,54 +107,54 @@ public class TestProperties {
   }
 
   @Test
-  public void T_getKey_2() {
+  public void getKeyFromEmptyMap() {
     Properties prop = new Properties();
     Set<String> set = prop.getKey();
     assertEquals( set.size() , 0 );
   }
 
   @Test
-  public void T_containsKey_1() throws IOException {
+  public void containsKeyTrue() throws IOException {
     Properties prop = new Properties();
     prop.set( "key1" , "value1" );
     assertTrue( prop.containsKey( "key1" ) );
   }
 
   @Test
-  public void T_containsKey_2() throws IOException {
+  public void containsKeyFalse() throws IOException {
     Properties prop = new Properties();
     assertFalse( prop.containsKey( "key1" ) );
   }
 
   @Test
-  public void T_getInt_1() {
+  public void getInt() {
     Properties prop = new Properties();
     prop.set( "key1" , "100" );
     assertEquals( prop.getInt( "key1" ) , 100 );
   }
 
   @Test
-  public void T_getInt_2() {
+  public void getDefaultIntValue() {
     Properties prop = new Properties();
     assertEquals( prop.getInt( "key1" , 100 ) , 100 );
   }
 
   @Test
-  public void T_getInt_3() {
+  public void getMaxValueInt() {
     Properties prop = new Properties();
     prop.set( "key1" , Integer.valueOf( Integer.MAX_VALUE ).toString() );
     assertEquals( prop.getInt( "key1" ) , Integer.MAX_VALUE );
   }
 
   @Test
-  public void T_getInt_4() {
+  public void getMinValueInt() {
     Properties prop = new Properties();
     prop.set( "key1" , Integer.valueOf( Integer.MIN_VALUE ).toString() );
     assertEquals( prop.getInt( "key1" ) , Integer.MIN_VALUE );
   }
 
   @Test
-  public void T_getInt_5() {
+  public void outOfRangeOfMaxIntValue() {
     Properties prop = new Properties();
     prop.set( "key1" , Long.valueOf( (long)Integer.MAX_VALUE + 1L ).toString() );
     assertThrows( NumberFormatException.class ,
@@ -165,7 +165,7 @@ public class TestProperties {
   }
 
   @Test
-  public void T_getInt_6() {
+  public void outOfRangeOfMinIntValue() {
     Properties prop = new Properties();
     prop.set( "key1" , Long.valueOf( (long)Integer.MIN_VALUE - 1L ).toString() );
     assertThrows( NumberFormatException.class ,
@@ -176,7 +176,7 @@ public class TestProperties {
   }
 
   @Test
-  public void T_getInt_7() {
+  public void getIntFromString() {
     Properties prop = new Properties();
     prop.set( "key1" , "a" );
     assertThrows( NumberFormatException.class ,
@@ -187,34 +187,34 @@ public class TestProperties {
   }
 
   @Test
-  public void T_getLong_1() {
+  public void getLong() {
     Properties prop = new Properties();
     prop.set( "key1" , "100" );
     assertEquals( prop.getLong( "key1" ) , 100L );
   }
 
   @Test
-  public void T_getLong_2() {
+  public void getDefaultLongValue() {
     Properties prop = new Properties();
     assertEquals( prop.getLong( "key1" , 100L ) , 100L );
   }
 
   @Test
-  public void T_getLong_3() {
+  public void getMaxValueLong() {
     Properties prop = new Properties();
     prop.set( "key1" , Long.valueOf( Long.MAX_VALUE ).toString() );
     assertEquals( prop.getLong( "key1" ) , Long.MAX_VALUE );
   }
 
   @Test
-  public void T_getLong_4() {
+  public void getMinValueLong() {
     Properties prop = new Properties();
     prop.set( "key1" , Long.valueOf( Long.MIN_VALUE ).toString() );
     assertEquals( prop.getLong( "key1" ) , Long.MIN_VALUE );
   }
 
   @Test
-  public void T_getLong_5() {
+  public void outOfRangeOfMaxLongValue() {
     Properties prop = new Properties();
     prop.set( "key1" , "9223372036854775808" );
     assertThrows( NumberFormatException.class ,
@@ -225,7 +225,7 @@ public class TestProperties {
   }
 
   @Test
-  public void T_getLong_6() {
+  public void outOfRangeOfMinLongValue() {
     Properties prop = new Properties();
     prop.set( "key1" , "-9223372036854775809" );
     assertThrows( NumberFormatException.class ,
@@ -236,7 +236,7 @@ public class TestProperties {
   }
 
   @Test
-  public void T_getLong_7() {
+  public void getLongFromString() {
     Properties prop = new Properties();
     prop.set( "key1" , "a" );
     assertThrows( NumberFormatException.class ,
@@ -247,20 +247,20 @@ public class TestProperties {
   }
 
   @Test
-  public void T_getDouble_1() {
+  public void getDouble() {
     Properties prop = new Properties();
     prop.set( "key1" , "0.1" );
     assertEquals( prop.getDouble( "key1" ) , 0.1d );
   }
 
   @Test
-  public void T_getDouble_2() {
+  public void getDefaultDoubleValue() {
     Properties prop = new Properties();
     assertEquals( prop.getDouble( "key1" , 0.1d ) , 0.1d );
   }
 
   @Test
-  public void T_getDouble_3() {
+  public void getDoubleFromString() {
     Properties prop = new Properties();
     prop.set( "key1" , "a" );
     assertThrows( NumberFormatException.class ,
@@ -271,7 +271,7 @@ public class TestProperties {
   }
 
   @Test
-  public void T_getObject_1() throws IOException {
+  public void getObject() throws IOException {
     Properties prop = new Properties();
     prop.set( "key1" , "java.lang.String" );
     Object obj = prop.getObject( "key1" );
@@ -279,14 +279,14 @@ public class TestProperties {
   }
 
   @Test
-  public void T_getObject_2() throws IOException {
+  public void getDefaultObjectValue() throws IOException {
     Properties prop = new Properties();
     Object obj = prop.getObject( "key1" , "java.lang.String" );
     assertTrue( ( obj instanceof String ) );
   }
 
   @Test
-  public void T_getObject_3() {
+  public void getObjectFromNotFoundClassName() {
     Properties prop = new Properties();
     prop.set( "key1" , "NotFound" );
     assertThrows( IOException.class ,
