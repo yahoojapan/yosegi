@@ -40,7 +40,7 @@ import java.util.Map;
 public class TestJacksonContainerToJsonObject {
 
   @Test
-  public void T_write_1() throws IOException {
+  public void createArrayNodeFromList() throws IOException {
     List<Object> list = Arrays.asList( "a" , "b" , "c" );
     JsonNode node = JacksonContainerToJsonObject.getFromList( list );
     assertTrue( ( node instanceof ArrayNode ) );
@@ -56,7 +56,7 @@ public class TestJacksonContainerToJsonObject {
   }
 
   @Test
-  public void T_write_2() throws IOException {
+  public void createArrayNodeFromNull() throws IOException {
     JacksonArrayFormatter formatter = new JacksonArrayFormatter();
     JsonNode node = JacksonContainerToJsonObject.getFromList( null );
     assertTrue( ( node instanceof ArrayNode ) );
@@ -67,7 +67,7 @@ public class TestJacksonContainerToJsonObject {
 
 
   @Test
-  public void T_write_3() throws IOException {
+  public void createObjectNodeFromMap() throws IOException {
     Map<Object,Object> map = new HashMap<Object,Object>();
     map.put( "key1" , "a" );
     map.put( "key2" , "b" );
@@ -86,7 +86,7 @@ public class TestJacksonContainerToJsonObject {
   }
 
   @Test
-  public void T_write_4() throws IOException {
+  public void createObjectNodeFromNull() throws IOException {
     JsonNode node = JacksonContainerToJsonObject.getFromMap( null );
     assertTrue( ( node instanceof ObjectNode ) );
     ObjectNode objNode = (ObjectNode)node;

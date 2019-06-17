@@ -219,7 +219,7 @@ public class TestJacksonArrayFormatter {
   }
 
   @Test
-  public void T_write_1() throws IOException {
+  public void createSimpleArrayFromList() throws IOException {
     List<Object> list = Arrays.asList( "a" , "b" , "c" );
     JacksonArrayFormatter formatter = new JacksonArrayFormatter();
     JsonNode node = formatter.write( list );
@@ -236,7 +236,7 @@ public class TestJacksonArrayFormatter {
   }
 
   @Test
-  public void T_write_3() throws IOException {
+  public void createSimpleArrayFromNull() throws IOException {
     JacksonArrayFormatter formatter = new JacksonArrayFormatter();
     JsonNode node = formatter.write( null );
     assertTrue( ( node instanceof ArrayNode ) );
@@ -246,7 +246,7 @@ public class TestJacksonArrayFormatter {
   }
 
   @Test
-  public void T_write_4() throws IOException {
+  public void createNestingArrayFromList() throws IOException {
     List<Object> list = Arrays.asList( Arrays.asList( "a" , "b" , "c" ) );
     JacksonArrayFormatter formatter = new JacksonArrayFormatter();
     JsonNode node = formatter.write( list );
@@ -269,7 +269,7 @@ public class TestJacksonArrayFormatter {
   }
 
   @Test
-  public void T_write_5() throws IOException {
+  public void createNestingObjectFromList() throws IOException {
     Map<Object,Object> child = new HashMap<Object,Object>();
     child.put( "key1" , "a" );
     child.put( "key2" , "b" );
@@ -296,7 +296,7 @@ public class TestJacksonArrayFormatter {
   }
 
   @Test
-  public void T_writeParser_1() throws IOException {
+  public void createSimpleArrayFromParser() throws IOException {
     JacksonArrayFormatter formatter = new JacksonArrayFormatter();
     JsonNode node = formatter.writeParser( new TestPrimitiveParser( true ) );
     assertTrue( ( node instanceof ArrayNode ) );
@@ -312,7 +312,7 @@ public class TestJacksonArrayFormatter {
   }
 
   @Test
-  public void T_writeParser_2() throws IOException {
+  public void createNestingArrayFromParser() throws IOException {
     JacksonArrayFormatter formatter = new JacksonArrayFormatter();
     JsonNode node = formatter.writeParser( new TestParentParser( true ) );
     assertTrue( ( node instanceof ArrayNode ) );
@@ -334,7 +334,7 @@ public class TestJacksonArrayFormatter {
   }
 
   @Test
-  public void T_writeParser_3() throws IOException {
+  public void createNestingObjectFromParser() throws IOException {
     JacksonArrayFormatter formatter = new JacksonArrayFormatter();
     JsonNode node = formatter.writeParser( new TestParentParser( false ) );
     assertTrue( ( node instanceof ArrayNode ) );

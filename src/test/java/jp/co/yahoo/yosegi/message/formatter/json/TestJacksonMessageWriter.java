@@ -144,7 +144,7 @@ public class TestJacksonMessageWriter {
   }
 
   @Test
-  public void T_createObj_1() throws IOException {
+  public void createJsonStringFromPrimitiveObject() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
     JacksonMessageWriter writer = new JacksonMessageWriter();
     byte[] result = writer.create( new StringObj( "a" ) );
@@ -154,7 +154,7 @@ public class TestJacksonMessageWriter {
   }
 
   @Test
-  public void T_createObj_2() throws IOException {
+  public void createJsonStringFromNullPrimitiveObject() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
     JacksonMessageWriter writer = new JacksonMessageWriter();
     PrimitiveObject obj = null;
@@ -164,7 +164,7 @@ public class TestJacksonMessageWriter {
   }
 
   @Test
-  public void T_createArray_1() throws IOException {
+  public void createJsonStringFromList() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
     JacksonMessageWriter writer = new JacksonMessageWriter();
     List<Object> list = Arrays.asList( "a" , "b" , "c" );
@@ -183,7 +183,7 @@ public class TestJacksonMessageWriter {
   }
 
   @Test
-  public void T_createArray_2() throws IOException {
+  public void createJsonStringFromNullList() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
     JacksonMessageWriter writer = new JacksonMessageWriter();
     List<Object> list = null;
@@ -196,7 +196,7 @@ public class TestJacksonMessageWriter {
   }
 
   @Test
-  public void T_createMap_1() throws IOException {
+  public void createJsonStringFromMap() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
     JacksonMessageWriter writer = new JacksonMessageWriter();
     Map<Object,Object> map = new HashMap<Object,Object>();
@@ -218,7 +218,7 @@ public class TestJacksonMessageWriter {
   }
 
   @Test
-  public void T_createMap_2() throws IOException {
+  public void createJsonStringFromNullMap() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
     JacksonMessageWriter writer = new JacksonMessageWriter();
     Map<Object,Object> map = null;
@@ -231,7 +231,7 @@ public class TestJacksonMessageWriter {
   }
 
   @Test
-  public void T_createParser_1() throws IOException {
+  public void createJsonStringFromObjectParser() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
     JacksonMessageWriter writer = new JacksonMessageWriter();
     byte[] result = writer.create( new TestPrimitiveParser( false ) );
@@ -249,7 +249,7 @@ public class TestJacksonMessageWriter {
   }
 
   @Test
-  public void T_createParser_2() throws IOException {
+  public void createJsonStringFromNullParserVar() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
     JacksonMessageWriter writer = new JacksonMessageWriter();
     IParser parser = null;
@@ -259,7 +259,7 @@ public class TestJacksonMessageWriter {
   }
 
   @Test
-  public void T_createParser_3() throws IOException {
+  public void createJsonStringFromArrayParser() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
     JacksonMessageWriter writer = new JacksonMessageWriter();
     byte[] result = writer.create( new TestPrimitiveParser( true ) );
@@ -277,7 +277,7 @@ public class TestJacksonMessageWriter {
   }
 
   @Test
-  public void T_createParser_4() throws IOException {
+  public void createJsonStringFromNullParser() throws IOException {
     ObjectMapper mapper = new ObjectMapper();
     JacksonMessageWriter writer = new JacksonMessageWriter();
     byte[] result = writer.create( new JacksonNullParser() );

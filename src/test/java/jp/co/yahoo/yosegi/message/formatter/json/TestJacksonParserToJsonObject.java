@@ -141,7 +141,7 @@ public class TestJacksonParserToJsonObject {
   }
 
   @Test
-  public void T_writeParser_1() throws IOException {
+  public void createObjectNodeFromParser() throws IOException {
     JsonNode node = JacksonParserToJsonObject.getFromObjectParser( new TestPrimitiveParser( false ) );
     assertTrue( ( node instanceof ObjectNode ) );
 
@@ -156,7 +156,7 @@ public class TestJacksonParserToJsonObject {
   }
 
   @Test
-  public void T_writeParser_2() throws IOException {
+  public void createObjectNodeFromNull() throws IOException {
     JsonNode node = JacksonParserToJsonObject.getFromObjectParser( null );
     assertTrue( ( node instanceof ObjectNode ) );
 
@@ -165,7 +165,7 @@ public class TestJacksonParserToJsonObject {
   }
 
   @Test
-  public void T_writeParser_3() throws IOException {
+  public void createArrayNodeFromParser() throws IOException {
     JsonNode node = JacksonParserToJsonObject.getFromArrayParser( new TestPrimitiveParser( true ) );
     assertTrue( ( node instanceof ArrayNode ) );
     ArrayNode arrayNode = (ArrayNode)node;
@@ -180,7 +180,7 @@ public class TestJacksonParserToJsonObject {
   }
 
   @Test
-  public void T_writeParser_4() throws IOException {
+  public void createArrayNodeFromNull() throws IOException {
     JsonNode node = JacksonParserToJsonObject.getFromArrayParser( null );
     assertTrue( ( node instanceof ArrayNode ) );
     ArrayNode arrayNode = (ArrayNode)node;
