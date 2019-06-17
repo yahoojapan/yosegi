@@ -94,6 +94,10 @@ public class YosegiWriter implements AutoCloseable {
     blockMaker.append( spreadSize , binaryList );
   }
 
+  public void writeFixedBlock() throws IOException {
+    blockMaker.writeFixedBlock( out );
+  }
+
   /**
    * Close.
    */
