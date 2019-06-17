@@ -48,10 +48,10 @@ public class TextBooleanFormatter implements ITextFormatter {
       final ByteArrayData buffer ,
       final PrimitiveObject obj ,
       final IParser parser ) throws IOException {
-    buffer.append(
-        Boolean.valueOf(
-          ( (PrimitiveObject)obj ).getBoolean() 
-        ).toString().getBytes( "UTF-8" ) );
+    if ( obj != null ) {
+      buffer.append(
+          Boolean.valueOf( obj.getBoolean() ).toString().getBytes( "UTF-8" ) );
+    }
   }
 
 }

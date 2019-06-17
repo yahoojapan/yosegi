@@ -32,7 +32,10 @@ public class TextFloatFormatter implements ITextFormatter {
 
   @Override
   public void write(final ByteArrayData buffer , final Object obj ) throws IOException {
-    if ( obj instanceof Short ) {
+    if ( obj instanceof Byte ) {
+      float target = ( (Byte) obj ).floatValue();
+      buffer.append( convert( target ) );
+    } else if ( obj instanceof Short ) {
       float target = ( (Short) obj ).floatValue();
       buffer.append( convert( target ) );
     } else if ( obj instanceof Integer ) {
@@ -57,7 +60,9 @@ public class TextFloatFormatter implements ITextFormatter {
       final ByteArrayData buffer ,
       final PrimitiveObject obj ,
       final IParser parser ) throws IOException {
-    buffer.append( convert( ( (PrimitiveObject)obj ).getFloat() ) );
+    if ( obj != null ) {
+      buffer.append( convert( ( (PrimitiveObject)obj ).getFloat() ) );
+    }
   }
 
 }

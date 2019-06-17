@@ -32,7 +32,10 @@ public class TextDoubleFormatter implements ITextFormatter {
 
   @Override
   public void write( final ByteArrayData buffer , final Object obj ) throws IOException {
-    if ( obj instanceof Short ) {
+    if ( obj instanceof Byte ) {
+      double target = ( (Byte) obj ).doubleValue();
+      buffer.append( convert( target ) );
+    } else if ( obj instanceof Short ) {
       double target = ( (Short) obj ).doubleValue();
       buffer.append( convert( target ) );
     } else if ( obj instanceof Integer ) {
@@ -42,7 +45,7 @@ public class TextDoubleFormatter implements ITextFormatter {
       double target = ( (Long) obj ).doubleValue();
       buffer.append( convert( target ) );
     } else if ( obj instanceof Float ) {
-      double target = ( (Float) obj ).doubleValue();
+      double target = Double.valueOf( ( (Float) obj ).toString() );
       buffer.append( convert( target ) );
     } else if ( obj instanceof Double ) {
       double target = ( (Double) obj ).doubleValue();
@@ -57,7 +60,9 @@ public class TextDoubleFormatter implements ITextFormatter {
       final ByteArrayData buffer ,
       final PrimitiveObject obj ,
       final IParser parser ) throws IOException {
-    buffer.append( convert( ( (PrimitiveObject)obj ).getDouble() ) );
+    if ( obj != null ) {
+      buffer.append( convert( ( (PrimitiveObject)obj ).getDouble() ) );
+    }
   }
 
 }
