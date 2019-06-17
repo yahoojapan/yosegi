@@ -163,12 +163,7 @@ public class YosegiReader implements AutoCloseable {
    * It is judged whether there is the next Spread.
    */
   public boolean hasNext() throws IOException {
-    if ( currentBlockReader.hasNext() ) {
-      return true;
-    } else if ( ! readTargetList.isEmpty() ) {
-      return true;
-    }
-    return false;
+    return setNextBlock();
   }
 
   private boolean setNextBlock() throws IOException {
