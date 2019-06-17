@@ -82,7 +82,7 @@ public class TestJacksonObjectFormatter {
 
     @Override
     public boolean containsKey( final String key ) throws IOException {
-      return "key1".euqlas( key );
+      return "key1".equals( key );
     }
 
     @Override
