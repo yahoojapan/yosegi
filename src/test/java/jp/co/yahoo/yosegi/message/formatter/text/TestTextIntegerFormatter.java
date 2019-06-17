@@ -19,7 +19,7 @@
 package jp.co.yahoo.yosegi.message.formatter.text;
 
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
-import jp.co.yahoo.yosegi.message.objects.DoubleObj;
+import jp.co.yahoo.yosegi.message.objects.IntegerObj;
 import jp.co.yahoo.yosegi.message.objects.StringObj;
 import jp.co.yahoo.yosegi.message.parser.IParser;
 import jp.co.yahoo.yosegi.util.ByteArrayData;
@@ -34,83 +34,83 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
 
-public class TestTextDoubleFormatter {
+public class TestTextIntegerFormatter {
 
   @Test
-  public void createDoubleTextFromDouble() throws IOException {
-    TextDoubleFormatter formatter = new TextDoubleFormatter();
+  public void createIntegerTextFromDouble() throws IOException {
+    TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , 0.1d );
-    assertEquals( "0.1" , new String( buffer.getBytes() , 0 , buffer.getLength() ) );
+    assertEquals( "0" , new String( buffer.getBytes() , 0 , buffer.getLength() ) );
   }
 
   @Test
-  public void createDoubleTextFromFloat() throws IOException {
-    TextDoubleFormatter formatter = new TextDoubleFormatter();
+  public void createIntegerTextFromFloat() throws IOException {
+    TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , 0.1f );
-    assertEquals( "0.1" , new String( buffer.getBytes() , 0 , buffer.getLength() ) );
+    assertEquals( "0" , new String( buffer.getBytes() , 0 , buffer.getLength() ) );
   }
 
   @Test
-  public void createDoubleTextFromByte() throws IOException {
-    TextDoubleFormatter formatter = new TextDoubleFormatter();
+  public void createIntegerTextFromByte() throws IOException {
+    TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , (byte)1 );
-    assertEquals( "1.0" , new String( buffer.getBytes() , 0 , buffer.getLength() ) );
+    assertEquals( "1" , new String( buffer.getBytes() , 0 , buffer.getLength() ) );
   }
 
   @Test
-  public void createDoubleTextFromShort() throws IOException {
-    TextDoubleFormatter formatter = new TextDoubleFormatter();
+  public void createIntegerTextFromShort() throws IOException {
+    TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , (short)1 );
-    assertEquals( "1.0" , new String( buffer.getBytes() , 0 , buffer.getLength() ) );
+    assertEquals( "1" , new String( buffer.getBytes() , 0 , buffer.getLength() ) );
   }
 
   @Test
-  public void createDoubleTextFromInteger() throws IOException {
-    TextDoubleFormatter formatter = new TextDoubleFormatter();
+  public void createIntegerTextFromInteger() throws IOException {
+    TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , 1 );
-    assertEquals( "1.0" , new String( buffer.getBytes() , 0 , buffer.getLength() ) );
+    assertEquals( "1" , new String( buffer.getBytes() , 0 , buffer.getLength() ) );
   }
 
   @Test
-  public void createDoubleTextFromLong() throws IOException {
-    TextDoubleFormatter formatter = new TextDoubleFormatter();
+  public void createIntegerTextFromLong() throws IOException {
+    TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , 1L );
-    assertEquals( "1.0" , new String( buffer.getBytes() , 0 , buffer.getLength() ) );
+    assertEquals( "1" , new String( buffer.getBytes() , 0 , buffer.getLength() ) );
   }
 
   @Test
-  public void createDoubleTextFromString() throws IOException {
-    TextDoubleFormatter formatter = new TextDoubleFormatter();
+  public void createIntegerTextFromString() throws IOException {
+    TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , new String( "1" ) );
     assertEquals( "" , new String( buffer.getBytes() , 0 , buffer.getLength() ) );
   }
 
   @Test
-  public void createDoubleTextFromNull() throws IOException {
-    TextDoubleFormatter formatter = new TextDoubleFormatter();
+  public void createIntegerTextFromNull() throws IOException {
+    TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , null );
     assertEquals( "" , new String( buffer.getBytes() , 0 , buffer.getLength() ) );
   }
 
   @Test
-  public void writeParserFromDoubleObj() throws IOException {
-    TextDoubleFormatter formatter = new TextDoubleFormatter();
+  public void writeParserFromIntegerObj() throws IOException {
+    TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
-    formatter.writeParser( buffer , new DoubleObj( 0.1d ) , null );
-    assertEquals( "0.1" , new String( buffer.getBytes() , 0 , buffer.getLength() ) );
+    formatter.writeParser( buffer , new IntegerObj( 1 ) , null );
+    assertEquals( "1" , new String( buffer.getBytes() , 0 , buffer.getLength() ) );
   }
 
   @Test
   public void writeParserFromNull() throws IOException {
-    TextDoubleFormatter formatter = new TextDoubleFormatter();
+    TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.writeParser( buffer , null , null );
     assertEquals( "" , new String( buffer.getBytes() , 0 , buffer.getLength() ) );

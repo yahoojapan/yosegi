@@ -138,7 +138,7 @@ public class TestTextArrayFormatter {
   }
 
   @Test
-  public void T_newInstance_1() throws IOException {
+  public void createNewInstanceFromDelimiterSetting() throws IOException {
     Properties option = new Properties();
     option.set( "delimiter" , "0x2c" );
     ArrayContainerField schema = new ArrayContainerField( "root" , new StringField( "obj" ) , option );
@@ -146,7 +146,7 @@ public class TestTextArrayFormatter {
   }
 
   @Test
-  public void T_newInstance_2() {
+  public void createNewInstanceFromNotDelimiterSetting() {
     ArrayContainerField schema = new ArrayContainerField( "root" , new StringField( "obj" ) );
     assertThrows( IOException.class ,
       () -> {
@@ -156,7 +156,7 @@ public class TestTextArrayFormatter {
   }
 
   @Test
-  public void T_newInstance_3() {
+  public void createNewInstanceFromNull() {
     assertThrows( NullPointerException.class ,
       () -> {
         TextArrayFormatter formatter = new TextArrayFormatter( null );
@@ -165,7 +165,7 @@ public class TestTextArrayFormatter {
   }
 
   @Test
-  public void T_write_1() throws IOException {
+  public void createSimpleArrayText() throws IOException {
     Properties option = new Properties();
     option.set( "delimiter" , "0x2c" );
     ArrayContainerField schema = new ArrayContainerField( "root" , new StringField( "obj" ) , option );
@@ -176,7 +176,7 @@ public class TestTextArrayFormatter {
   }
 
   @Test
-  public void T_write_2() throws IOException {
+  public void createSingleArrayText() throws IOException {
     Properties option = new Properties();
     option.set( "delimiter" , "0x2c" );
     ArrayContainerField schema = new ArrayContainerField( "root" , new StringField( "obj" ) , option );
@@ -187,7 +187,7 @@ public class TestTextArrayFormatter {
   }
 
   @Test
-  public void T_write_3() throws IOException {
+  public void createEmptyArrayText() throws IOException {
     Properties option = new Properties();
     option.set( "delimiter" , "0x2c" );
     ArrayContainerField schema = new ArrayContainerField( "root" , new StringField( "obj" ) , option );
@@ -198,7 +198,7 @@ public class TestTextArrayFormatter {
   }
 
   @Test
-  public void T_write_4() throws IOException {
+  public void createArrayTextFromNotListObject() throws IOException {
     Properties option = new Properties();
     option.set( "delimiter" , "0x2c" );
     ArrayContainerField schema = new ArrayContainerField( "root" , new StringField( "obj" ) , option );
@@ -209,7 +209,7 @@ public class TestTextArrayFormatter {
   }
 
   @Test
-  public void T_write_5() throws IOException {
+  public void createArrayTextFromNull() throws IOException {
     Properties option = new Properties();
     option.set( "delimiter" , "0x2c" );
     ArrayContainerField schema = new ArrayContainerField( "root" , new StringField( "obj" ) , option );
@@ -220,7 +220,7 @@ public class TestTextArrayFormatter {
   }
 
   @Test
-  public void T_writeParser_1() throws IOException {
+  public void createArrayTextFromParser() throws IOException {
     Properties option = new Properties();
     option.set( "delimiter" , "0x2c" );
     ArrayContainerField schema = new ArrayContainerField( "root" , new StringField( "obj" ) , option );
@@ -231,7 +231,7 @@ public class TestTextArrayFormatter {
   }
 
   @Test
-  public void T_writeParser_2() throws IOException {
+  public void createArrayTextFromNullParser() throws IOException {
     Properties option = new Properties();
     option.set( "delimiter" , "0x2c" );
     ArrayContainerField schema = new ArrayContainerField( "root" , new StringField( "obj" ) , option );

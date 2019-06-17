@@ -37,7 +37,7 @@ import java.io.IOException;
 public class TestTextFloatFormatter {
 
   @Test
-  public void T_write_1() throws IOException {
+  public void createFloatTextFromDouble() throws IOException {
     TextFloatFormatter formatter = new TextFloatFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , 0.1d );
@@ -45,7 +45,7 @@ public class TestTextFloatFormatter {
   }
 
   @Test
-  public void T_write_2() throws IOException {
+  public void createFloatTextFromFloat() throws IOException {
     TextFloatFormatter formatter = new TextFloatFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , 0.1f );
@@ -53,7 +53,7 @@ public class TestTextFloatFormatter {
   }
 
   @Test
-  public void T_write_3() throws IOException {
+  public void createFloatTextFromByte() throws IOException {
     TextFloatFormatter formatter = new TextFloatFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , (byte)1 );
@@ -61,7 +61,7 @@ public class TestTextFloatFormatter {
   }
 
   @Test
-  public void T_write_4() throws IOException {
+  public void createFloatTextFromShort() throws IOException {
     TextFloatFormatter formatter = new TextFloatFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , (short)1 );
@@ -69,7 +69,7 @@ public class TestTextFloatFormatter {
   }
 
   @Test
-  public void T_write_5() throws IOException {
+  public void createFloatTextFromInteger() throws IOException {
     TextFloatFormatter formatter = new TextFloatFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , 1 );
@@ -77,7 +77,7 @@ public class TestTextFloatFormatter {
   }
 
   @Test
-  public void T_write_6() throws IOException {
+  public void createFloatTextFromLong() throws IOException {
     TextFloatFormatter formatter = new TextFloatFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , 1L );
@@ -85,7 +85,7 @@ public class TestTextFloatFormatter {
   }
 
   @Test
-  public void T_write_7() throws IOException {
+  public void createFloatTextFromString() throws IOException {
     TextFloatFormatter formatter = new TextFloatFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , new String( "1" ) );
@@ -93,7 +93,7 @@ public class TestTextFloatFormatter {
   }
 
   @Test
-  public void T_write_8() throws IOException {
+  public void createFloatTextFromNull() throws IOException {
     TextFloatFormatter formatter = new TextFloatFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , null );
@@ -101,7 +101,7 @@ public class TestTextFloatFormatter {
   }
 
   @Test
-  public void T_writeParser_1() throws IOException {
+  public void writeParserFromFloatObj() throws IOException {
     TextFloatFormatter formatter = new TextFloatFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.writeParser( buffer , new FloatObj( 0.1f ) , null );
@@ -109,7 +109,7 @@ public class TestTextFloatFormatter {
   }
 
   @Test
-  public void T_writeParser_2() throws IOException {
+  public void writeParserFromNull() throws IOException {
     TextFloatFormatter formatter = new TextFloatFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.writeParser( buffer , null , null );

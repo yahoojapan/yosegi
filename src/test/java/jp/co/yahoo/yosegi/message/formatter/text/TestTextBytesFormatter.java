@@ -37,7 +37,7 @@ import java.io.IOException;
 public class TestTextBytesFormatter {
 
   @Test
-  public void T_write_1() throws IOException {
+  public void createBytesTextFromByteArray() throws IOException {
     TextBytesFormatter formatter = new TextBytesFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , new String( "abc" ).getBytes() );
@@ -45,7 +45,7 @@ public class TestTextBytesFormatter {
   }
 
   @Test
-  public void T_write_2() throws IOException {
+  public void createBytesTextFromString() throws IOException {
     TextBytesFormatter formatter = new TextBytesFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , new String( "abc" ) );
@@ -53,7 +53,7 @@ public class TestTextBytesFormatter {
   }
 
   @Test
-  public void T_write_3() throws IOException {
+  public void createBytesTextFromBytesObj() throws IOException {
     TextBytesFormatter formatter = new TextBytesFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , new BytesObj( new String( "abc" ).getBytes() ) );
@@ -61,7 +61,7 @@ public class TestTextBytesFormatter {
   }
 
   @Test
-  public void T_write_4() throws IOException {
+  public void createBytesTextFromNull() throws IOException {
     TextBytesFormatter formatter = new TextBytesFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , null );
@@ -69,7 +69,7 @@ public class TestTextBytesFormatter {
   }
 
   @Test
-  public void T_writeParser_1() throws IOException {
+  public void writeParserFromBytesObj() throws IOException {
     TextBytesFormatter formatter = new TextBytesFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.writeParser( buffer ,  new BytesObj( new String( "abc" ).getBytes() ) , null );
@@ -77,7 +77,7 @@ public class TestTextBytesFormatter {
   }
 
   @Test
-  public void T_writeParser_2() throws IOException {
+  public void writeParserFromNull() throws IOException {
     TextBytesFormatter formatter = new TextBytesFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.writeParser( buffer , null , null );
