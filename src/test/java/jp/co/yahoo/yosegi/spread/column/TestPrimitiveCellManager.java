@@ -35,13 +35,13 @@ import java.io.IOException;
 public class TestPrimitiveCellManager {
 
   @Test
-  public void createNewInstance() throws IOException {
+  public void T_newInstance_void_withStringCellMaker() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
     PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
   }
 
   @Test
-  public void createNewInstanceWithNull() throws IOException {
+  public void T_newInstance_throwsException_withNull() throws IOException {
     assertThrows( IOException.class ,
       () -> {
         PrimitiveCellManager cellManager = new PrimitiveCellManager( null );
@@ -50,7 +50,7 @@ public class TestPrimitiveCellManager {
   }
 
   @Test
-  public void addOneObject() throws IOException {
+  public void T_addAndGet_resultIsCreatedStringObj() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
     PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
     cellManager.add( new StringObj( "test" ) , 0 );
@@ -61,7 +61,7 @@ public class TestPrimitiveCellManager {
   }
 
   @Test
-  public void addSameObjects() throws IOException {
+  public void T_addAndGet_resultIsCreatedSameStringObjs() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
     PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
     cellManager.add( new StringObj( "test" ) , 0 );
@@ -75,7 +75,7 @@ public class TestPrimitiveCellManager {
   }
 
   @Test
-  public void skipIndexWhenAdding() throws IOException {
+  public void T_addAndGet_skippedCellIsNull() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
     PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
     cellManager.add( new StringObj( "test" ) , 3 );
@@ -89,7 +89,7 @@ public class TestPrimitiveCellManager {
   }
 
   @Test
-  public void addExistingIndex() throws IOException {
+  public void T_add_throwsException_whenIndexIsAlreadySet() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
     PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
     cellManager.add( new StringObj( "test" ) , 3 );
@@ -102,7 +102,7 @@ public class TestPrimitiveCellManager {
   }
 
   @Test
-  public void addIndexSmallerThanCurrentIndex() throws IOException {
+  public void T_add_throwsException_whenLessThanCurrentIndex() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
     PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
     cellManager.add( new StringObj( "test" ) , 3 );
@@ -115,7 +115,7 @@ public class TestPrimitiveCellManager {
   }
 
   @Test
-  public void addIndexBelowZero() throws IOException {
+  public void T_add_throwsException_whenBelowZero() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
     PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
 
@@ -127,7 +127,7 @@ public class TestPrimitiveCellManager {
   }
 
   @Test
-  public void additionThatNullExistsBetween() throws IOException {
+  public void T_addAndGet_skippedCellIsNull_whenSetDistantIndex() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
     PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
     cellManager.add( new StringObj( "test" ) , 0 );
@@ -145,7 +145,7 @@ public class TestPrimitiveCellManager {
   }
 
   @Test
-  public void skipIndexWhenAddingAndAdditionThatNullExistsBetween() throws IOException {
+  public void T_addAndGet_skippedCellIsNull_whenStartIndexIsGreaterThanZeroAndSetDistantIndex() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
     PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
     cellManager.add( new StringObj( "test" ) , 3 );
@@ -164,7 +164,7 @@ public class TestPrimitiveCellManager {
   }
 
   @Test
-  public void getSizeWithOneObject() throws IOException {
+  public void T_size_resultIsNumberOfAdd() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
     PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
     cellManager.add( new StringObj( "test" ) , 0 );
@@ -173,7 +173,7 @@ public class TestPrimitiveCellManager {
   }
 
   @Test
-  public void getSizeWithSkipIndexWhenAdding() throws IOException {
+  public void T_size_resultIsNumberOfAddAndNumberOfNulls() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
     PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
     cellManager.add( new StringObj( "test" ) , 5 );
@@ -182,7 +182,7 @@ public class TestPrimitiveCellManager {
   }
 
   @Test
-  public void clearAll() throws IOException {
+  public void T_clear_void() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
     PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
     cellManager.add( new StringObj( "test" ) , 5 );
@@ -193,7 +193,7 @@ public class TestPrimitiveCellManager {
   }
 
   @Test
-  public void filterWithOneObject() throws IOException {
+  public void T_filter_nulIsFiltered() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
     PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
     cellManager.add( new StringObj( "test" ) , 5 );
@@ -217,7 +217,7 @@ public class TestPrimitiveCellManager {
   }
 
   @Test
-  public void filterWithNullExistsBetween() throws IOException {
+  public void T_filter_nulIsFiltered_whenBetweenIsNull() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
     PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
     cellManager.add( new StringObj( "test" ) , 1 );
@@ -243,7 +243,7 @@ public class TestPrimitiveCellManager {
   }
 
   @Test
-  public void getPrimitiveObjectWithAllAtOnce() throws IOException {
+  public void T_getPrimitiveObject_primitiveObjectArray_withAllAtOnce() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
     PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
     cellManager.add( new StringObj( "test1" ) , 1 );
@@ -266,7 +266,7 @@ public class TestPrimitiveCellManager {
   }
 
   @Test
-  public void getPrimitiveObjectWithMoreThanOnce() throws IOException {
+  public void T_getPrimitiveObject_primitiveObjectArray_withMoreThanOnce() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
     PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
     cellManager.add( new StringObj( "test1" ) , 1 );
@@ -317,7 +317,7 @@ public class TestPrimitiveCellManager {
   }
 
   @Test
-  public void setPrimitiveObjectWithMoreThanOnce() throws IOException {
+  public void T_setPrimitiveObject_setByAllocator_withMoreThanOnce() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
     PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
     cellManager.add( new StringObj( "test1" ) , 1 );

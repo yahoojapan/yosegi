@@ -32,55 +32,55 @@ import java.io.IOException;
 public class TestCellMakerFactory {
 
   @Test
-  public void getCellFromBooleanType() throws IOException {
+  public void T_getCellMaker_returnIsBooleanCell_withBooleanType() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.BOOLEAN );
     assertTrue( ( maker.create( null ) instanceof BooleanCell ) );
   }
 
   @Test
-  public void getCellFromByteType() throws IOException {
+  public void T_getCellMaker_returnIsByteCell_withByteType() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.BYTE );
     assertTrue( ( maker.create( null ) instanceof ByteCell ) );
   }
 
   @Test
-  public void getCellFromBytesType() throws IOException {
+  public void T_getCellMaker_returnIsBytesCell_withBytesType() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.BYTES );
     assertTrue( ( maker.create( null ) instanceof BytesCell ) );
   }
 
   @Test
-  public void getCellFromFloatType() throws IOException {
+  public void T_getCellMaker_returnIsFloatCell_withFloatType() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.FLOAT );
     assertTrue( ( maker.create( null ) instanceof FloatCell ) );
   }
 
   @Test
-  public void getCellIntegerFloatType() throws IOException {
+  public void T_getCellMaker_returnIsIntegerCell_withIntegerType() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.INTEGER );
     assertTrue( ( maker.create( null ) instanceof IntegerCell ) );
   }
 
   @Test
-  public void getCellIntegerLongType() throws IOException {
+  public void T_getCellMaker_returnIsLongCell_withLongType() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.LONG );
     assertTrue( ( maker.create( null ) instanceof LongCell ) );
   }
 
   @Test
-  public void getCellIntegerShortType() throws IOException {
+  public void T_getCellMaker_returnIsShortCell_withShortType() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.SHORT );
     assertTrue( ( maker.create( null ) instanceof ShortCell ) );
   }
 
   @Test
-  public void getCellIntegerType() throws IOException {
+  public void T_getCellMaker_returnIsStringCell_withStringType() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
     assertTrue( ( maker.create( null ) instanceof StringCell ) );
   }
 
   @Test
-  public void getCellFromUnionTypeWithException() throws IOException {
+  public void T_getCellMaker_throwsException_withUnionType() throws IOException {
     assertThrows( IOException.class ,
       () -> {
         ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.UNION );
@@ -89,7 +89,7 @@ public class TestCellMakerFactory {
   }
 
   @Test
-  public void getCellFromArrayTypeWithException() throws IOException {
+  public void T_getCellMaker_throwsException_withArrayType() throws IOException {
     assertThrows( IOException.class ,
       () -> {
         ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.ARRAY );
@@ -98,7 +98,7 @@ public class TestCellMakerFactory {
   }
 
   @Test
-  public void getCellFromSpreadTypeWithException() throws IOException {
+  public void T_getCellMaker_throwsException_withSpreadType() throws IOException {
     assertThrows( IOException.class ,
       () -> {
         ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.SPREAD );
@@ -107,7 +107,7 @@ public class TestCellMakerFactory {
   }
 
   @Test
-  public void getCellFromNullTypeWithException() throws IOException {
+  public void T_getCellMaker_throwsException_withNullType() throws IOException {
     assertThrows( IOException.class ,
       () -> {
         ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.NULL );
@@ -116,7 +116,7 @@ public class TestCellMakerFactory {
   }
 
   @Test
-  public void getCellFromEmptyArrayTypeWithException() throws IOException {
+  public void T_getCellMaker_throwsException_withEmptyArrayType() throws IOException {
     assertThrows( IOException.class ,
       () -> {
         ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.EMPTY_ARRAY );
@@ -125,7 +125,7 @@ public class TestCellMakerFactory {
   }
 
   @Test
-  public void getCellFromEmptySpreadTypeWithException() throws IOException {
+  public void T_getCellMaker_throwsException_withEmptySpreadType() throws IOException {
     assertThrows( IOException.class ,
       () -> {
         ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.EMPTY_SPREAD );

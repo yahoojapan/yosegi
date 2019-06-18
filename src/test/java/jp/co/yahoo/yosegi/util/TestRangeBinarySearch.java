@@ -30,26 +30,26 @@ import java.util.List;
 public class TestRangeBinarySearch {
 
   @Test
-  public void newInstace() {
+  public void T_createNewInstace_void() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
   }
 
   @Test
-  public void addOneObjectAndGetWithStartIndexIsZero() {
+  public void T_addAndGet_equalsAddedObject_withStartIndexIsZero() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     bs.add( "test0" , 0 );
     assertEquals( bs.get(0) , "test0" );
   }
 
   @Test
-  public void addOneObjectAndGetWithStartIndexIsMoreThanZero() {
+  public void T_addAndGet_equalsAddedObject_withStartIndexIsMoreThanZero() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     bs.add( "test5" , 5 );
     assertEquals( bs.get(5) , "test5" );
   }
 
   @Test
-  public void addSameObjectsAndGetWithStartIndexIsZero() {
+  public void T_addAndGet_equalsAddedSameObjects_withStartIndexIsZero() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     bs.add( "test0" , 0 );
     bs.add( "test1" , 1 );
@@ -67,7 +67,7 @@ public class TestRangeBinarySearch {
   }
 
   @Test
-  public void addSameObjectAndGetWithStartIndexIsMoreThanZero() {
+  public void T_addAndGet_indexNotSetIsNull_withStartIndexIsMoreThanZero() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     bs.add( "test5" , 5 );
     bs.add( "test6" , 6 );
@@ -82,7 +82,7 @@ public class TestRangeBinarySearch {
   }
 
   @Test
-  public void addAndGetWithNullExistsInBetween() {
+  public void T_addAndGet_indexNotSetIsNull_withNullExistsInBetween() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     bs.add( "test0" , 0 );
     bs.add( "test5" , 5 );
@@ -96,7 +96,7 @@ public class TestRangeBinarySearch {
   }
 
   @Test
-  public void addWithIndexIsLessThanZero() {
+  public void T_add_throwsException_withIndexIsLessThanZero() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     assertThrows( RuntimeException.class ,
       () -> {
@@ -106,7 +106,7 @@ public class TestRangeBinarySearch {
   }
 
   @Test
-  public void addWithExistingIndex() {
+  public void T_add_throwsException_withExistingIndex() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     bs.add( "test0" , 0 );
     assertThrows( RuntimeException.class ,
@@ -117,7 +117,7 @@ public class TestRangeBinarySearch {
   }
 
   @Test
-  public void addWithLessThanCurrentIndex() {
+  public void T_add_throwsException_withLessThanCurrentIndex() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     bs.add( "test0" , 1 );
     assertThrows( RuntimeException.class ,
@@ -128,7 +128,7 @@ public class TestRangeBinarySearch {
   }
 
   @Test
-  public void sizeWithStartIndexIsZero() {
+  public void T_size_numberAdded_withStartIndexIsZero() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     assertEquals( bs.size() , 0 );
     bs.add( "test0" , 0 );
@@ -138,7 +138,7 @@ public class TestRangeBinarySearch {
   }
 
   @Test
-  public void sizeWithStartIndexIsMoreThanZero() {
+  public void T_size_numberAddedAndNumberNull_withStartIndexIsMoreThanZero() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     assertEquals( bs.size() , 0 );
     bs.add( "test5" , 5 );
@@ -148,7 +148,7 @@ public class TestRangeBinarySearch {
   }
 
   @Test
-  public void sizeIfSkipIndex() {
+  public void T_size_numberAddedAndNumberNull_whenSkipIndex() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     assertEquals( bs.size() , 0 );
     bs.add( "test0" , 0 );
@@ -158,7 +158,7 @@ public class TestRangeBinarySearch {
   }
 
   @Test
-  public void clear() {
+  public void T_clear_void() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     assertEquals( bs.size() , 0 );
     bs.add( "test0" , 0 );
@@ -168,7 +168,7 @@ public class TestRangeBinarySearch {
   }
 
   @Test
-  public void getIndexAndObjectList() {
+  public void T_getIndexAndObjectList_addedObject() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     bs.add( "test0" , 0 );
     bs.add( "test5" , 5 );
