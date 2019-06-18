@@ -21,7 +21,7 @@ So, please submit a ticket to discuss if you have a comment or an idea.
 Test class and method coding rule as follow,
 
 ### 1. Class name
-1-1. Add a suffix of Test.
+1-1. Add a prefix of Test.
 
 1-2. Target test class name. Or feature name that is not link the target class.
 
@@ -49,4 +49,9 @@ T_filterAndGetValue
 T_filterAndGetValue_withPerfectMatch
 T_get_throwsException_withObjectIsString
 ```
+
+### 3. discussion log
+2019/06/18 ver.1 [Create the Primitive convention](https://yosegi.atlassian.net/browse/YOSEGI-50)
+
+
 
