@@ -30,26 +30,26 @@ import java.util.List;
 public class TestRangeBinarySearch {
 
   @Test
-  public void T_newInstace_1() {
+  public void newInstace() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
   }
 
   @Test
-  public void T_add_get_1() {
+  public void addOneObjectAndGetWithStartIndexIsZero() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     bs.add( "test0" , 0 );
     assertEquals( bs.get(0) , "test0" );
   }
 
   @Test
-  public void T_add_get_2() {
+  public void addOneObjectAndGetWithStartIndexIsMoreThanZero() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     bs.add( "test5" , 5 );
     assertEquals( bs.get(5) , "test5" );
   }
 
   @Test
-  public void T_add_get_3() {
+  public void addSameObjectsAndGetWithStartIndexIsZero() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     bs.add( "test0" , 0 );
     bs.add( "test1" , 1 );
@@ -67,20 +67,22 @@ public class TestRangeBinarySearch {
   }
 
   @Test
-  public void T_add_get_4() {
+  public void addSameObjectAndGetWithStartIndexIsMoreThanZero() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     bs.add( "test5" , 5 );
+    bs.add( "test6" , 6 );
     assertEquals( bs.get(0) , null );
     assertEquals( bs.get(1) , null );
     assertEquals( bs.get(2) , null );
     assertEquals( bs.get(3) , null );
     assertEquals( bs.get(4) , null );
     assertEquals( bs.get(5) , "test5" );
-    assertEquals( bs.get(6) , null );
+    assertEquals( bs.get(6) , "test6" );
+    assertEquals( bs.get(7) , null );
   }
 
   @Test
-  public void T_add_get_5() {
+  public void addAndGetWithNullExistsInBetween() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     bs.add( "test0" , 0 );
     bs.add( "test5" , 5 );
@@ -94,7 +96,7 @@ public class TestRangeBinarySearch {
   }
 
   @Test
-  public void T_add_get_6() {
+  public void addWithIndexIsLessThanZero() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     assertThrows( RuntimeException.class ,
       () -> {
@@ -104,7 +106,7 @@ public class TestRangeBinarySearch {
   }
 
   @Test
-  public void T_add_get_7() {
+  public void addWithExistingIndex() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     bs.add( "test0" , 0 );
     assertThrows( RuntimeException.class ,
@@ -115,7 +117,7 @@ public class TestRangeBinarySearch {
   }
 
   @Test
-  public void T_add_get_8() {
+  public void addWithLessThanCurrentIndex() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     bs.add( "test0" , 1 );
     assertThrows( RuntimeException.class ,
@@ -126,7 +128,7 @@ public class TestRangeBinarySearch {
   }
 
   @Test
-  public void T_size_1() {
+  public void sizeWithStartIndexIsZero() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     assertEquals( bs.size() , 0 );
     bs.add( "test0" , 0 );
@@ -136,7 +138,7 @@ public class TestRangeBinarySearch {
   }
 
   @Test
-  public void T_size_2() {
+  public void sizeWithStartIndexIsMoreThanZero() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     assertEquals( bs.size() , 0 );
     bs.add( "test5" , 5 );
@@ -146,7 +148,7 @@ public class TestRangeBinarySearch {
   }
 
   @Test
-  public void T_size_3() {
+  public void sizeIfSkipIndex() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     assertEquals( bs.size() , 0 );
     bs.add( "test0" , 0 );
@@ -156,7 +158,7 @@ public class TestRangeBinarySearch {
   }
 
   @Test
-  public void T_clear_1() {
+  public void clear() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     assertEquals( bs.size() , 0 );
     bs.add( "test0" , 0 );
@@ -166,7 +168,7 @@ public class TestRangeBinarySearch {
   }
 
   @Test
-  public void T_getIndexAndObjectList_1() {
+  public void getIndexAndObjectList() {
     RangeBinarySearch<String> bs = new RangeBinarySearch<String>();
     bs.add( "test0" , 0 );
     bs.add( "test5" , 5 );

@@ -28,12 +28,12 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 public class TestIndexAndObject {
 
   @Test
-  public void T_newInstace_1(){
+  public void createNewInstance(){
     IndexAndObject<String> indexAndObj = new IndexAndObject<String>( 0 );
   }
 
   @Test
-  public void T_newInstace_2(){
+  public void createNewInstanceWithValueLessThanZero(){
     assertThrows( RuntimeException.class ,
       () -> {
         IndexAndObject<String> indexAndObj = new IndexAndObject<String>( -1 );
@@ -42,26 +42,26 @@ public class TestIndexAndObject {
   }
 
   @Test
-  public void T_getStartIndex_1(){
+  public void getStartIndexWithZero(){
     IndexAndObject<String> indexAndObj = new IndexAndObject<String>( 0 );
     assertEquals( indexAndObj.getStartIndex() , 0 );
   }
 
   @Test
-  public void T_getStartIndex_2(){
+  public void getStartIndexWithMoreThanZero(){
     IndexAndObject<String> indexAndObj = new IndexAndObject<String>( 100 );
     assertEquals( indexAndObj.getStartIndex() , 100 );
   }
 
   @Test
-  public void T_add_get_1(){
+  public void addAndGetOneObjectWithIndexIsZero(){
     IndexAndObject<String> indexAndObj = new IndexAndObject<String>( 0 );
     indexAndObj.add( "test0" );
     assertEquals( indexAndObj.get(0) , "test0" );
   }
 
   @Test
-  public void T_add_get_2(){
+  public void addAndGetSameObjectsWithIndexIsZero(){
     IndexAndObject<String> indexAndObj = new IndexAndObject<String>( 0 );
     indexAndObj.add( "test0" );
     indexAndObj.add( "test1" );
@@ -70,14 +70,14 @@ public class TestIndexAndObject {
   }
 
   @Test
-  public void T_add_get_3(){
+  public void addAndGetOneObjectWithIndexMoreThanZero(){
     IndexAndObject<String> indexAndObj = new IndexAndObject<String>( 5 );
     indexAndObj.add( "test0" );
     assertEquals( indexAndObj.get(5) , "test0" );
   }
 
   @Test
-  public void T_add_get_4(){
+  public void addAndGetSameObjectsWithIndexMoreThanZero(){
     IndexAndObject<String> indexAndObj = new IndexAndObject<String>( 5 );
     indexAndObj.add( "test0" );
     indexAndObj.add( "test1" );
@@ -86,7 +86,7 @@ public class TestIndexAndObject {
   }
 
   @Test
-  public void T_add_get_5(){
+  public void getIndexSmallerThanStartIndex(){
     IndexAndObject<String> indexAndObj = new IndexAndObject<String>( 5 );
     indexAndObj.add( "test0" );
     assertThrows( ArrayIndexOutOfBoundsException.class ,
@@ -97,7 +97,7 @@ public class TestIndexAndObject {
   }
 
   @Test
-  public void T_add_get_6(){
+  public void getIndexLargerThanStartIndex(){
     IndexAndObject<String> indexAndObj = new IndexAndObject<String>( 5 );
     indexAndObj.add( "test0" );
     assertThrows( IndexOutOfBoundsException.class ,
@@ -108,7 +108,7 @@ public class TestIndexAndObject {
   }
 
   @Test
-  public void T_size_1(){
+  public void sizeWithIndexIsZero(){
     IndexAndObject<String> indexAndObj = new IndexAndObject<String>( 0 );
     assertEquals( indexAndObj.size() , 0 );
     indexAndObj.add( "test0" );
@@ -118,7 +118,7 @@ public class TestIndexAndObject {
   }
 
   @Test
-  public void T_size_2(){
+  public void sizeWithIndexMoreThanZero(){
     IndexAndObject<String> indexAndObj = new IndexAndObject<String>( 5 );
     assertEquals( indexAndObj.size() , 0 );
     indexAndObj.add( "test0" );
@@ -128,7 +128,7 @@ public class TestIndexAndObject {
   }
 
   @Test
-  public void T_getNextIndex_1(){
+  public void getNextIndexWithIndexIsZero(){
     IndexAndObject<String> indexAndObj = new IndexAndObject<String>( 0 );
     assertEquals( indexAndObj.getNextIndex() , 0 );
     indexAndObj.add( "test0" );
@@ -138,7 +138,7 @@ public class TestIndexAndObject {
   }
 
   @Test
-  public void T_getNextIndex_2(){
+  public void getNextIndexWithIndexMoreThanZero(){
     IndexAndObject<String> indexAndObj = new IndexAndObject<String>( 5 );
     assertEquals( indexAndObj.getNextIndex() , 5 );
     indexAndObj.add( "test0" );
@@ -148,7 +148,7 @@ public class TestIndexAndObject {
   }
 
   @Test
-  public void T_hasIndex_1(){
+  public void hasIndexIndexWithIndexIsZero(){
     IndexAndObject<String> indexAndObj = new IndexAndObject<String>( 0 );
     indexAndObj.add( "test0" );
     indexAndObj.add( "test1" );
@@ -159,7 +159,7 @@ public class TestIndexAndObject {
   }
 
   @Test
-  public void T_hasIndex_2(){
+  public void hasIndexWithIndexMoreThanZero(){
     IndexAndObject<String> indexAndObj = new IndexAndObject<String>( 5 );
     indexAndObj.add( "test0" );
     indexAndObj.add( "test1" );
