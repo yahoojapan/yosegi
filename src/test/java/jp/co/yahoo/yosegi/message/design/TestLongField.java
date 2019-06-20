@@ -28,25 +28,25 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 public class TestLongField {
 
   @Test
-  public void createNewInstanceFromFieldName() {
+  public void T_createNewInstance_void_withFieldName() {
     IField field = new LongField( "test" );
   }
 
   @Test
-  public void createNewInstanceFromFieldNameAndProperties() {
+  public void T_createNewInstance_void_withFieldNameAndProperties() {
     Properties prop = new Properties();
     prop.set( "key1" , "value1" );
     IField field = new LongField( "test" , prop );
   }
 
   @Test
-  public void getName() {
+  public void T_getName_sameAsTheSetValue() {
     IField field = new LongField( "test" );
     assertEquals( field.getName() , "test" );
   }
 
   @Test
-  public void getProperties() {
+  public void T_getProperties_sameAsTheSetValue() {
     Properties prop = new Properties();
     prop.set( "key1" , "value1" );
     IField field = new LongField( "test" , prop );
@@ -55,7 +55,7 @@ public class TestLongField {
   }
 
   @Test
-  public void getFieldType() {
+  public void T_getFieldType_typeIsLong() {
     IField field = new LongField( "test" );
     assertEquals( FieldType.LONG , field.getFieldType() );
   }

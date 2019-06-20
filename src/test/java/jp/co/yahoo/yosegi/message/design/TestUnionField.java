@@ -30,25 +30,25 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 public class TestUnionField {
 
   @Test
-  public void createNewInstanceFromFieldName() {
+  public void T_createNewInstance_void_withFieldName() {
     IField field = new UnionField( "test" );
   }
 
   @Test
-  public void createNewInstanceFromFieldNameAndProperties() {
+  public void T_createNewInstance_void_withFieldNameAndProperties() {
     Properties prop = new Properties();
     prop.set( "key1" , "value1" );
     IField field = new UnionField( "test" , prop );
   }
 
   @Test
-  public void getName() {
+  public void T_getName_sameAsTheSetValue() {
     IField field = new UnionField( "test" );
     assertEquals( field.getName() , "test" );
   }
 
   @Test
-  public void getProperties() {
+  public void T_getProperties_sameAsTheSetValue() {
     Properties prop = new Properties();
     prop.set( "key1" , "value1" );
     IField field = new UnionField( "test" , prop );
@@ -57,13 +57,13 @@ public class TestUnionField {
   }
 
   @Test
-  public void getFieldType() {
+  public void T_getFieldType_typeIsUnion() {
     IField field = new UnionField( "test" );
     assertEquals( FieldType.UNION , field.getFieldType() );
   }
 
   @Test
-  public void setIntegerField() throws IOException {
+  public void T_set_equalsSetFieldType() throws IOException {
     INamedContainerField field = new UnionField( "test" );
     field.set( new IntegerField( "key1" ) );
     IField child = field.get( IntegerField.class.getName() );
@@ -71,7 +71,7 @@ public class TestUnionField {
   }
 
   @Test
-  public void setIntegerFieldAndStringField() throws IOException {
+  public void T_set_equalsSetFields_whenIntegerFieldAndStringField() throws IOException {
     INamedContainerField field = new UnionField( "test" );
     field.set( new IntegerField( "key1" ) );
     field.set( new StringField( "key1" ) );
@@ -83,7 +83,7 @@ public class TestUnionField {
   }
 
   @Test
-  public void setSameFieldType() throws IOException {
+  public void T_set_throwsException_whenFieldTypeIsAlreadyExists() throws IOException {
     INamedContainerField field = new UnionField( "test" );
     field.set( new IntegerField( "key1" ) );
     assertThrows( IOException.class ,
@@ -94,21 +94,21 @@ public class TestUnionField {
   }
 
   @Test
-  public void containsKeyTrue() throws IOException {
+  public void T_containsKey_true_whenFieldIsExists() throws IOException {
     INamedContainerField field = new UnionField( "test" );
     field.set( new IntegerField( "key1" ) );
     assertTrue( field.containsKey( IntegerField.class.getName() ) );
   }
 
   @Test
-  public void containsKeyFalse() throws IOException {
+  public void T_containsKey_false_whenFieldIsNotExists() throws IOException {
     INamedContainerField field = new UnionField( "test" );
     field.set( new IntegerField( "key1" ) );
     assertFalse( field.containsKey( "key1" ) );
   }
 
   @Test
-  public void mergeFromUnionAndFieldTypeNotExists() throws IOException {
+  public void T_merge_fieldAdded_whenFieldTypeNotExists() throws IOException {
     INamedContainerField field = new UnionField( "test" );
     field.set( new StringField( "key1" ) );
 
@@ -122,7 +122,7 @@ public class TestUnionField {
   }
 
   @Test
-  public void mergeFromUnionAndFieldTypeExists() throws IOException {
+  public void T_merge_nothing_whenFieldTypeExists() throws IOException {
     INamedContainerField field = new UnionField( "test" );
     field.set( new StringField( "key1" ) );
 
@@ -135,7 +135,7 @@ public class TestUnionField {
   }
 
   @Test
-  public void mergeFromIntegerAndFieldTypeNotExists() throws IOException {
+  public void T_merge_fieldAdded_whenFieldTypeIsNotUnion() throws IOException {
     INamedContainerField field = new UnionField( "test" );
     field.set( new StringField( "key1" ) );
 
@@ -146,7 +146,7 @@ public class TestUnionField {
   }
 
   @Test
-  public void mergeNestedUnionAndChildKeyNotExists() throws IOException {
+  public void T_merge_fieldAdded_whenChildKeyNotExists() throws IOException {
     INamedContainerField field = new UnionField( "test" );
     StructContainerField structField = new StructContainerField( "key1" );
     structField.set( new StringField( "s1" ) );
@@ -167,7 +167,7 @@ public class TestUnionField {
   }
 
   @Test
-  public void mergeStructFieldAndChildKeyNotExists() throws IOException {
+  public void T_merge_fieldAdded_whenInputFieldIsStructAndChildKeyNotExists() throws IOException {
     INamedContainerField field = new UnionField( "test" );
     StructContainerField structField = new StructContainerField( "key1" );
     structField.set( new StringField( "s1" ) );
