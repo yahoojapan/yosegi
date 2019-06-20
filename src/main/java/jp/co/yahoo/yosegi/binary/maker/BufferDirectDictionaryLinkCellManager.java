@@ -20,8 +20,10 @@ package jp.co.yahoo.yosegi.binary.maker;
 
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
+import jp.co.yahoo.yosegi.spread.column.CellMakerFactory;
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
 import jp.co.yahoo.yosegi.spread.column.ICell;
+import jp.co.yahoo.yosegi.spread.column.ICellMaker;
 import jp.co.yahoo.yosegi.spread.column.IDictionaryCellManager;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveCell;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveColumn;
@@ -38,7 +40,7 @@ import java.nio.IntBuffer;
 public class BufferDirectDictionaryLinkCellManager implements IDictionaryCellManager {
 
   private final ColumnType columnType;
-  private final PrimitiveColumn.ICellMaker cellMaker;
+  private final ICellMaker cellMaker;
   private final IDicManager dicManager;
   private final IntBuffer dicIndexIntBuffer;
   private final int indexSize;
@@ -55,7 +57,7 @@ public class BufferDirectDictionaryLinkCellManager implements IDictionaryCellMan
     this.columnType = columnType;
     this.dicManager = dicManager;
     this.dicIndexIntBuffer = dicIndexIntBuffer;
-    cellMaker = PrimitiveColumn.getCellMaker( columnType );
+    cellMaker = CellMakerFactory.getCellMaker( columnType );
     indexSize = dicIndexIntBuffer.capacity();
   }
 

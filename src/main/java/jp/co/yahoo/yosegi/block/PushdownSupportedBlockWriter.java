@@ -31,7 +31,6 @@ import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.compressor.CompressorNameShortCut;
 import jp.co.yahoo.yosegi.compressor.DefaultCompressor;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
-import jp.co.yahoo.yosegi.compressor.GzipCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.config.Configuration;
 import jp.co.yahoo.yosegi.message.parser.IParser;
@@ -57,7 +56,6 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
 
   private ColumnBinaryMakerCustomConfigNode configNode;
   private CompressResultNode compressResultNode;
-  private ByteArrayData dataBuffer;
   private ByteArrayData metaBuffer;
   private int blockSize;
   private ColumnBinaryTree columnTree;
@@ -110,7 +108,6 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
     }
     compressResultNode = new CompressResultNode();
 
-    dataBuffer = new ByteArrayData( blockSize );
     metaBuffer = new ByteArrayData( META_BUFFER_SIZE );
     columnTree = new ColumnBinaryTree();
 
@@ -243,8 +240,6 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
     appendHeader( blockIndexBinary );
     blockIndexNode.clear();
 
-    columnTree.create( metaBuffer , dataBuffer );
-
     int offset = 0;
     out.write( headerBytes , 0 , headerBytes.length );
     offset += headerBytes.length;
@@ -260,6 +255,7 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
       offset += Integer.BYTES;
     }
 
+    columnTree.createMeta( metaBuffer , 0 );
     byte[] metaBinary = compressor.compress( metaBuffer.getBytes() , 0 , metaBuffer.getLength() );
     blockMetaBuffer.putInt( metaBinary.length );
     offset += Integer.BYTES;
@@ -268,15 +264,13 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
 
     out.write( metaBinary , 0 , metaBinary.length );
     offset += metaBinary.length;
-    out.write( dataBuffer.getBytes() , 0 , dataBuffer.getLength() );
-    offset += dataBuffer.getLength();
+    offset += columnTree.writeData( out );
     if ( dataSize != -1 ) {
       int nullLength = dataSize - offset;
       out.write( new byte[nullLength] );
     } 
 
     spreadSizeList.clear();
-    dataBuffer.clear();
     metaBuffer.clear();
     columnTree.clear();
     headerBytes = new byte[0];
@@ -291,7 +285,6 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
   @Override
   public void close() throws IOException {
     spreadSizeList.clear();
-    dataBuffer.clear();
     metaBuffer.clear();
     columnTree.clear();
     bufferSize = 0;
