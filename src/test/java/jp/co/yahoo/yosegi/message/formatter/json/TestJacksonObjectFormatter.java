@@ -219,7 +219,7 @@ public class TestJacksonObjectFormatter {
   }
 
   @Test
-  public void createSimpleObjectNodeFromMap() throws IOException {
+  public void T_write_equalsSetValue_withMap() throws IOException {
     Map<Object,Object> map = new HashMap<Object,Object>();
     map.put( "key1" , "a" );
     map.put( "key2" , "b" );
@@ -239,7 +239,7 @@ public class TestJacksonObjectFormatter {
   }
 
   @Test
-  public void createSimpleObjectNodeFromNull() throws IOException {
+  public void T_write_equalsSetValue_withNull() throws IOException {
     JacksonObjectFormatter formatter = new JacksonObjectFormatter();
     JsonNode node = formatter.write( null );
     assertTrue( ( node instanceof ObjectNode ) );
@@ -249,7 +249,7 @@ public class TestJacksonObjectFormatter {
   }
 
   @Test
-  public void createNestingArrayNodeFromMap() throws IOException {
+  public void T_write_equalsSetValue_withNestingArrayNodeFromMap() throws IOException {
     Map<Object,Object> map = new HashMap<Object,Object>();
     map.put( "key1" , Arrays.asList( "a" , "b" , "c" ) );
     JacksonObjectFormatter formatter = new JacksonObjectFormatter();
@@ -273,7 +273,7 @@ public class TestJacksonObjectFormatter {
   }
 
   @Test
-  public void createNestingObjectNodeFromMap() throws IOException {
+  public void T_write_equalsSetValue_withNestingObjectNodeFromMap() throws IOException {
     Map<Object,Object> child = new HashMap<Object,Object>();
     child.put( "key1" , "a" );
     child.put( "key2" , "b" );
@@ -301,7 +301,7 @@ public class TestJacksonObjectFormatter {
   }
 
   @Test
-  public void createSimpleObjectNodeFromParser() throws IOException {
+  public void T_writeParser_equalsSetValue_withParser() throws IOException {
     JacksonObjectFormatter formatter = new JacksonObjectFormatter();
     JsonNode node = formatter.writeParser( new TestPrimitiveParser( false ) );
     assertTrue( ( node instanceof ObjectNode ) );
@@ -317,7 +317,7 @@ public class TestJacksonObjectFormatter {
   }
 
   @Test
-  public void createNestingArrayNodeFromParser() throws IOException {
+  public void T_writeParser_equalsSetValue_withNestingArrayNodeFromParser() throws IOException {
     JacksonObjectFormatter formatter = new JacksonObjectFormatter();
     JsonNode node = formatter.writeParser( new TestParentParser( true ) );
     assertTrue( ( node instanceof ObjectNode ) );
@@ -339,7 +339,7 @@ public class TestJacksonObjectFormatter {
   }
 
   @Test
-  public void createNestingObjectNodeFromParser() throws IOException {
+  public void T_writeParser_equalsSetValue_withNestingObjectNodeFromParser() throws IOException {
     JacksonObjectFormatter formatter = new JacksonObjectFormatter();
     JsonNode node = formatter.writeParser( new TestParentParser( false ) );
     assertTrue( ( node instanceof ObjectNode ) );
