@@ -59,7 +59,9 @@ public class JacksonMessageWriter implements IMessageWriter {
   @Override
   public byte[] create( final IParser parser ) throws IOException {
     JsonNode jsonNode;
-    if ( parser.isMap() || parser.isStruct() ) {
+    if ( parser == null ) {
+      jsonNode = NullNode.getInstance();
+    } else if ( parser.isMap() || parser.isStruct() ) {
       jsonNode = JacksonParserToJsonObject.getFromObjectParser( parser );
     } else if ( parser.isArray() ) {
       jsonNode = JacksonParserToJsonObject.getFromArrayParser( parser );
