@@ -18,7 +18,7 @@
 
 package jp.co.yahoo.yosegi.spread.column;
 
-public interface IArrowPrimitiveConnector extends ICellManager {
+public interface IArrowPrimitiveConnector extends ICellManager<ICell> {
 
   String getColumnName();
 

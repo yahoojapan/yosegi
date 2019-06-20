@@ -20,6 +20,7 @@ package jp.co.yahoo.yosegi.spread.column;
 
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
+import jp.co.yahoo.yosegi.spread.column.ICellMaker;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
 import jp.co.yahoo.yosegi.spread.column.index.DefaultCellIndex;
 import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
@@ -31,24 +32,35 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CellManager implements ICellManager<ICell> {
+public class PrimitiveCellManager implements ICellManager<PrimitiveObject> {
 
-  private final RangeBinarySearch<ICell> rangeBinarySearch =
-      new RangeBinarySearch<ICell>();
+  private final ICellMaker cellMaker;
+  private final RangeBinarySearch<PrimitiveObject> rangeBinarySearch =
+      new RangeBinarySearch<PrimitiveObject>();
   private ICellIndex index = new DefaultCellIndex();
 
+  /**
+   * Create new instance.
+   */
+  public PrimitiveCellManager( final ICellMaker cellMaker ) throws IOException {
+    if ( cellMaker == null ) {
+      throw new IOException( "ICellMaker does not allow NULL." );
+    }
+    this.cellMaker = cellMaker;
+  }
+
   @Override
-  public void add( final ICell cell , final int index ) {
-    rangeBinarySearch.add( cell , index );
+  public void add( final PrimitiveObject obj , final int index ) {
+    rangeBinarySearch.add( obj , index );
   }
 
   @Override
   public ICell get( final int index , final ICell defaultCell ) {
-    ICell cell = rangeBinarySearch.get( index );
-    if ( cell == null ) {
+    PrimitiveObject obj = rangeBinarySearch.get( index );
+    if ( obj == null ) {
       return defaultCell;
     }
-    return cell;
+    return cellMaker.create( obj );
   }
 
   @Override
@@ -89,9 +101,9 @@ public class CellManager implements ICellManager<ICell> {
       final IExpressionIndex indexList , final int start , final int length ) {
     PrimitiveObject[] result = new PrimitiveObject[length];
     for ( int i = 0,index = start ; i < length && index < indexList.size() ; i++,index++ ) {
-      Object obj = get( indexList.get( index ) , NullCell.getInstance() ).getRow();
-      if ( obj instanceof PrimitiveObject ) {
-        result[i] = (PrimitiveObject)obj;
+      PrimitiveObject obj = rangeBinarySearch.get( indexList.get( index ) );
+      if ( obj != null ) {
+        result[i] = obj;
       }
     }
     return result;
@@ -106,12 +118,12 @@ public class CellManager implements ICellManager<ICell> {
     int arrayIndex = 0;
     for ( int index = start ; arrayIndex < length && index < indexList.size() ;
         arrayIndex++,index++ ) {
-      Object obj = get( indexList.get( index ) , NullCell.getInstance() ).getRow();
+      PrimitiveObject obj = rangeBinarySearch.get( indexList.get( index ) );
       try {
-        if ( obj instanceof PrimitiveObject ) {
-          allocator.setPrimitiveObject( arrayIndex , (PrimitiveObject)obj );
-        } else {
+        if ( obj == null ) {
           allocator.setNull( arrayIndex );
+        } else {
+          allocator.setPrimitiveObject( arrayIndex , obj );
         }
       } catch ( IOException ex ) {
         throw new RuntimeException( ex );

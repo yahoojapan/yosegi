@@ -143,7 +143,7 @@ public class DumpBooleanColumnBinaryMaker implements IColumnBinaryMaker {
     parentNode.getChildNode( columnBinary.columnName ).disable();
   }
 
-  public class DirectBufferBooleanCellManager implements ICellManager {
+  public class DirectBufferBooleanCellManager implements ICellManager<ICell> {
 
     private final PrimitiveCell[] cellArray;
     private byte[] buffer;

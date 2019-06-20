@@ -26,9 +26,9 @@ import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 
 import java.io.IOException;
 
-public interface ICellManager {
+public interface ICellManager<T> {
 
-  void add( final ICell cell , final int index );
+  void add( final T cell , final int index );
 
   ICell get( final int index , final ICell defaultCell );
 

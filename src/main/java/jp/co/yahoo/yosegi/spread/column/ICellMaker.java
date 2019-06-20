@@ -19,16 +19,9 @@
 package jp.co.yahoo.yosegi.spread.column;
 
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 
-import java.io.IOException;
+public interface ICellMaker {
 
-public interface IDictionaryCellManager extends ICellManager<ICell> {
-
-  int[] getIndexArray() throws IOException;
-
-  int[] getIndexArray( final IExpressionIndex indexList ) throws IOException;
-
-  PrimitiveObject[] getDictionary() throws IOException;
+  PrimitiveCell create( final PrimitiveObject obj );
 
 }
