@@ -68,69 +68,6 @@ public class Utf8BytesLinkObj extends StringObj implements IBytesLink {
   }
 
   @Override
-  public void setString( final String data ) throws IOException {
-    throw new IOException( "Unsupported set method." );
-  }
-
-  @Override
-  public void setBytes( final byte[] data ) throws IOException {
-    throw new IOException( "Unsupported set method." );
-  }
-
-  @Override
-  public void setBytes(
-      final byte[] data ,
-      final int start ,
-      final int length ) throws IOException {
-    throw new IOException( "Unsupported set method." );
-  }
-
-  @Override
-  public void setByte( final byte data ) throws IOException {
-    throw new IOException( "Unsupported set method." );
-  }
-
-  @Override
-  public void setShort( final short data ) throws IOException {
-    throw new IOException( "Unsupported set method." );
-  }
-
-  @Override
-  public void setInt( final int data ) throws IOException {
-    throw new IOException( "Unsupported set method." );
-  }
-
-  @Override
-  public void setLong( final long data ) throws IOException {
-    throw new IOException( "Unsupported set method." );
-  }
-
-  @Override
-  public void setFloat( final float data ) throws IOException {
-    throw new IOException( "Unsupported set method." );
-  }
-
-  @Override
-  public void setDouble( final double data ) throws IOException {
-    throw new IOException( "Unsupported set method." );
-  }
-
-  @Override
-  public void setBoolean( final boolean data ) throws IOException {
-    throw new IOException( "Unsupported set method." );
-  }
-
-  @Override
-  public void set( final PrimitiveObject data ) throws IOException {
-    throw new IOException( "Unsupported set method." );
-  }
-
-  @Override
-  public void clear() throws IOException {
-    throw new IOException( "Unsupported set method." );
-  }
-
-  @Override
   public int getObjectSize() {
     return length;
   }

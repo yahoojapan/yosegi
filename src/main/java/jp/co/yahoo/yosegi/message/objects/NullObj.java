@@ -81,45 +81,6 @@ public class NullObj implements PrimitiveObject {
   }
 
   @Override
-  public void setString( final String data ) throws IOException {}
-
-  @Override
-  public void setBytes( final byte[] data ) throws IOException {}
-
-  @Override
-  public void setBytes(
-      final byte[] data ,
-      final int start ,
-      final int length ) throws IOException {}
-
-  @Override
-  public void setByte( final byte data ) throws IOException {}
-
-  @Override
-  public void setShort( final short data ) throws IOException {}
-
-  @Override
-  public void setInt( final int data ) throws IOException {}
-
-  @Override
-  public void setLong( final long data ) throws IOException {}
-
-  @Override
-  public void setFloat( final float data ) throws IOException {}
-
-  @Override
-  public void setDouble( final double data ) throws IOException {}
-
-  @Override
-  public void setBoolean( final boolean data ) throws IOException {}
-
-  @Override
-  public void set( final PrimitiveObject data ) throws IOException {}
-
-  @Override
-  public void clear() throws IOException {}
-
-  @Override
   public PrimitiveType getPrimitiveType() {
     return PrimitiveType.NULL;
   }

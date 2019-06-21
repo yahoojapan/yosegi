@@ -43,30 +43,6 @@ public interface PrimitiveObject extends Serializable {
 
   boolean getBoolean() throws IOException;
 
-  void setString( final String data ) throws IOException;
-
-  void setBytes( final byte[] data ) throws IOException;
-
-  void setBytes( final byte[] data , final int start , final int length ) throws IOException;
-
-  void setByte( final byte data ) throws IOException;
-
-  void setShort( final short data ) throws IOException;
-
-  void setInt( final int data ) throws IOException;
-
-  void setLong( final long data ) throws IOException;
-
-  void setFloat( final float data ) throws IOException;
-
-  void setDouble( final double data ) throws IOException;
-
-  void setBoolean( final boolean data ) throws IOException;
-
-  void set( final PrimitiveObject data ) throws IOException;
-
-  void clear() throws IOException;
-
   PrimitiveType getPrimitiveType();
 
   int getObjectSize();
