@@ -37,7 +37,7 @@ import java.io.IOException;
 public class TestTextDoubleFormatter {
 
   @Test
-  public void createDoubleTextFromDouble() throws IOException {
+  public void T_write_doubleText_withDouble() throws IOException {
     TextDoubleFormatter formatter = new TextDoubleFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , 0.1d );
@@ -45,7 +45,7 @@ public class TestTextDoubleFormatter {
   }
 
   @Test
-  public void createDoubleTextFromFloat() throws IOException {
+  public void T_write_doubleText_withFloat() throws IOException {
     TextDoubleFormatter formatter = new TextDoubleFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , 0.1f );
@@ -53,7 +53,7 @@ public class TestTextDoubleFormatter {
   }
 
   @Test
-  public void createDoubleTextFromByte() throws IOException {
+  public void T_write_doubleText_withByte() throws IOException {
     TextDoubleFormatter formatter = new TextDoubleFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , (byte)1 );
@@ -61,7 +61,7 @@ public class TestTextDoubleFormatter {
   }
 
   @Test
-  public void createDoubleTextFromShort() throws IOException {
+  public void T_write_doubleText_withShort() throws IOException {
     TextDoubleFormatter formatter = new TextDoubleFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , (short)1 );
@@ -69,7 +69,7 @@ public class TestTextDoubleFormatter {
   }
 
   @Test
-  public void createDoubleTextFromInteger() throws IOException {
+  public void T_write_doubleText_withInteger() throws IOException {
     TextDoubleFormatter formatter = new TextDoubleFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , 1 );
@@ -77,7 +77,7 @@ public class TestTextDoubleFormatter {
   }
 
   @Test
-  public void createDoubleTextFromLong() throws IOException {
+  public void T_write_doubleText_withLong() throws IOException {
     TextDoubleFormatter formatter = new TextDoubleFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , 1L );
@@ -85,7 +85,7 @@ public class TestTextDoubleFormatter {
   }
 
   @Test
-  public void createDoubleTextFromString() throws IOException {
+  public void T_write_doubleText_withString() throws IOException {
     TextDoubleFormatter formatter = new TextDoubleFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , new String( "1" ) );
@@ -93,7 +93,7 @@ public class TestTextDoubleFormatter {
   }
 
   @Test
-  public void createDoubleTextFromNull() throws IOException {
+  public void T_write_doubleText_withNull() throws IOException {
     TextDoubleFormatter formatter = new TextDoubleFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , null );
@@ -101,7 +101,7 @@ public class TestTextDoubleFormatter {
   }
 
   @Test
-  public void writeParserFromDoubleObj() throws IOException {
+  public void T_writeParser_doubleText_withDoubleObj() throws IOException {
     TextDoubleFormatter formatter = new TextDoubleFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.writeParser( buffer , new DoubleObj( 0.1d ) , null );
@@ -109,7 +109,7 @@ public class TestTextDoubleFormatter {
   }
 
   @Test
-  public void writeParserFromNull() throws IOException {
+  public void T_writeParser_doubleText_withNull() throws IOException {
     TextDoubleFormatter formatter = new TextDoubleFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.writeParser( buffer , null , null );

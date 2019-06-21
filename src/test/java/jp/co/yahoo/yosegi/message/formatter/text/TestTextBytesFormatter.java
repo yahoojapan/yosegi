@@ -37,7 +37,7 @@ import java.io.IOException;
 public class TestTextBytesFormatter {
 
   @Test
-  public void createBytesTextFromByteArray() throws IOException {
+  public void T_write_bytesText_withByteArray() throws IOException {
     TextBytesFormatter formatter = new TextBytesFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , new String( "abc" ).getBytes() );
@@ -45,7 +45,7 @@ public class TestTextBytesFormatter {
   }
 
   @Test
-  public void createBytesTextFromString() throws IOException {
+  public void T_write_bytesText_withString() throws IOException {
     TextBytesFormatter formatter = new TextBytesFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , new String( "abc" ) );
@@ -53,7 +53,7 @@ public class TestTextBytesFormatter {
   }
 
   @Test
-  public void createBytesTextFromBytesObj() throws IOException {
+  public void T_write_bytesText_withBytesObj() throws IOException {
     TextBytesFormatter formatter = new TextBytesFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , new BytesObj( new String( "abc" ).getBytes() ) );
@@ -61,7 +61,7 @@ public class TestTextBytesFormatter {
   }
 
   @Test
-  public void createBytesTextFromNull() throws IOException {
+  public void T_write_bytesText_withNull() throws IOException {
     TextBytesFormatter formatter = new TextBytesFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , null );
@@ -69,7 +69,7 @@ public class TestTextBytesFormatter {
   }
 
   @Test
-  public void writeParserFromBytesObj() throws IOException {
+  public void T_writeParser_bytesText_withBytesObj() throws IOException {
     TextBytesFormatter formatter = new TextBytesFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.writeParser( buffer ,  new BytesObj( new String( "abc" ).getBytes() ) , null );
@@ -77,7 +77,7 @@ public class TestTextBytesFormatter {
   }
 
   @Test
-  public void writeParserFromNull() throws IOException {
+  public void T_writeParser_bytesText_withNull() throws IOException {
     TextBytesFormatter formatter = new TextBytesFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.writeParser( buffer , null , null );

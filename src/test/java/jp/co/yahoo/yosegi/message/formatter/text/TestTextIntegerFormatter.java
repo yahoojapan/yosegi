@@ -37,7 +37,7 @@ import java.io.IOException;
 public class TestTextIntegerFormatter {
 
   @Test
-  public void createIntegerTextFromDouble() throws IOException {
+  public void T_write_integerText_withDouble() throws IOException {
     TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , 0.1d );
@@ -45,7 +45,7 @@ public class TestTextIntegerFormatter {
   }
 
   @Test
-  public void createIntegerTextFromFloat() throws IOException {
+  public void T_write_integerText_withFloat() throws IOException {
     TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , 0.1f );
@@ -53,7 +53,7 @@ public class TestTextIntegerFormatter {
   }
 
   @Test
-  public void createIntegerTextFromByte() throws IOException {
+  public void T_write_integerText_withByte() throws IOException {
     TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , (byte)1 );
@@ -61,7 +61,7 @@ public class TestTextIntegerFormatter {
   }
 
   @Test
-  public void createIntegerTextFromShort() throws IOException {
+  public void T_write_integerText_withShort() throws IOException {
     TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , (short)1 );
@@ -69,7 +69,7 @@ public class TestTextIntegerFormatter {
   }
 
   @Test
-  public void createIntegerTextFromInteger() throws IOException {
+  public void T_write_integerText_withInteger() throws IOException {
     TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , 1 );
@@ -77,7 +77,7 @@ public class TestTextIntegerFormatter {
   }
 
   @Test
-  public void createIntegerTextFromLong() throws IOException {
+  public void T_write_integerText_withLong() throws IOException {
     TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , 1L );
@@ -85,7 +85,7 @@ public class TestTextIntegerFormatter {
   }
 
   @Test
-  public void createIntegerTextFromString() throws IOException {
+  public void T_write_integerText_withString() throws IOException {
     TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , new String( "1" ) );
@@ -93,7 +93,7 @@ public class TestTextIntegerFormatter {
   }
 
   @Test
-  public void createIntegerTextFromNull() throws IOException {
+  public void T_write_integerText_withNull() throws IOException {
     TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , null );
@@ -101,7 +101,7 @@ public class TestTextIntegerFormatter {
   }
 
   @Test
-  public void writeParserFromIntegerObj() throws IOException {
+  public void T_writeParser_integerText_withIntegerObj() throws IOException {
     TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.writeParser( buffer , new IntegerObj( 1 ) , null );
@@ -109,7 +109,7 @@ public class TestTextIntegerFormatter {
   }
 
   @Test
-  public void writeParserFromNull() throws IOException {
+  public void T_writeParser_integerText_withNull() throws IOException {
     TextIntegerFormatter formatter = new TextIntegerFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.writeParser( buffer , null , null );

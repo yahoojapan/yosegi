@@ -46,7 +46,7 @@ import java.io.IOException;
 public class TestTextFormatterFactory {
 
   @Test
-  public void getFromArrayField() throws IOException {
+  public void T_get_arrayFormatter_withArrayField() throws IOException {
     Properties option = new Properties();
     option.set( "delimiter" , "0x2c" );
     ITextFormatter formatter = TextFormatterFactory.get( new ArrayContainerField(
@@ -55,7 +55,7 @@ public class TestTextFormatterFactory {
   }
 
   @Test
-  public void getFromStructField() throws IOException {
+  public void T_get_structFormatter_withStructField() throws IOException {
     Properties option = new Properties();
     option.set( "delimiter" , "0x2c" );
     ITextFormatter formatter = TextFormatterFactory.get( new StructContainerField( "field" , option ) );
@@ -63,7 +63,7 @@ public class TestTextFormatterFactory {
   }
 
   @Test
-  public void getFromMapField() throws IOException {
+  public void T_get_mapFormatter_withMapField() throws IOException {
     Properties option = new Properties();
     option.set( "delimiter" , "0x2c" );
     option.set( "field_delimiter" , "0x3d" );
@@ -73,61 +73,61 @@ public class TestTextFormatterFactory {
   }
 
   @Test
-  public void getFromBooleanField() throws IOException {
+  public void T_get_booleanFormatter_withBooleanField() throws IOException {
     ITextFormatter formatter = TextFormatterFactory.get( new BooleanField( "field" ) );
     assertTrue( ( formatter instanceof TextBooleanFormatter ) );
   }
 
   @Test
-  public void getFromBytesField() throws IOException {
+  public void T_get_bytesFormatter_withBytesField() throws IOException {
     ITextFormatter formatter = TextFormatterFactory.get( new BytesField( "field" ) );
     assertTrue( ( formatter instanceof TextBytesFormatter ) );
   }
 
   @Test
-  public void getFromDoubleField() throws IOException {
+  public void T_get_doubleFormatter_withDoubleField() throws IOException {
     ITextFormatter formatter = TextFormatterFactory.get( new DoubleField( "field" ) );
     assertTrue( ( formatter instanceof TextDoubleFormatter ) );
   }
 
   @Test
-  public void getFromFloatField() throws IOException {
+  public void T_get_floatFormatter_withFloatField() throws IOException {
     ITextFormatter formatter = TextFormatterFactory.get( new FloatField( "field" ) );
     assertTrue( ( formatter instanceof TextFloatFormatter ) );
   }
 
   @Test
-  public void getFromIntegerField() throws IOException {
+  public void T_get_integerFormatter_withIntegerField() throws IOException {
     ITextFormatter formatter = TextFormatterFactory.get( new IntegerField( "field" ) );
     assertTrue( ( formatter instanceof TextIntegerFormatter ) );
   }
 
   @Test
-  public void getFromLongField() throws IOException {
+  public void T_get_longFormatter_withLongField() throws IOException {
     ITextFormatter formatter = TextFormatterFactory.get( new LongField( "field" ) );
     assertTrue( ( formatter instanceof TextLongFormatter ) );
   }
 
   @Test
-  public void getFromShortField() throws IOException {
+  public void T_get_shortFormatter_withShortField() throws IOException {
     ITextFormatter formatter = TextFormatterFactory.get( new ShortField( "field" ) );
     assertTrue( ( formatter instanceof TextShortFormatter ) );
   }
 
   @Test
-  public void getFromStringField() throws IOException {
+  public void T_get_stringFormatter_withStringField() throws IOException {
     ITextFormatter formatter = TextFormatterFactory.get( new StringField( "field" ) );
     assertTrue( ( formatter instanceof TextStringFormatter ) );
   }
 
   @Test
-  public void getFromNullField() throws IOException {
+  public void T_get_nullFormatter_withNullField() throws IOException {
     ITextFormatter formatter = TextFormatterFactory.get( new NullField( "field" ) );
     assertTrue( ( formatter instanceof TextNullFormatter ) );
   }
 
   @Test
-  public void getFromNull() throws IOException {
+  public void T_get_nullFormatter_withNull() throws IOException {
     ITextFormatter formatter = TextFormatterFactory.get( null );
     assertTrue( ( formatter instanceof TextNullFormatter ) );
   }

@@ -37,7 +37,7 @@ import java.io.IOException;
 public class TestTextBooleanFormatter {
 
   @Test
-  public void createBooleanTextFromBooleanTrue() throws IOException {
+  public void T_write_booleanText_withBooleanTrue() throws IOException {
     TextBooleanFormatter formatter = new TextBooleanFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , true );
@@ -45,7 +45,7 @@ public class TestTextBooleanFormatter {
   }
 
   @Test
-  public void createBooleanTextFromBooleanFalse() throws IOException {
+  public void T_write_booleanText_withBooleanFalse() throws IOException {
     TextBooleanFormatter formatter = new TextBooleanFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , false );
@@ -53,7 +53,7 @@ public class TestTextBooleanFormatter {
   }
 
   @Test
-  public void createBooleanTextFromStringTrue() throws IOException {
+  public void T_write_booleanText_withStringTrue() throws IOException {
     TextBooleanFormatter formatter = new TextBooleanFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , "true" );
@@ -61,7 +61,7 @@ public class TestTextBooleanFormatter {
   }
 
   @Test
-  public void createBooleanTextFromStringFalse() throws IOException {
+  public void T_write_booleanText_withStringFalse() throws IOException {
     TextBooleanFormatter formatter = new TextBooleanFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , "false" );
@@ -69,7 +69,7 @@ public class TestTextBooleanFormatter {
   }
 
   @Test
-  public void createBooleanTextFromInvalidString() throws IOException {
+  public void T_write_booleanText_withInvalidString() throws IOException {
     TextBooleanFormatter formatter = new TextBooleanFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , "a" );
@@ -77,7 +77,7 @@ public class TestTextBooleanFormatter {
   }
 
   @Test
-  public void createBooleanTextFromBooleanObjTrue() throws IOException {
+  public void T_write_booleanText_withBooleanObjTrue() throws IOException {
     TextBooleanFormatter formatter = new TextBooleanFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , new BooleanObj( true ) );
@@ -85,7 +85,7 @@ public class TestTextBooleanFormatter {
   }
 
   @Test
-  public void createBooleanTextFromBooleanObjFalse() throws IOException {
+  public void T_write_booleanText_withBooleanObjFalse() throws IOException {
     TextBooleanFormatter formatter = new TextBooleanFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , new BooleanObj( false ) );
@@ -93,7 +93,7 @@ public class TestTextBooleanFormatter {
   }
 
   @Test
-  public void createBooleanTextFromNull() throws IOException {
+  public void T_write_booleanText_withNull() throws IOException {
     TextBooleanFormatter formatter = new TextBooleanFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.write( buffer , null );
@@ -101,7 +101,7 @@ public class TestTextBooleanFormatter {
   }
 
   @Test
-  public void writeParserFromBooleanObjTrue() throws IOException {
+  public void T_writeParser_booleanText_withBooleanObjTrue() throws IOException {
     TextBooleanFormatter formatter = new TextBooleanFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.writeParser( buffer , new BooleanObj( true ) , null );
@@ -109,7 +109,7 @@ public class TestTextBooleanFormatter {
   }
 
   @Test
-  public void writeParserFromBooleanObjFalse() throws IOException {
+  public void T_writeParser_booleanText_withBooleanObjFalse() throws IOException {
     TextBooleanFormatter formatter = new TextBooleanFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.writeParser( buffer , new BooleanObj( false ) , null );
@@ -117,7 +117,7 @@ public class TestTextBooleanFormatter {
   }
 
   @Test
-  public void writeParserFromNull() throws IOException {
+  public void T_writeParser_booleanText_withNull() throws IOException {
     TextBooleanFormatter formatter = new TextBooleanFormatter();
     ByteArrayData buffer = new ByteArrayData();
     formatter.writeParser( buffer , null , null );
