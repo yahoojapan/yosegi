@@ -34,11 +34,7 @@ public class DoubleObj implements PrimitiveObject {
   private static final double LONG_MIN = Double.valueOf( Long.MIN_VALUE );
   private static final double LONG_MAX = Double.valueOf( Long.MAX_VALUE );
 
-  private Double value;
-
-  public DoubleObj() {
-    value = Double.valueOf(0);
-  }
+  private final Double value;
 
   public DoubleObj( final double value ) {
     this.value = value;

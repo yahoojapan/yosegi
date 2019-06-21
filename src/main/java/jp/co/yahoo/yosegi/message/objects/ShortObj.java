@@ -22,11 +22,7 @@ import java.io.IOException;
 
 public class ShortObj implements PrimitiveObject {
 
-  private Short value;
-
-  public ShortObj() {
-    value = Short.valueOf( (short)0 );
-  }
+  private final Short value;
 
   public ShortObj( final short value ) {
     this.value = value;

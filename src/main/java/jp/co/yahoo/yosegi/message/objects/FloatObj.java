@@ -34,11 +34,7 @@ public class FloatObj implements PrimitiveObject {
   private static final float LONG_MIN = Float.valueOf( Long.MIN_VALUE );
   private static final float LONG_MAX = Float.valueOf( Long.MAX_VALUE );
 
-  private Float value;
-
-  public FloatObj() {
-    value = Float.valueOf(0);
-  }
+  private final Float value;
 
   public FloatObj( final float value ) {
     this.value = value;

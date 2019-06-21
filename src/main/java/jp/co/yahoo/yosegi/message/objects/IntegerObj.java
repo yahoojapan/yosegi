@@ -22,11 +22,7 @@ import java.io.IOException;
 
 public class IntegerObj implements PrimitiveObject {
 
-  private Integer value;
-
-  public IntegerObj() {
-    value = Integer.valueOf(0);
-  }
+  private final Integer value;
 
   public IntegerObj( final int value ) {
     this.value = value;

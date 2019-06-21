@@ -22,13 +22,8 @@ import java.io.IOException;
 
 public class BooleanObj implements PrimitiveObject {
 
-  private Boolean value;
-  private Integer numberValue;
-
-  public BooleanObj() {
-    value = false;
-    numberValue = Integer.valueOf( 0 );
-  }
+  private final Boolean value;
+  private final Integer numberValue;
 
   /**
    * Create a PrimitiveObject holding the input Boolean.

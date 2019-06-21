@@ -31,11 +31,6 @@ public class BytesStringObj extends BytesObj {
 
   private final String charsetName;
 
-  public BytesStringObj() {
-    super();
-    charsetName = DEFAULT_CHAR_SET;
-  }
-
   public BytesStringObj( final byte[] data ) {
     super( data );
     charsetName = DEFAULT_CHAR_SET;

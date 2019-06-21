@@ -22,11 +22,7 @@ import java.io.IOException;
 
 public class LongObj implements PrimitiveObject {
 
-  private Long value;
-
-  public LongObj() {
-    value = Long.valueOf(0);
-  }
+  private final Long value;
 
   public LongObj( final long value ) {
     this.value = value;

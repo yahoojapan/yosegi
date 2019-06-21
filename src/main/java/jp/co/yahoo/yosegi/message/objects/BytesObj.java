@@ -26,10 +26,6 @@ public class BytesObj implements PrimitiveObject {
 
   private byte[] value;
 
-  public BytesObj() {
-    value = new byte[0];
-  }
-
   public BytesObj( final byte[] data ) {
     value = data;
   }
