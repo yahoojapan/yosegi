@@ -22,11 +22,7 @@ import java.io.IOException;
 
 public class ShortObj implements PrimitiveObject {
 
-  private Short value;
-
-  public ShortObj() {
-    value = Short.valueOf( (short)0 );
-  }
+  private final Short value;
 
   public ShortObj( final short value ) {
     this.value = value;
@@ -84,73 +80,6 @@ public class ShortObj implements PrimitiveObject {
   @Override
   public boolean getBoolean() throws IOException {
     return ! ( value.equals( Short.valueOf( (short)0 ) ) );
-  }
-
-  @Override
-  public void setString( final String data ) throws IOException {
-    value = Short.parseShort( data );
-  }
-
-  @Override
-  public void setBytes( final byte[] data ) throws IOException {
-    setBytes( data , 0 , data.length );
-  }
-
-  @Override
-  public void setBytes(
-      final byte[] data ,
-      final int start ,
-      final int length ) throws IOException {
-    value = Short.parseShort( new String( data , start , length ) );
-  }
-
-  @Override
-  public void setByte( final byte data ) throws IOException {
-    setInt( (int)data );
-  }
-
-  @Override
-  public void setShort( final short data ) throws IOException {
-    value = data;
-  }
-
-  @Override
-  public void setInt( final int data ) throws IOException {
-    value = Float.valueOf( data ).shortValue();
-  }
-
-  @Override
-  public void setLong( final long data ) throws IOException {
-    value = Long.valueOf( data ).shortValue();
-  }
-
-  @Override
-  public void setFloat( final float data ) throws IOException {
-    value = Float.valueOf( data ).shortValue();
-  }
-
-  @Override
-  public void setDouble( final double data ) throws IOException {
-    value = Double.valueOf( data ).shortValue();
-  }
-
-  @Override
-  public void setBoolean( final boolean data ) throws IOException {
-    if ( data ) {
-      value = Short.valueOf( (short)1 );
-    } else {
-      value = Short.valueOf( (short)0 );
-    }
-  }
-
-  @Override
-  public void set( final PrimitiveObject data ) throws IOException {
-    value = data.getShort();
-  }
-
-  @Override
-  public void clear() throws IOException {
-    value = Short.valueOf( (short)0 );
   }
 
   @Override

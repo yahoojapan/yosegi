@@ -26,10 +26,6 @@ public class BytesObj implements PrimitiveObject {
 
   private byte[] value;
 
-  public BytesObj() {
-    value = new byte[0];
-  }
-
   public BytesObj( final byte[] data ) {
     value = data;
   }
@@ -87,70 +83,6 @@ public class BytesObj implements PrimitiveObject {
   @Override
   public boolean getBoolean() throws IOException {
     return Boolean.valueOf( getString() );
-  }
-
-  @Override
-  public void setString( final String data ) throws IOException {
-    value = data.getBytes( "UTF-8" );
-  }
-
-  @Override
-  public void setBytes( final byte[] data ) throws IOException {
-    setBytes( data , 0 , data.length );
-  }
-
-  @Override
-  public void setBytes(
-      final byte[] data ,
-      final int start ,
-      final int length ) throws IOException {
-    value = new byte[ length ];
-    System.arraycopy( data , start , value , 0 , length );
-  }
-
-  @Override
-  public void setByte( final byte data ) throws IOException {
-    setInt( (int)data );
-  }
-
-  @Override
-  public void setShort( final short data ) throws IOException {
-    value = Short.toString( data ).getBytes( "UTF-8" );
-  }
-
-  @Override
-  public void setInt( final int data ) throws IOException {
-    value = Integer.toString( data ).getBytes( "UTF-8" );
-  }
-
-  @Override
-  public void setLong( final long data ) throws IOException {
-    value = Long.toString( data ).getBytes( "UTF-8" );
-  }
-
-  @Override
-  public void setFloat( final float data ) throws IOException {
-    value = Float.toString( data ).getBytes( "UTF-8" );
-  }
-
-  @Override
-  public void setDouble( final double data ) throws IOException {
-    value = Double.toString( data ).getBytes( "UTF-8" );
-  }
-
-  @Override
-  public void setBoolean( final boolean data ) throws IOException {
-    value = Boolean.toString( data ).getBytes( "UTF-8" );
-  }
-
-  @Override
-  public void set( final PrimitiveObject data ) throws IOException {
-    value = data.getBytes();
-  }
-
-  @Override
-  public void clear() throws IOException {
-    value = new byte[0];
   }
 
   @Override

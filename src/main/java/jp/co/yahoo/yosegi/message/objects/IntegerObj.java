@@ -22,11 +22,7 @@ import java.io.IOException;
 
 public class IntegerObj implements PrimitiveObject {
 
-  private Integer value;
-
-  public IntegerObj() {
-    value = Integer.valueOf(0);
-  }
+  private final Integer value;
 
   public IntegerObj( final int value ) {
     this.value = value;
@@ -88,73 +84,6 @@ public class IntegerObj implements PrimitiveObject {
   @Override
   public boolean getBoolean() throws IOException {
     return ! ( value.equals( Integer.valueOf(0) ) );
-  }
-
-  @Override
-  public void setString( final String data ) throws IOException {
-    value = Integer.parseInt( data );
-  }
-
-  @Override
-  public void setBytes( final byte[] data ) throws IOException {
-    setBytes( data , 0 , data.length );
-  }
-
-  @Override
-  public void setBytes(
-      final byte[] data ,
-      final int start ,
-      final int length ) throws IOException {
-    value = Integer.parseInt( new String( data , start , length ) );
-  }
-
-  @Override
-  public void setByte( final byte data ) throws IOException {
-    setInt( (int)data );
-  }
-
-  @Override
-  public void setShort( final short data ) throws IOException {
-    value = Short.valueOf( data ).intValue();
-  }
-
-  @Override
-  public void setInt( final int data ) throws IOException {
-    value = data;
-  }
-
-  @Override
-  public void setLong( final long data ) throws IOException {
-    value = Long.valueOf( data ).intValue();
-  }
-
-  @Override
-  public void setFloat( final float data ) throws IOException {
-    value = Float.valueOf( data ).intValue();
-  }
-
-  @Override
-  public void setDouble( final double data ) throws IOException {
-    value = Double.valueOf( data ).intValue();
-  }
-
-  @Override
-  public void setBoolean( final boolean data ) throws IOException {
-    if ( data ) {
-      value = Integer.valueOf( 1 );
-    } else {
-      value = Integer.valueOf( 0 );
-    }
-  }
-
-  @Override
-  public void set( final PrimitiveObject data ) throws IOException {
-    value = data.getInt();
-  }
-
-  @Override
-  public void clear() throws IOException {
-    value = Integer.valueOf(0);
   }
 
   @Override

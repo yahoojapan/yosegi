@@ -34,11 +34,7 @@ public class FloatObj implements PrimitiveObject {
   private static final float LONG_MIN = Float.valueOf( Long.MIN_VALUE );
   private static final float LONG_MAX = Float.valueOf( Long.MAX_VALUE );
 
-  private Float value;
-
-  public FloatObj() {
-    value = Float.valueOf(0);
-  }
+  private final Float value;
 
   public FloatObj( final float value ) {
     this.value = value;
@@ -108,73 +104,6 @@ public class FloatObj implements PrimitiveObject {
   @Override
   public boolean getBoolean() throws IOException {
     return ! ( value.equals( Float.valueOf(0) ) );
-  }
-
-  @Override
-  public void setString( final String data ) throws IOException {
-    value = Float.parseFloat( data );
-  }
-
-  @Override
-  public void setBytes( final byte[] data ) throws IOException {
-    setBytes( data , 0 , data.length );
-  }
-
-  @Override
-  public void setBytes(
-      final byte[] data ,
-      final int start ,
-      final int length ) throws IOException {
-    value = Float.parseFloat( new String( data , start , length ) );
-  }
-
-  @Override
-  public void setByte( final byte data ) throws IOException {
-    setInt( (int)data );
-  }
-
-  @Override
-  public void setShort( final short data ) throws IOException {
-    value = Integer.valueOf( data ).floatValue();
-  }
-
-  @Override
-  public void setInt( final int data ) throws IOException {
-    value = Integer.valueOf( data ).floatValue();
-  }
-
-  @Override
-  public void setLong( final long data ) throws IOException {
-    value = Long.valueOf( data ).floatValue();
-  }
-
-  @Override
-  public void setFloat( final float data ) throws IOException {
-    value = data;
-  }
-
-  @Override
-  public void setDouble( final double data ) throws IOException {
-    value = Double.valueOf( data ).floatValue();
-  }
-
-  @Override
-  public void setBoolean( final boolean data ) throws IOException {
-    if ( data ) {
-      value = Float.valueOf( 1 );
-    } else {
-      value = Float.valueOf( 0 );
-    }
-  }
-
-  @Override
-  public void set( final PrimitiveObject data ) throws IOException {
-    value = data.getFloat();
-  }
-
-  @Override
-  public void clear() throws IOException {
-    value = Float.valueOf(0);
   }
 
   @Override

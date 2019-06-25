@@ -88,69 +88,6 @@ public class StringObj implements PrimitiveObject {
   }
 
   @Override
-  public void setString( final String data ) throws IOException {
-    value = data;
-  }
-
-  @Override
-  public void setBytes( final byte[] data ) throws IOException {
-    value = new String( data , "UTF-8");
-  }
-
-  @Override
-  public void setBytes(
-      final byte[] data ,
-      final int start ,
-      final int length ) throws IOException {
-    value = new String( data , start , length , "UTF-8" );
-  }
-
-  @Override
-  public void setByte( final byte data ) throws IOException {
-    setInt( (int)data );
-  }
-
-  @Override
-  public void setShort( final short data ) throws IOException {
-    value = Short.valueOf( data ).toString();
-  }
-
-  @Override
-  public void setInt( final int data ) throws IOException {
-    value = Integer.valueOf( data ).toString();
-  }
-
-  @Override
-  public void setLong( final long data ) throws IOException {
-    value = Long.valueOf( data ).toString();
-  }
-
-  @Override
-  public void setFloat( final float data ) throws IOException {
-    value = Float.valueOf( data ).toString();
-  }
-
-  @Override
-  public void setDouble( final double data ) throws IOException {
-    value = Double.valueOf( data ).toString();
-  }
-
-  @Override
-  public void setBoolean( final boolean data ) throws IOException {
-    value = Boolean.toString( data );
-  }
-
-  @Override
-  public void set( final PrimitiveObject data ) throws IOException {
-    value = data.getString();
-  }
-
-  @Override
-  public void clear() throws IOException {
-    value = EMPTY_STRING;
-  }
-
-  @Override
   public PrimitiveType getPrimitiveType() {
     return PrimitiveType.STRING;
   }
