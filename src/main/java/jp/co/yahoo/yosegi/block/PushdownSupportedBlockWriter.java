@@ -188,27 +188,47 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
 
   @Override
   public boolean canAppend( final List<ColumnBinary> binaryList ) throws IOException {
-    int length = getColumnBinarySize( binaryList );
-    int currentSize = 
-        size()
-        + length
-        + Integer.BYTES
-        + Integer.BYTES
-        + ( Integer.BYTES * spreadSizeList.size() + 1 );
-    return currentSize < blockSize;
+    return sizeAfterAppend( binaryList ) < blockSize;
+  }
+
+  /**
+   * Calculate the data size after addition.
+   */
+  public int sizeAfterAppend( final List<ColumnBinary> binaryList ) throws IOException {
+    int appendBufferSize = getColumnBinarySize( binaryList );
+    BlockIndexNode tmpBlockIndexNode = new BlockIndexNode();
+    for ( ColumnBinary columnBinary : binaryList ) {
+      if ( columnBinary != null ) {
+        IColumnBinaryMaker maker = FindColumnBinaryMaker.get( columnBinary.makerClassName );
+        maker.setBlockIndexNode( tmpBlockIndexNode , columnBinary , getRegisterSpreadCount() );
+      }
+    }
+    return size()
+        + appendBufferSize
+        + tmpBlockIndexNode.getBinarySize()
+        + ( Integer.BYTES * ( spreadSizeList.size() + 1 ) );
   }
 
   @Override
   public int size() {
     try {
       return
+          // header setting
           headerBytes.length
-          + bufferSize
-          + META_BUFFER_SIZE
+          // header compress setting
           + Integer.BYTES
           + compressorClassNameBytes.length
+          + Integer.BYTES
           + blockIndexNode.getBinarySize()
-          + Integer.BYTES;
+        
+          // meta setting
+          + Integer.BYTES
+          + ( Integer.BYTES * spreadSizeList.size() )
+          + Integer.BYTES
+
+          // meta + buffer size
+          + META_BUFFER_SIZE
+          + bufferSize;
     } catch ( IOException ex ) {
       throw new RuntimeException( ex );
     }
@@ -228,15 +248,17 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
   public void write( final OutputStream out , final int dataSize ) throws IOException {
     byte[] blockIndexBinary = new byte[
         Integer.BYTES   
-        + ( compressor.getClass().getName().length() * 2 )
+        + compressorClassNameBytes.length
         + blockIndexNode.getBinarySize()
         + Integer.BYTES ];
     ByteBuffer blockIndexBuffer = ByteBuffer.wrap( blockIndexBinary );
     blockIndexBuffer.putInt( compressorClassNameBytes.length );
     blockIndexBuffer.put( compressorClassNameBytes );
-    int metaLength = 4 + compressorClassNameBytes.length + 4;
-    blockIndexBuffer.putInt( blockIndexBinary.length - metaLength );
-    blockIndexNode.toBinary( blockIndexBinary , metaLength );
+    blockIndexBuffer.putInt( blockIndexNode.getBinarySize() );
+    int blockIndexBinaryStartOffset = Integer.BYTES
+        + compressorClassNameBytes.length
+        + Integer.BYTES ;
+    blockIndexNode.toBinary( blockIndexBinary , blockIndexBinaryStartOffset );
     appendHeader( blockIndexBinary );
     blockIndexNode.clear();
 
