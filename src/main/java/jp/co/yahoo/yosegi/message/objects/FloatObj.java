@@ -79,6 +79,8 @@ public class FloatObj implements PrimitiveObject {
 
   @Override
   public int getInt() throws IOException {
+    // Same as Integer.MAX_VALUE up to +128
+    // Same as Integer.MIN_VALUE up to -128
     if ( value < INTEGER_MIN || INTEGER_MAX < value ) {
       throw new NumberFormatException(
           "Can not down cast. float to int. float value is " + value );
@@ -88,6 +90,8 @@ public class FloatObj implements PrimitiveObject {
 
   @Override
   public long getLong() throws IOException {
+    // Same as Long.MAX_VALUE up to 549755846656
+    // Same as Long.MIN_VALUE up to -549755846656
     if ( value < LONG_MIN || LONG_MAX < value ) {
       throw new NumberFormatException(
           "Can not down cast. float to long. float value is " + value );
