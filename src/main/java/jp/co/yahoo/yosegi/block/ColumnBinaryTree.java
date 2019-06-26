@@ -445,7 +445,7 @@ public class ColumnBinaryTree {
   public int dataSizeAfterAppend( final List<ColumnBinary> rootBinaryList ) throws IOException {
     int result = dataSize();
     for ( ColumnBinary binary : rootBinaryList ) {
-      result += binary.size();
+      result += binary.binarySize();
     }
     return result;
   }

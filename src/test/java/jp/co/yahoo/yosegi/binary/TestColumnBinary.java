@@ -46,7 +46,7 @@ public class TestColumnBinary{
     assertEquals( columnBinary.binaryLength , 90 );
     assertEquals( columnBinary.columnBinaryList , null );
 
-    assertTrue( 0 < columnBinary.size() );
+    assertTrue( 0 < columnBinary.binarySize() );
     assertTrue( 0 < columnBinary.getMetaSize() );
   }
 
@@ -69,7 +69,7 @@ public class TestColumnBinary{
     assertEquals( columnBinary.binaryLength , 90 );
     assertEquals( columnBinary.columnBinaryList , null );
 
-    assertTrue( 0 < parentColumnBinary.size() );
+    assertTrue( 0 < parentColumnBinary.binarySize() );
     assertTrue( 0 < parentColumnBinary.getMetaSize() );
   }
 
@@ -91,7 +91,7 @@ public class TestColumnBinary{
     assertEquals( columnBinary.binaryLength , 90 );
     assertEquals( columnBinary.columnBinaryList , null );
 
-    assertTrue( 0 < columnBinary.size() );
+    assertTrue( 0 < columnBinary.binarySize() );
     assertTrue( 0 < columnBinary.getMetaSize() );
   }
 

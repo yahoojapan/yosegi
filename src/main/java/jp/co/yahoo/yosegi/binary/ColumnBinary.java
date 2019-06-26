@@ -81,12 +81,12 @@ public class ColumnBinary {
   /**
    * Calculate the converted binary size of this object.
    */
-  public int size() throws IOException {
+  public int binarySize() throws IOException {
     int length = binaryLength;
 
     if ( columnBinaryList != null ) {
       for ( ColumnBinary child : columnBinaryList ) {
-        length += child.size();
+        length += child.binarySize();
       }
     }
     return length;
