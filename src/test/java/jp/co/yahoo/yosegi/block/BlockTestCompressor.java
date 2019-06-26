@@ -15,29 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package jp.co.yahoo.yosegi.block;
 
-package jp.co.yahoo.yosegi.blockindex;
+import jp.co.yahoo.yosegi.compressor.CompressResult;
+import jp.co.yahoo.yosegi.compressor.DefaultCompressor;
 
-import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
+import java.io.IOException;
 
-import java.util.List;
-
-public interface IBlockIndex {
-
-  BlockIndexType getBlockIndexType();
-
-  IBlockIndex clone();
-
-  boolean merge( final IBlockIndex blockIndex );
-
-  int getBinarySize();
-
-  byte[] toBinary();
-
-  void setFromBinary( final byte[] buffer , final int start , final int length );
-
-  List<Integer> getBlockSpreadIndex( final IFilter filter );
-
-  IBlockIndex getNewInstance();
-
+public class BlockTestCompressor extends DefaultCompressor {
+  @Override
+  public byte[] compress(
+      final byte[] data ,
+      final int start ,
+      final int length ,
+      final CompressResult compressResult ) throws IOException {
+    byte[] result = new byte[length+1];
+    System.arraycopy( data , start , result , 0 , length );
+    return result;
+  }
 }

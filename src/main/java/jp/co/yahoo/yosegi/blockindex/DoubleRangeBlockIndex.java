@@ -43,6 +43,11 @@ public class DoubleRangeBlockIndex implements IBlockIndex {
   }
 
   @Override
+  public IBlockIndex clone() {
+    return new DoubleRangeBlockIndex( min , max );
+  }
+
+  @Override
   public BlockIndexType getBlockIndexType() {
     return BlockIndexType.RANGE_DOUBLE;
   }

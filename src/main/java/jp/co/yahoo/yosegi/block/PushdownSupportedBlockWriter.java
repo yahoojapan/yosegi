@@ -65,7 +65,6 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
   private byte[] compressorClassNameBytes;
 
   private byte[] headerBytes;
-  private int bufferSize;
 
   /**
    * Define the required initial value.
@@ -111,7 +110,6 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
     metaBuffer = new ByteArrayData( META_BUFFER_SIZE );
     columnTree = new ColumnBinaryTree();
 
-    bufferSize = 0;
     headerBytes = new byte[0];
     compressor = FindCompressor.get( config.get( 
         "block.maker.compress.class" ,
@@ -133,14 +131,6 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
     }
   }
 
-  private int getColumnBinarySize( final List<ColumnBinary> binaryList ) throws IOException {
-    int length = 0;
-    for ( ColumnBinary binary : binaryList ) {
-      length += binary.size();
-    }
-    return length;
-  }
-
   @Override
   public void append(
         final int spreadSize , final List<ColumnBinary> binaryList ) throws IOException {
@@ -150,11 +140,10 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
         maker.setBlockIndexNode( blockIndexNode , columnBinary , getRegisterSpreadCount() );
       }
     }
-    bufferSize += getColumnBinarySize( binaryList ) + Integer.BYTES * 2;
     spreadSizeList.add( spreadSize );
 
     columnTree.addChild( binaryList );
-    if ( blockSize <= size() ) {
+    if ( blockSize < size() ) {
       throw new IOException( "Buffer overflow." );
     }
   }
@@ -188,47 +177,56 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
 
   @Override
   public boolean canAppend( final List<ColumnBinary> binaryList ) throws IOException {
-    return sizeAfterAppend( binaryList ) < blockSize;
+    boolean result = sizeAfterAppend( binaryList ) <= blockSize;
+    if ( ! result && spreadSizeList.isEmpty() ) {
+      throw new IOException( "Can not write Spread larger than block size."
+          + "Increase the block size or reduce the size of the Spread." );
+    }
+    return result;
   }
 
   /**
    * Calculate the data size after addition.
    */
   public int sizeAfterAppend( final List<ColumnBinary> binaryList ) throws IOException {
-    int appendBufferSize = getColumnBinarySize( binaryList );
-    BlockIndexNode tmpBlockIndexNode = new BlockIndexNode();
+    BlockIndexNode cloneBlockIndexNode = blockIndexNode.clone();
     for ( ColumnBinary columnBinary : binaryList ) {
       if ( columnBinary != null ) {
         IColumnBinaryMaker maker = FindColumnBinaryMaker.get( columnBinary.makerClassName );
-        maker.setBlockIndexNode( tmpBlockIndexNode , columnBinary , getRegisterSpreadCount() );
+        maker.setBlockIndexNode( cloneBlockIndexNode , columnBinary , getRegisterSpreadCount() );
       }
     }
-    return size()
-        + appendBufferSize
-        + tmpBlockIndexNode.getBinarySize()
-        + ( Integer.BYTES * ( spreadSizeList.size() + 1 ) );
+    int appendSpreadSizeBinary = Integer.BYTES;
+    return blockMetaSize()
+        + appendSpreadSizeBinary
+        + cloneBlockIndexNode.getBinarySize()
+        + columnTree.metaSizeAfterAppend( binaryList )
+        + columnTree.dataSizeAfterAppend( binaryList );
+  }
+
+  /**
+   * get block meta size.
+   */
+  public int blockMetaSize() throws IOException {
+    return headerBytes.length
+        // header compress setting
+        + Integer.BYTES
+        + compressorClassNameBytes.length
+        + Integer.BYTES 
+
+        // meta setting 
+        + Integer.BYTES
+        + ( Integer.BYTES * spreadSizeList.size() )
+        + Integer.BYTES;
   }
 
   @Override
   public int size() {
     try {
-      return
-          // header setting
-          headerBytes.length
-          // header compress setting
-          + Integer.BYTES
-          + compressorClassNameBytes.length
-          + Integer.BYTES
+      return blockMetaSize()
           + blockIndexNode.getBinarySize()
-        
-          // meta setting
-          + Integer.BYTES
-          + ( Integer.BYTES * spreadSizeList.size() )
-          + Integer.BYTES
-
-          // meta + buffer size
-          + META_BUFFER_SIZE
-          + bufferSize;
+          + columnTree.metaSize()
+          + columnTree.dataSize();
     } catch ( IOException ex ) {
       throw new RuntimeException( ex );
     }
@@ -287,6 +285,13 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
     out.write( metaBinary , 0 , metaBinary.length );
     offset += metaBinary.length;
     offset += columnTree.writeData( out );
+
+    if ( blockSize < offset ) {
+      throw new IOException(
+          "The exception is that the metasize after compression gets larger."
+          + "Please turn off the option for meta compression." );
+    }
+
     if ( dataSize != -1 ) {
       int nullLength = dataSize - offset;
       out.write( new byte[nullLength] );
@@ -296,7 +301,6 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
     metaBuffer.clear();
     columnTree.clear();
     headerBytes = new byte[0];
-    bufferSize = 0;
   }
 
   @Override
@@ -309,7 +313,6 @@ public class PushdownSupportedBlockWriter implements IBlockWriter {
     spreadSizeList.clear();
     metaBuffer.clear();
     columnTree.clear();
-    bufferSize = 0;
   }
 
   private int getRegisterSpreadCount() {

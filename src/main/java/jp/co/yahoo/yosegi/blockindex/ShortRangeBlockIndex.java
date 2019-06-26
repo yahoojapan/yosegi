@@ -43,6 +43,11 @@ public class ShortRangeBlockIndex implements IBlockIndex {
   }
 
   @Override
+  public IBlockIndex clone() {
+    return new ShortRangeBlockIndex( min , max );
+  }
+
+  @Override
   public BlockIndexType getBlockIndexType() {
     return BlockIndexType.RANGE_SHORT;
   }

@@ -46,6 +46,11 @@ public class StringRangeBlockIndex implements IBlockIndex {
   }
 
   @Override
+  public IBlockIndex clone() {
+    return new StringRangeBlockIndex( min , max );
+  }
+
+  @Override
   public BlockIndexType getBlockIndexType() {
     return BlockIndexType.RANGE_STRING;
   }

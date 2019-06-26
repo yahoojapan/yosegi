@@ -68,6 +68,20 @@ public class FullRangeBlockIndex implements IBlockIndex {
       return blockIndex;
     }
 
+    @Override
+    public RangeBlockIndex clone() {
+      return new RangeBlockIndex( index , blockIndex.clone() );
+    }
+
+  }
+
+  @Override
+  public IBlockIndex clone() {
+    FullRangeBlockIndex result = new FullRangeBlockIndex();
+    for ( RangeBlockIndex rangeBlockIndex : childList ) {
+      result.childList.add( rangeBlockIndex.clone() );
+    }
+    return result;
   }
 
   /**

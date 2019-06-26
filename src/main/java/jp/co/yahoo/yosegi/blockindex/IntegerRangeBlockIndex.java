@@ -43,6 +43,11 @@ public class IntegerRangeBlockIndex implements IBlockIndex {
   }
 
   @Override
+  public IBlockIndex clone() {
+    return new IntegerRangeBlockIndex( min , max );
+  }
+
+  @Override
   public BlockIndexType getBlockIndexType() {
     return BlockIndexType.RANGE_INTEGER;
   }

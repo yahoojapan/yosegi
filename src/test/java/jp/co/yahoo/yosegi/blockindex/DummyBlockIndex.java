@@ -37,6 +37,11 @@ public class DummyBlockIndex implements IBlockIndex{
   }
 
   @Override
+  public IBlockIndex clone() {
+    return new DummyBlockIndex( canMerge );
+  }
+
+  @Override
   public BlockIndexType getBlockIndexType(){
     return BlockIndexType.UNSUPPORTED;
   }
