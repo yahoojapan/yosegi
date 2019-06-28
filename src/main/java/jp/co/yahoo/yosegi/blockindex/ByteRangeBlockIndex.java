@@ -43,6 +43,11 @@ public class ByteRangeBlockIndex implements IBlockIndex {
   }
 
   @Override
+  public IBlockIndex clone() {
+    return new ByteRangeBlockIndex( min , max );
+  }
+
+  @Override
   public BlockIndexType getBlockIndexType() {
     return BlockIndexType.RANGE_BYTE;
   }

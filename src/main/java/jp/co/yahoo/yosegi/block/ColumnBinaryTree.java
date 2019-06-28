@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,6 +44,7 @@ public class ColumnBinaryTree {
   private int currentCount;
   private int childCount;
   private int metaLength;
+  private int dataSize;
   private int allBinaryStart;
   private int allBinaryLength;
 
@@ -79,6 +81,7 @@ public class ColumnBinaryTree {
       addChild( null );
     } else {
       metaLength += columnBinary.getMetaSize();
+      dataSize += columnBinary.binaryLength;
       addChild( columnBinary.columnBinaryList );
     }
   }
@@ -336,6 +339,129 @@ public class ColumnBinaryTree {
   }
 
   /**
+   * Get current metadata size.
+   */
+  public int metaSize() throws IOException {
+    int result = 0;
+    result += Integer.BYTES;
+    result += Integer.BYTES * 3;
+    result += ( Integer.BYTES * 2 ) * currentColumnBinaryList.size();
+    result += metaLength;
+
+    for ( Map.Entry<String,ColumnBinaryTree> entry : childTreeMap.entrySet() ) {
+      result += entry.getValue().metaSize();
+    }
+
+    for ( String columnName : childKeyList ) {
+      byte[] childNameBytes = columnName.getBytes( "UTF-8" );
+      result += Integer.BYTES + childNameBytes.length;
+    }
+    return result;
+  }
+
+  private int metaSizeAfterAppend( final ColumnBinary columnBinary ) throws IOException {
+    int result = 0;
+    result += Integer.BYTES;
+    result += Integer.BYTES * 3;
+    result += ( Integer.BYTES * 2 ) * ( currentColumnBinaryList.size() + 1 );
+    result += metaLength;
+
+    Set<String> childKeySet = new HashSet<String>();
+    if ( columnBinary != null ) {
+      result += columnBinary.getMetaSize();
+      if ( columnBinary.columnBinaryList != null ) {
+        for ( ColumnBinary childColumnBinary : columnBinary.columnBinaryList ) {
+          ColumnBinaryTree childTree = childTreeMap.get( childColumnBinary.columnName );
+          if ( childTree == null ) {
+            byte[] childNameBytes = childColumnBinary.columnName.getBytes( "UTF-8" );
+            result += Integer.BYTES + childNameBytes.length;
+            childTree = new ColumnBinaryTree();
+            while ( childTree.size() < ( getChildSize() ) ) {
+              childTree.add( null );
+            }
+          }
+          result += childTree.metaSizeAfterAppend( childColumnBinary );
+          childKeySet.add( childColumnBinary.columnName );
+        }
+      }
+    }
+
+    for ( Map.Entry<String,ColumnBinaryTree> entry : childTreeMap.entrySet() ) {
+      if ( ! childKeySet.contains( entry.getKey() ) ) {
+        ColumnBinary childColumnBinary = null;
+        result += entry.getValue().metaSizeAfterAppend( childColumnBinary );
+      }
+    }
+
+    for ( String columnName : childKeyList ) {
+      byte[] childNameBytes = columnName.getBytes( "UTF-8" );
+      result += Integer.BYTES + childNameBytes.length;
+    }
+    return result;
+  }
+
+  /**
+   * append size.
+   */
+  public int metaSizeAfterAppend( final List<ColumnBinary> rootBinaryList ) throws IOException {
+    int result = 0;
+    // child size
+    result += Integer.BYTES;
+    // binaryOffsetMetaData
+    result += Integer.BYTES * 3;
+    Set<String> childKeySet = new HashSet<String>();
+    for ( ColumnBinary childColumnBinary : rootBinaryList ) {
+      ColumnBinaryTree childTree = childTreeMap.get( childColumnBinary.columnName );
+      if ( childTree == null ) {
+        byte[] childNameBytes = childColumnBinary.columnName.getBytes( "UTF-8" );
+        result += Integer.BYTES + childNameBytes.length;
+        childTree = new ColumnBinaryTree();
+        while ( childTree.size() < ( getChildSize() ) ) {
+          childTree.add( null );
+        }
+      }
+      result += childTree.metaSizeAfterAppend( childColumnBinary );
+      childKeySet.add( childColumnBinary.columnName );
+    }
+
+    for ( Map.Entry<String,ColumnBinaryTree> entry : childTreeMap.entrySet() ) {
+      if ( ! childKeySet.contains( entry.getKey() ) ) {
+        ColumnBinary childColumnBinary = null;
+        result += entry.getValue().metaSizeAfterAppend( childColumnBinary );
+      }
+    }
+    
+    for ( String columnName : childKeyList ) {
+      byte[] childNameBytes = columnName.getBytes( "UTF-8" );
+      result += Integer.BYTES + childNameBytes.length;
+    }
+
+    return result;
+  }
+
+  /**
+   * Data size after append.
+   */
+  public int dataSizeAfterAppend( final List<ColumnBinary> rootBinaryList ) throws IOException {
+    int result = dataSize();
+    for ( ColumnBinary binary : rootBinaryList ) {
+      result += binary.binarySize();
+    }
+    return result;
+  }
+
+  /**
+   * Data size.
+   */
+  public int dataSize() {
+    int result = dataSize;
+    for ( Map.Entry<String,ColumnBinaryTree> entry : childTreeMap.entrySet() ) {
+      result += entry.getValue().dataSize();
+    }
+    return result;
+  }
+
+  /**
    * Write data.
    */
   public int writeData( final OutputStream out ) throws IOException {
@@ -372,6 +498,7 @@ public class ColumnBinaryTree {
     currentCount = 0;
     childCount = 0;
     metaLength = 0;
+    dataSize = 0;
     allBinaryLength = 0;
   }
 

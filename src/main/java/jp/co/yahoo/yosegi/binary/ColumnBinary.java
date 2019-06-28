@@ -81,26 +81,12 @@ public class ColumnBinary {
   /**
    * Calculate the converted binary size of this object.
    */
-  public int size() throws IOException {
-    int length =
-        ( makerClassName.length() * Character.BYTES )
-        + Integer.BYTES
-        + ( compressorClassName.length() * Character.BYTES )
-        + Integer.BYTES
-        + ( columnName.length() * Character.BYTES )
-        + Integer.BYTES
-        + Byte.BYTES
-        + Integer.BYTES
-        + Integer.BYTES
-        + Integer.BYTES
-        + Integer.BYTES
-        + Integer.BYTES
-        + Integer.BYTES
-        + binaryLength;
+  public int binarySize() throws IOException {
+    int length = binaryLength;
 
     if ( columnBinaryList != null ) {
       for ( ColumnBinary child : columnBinaryList ) {
-        length += child.size();
+        length += child.binarySize();
       }
     }
     return length;

@@ -25,13 +25,26 @@ import java.util.Map;
 
 public class BlockIndexNode {
 
-  private final Map<String,BlockIndexNode> childContainer;
-
+  private Map<String,BlockIndexNode> childContainer;
   private IBlockIndex blockIndex;
   private boolean isDisable;
 
   public BlockIndexNode() {
     childContainer = new HashMap<String,BlockIndexNode>();
+  }
+
+  @Override
+  public BlockIndexNode clone() {
+    BlockIndexNode result = new BlockIndexNode();
+    result.childContainer = new HashMap<String,BlockIndexNode>();
+    for ( Map.Entry<String,BlockIndexNode> entry : childContainer.entrySet() ) {
+      result.childContainer.put( entry.getKey() , entry.getValue().clone() );
+    }
+    if ( blockIndex != null ) { 
+      result.blockIndex = blockIndex.clone();
+    }
+    result.isDisable = isDisable;
+    return result;
   }
 
   /**

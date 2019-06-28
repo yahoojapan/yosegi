@@ -27,6 +27,11 @@ public class UnsupportedBlockIndex implements IBlockIndex {
   public static final IBlockIndex INSTANCE = new UnsupportedBlockIndex();
 
   @Override
+  public IBlockIndex clone() {
+    return INSTANCE;
+  }
+
+  @Override
   public BlockIndexType getBlockIndexType() {
     return BlockIndexType.UNSUPPORTED;
   }
