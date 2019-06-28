@@ -217,6 +217,46 @@ public class TestDoubleObj {
   }
 
   @Test
+  public void T_getFloat_equalsSetValue_withMinValue() throws IOException {
+    DoubleObj obj = new DoubleObj( (double)-Float.MAX_VALUE );
+    assertEquals( -Float.MAX_VALUE , obj.getFloat() );
+  }
+
+  @Test
+  public void T_getFloat_throwsException_withGreaterThanMinValue() throws IOException {
+    //Same as -Float.MAX_VALUE down to 18889465931478582951936
+    DoubleObj objMin = new DoubleObj( (double)-Float.MAX_VALUE - 18889465931478582951936d );
+    assertEquals( -Float.MAX_VALUE , objMin.getFloat() );
+
+    DoubleObj obj = new DoubleObj( (double)-Float.MAX_VALUE - 18889465931478582951937d );
+    assertThrows( NumberFormatException.class ,
+      () -> {
+        obj.getFloat();
+      }
+    );
+  }
+
+  @Test
+  public void T_getFloat_equalsSetValue_withMaxValue() throws IOException {
+    DoubleObj obj = new DoubleObj( (double)Float.MAX_VALUE );
+    assertEquals( Float.MAX_VALUE , obj.getFloat() );
+  }
+
+  @Test
+  public void T_getFloat_throwsException_withGreaterThanMaxValue() throws IOException {
+    //Same as Float.MAX_VALUE up to 18889465931478582951936
+    DoubleObj objMin = new DoubleObj( (double)Float.MAX_VALUE + 18889465931478582951936d );
+    assertEquals( Float.MAX_VALUE , objMin.getFloat() );
+
+    DoubleObj obj = new DoubleObj( (double)Float.MAX_VALUE + 18889465931478582951937d );
+    assertThrows( NumberFormatException.class ,
+      () -> {
+        obj.getFloat();
+      }
+    );
+  }
+
+  @Test
   public void T_getDouble_equalsSetValue() throws IOException {
     DoubleObj obj = new DoubleObj( (double)1 );
     assertEquals( 1d , obj.getDouble() );

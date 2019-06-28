@@ -99,7 +99,7 @@ public class DoubleObj implements PrimitiveObject {
 
   @Override
   public float getFloat() throws IOException {
-    if ( value < Float.MIN_VALUE || Float.MAX_VALUE < value ) {
+    if ( value < -Float.MAX_VALUE || Float.MAX_VALUE < value ) {
       throw new NumberFormatException(
         "Can not down cast. double to float. double value is " + value );
     }
