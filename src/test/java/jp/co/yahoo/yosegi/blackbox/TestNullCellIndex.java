@@ -69,6 +69,8 @@ public class TestNullCellIndex{
 
       arguments( createArrayTestData( "jp.co.yahoo.yosegi.binary.maker.DumpArrayColumnBinaryMaker" ) ),
 
+      arguments( createArrayTestData( "jp.co.yahoo.yosegi.binary.maker.MaxLengthBasedArrayColumnBinaryMaker" ) ),
+
       arguments( createSpreadTestData( "jp.co.yahoo.yosegi.binary.maker.DumpSpreadColumnBinaryMaker" ) ),
 
       arguments( createNullTestData( "jp.co.yahoo.yosegi.binary.maker.UnsupportedColumnBinaryMaker" ) )
