@@ -376,6 +376,11 @@ public final class NumberToBinaryUtils {
       return getUnsignedByteToInt( byteSupporter.getByte() );
     }
 
+    @Override
+    public long getLong() {
+      return getUnsignedByteToLong( byteSupporter.getByte() );
+    }
+
   }
 
   public static class WriteSupporter0 implements IWriteSupporter {
@@ -613,7 +618,7 @@ public final class NumberToBinaryUtils {
 
       int byteStart = start + HEADER_SIZE;
 
-      return new WriteSupporter2(
+      return new WriteSupporter1(
           ByteBufferSupporterFactory.createWriteSupporter( buffer , byteStart , byteLength , order )
       );
     }
