@@ -90,7 +90,7 @@ public final class ColumnBinaryMakerNameShortCut {
         "jp.co.yahoo.yosegi.binary.maker.OptimizeIndexDumpStringColumnBinaryMaker" , "OI11" );
 
     CLASS_NAME_PAIR.set(
-        "jp.co.yahoo.yosegi.binary.maker.MaxLengthBasedArrayColumnBinaryMaker" , "ML01" );
+        "jp.co.yahoo.yosegi.binary.maker.MaxLengthBasedArrayColumnBinaryMaker" , "ML0" );
   }
 
   private ColumnBinaryMakerNameShortCut() {}
