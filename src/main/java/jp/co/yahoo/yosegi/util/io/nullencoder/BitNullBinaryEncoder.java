@@ -16,17 +16,17 @@
  * limitations under the License.
  */
 
-package jp.co.yahoo.yosegi.util.io;
+package jp.co.yahoo.yosegi.util.io.nullencoder;
+
+import jp.co.yahoo.yosegi.util.io.NumberToBinaryUtils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public final class NullBitEncoder {
+public class BitNullBinaryEncoder implements INullBinaryEncoder {
 
   public static final int HEADER_SIZE = Integer.BYTES;
   public static final int BIT_LENGTH = 8;
-
-  private NullBitEncoder() {}
 
   private static int binarySize( final int arraySize ) {
     double sizeDouble = Math.ceil(
@@ -34,33 +34,42 @@ public final class NullBitEncoder {
     return Double.valueOf( sizeDouble ).intValue();
   }
 
-  /**
-   * Get binary size.
-   **/
-  public static int getBinarySize( boolean[] isNullArray ) {
-    if ( isNullArray.length == 0 ) {
+  @Override
+  public int getBinarySize(
+      final int nullCount ,
+      final int notNullCount ,
+      final int maxNullIndex ,
+      final int maxNotNullIndex ) {
+    int isNullArrayLength = nullCount + notNullCount;
+    if ( isNullArrayLength == 0 ) {
       return HEADER_SIZE;
     }
-    return binarySize( isNullArray.length )  + HEADER_SIZE;
+    return binarySize( isNullArrayLength )  + HEADER_SIZE;
   }
 
-  /**
-   * Convert to binary.
-   */
-  public static byte[] toBinary( final boolean[] isNullArray ) throws IOException {
-    byte[] result = new byte[getBinarySize( isNullArray )];
-    ByteBuffer.wrap( result ).putInt( isNullArray.length );
-    if ( isNullArray.length == 0 ) {
-      return result;
+  @Override
+  public void toBinary(
+      final byte[] binary,
+      final int start,
+      final int length,
+      final boolean[] isNullArray,
+      final int nullCount ,
+      final int notNullCount ,
+      final int maxNullIndex ,
+      final int maxNotNullIndex ) throws IOException {
+    int isNullArrayLength = nullCount + notNullCount;
+    ByteBuffer.wrap( binary , start , length ).putInt( isNullArrayLength );
+    if ( isNullArrayLength == 0 ) {
+      return;
     }
     boolean[] buffer = new boolean[BIT_LENGTH];
-    for ( int i = 0,n = HEADER_SIZE ; i < isNullArray.length ; i += BIT_LENGTH , n++ ) {
+    for ( int i = 0,n = HEADER_SIZE + start ; i < isNullArrayLength ; i += BIT_LENGTH , n++ ) {
       int copyLength = BIT_LENGTH;
-      if ( isNullArray.length < ( i + BIT_LENGTH ) ) {
-        copyLength = isNullArray.length - i;
+      if ( isNullArrayLength < ( i + BIT_LENGTH ) ) {
+        copyLength = isNullArrayLength - i;
       }
       System.arraycopy( isNullArray , i , buffer , 0 , copyLength );
-      result[n] = (byte)(
+      binary[n] = (byte)(
           ( (buffer[0]) ? 1 << 7 : 0 )
           | ( (buffer[1]) ? 1 << 6 : 0 )
           | ( (buffer[2]) ? 1 << 5 : 0 )
@@ -70,19 +79,16 @@ public final class NullBitEncoder {
           | ( (buffer[6]) ? 1 << 1 : 0 )
           | ( (buffer[7]) ? 1 : 0 ) );
     }
-    return result;
   }
 
-  /**
-   * Convert to isNullArray.
-   */
-  public static boolean[] toIsNullArray(
+  @Override
+  public boolean[] toIsNullArray(
       final byte[] binary , final int start , final int length ) throws IOException {
     int rows = ByteBuffer.wrap( binary , start , length ).getInt();
     boolean[] result = new boolean[rows];
     if ( rows == 0 ) {
       return result;
-    } 
+    }
     boolean[] buffer = new boolean[BIT_LENGTH];
     for ( int i = 0 , n = start + HEADER_SIZE ; i < result.length ; i += BIT_LENGTH , n++ ) {
       int isNullFlag = NumberToBinaryUtils.getUnsignedByteToInt( binary[n] );

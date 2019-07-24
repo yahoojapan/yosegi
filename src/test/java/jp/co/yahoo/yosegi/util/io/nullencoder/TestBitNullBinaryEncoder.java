@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.co.yahoo.yosegi.util.io;
+package jp.co.yahoo.yosegi.util.io.nullencoder;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,7 +27,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
 
-public class TestNullBitEncoder {
+public class TestBitNullBinaryEncoder {
 
   @Test
   public void T_encodeAndDecode_equalsOriginalArray_stripe() throws IOException {
@@ -43,10 +43,11 @@ public class TestNullBitEncoder {
       true,
       false
     };
-    int binarySize = NullBitEncoder.getBinarySize( original );
-    byte[] binary = NullBitEncoder.toBinary( original );
-    assertEquals( binarySize , binary.length );
-    boolean[] result = NullBitEncoder.toIsNullArray( binary , 0 , binary.length );
+    INullBinaryEncoder encoder = new BitNullBinaryEncoder();
+    int binarySize = encoder.getBinarySize( 5 , 5 , 8 , 9 );
+    byte[] binary = new byte[binarySize];
+    encoder.toBinary( binary , 0 , binarySize , original , 5 , 5 , 8 , 9 );
+    boolean[] result = encoder.toIsNullArray( binary , 0 , binary.length );
     assertEquals( original.length , result.length );
     for ( int i = 0 ; i < original.length ; i++ ) {
       assertEquals( original[i] , result[i] );
@@ -56,10 +57,11 @@ public class TestNullBitEncoder {
   @Test
   public void T_encodeAndDecode_equalsOriginalArray_emptyArray() throws IOException {
     boolean[] original = new boolean[0];
-    int binarySize = NullBitEncoder.getBinarySize( original );
-    byte[] binary = NullBitEncoder.toBinary( original );
-    assertEquals( binarySize , binary.length );
-    boolean[] result = NullBitEncoder.toIsNullArray( binary , 0 , binary.length );
+    INullBinaryEncoder encoder = new BitNullBinaryEncoder();
+    int binarySize = encoder.getBinarySize( 0 , 0 , 0 , 0 );
+    byte[] binary = new byte[binarySize];
+    encoder.toBinary( binary , 0 , binarySize , original , 0 , 0 , 0 , 0 );
+    boolean[] result = encoder.toIsNullArray( binary , 0 , binary.length );
     assertEquals( original.length , result.length );
   }
 
@@ -83,11 +85,12 @@ public class TestNullBitEncoder {
       true,
       false
     };
+    INullBinaryEncoder encoder = new BitNullBinaryEncoder();
     assertEquals( 16 , original.length );
-    int binarySize = NullBitEncoder.getBinarySize( original );
-    byte[] binary = NullBitEncoder.toBinary( original );
-    assertEquals( binarySize , binary.length );
-    boolean[] result = NullBitEncoder.toIsNullArray( binary , 0 , binary.length );
+    int binarySize = encoder.getBinarySize( 8 , 8 , 14 , 15 );
+    byte[] binary = new byte[binarySize];
+    encoder.toBinary( binary , 0 , binarySize , original , 8 , 8 , 14 , 15 );
+    boolean[] result = encoder.toIsNullArray( binary , 0 , binary.length );
     assertEquals( original.length , result.length );
     for ( int i = 0 ; i < original.length ; i++ ) {
       assertEquals( original[i] , result[i] );
@@ -113,11 +116,12 @@ public class TestNullBitEncoder {
       false,
       true
     };
+    INullBinaryEncoder encoder = new BitNullBinaryEncoder();
     assertEquals( 15 , original.length );
-    int binarySize = NullBitEncoder.getBinarySize( original );
-    byte[] binary = NullBitEncoder.toBinary( original );
-    assertEquals( binarySize , binary.length );
-    boolean[] result = NullBitEncoder.toIsNullArray( binary , 0 , binary.length );
+    int binarySize = encoder.getBinarySize( 8 , 7 , 14 , 13 );
+    byte[] binary = new byte[binarySize];
+    encoder.toBinary( binary , 0 , binarySize , original , 8 , 7 , 14 , 13 );
+    boolean[] result = encoder.toIsNullArray( binary , 0 , binary.length );
     assertEquals( original.length , result.length );
     for ( int i = 0 ; i < original.length ; i++ ) {
       assertEquals( original[i] , result[i] );
@@ -142,11 +146,12 @@ public class TestNullBitEncoder {
       true,
       false
     };
+    INullBinaryEncoder encoder = new BitNullBinaryEncoder();
     assertEquals( 14 , original.length );
-    int binarySize = NullBitEncoder.getBinarySize( original );
-    byte[] binary = NullBitEncoder.toBinary( original );
-    assertEquals( binarySize , binary.length );
-    boolean[] result = NullBitEncoder.toIsNullArray( binary , 0 , binary.length );
+    int binarySize = encoder.getBinarySize( 7 , 7 , 12 , 13 );
+    byte[] binary = new byte[binarySize];
+    encoder.toBinary( binary , 0 , binarySize , original , 7 , 7 , 12 , 13 );
+    boolean[] result = encoder.toIsNullArray( binary , 0 , binary.length );
     assertEquals( original.length , result.length );
     for ( int i = 0 ; i < original.length ; i++ ) {
       assertEquals( original[i] , result[i] );
@@ -170,11 +175,12 @@ public class TestNullBitEncoder {
       false,
       true
     };
+    INullBinaryEncoder encoder = new BitNullBinaryEncoder();
     assertEquals( 13 , original.length );
-    int binarySize = NullBitEncoder.getBinarySize( original );
-    byte[] binary = NullBitEncoder.toBinary( original );
-    assertEquals( binarySize , binary.length );
-    boolean[] result = NullBitEncoder.toIsNullArray( binary , 0 , binary.length );
+    int binarySize = encoder.getBinarySize( 7 , 6 , 12 , 11 );
+    byte[] binary = new byte[binarySize];
+    encoder.toBinary( binary , 0 , binarySize , original , 7 , 6 , 12 , 11 );
+    boolean[] result = encoder.toIsNullArray( binary , 0 , binary.length );
     assertEquals( original.length , result.length );
     for ( int i = 0 ; i < original.length ; i++ ) {
       assertEquals( original[i] , result[i] );
@@ -197,11 +203,12 @@ public class TestNullBitEncoder {
       true,
       false
     };
+    INullBinaryEncoder encoder = new BitNullBinaryEncoder();
     assertEquals( 12 , original.length );
-    int binarySize = NullBitEncoder.getBinarySize( original );
-    byte[] binary = NullBitEncoder.toBinary( original );
-    assertEquals( binarySize , binary.length );
-    boolean[] result = NullBitEncoder.toIsNullArray( binary , 0 , binary.length );
+    int binarySize = encoder.getBinarySize( 6 , 6 , 10 , 11 );
+    byte[] binary = new byte[binarySize];
+    encoder.toBinary( binary , 0 , binarySize , original , 6 , 6 , 10 , 11 );
+    boolean[] result = encoder.toIsNullArray( binary , 0 , binary.length );
     assertEquals( original.length , result.length );
     for ( int i = 0 ; i < original.length ; i++ ) {
       assertEquals( original[i] , result[i] );
@@ -223,11 +230,12 @@ public class TestNullBitEncoder {
       false,
       true
     };
+    INullBinaryEncoder encoder = new BitNullBinaryEncoder();
     assertEquals( 11 , original.length );
-    int binarySize = NullBitEncoder.getBinarySize( original );
-    byte[] binary = NullBitEncoder.toBinary( original );
-    assertEquals( binarySize , binary.length );
-    boolean[] result = NullBitEncoder.toIsNullArray( binary , 0 , binary.length );
+    int binarySize = encoder.getBinarySize( 6 , 5 , 10 , 9 );
+    byte[] binary = new byte[binarySize];
+    encoder.toBinary( binary , 0 , binarySize , original , 6 , 5 , 10 , 9 );
+    boolean[] result = encoder.toIsNullArray( binary , 0 , binary.length );
     assertEquals( original.length , result.length );
     for ( int i = 0 ; i < original.length ; i++ ) {
       assertEquals( original[i] , result[i] );
@@ -248,11 +256,12 @@ public class TestNullBitEncoder {
       true,
       false
     };
+    INullBinaryEncoder encoder = new BitNullBinaryEncoder();
     assertEquals( 10 , original.length );
-    int binarySize = NullBitEncoder.getBinarySize( original );
-    byte[] binary = NullBitEncoder.toBinary( original );
-    assertEquals( binarySize , binary.length );
-    boolean[] result = NullBitEncoder.toIsNullArray( binary , 0 , binary.length );
+    int binarySize = encoder.getBinarySize( 5 , 5 , 8 , 9 );
+    byte[] binary = new byte[binarySize];
+    encoder.toBinary( binary , 0 , binarySize , original , 5 , 5 , 8 , 9 );
+    boolean[] result = encoder.toIsNullArray( binary , 0 , binary.length );
     assertEquals( original.length , result.length );
     for ( int i = 0 ; i < original.length ; i++ ) {
       assertEquals( original[i] , result[i] );
@@ -272,11 +281,12 @@ public class TestNullBitEncoder {
       false,
       true
     };
+    INullBinaryEncoder encoder = new BitNullBinaryEncoder();
     assertEquals( 9 , original.length );
-    int binarySize = NullBitEncoder.getBinarySize( original );
-    byte[] binary = NullBitEncoder.toBinary( original );
-    assertEquals( binarySize , binary.length );
-    boolean[] result = NullBitEncoder.toIsNullArray( binary , 0 , binary.length );
+    int binarySize = encoder.getBinarySize( 5 , 4 , 8 , 7 );
+    byte[] binary = new byte[binarySize];
+    encoder.toBinary( binary , 0 , binarySize , original , 5 , 4 , 8 , 7 );
+    boolean[] result = encoder.toIsNullArray( binary , 0 , binary.length );
     assertEquals( original.length , result.length );
     for ( int i = 0 ; i < original.length ; i++ ) {
       assertEquals( original[i] , result[i] );

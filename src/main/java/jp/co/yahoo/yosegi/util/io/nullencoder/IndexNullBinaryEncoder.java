@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package jp.co.yahoo.yosegi.util.io;
+package jp.co.yahoo.yosegi.util.io.nullencoder;
 
 import jp.co.yahoo.yosegi.util.io.IReadSupporter;
 import jp.co.yahoo.yosegi.util.io.IWriteSupporter;
@@ -25,66 +25,70 @@ import jp.co.yahoo.yosegi.util.io.NumberToBinaryUtils;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class NullBinaryEncoder {
+public class IndexNullBinaryEncoder implements INullBinaryEncoder {
 
   public static final int HEADER_SIZE = Byte.BYTES + Integer.BYTES * 3;
 
-  private final boolean[] isNullArray;
-  private final boolean saveTarget;
-  private final int maxIndex;
-  private final int rows;
-  private final NumberToBinaryUtils.IIntConverter converter;
-
-  /**
-   * Choose encoding method.
-   */
-  public NullBinaryEncoder(
-      final boolean[] isNullArray ,
+  @Override
+  public int getBinarySize(
       final int nullCount ,
+      final int notNullCount ,
       final int maxNullIndex ,
       final int maxNotNullIndex ) {
-    this.isNullArray = isNullArray;
-    int notNullCount = isNullArray.length - nullCount;
+    if ( notNullCount < nullCount ) {
+      NumberToBinaryUtils.IIntConverter converter
+          = NumberToBinaryUtils.getIntConverter( 0 , maxNotNullIndex );
+      return converter.calcBinarySize( notNullCount ) + HEADER_SIZE;
+    } else {
+      NumberToBinaryUtils.IIntConverter converter
+          = NumberToBinaryUtils.getIntConverter( 0 , maxNullIndex );
+      return converter.calcBinarySize( nullCount ) + HEADER_SIZE;
+    }
+  }
+
+  @Override
+  public void toBinary(
+      final byte[] binary,
+      final int start,
+      final int length,
+      final boolean[] isNullArray,
+      final int nullCount ,
+      final int notNullCount ,
+      final int maxNullIndex ,
+      final int maxNotNullIndex ) throws IOException {
+    boolean saveTarget;
+    int rows;
+    int maxIndex;
     if ( notNullCount < nullCount ) {
       saveTarget = false;
-      maxIndex = maxNotNullIndex;
       rows = notNullCount;
+      maxIndex = maxNotNullIndex;
     } else {
       saveTarget = true;
-      maxIndex = maxNullIndex;
       rows = nullCount;
+      maxIndex = maxNullIndex;
     }
-    converter = NumberToBinaryUtils.getIntConverter( 0 , maxIndex );
-  }
-
-  public int getBinarySize() {
-    return converter.calcBinarySize( rows ) + HEADER_SIZE;
-  }
-
-  /**
-   * Convert to binary.
-   */
-  public byte[] toBinary() throws IOException {
-    byte[] result = new byte[getBinarySize()];
-    ByteBuffer wrapBuffer = ByteBuffer.wrap( result );
+    int isNullArrayLength = nullCount + notNullCount;
+    ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , start , length );
     wrapBuffer.put( ( saveTarget ) ? (byte)1 : (byte)0 );
-    wrapBuffer.putInt( isNullArray.length );
+    wrapBuffer.putInt( isNullArrayLength );
     wrapBuffer.putInt( rows );
     wrapBuffer.putInt( maxIndex );
+
+    NumberToBinaryUtils.IIntConverter converter
+        = NumberToBinaryUtils.getIntConverter( 0 , maxIndex );
+    int binaryLength = converter.calcBinarySize( rows );
     IWriteSupporter writer =
-        converter.toWriteSuppoter( rows , result , HEADER_SIZE , result.length - HEADER_SIZE );
-    for ( int i = 0 ; i < isNullArray.length ; i++ ) {
+        converter.toWriteSuppoter( rows , binary , HEADER_SIZE + start , binaryLength );
+    for ( int i = 0 ; i < isNullArrayLength ; i++ ) {
       if ( isNullArray[i] == saveTarget ) {
         writer.putInt( i );
       }
     }
-    return result;
   }
 
-  /**
-   * Convert to isNullArray.
-   */
-  public static boolean[] toIsNullArray(
+  @Override
+  public boolean[] toIsNullArray(
       final byte[] binary , final int start , final int length ) throws IOException {
     ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , start , length );
     boolean saveTarget = ( wrapBuffer.get() == 1 );
