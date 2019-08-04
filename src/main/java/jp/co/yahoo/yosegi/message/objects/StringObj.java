@@ -54,37 +54,37 @@ public class StringObj implements PrimitiveObject {
 
   @Override
   public byte getByte() throws IOException {
-    return '\0';
+    return Byte.parseByte( getString() );
   }
 
   @Override
   public short getShort() throws IOException {
-    return Short.parseShort( value );
+    return Short.parseShort( getString() );
   }
 
   @Override
   public int getInt() throws IOException {
-    return Integer.parseInt( value );
+    return Integer.parseInt( getString() );
   }
 
   @Override
   public long getLong() throws IOException {
-    return Long.parseLong( value );
+    return Long.parseLong( getString() );
   }
 
   @Override
   public float getFloat() throws IOException {
-    return Float.parseFloat( value );
+    return Float.parseFloat( getString() );
   }
 
   @Override
   public double getDouble() throws IOException {
-    return Double.parseDouble( value );
+    return Double.parseDouble( getString());
   }
 
   @Override
   public boolean getBoolean() throws IOException {
-    return Boolean.valueOf( value );
+    return Boolean.valueOf( getString() );
   }
 
   @Override

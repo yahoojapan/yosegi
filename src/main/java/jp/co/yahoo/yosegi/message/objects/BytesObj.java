@@ -52,7 +52,7 @@ public class BytesObj implements PrimitiveObject {
 
   @Override
   public byte getByte() throws IOException {
-    return '\0';
+    return Byte.parseByte( getString() );
   }
 
   @Override

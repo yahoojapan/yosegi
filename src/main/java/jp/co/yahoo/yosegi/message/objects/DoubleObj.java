@@ -84,6 +84,8 @@ public class DoubleObj implements PrimitiveObject {
 
   @Override
   public long getLong() throws IOException {
+    // Same as Long.MAX_VALUE up to 1024
+    // Same as Long.MIN_VALUE up to 1024
     if ( value < LONG_MIN || LONG_MAX < value ) {
       throw new NumberFormatException(
           "Can not down cast. double to long. double value is " + value );
@@ -93,7 +95,7 @@ public class DoubleObj implements PrimitiveObject {
 
   @Override
   public float getFloat() throws IOException {
-    if ( value < Float.MIN_VALUE || Float.MAX_VALUE < value ) {
+    if ( value < -Float.MAX_VALUE || Float.MAX_VALUE < value ) {
       throw new NumberFormatException(
         "Can not down cast. double to float. double value is " + value );
     }

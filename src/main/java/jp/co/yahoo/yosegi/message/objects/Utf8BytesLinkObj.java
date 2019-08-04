@@ -56,6 +56,11 @@ public class Utf8BytesLinkObj extends StringObj implements IBytesLink {
   }
 
   @Override
+  public Object get() throws IOException {
+    throw new IOException( "Unsupported get object method." );
+  }
+
+  @Override
   public String getString() throws IOException {
     return new String( value , start , length , "UTF-8" );
   }

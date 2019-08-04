@@ -186,7 +186,7 @@ public class TestBufferDirectSequentialNumberCellIndexFloat{
       buffer.put( i % 5 );
     }
     ICellIndex index = new BufferDirectSequentialNumberCellIndex( ColumnType.FLOAT , new TestDicManager( dic ) , buffer );
-    IFilter filter = new NumberFilter( NumberFilterType.GE , new DoubleObj( Double.valueOf( Float.MIN_VALUE ) / (double)10 ) );
+    IFilter filter = new NumberFilter( NumberFilterType.GE , new DoubleObj( Double.valueOf( -Float.MAX_VALUE ) * (double)10 ) );
 
     assertEquals( null , index.filter( filter , new boolean[100] ) );
   }
