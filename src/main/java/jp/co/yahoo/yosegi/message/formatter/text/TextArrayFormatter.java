@@ -81,6 +81,7 @@ public class TextArrayFormatter implements ITextFormatter {
       return;
     }
 
+    childFormatter.writeParser( buffer, parser.get(0), parser.getParser(0) );
     for ( int i = 1 ; i < num ; i++ ) {
       buffer.append(delimiter, 0, delimiter.length);
       childFormatter.writeParser( buffer, parser.get(i), parser.getParser(i) );

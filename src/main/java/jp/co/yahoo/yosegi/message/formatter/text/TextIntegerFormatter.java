@@ -32,7 +32,10 @@ public class TextIntegerFormatter implements ITextFormatter {
 
   @Override
   public void write(final ByteArrayData buffer , final Object obj ) throws IOException {
-    if ( obj instanceof Short ) {
+    if ( obj instanceof Byte ) {
+      int target = ( (Byte) obj ).intValue();
+      buffer.append( convert( target ) );
+    } else if ( obj instanceof Short ) {
       int target = ( (Short) obj ).intValue();
       buffer.append( convert( target ) );
     } else if ( obj instanceof Integer ) {
@@ -57,7 +60,9 @@ public class TextIntegerFormatter implements ITextFormatter {
       final ByteArrayData buffer ,
       final PrimitiveObject obj ,
       final IParser parser ) throws IOException {
-    buffer.append( convert( ( (PrimitiveObject)obj ).getInt() ) );
+    if ( obj != null ) {
+      buffer.append( convert( ( (PrimitiveObject)obj ).getInt() ) );
+    }
   }
 
 }

@@ -42,7 +42,9 @@ public class TextStringFormatter implements ITextFormatter {
       final ByteArrayData buffer ,
       final PrimitiveObject obj ,
       final IParser parser ) throws IOException {
-    buffer.append( obj.getBytes() );
+    if ( obj != null ) {
+      buffer.append( obj.getBytes() );
+    }
   }
 
 }

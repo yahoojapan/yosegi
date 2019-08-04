@@ -19,32 +19,37 @@
 package jp.co.yahoo.yosegi.message.formatter.text;
 
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
+import jp.co.yahoo.yosegi.message.objects.IntegerObj;
+import jp.co.yahoo.yosegi.message.objects.StringObj;
 import jp.co.yahoo.yosegi.message.parser.IParser;
 import jp.co.yahoo.yosegi.util.ByteArrayData;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.Arguments;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
 import java.io.IOException;
 
-public class TextBytesFormatter implements ITextFormatter {
+public class TestTextNullFormatter {
 
-  @Override
-  public void write(final ByteArrayData buffer , final Object obj ) throws IOException {
-    if ( obj instanceof byte[] ) {
-      buffer.append( (byte[])obj );
-    } else if ( obj instanceof String ) {
-      buffer.append( ( (String)obj ).getBytes( "UTF-8" ) );
-    } else if ( obj instanceof PrimitiveObject) {
-      buffer.append( ( (PrimitiveObject)obj ).getBytes() );
-    }
+  @Test
+  public void T_write_emptyText() throws IOException {
+    TextNullFormatter formatter = new TextNullFormatter();
+    ByteArrayData buffer = new ByteArrayData();
+    formatter.write( buffer , "a" );
+    assertEquals( "" , new String( buffer.getBytes() , 0 , buffer.getLength() ) );
   }
 
-  @Override
-  public void writeParser(
-      final ByteArrayData buffer ,
-      final PrimitiveObject obj ,
-      final IParser parser ) throws IOException {
-    if ( obj != null ) {
-      buffer.append( obj.getBytes() );
-    }
+  @Test
+  public void T_writeParser_emptyText() throws IOException {
+    TextNullFormatter formatter = new TextNullFormatter();
+    ByteArrayData buffer = new ByteArrayData();
+    formatter.writeParser( buffer , null , null );
+    assertEquals( "" , new String( buffer.getBytes() , 0 , buffer.getLength() ) );
   }
 
 }
