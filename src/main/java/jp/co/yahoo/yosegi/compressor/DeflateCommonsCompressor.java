@@ -51,7 +51,9 @@ public class DeflateCommonsCompressor extends AbstractCommonsCompressor {
 
   @Override
   public OutputStream createOutputStream(
-      final OutputStream out , final CompressResult compressResult ) throws IOException {
+      final OutputStream out ,
+      final long decompressSize,
+      final CompressResult compressResult ) throws IOException {
     DeflateParameters op = new DeflateParameters();
     int level = getCompressLevel( compressResult.getCompressionPolicy() );
     int optLevel = compressResult.getCurrentLevel();
