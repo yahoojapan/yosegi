@@ -18,8 +18,8 @@
 
 package jp.co.yahoo.yosegi.compressor;
 
-import org.apache.commons.compress.compressors.lz4.BlockLZ4CompressorInputStream;
-import org.apache.commons.compress.compressors.lz4.BlockLZ4CompressorOutputStream;
+import org.apache.commons.compress.compressors.lz4.FramedLZ4CompressorInputStream;
+import org.apache.commons.compress.compressors.lz4.FramedLZ4CompressorOutputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +29,7 @@ public class FramedLZ4CommonsCompressor extends AbstractCommonsCompressor {
 
   @Override
   public InputStream createInputStream( final InputStream in ) throws IOException {
-    return new BlockLZ4CompressorInputStream( in );
+    return new FramedLZ4CompressorInputStream( in );
   }
 
   @Override
@@ -37,7 +37,7 @@ public class FramedLZ4CommonsCompressor extends AbstractCommonsCompressor {
       final OutputStream out ,
       final long decompressSize,
       final CompressResult compressResult ) throws IOException {
-    return new BlockLZ4CompressorOutputStream( out );
+    return new FramedLZ4CompressorOutputStream( out );
   }
 
 }
