@@ -91,6 +91,29 @@ public final class ColumnBinaryMakerNameShortCut {
 
     CLASS_NAME_PAIR.set(
         "jp.co.yahoo.yosegi.binary.maker.MaxLengthBasedArrayColumnBinaryMaker" , "ML0" );
+
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpFloatColumnBinaryMaker" , "ND1" );
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpDoubleColumnBinaryMaker" , "ND2" );
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpLongColumnBinaryMaker" , "ND3" );
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpStringColumnBinaryMaker" , "ND4" );
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpBooleanColumnBinaryMaker" , "ND5" );
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpBytesColumnBinaryMaker" , "ND6" );
+
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayFloatColumnBinaryMaker" , "N1" );
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDoubleColumnBinaryMaker" , "N2" );
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayLongColumnBinaryMaker" , "N3" );
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayStringColumnBinaryMaker" , "N4" );
+
   }
 
   private ColumnBinaryMakerNameShortCut() {}

@@ -30,6 +30,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import java.nio.ByteBuffer;
+
 public class TestCompressor {
 
   private static String[] getCompressorClass(){
@@ -40,18 +42,32 @@ public class TestCompressor {
       DeflateCommonsCompressor.class.getName(),
       BZip2CommonsCompressor.class.getName(),
       DeflateCommonsCompressor.class.getName(),
-      FramedSnappyCommonsCompressor.class.getName(),
-      FramedLZ4CommonsCompressor.class.getName(),
+      //FramedSnappyCommonsCompressor.class.getName(),
+      //FramedLZ4CommonsCompressor.class.getName(),
       ZstdCommonsCompressor.class.getName(),
     };
   }
 
+  public static byte[] largeBinary() {
+    int intCount = 1024 * 1024 * 2;
+    // 2MB * 4byte = 8MB
+    byte[] b = new byte[Integer.BYTES * intCount];
+    ByteBuffer wrapBuffer = ByteBuffer.wrap( b );
+    wrapBuffer.putInt( 100 );
+    wrapBuffer.putInt( 200 );
+    wrapBuffer.putInt( 300 );
+    b[b.length -1] = 'c';
+    return b;
+  }
+
   public static Stream<Arguments> data1() throws IOException{
+    byte[] largeBytes = largeBinary();
     return Stream.of(
       arguments( getCompressorClass() , "abcde".getBytes() , 0 , 5 , "abcde".getBytes() ),
       arguments( getCompressorClass() , "abcde".getBytes() , 0 , 1 , "a".getBytes() ),
       arguments( getCompressorClass() , "abcde".getBytes() , 4 , 1 , "e".getBytes() ),
       arguments( getCompressorClass() , "abcde".getBytes() , 1 , 3 , "bcd".getBytes() ),
+      arguments( getCompressorClass() , largeBytes , 0 , largeBytes.length , largeBytes ),
       arguments( getCompressorClass() , "abcde".getBytes() , 0 , 0 , new byte[0] )
     );
   }

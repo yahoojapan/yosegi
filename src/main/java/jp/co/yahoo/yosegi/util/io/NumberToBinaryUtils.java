@@ -409,6 +409,36 @@ public final class NumberToBinaryUtils {
 
   }
 
+  public static class FixedLongReadSupporter implements IReadSupporter {
+
+    private final long num;
+
+    public FixedLongReadSupporter( final long num ) {
+      this.num = num;
+    }
+
+    @Override
+    public long getLong() {
+      return num;
+    }
+
+  }
+
+  public static class FixedIntReadSupporter implements IReadSupporter {
+
+    private final int num;
+
+    public FixedIntReadSupporter( final int num ) {
+      this.num = num;
+    }
+
+    @Override
+    public int getInt() {
+      return num;
+    }
+
+  }
+
   public interface IIntConverter {
 
     int calcBinarySize( final int rows );
@@ -1202,6 +1232,10 @@ public final class NumberToBinaryUtils {
     }
   }
 
+  public static IReadSupporter getFixedLongConverter( final long num ) {
+    return new FixedLongReadSupporter( num );
+  }
+
   /**
    * Create a new IIntConverter from min and max.
    */
@@ -1224,6 +1258,10 @@ public final class NumberToBinaryUtils {
     } else {
       return new IntConverter4();
     }
+  }
+
+  public static IReadSupporter getFixedIntConverter( final int num ) {
+    return new FixedIntReadSupporter( num );
   }
 
 }
