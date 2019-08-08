@@ -18,24 +18,26 @@
 
 package jp.co.yahoo.yosegi.compressor;
 
-import org.apache.commons.compress.compressors.snappy.FramedSnappyCompressorInputStream;
-import org.apache.commons.compress.compressors.snappy.FramedSnappyCompressorOutputStream;
+import org.apache.commons.compress.compressors.snappy.SnappyCompressorInputStream;
+import org.apache.commons.compress.compressors.snappy.SnappyCompressorOutputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class FramedSnappyCommonsCompressor extends AbstractCommonsCompressor {
+public class SnappyCommonsCompressor extends AbstractCommonsCompressor {
 
   @Override
   public InputStream createInputStream( final InputStream in ) throws IOException {
-    return new FramedSnappyCompressorInputStream( in );
+    return new SnappyCompressorInputStream( in );
   }
 
   @Override
   public OutputStream createOutputStream(
-      final OutputStream out , final CompressResult compressResult ) throws IOException {
-    return new FramedSnappyCompressorOutputStream( out );
+      final OutputStream out ,
+      final long decompressSize,
+      final CompressResult compressResult ) throws IOException {
+    return new SnappyCompressorOutputStream( out , decompressSize );
   }
 
 }

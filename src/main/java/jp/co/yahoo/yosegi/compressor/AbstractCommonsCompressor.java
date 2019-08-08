@@ -33,7 +33,9 @@ public abstract class AbstractCommonsCompressor implements ICompressor {
   abstract InputStream createInputStream( final InputStream in ) throws IOException;
 
   abstract OutputStream createOutputStream(
-      final OutputStream out , final CompressResult compressResult ) throws IOException;
+      final OutputStream out ,
+      final long decompressSize,
+      final CompressResult compressResult ) throws IOException;
 
   @Override
   public byte[] compress(
@@ -42,7 +44,7 @@ public abstract class AbstractCommonsCompressor implements ICompressor {
       final int length ,
       final CompressResult compressResult ) throws IOException {
     ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
-    OutputStream out = createOutputStream( byteArrayOut , compressResult );
+    OutputStream out = createOutputStream( byteArrayOut , length , compressResult );
 
     out.write( data , start , length );
     out.close();

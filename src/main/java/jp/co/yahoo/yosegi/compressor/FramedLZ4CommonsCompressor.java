@@ -34,7 +34,9 @@ public class FramedLZ4CommonsCompressor extends AbstractCommonsCompressor {
 
   @Override
   public OutputStream createOutputStream(
-      final OutputStream out , final CompressResult compressResult ) throws IOException {
+      final OutputStream out ,
+      final long decompressSize,
+      final CompressResult compressResult ) throws IOException {
     return new FramedLZ4CompressorOutputStream( out );
   }
 
