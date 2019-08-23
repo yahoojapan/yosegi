@@ -59,7 +59,7 @@ public class SnappyCompressor implements ICompressor {
   @Override
   public byte[] decompress(
       final byte[] data , final int start , final int length ) throws IOException {
-    int dataLength = ByteBuffer.wrap( data ).getInt();
+    int dataLength = ByteBuffer.wrap( data , start , length ).getInt();
     byte[] retVal = new byte[dataLength];
     int size = Snappy.rawUncompress(
         data , start + Integer.BYTES , length - Integer.BYTES , retVal , 0 );
