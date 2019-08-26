@@ -156,7 +156,7 @@ public class OptimizedNullArrayDoubleColumnBinaryMaker implements IColumnBinaryM
     IWriteSupporter dicWriter = ByteBufferSupporterFactory.createWriteSupporter(
         binaryRaw ,
         META_LENGTH + nullIndexLength + indexLength ,
-        indexLength,
+        dicLength,
         order );
     for ( int i = 0 ; i < dicMap.size() ; i++ ) {
       dicWriter.putDouble( dicArray[i] );
@@ -268,7 +268,7 @@ public class OptimizedNullArrayDoubleColumnBinaryMaker implements IColumnBinaryM
 
     IReadSupporter indexReader =
         indexConverter.toReadSupporter( binary , META_LENGTH + nullIndexLength , indexLength );
-    int index = startIndex;
+    int index = 0;
     for ( ; index < startIndex ; index++ ) {
       allocator.setNull( index );
     }
