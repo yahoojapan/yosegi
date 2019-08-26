@@ -61,6 +61,18 @@ public class FixedNumEncoder implements INumEncoder {
   }
 
   @Override
+  public void toBinary(
+      final Long[] longArray ,
+      final byte[] buffer ,
+      final int start ,
+      final int rows ,
+      final ByteOrder order ) throws IOException {
+    IWriteSupporter wrapBuffer = ByteBufferSupporterFactory
+        .createWriteSupporter( buffer , start , calcBinarySize( rows ) , order );
+    wrapBuffer.putLong( min );
+  }
+
+  @Override
   public PrimitiveObject[] toPrimitiveArray(
       final byte[] buffer,
       final int start,

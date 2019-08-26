@@ -42,7 +42,7 @@ public class TestShortColumnAnalizeResult {
 
   @Test
   public void T_getAnalizer_1() throws IOException{
-    ShortColumnAnalizeResult result = new ShortColumnAnalizeResult( "name" , 100 , true , 10 , 90 , 2 , (short)40 , (short)50 );
+    ShortColumnAnalizeResult result = new ShortColumnAnalizeResult( "name" , 100 , true , 10 , 90 , 2 , (short)40 , (short)50 , 10 , 2 );
     assertEquals( "name" , result.getColumnName() );
     assertEquals( ColumnType.SHORT , result.getColumnType() );
     assertEquals( 100 , result.getColumnSize() );

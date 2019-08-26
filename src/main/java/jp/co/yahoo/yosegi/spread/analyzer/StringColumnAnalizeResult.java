@@ -44,6 +44,10 @@ public class StringColumnAnalizeResult implements IColumnAnalizeResult {
   private final String min;
   private final String max;
 
+  private final int nullIgnoreRleRowGroupCount;
+  private final int nullIgnoreRleMaxRowGroupLength;
+  private final int nullIgnoreRleTotalLength;
+
   /**
    * Set and initialize results.
    */
@@ -65,7 +69,10 @@ public class StringColumnAnalizeResult implements IColumnAnalizeResult {
       final int minUtfBytes ,
       final int maxUtfBytes ,
       final String min ,
-      final String max ) {
+      final String max ,
+      final int nullIgnoreRleRowGroupCount ,
+      final int nullIgnoreRleMaxRowGroupLength ,
+      final int nullIgnoreRleTotalLength ) {
     this.columnName = columnName;
     this.columnSize = columnSize;
     this.sortFlag = sortFlag;
@@ -84,6 +91,9 @@ public class StringColumnAnalizeResult implements IColumnAnalizeResult {
     this.maxUtfBytes = maxUtfBytes;
     this.min = min;
     this.max = max;
+    this.nullIgnoreRleRowGroupCount = nullIgnoreRleRowGroupCount;
+    this.nullIgnoreRleMaxRowGroupLength = nullIgnoreRleMaxRowGroupLength;
+    this.nullIgnoreRleTotalLength = nullIgnoreRleTotalLength;
   }
 
   @Override
@@ -136,6 +146,16 @@ public class StringColumnAnalizeResult implements IColumnAnalizeResult {
     return lastIndex;
   }
 
+  @Override
+  public int getNullIgnoreRleGroupCount() {
+    return nullIgnoreRleRowGroupCount;
+  }
+
+  @Override
+  public int getNullIgonoreRleMaxRowGroupLength() {
+    return nullIgnoreRleMaxRowGroupLength;
+  }
+
   public int getTotalUtf8ByteSize() {
     return totalUtf8ByteSize;
   }
@@ -170,6 +190,10 @@ public class StringColumnAnalizeResult implements IColumnAnalizeResult {
 
   public String getMax() {
     return max;
+  }
+
+  public int getNullIgnoreRleTotalUtf8Bytes() {
+    return nullIgnoreRleTotalLength;
   }
 
 }

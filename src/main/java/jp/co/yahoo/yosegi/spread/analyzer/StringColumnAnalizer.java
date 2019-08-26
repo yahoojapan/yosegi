@@ -57,6 +57,13 @@ public class StringColumnAnalizer implements IColumnAnalizer {
 
     String min = "";
     String max = "";
+
+    String nullIgnoreRleCurrentValue = null;
+    int nullIgnoreRleMaxRowGroupLength = 0;
+    int nullIgnoreRleCurrentRowGroupLength = 0;
+    int nullIgnoreRleRowGroupCount = 0;
+    int nullIgnoreRleTotalLength = 0;
+
     for ( int i = 0 ; i < column.size() ; i++ ) {
       ICell cell = column.get(i);
       if ( cell.getType() == ColumnType.NULL ) {
@@ -74,12 +81,26 @@ public class StringColumnAnalizer implements IColumnAnalizer {
         startIndex = i;
       }
       lastIndex = i;
-
       byte[] stringBytes = target.getBytes( "UTF-8" );
       rowCount++;
       int charLength = target.length() * Character.BYTES;
       totalLogicalDataSize += charLength;
       totalUtf8ByteSize += stringBytes.length;
+
+      if ( nullIgnoreRleCurrentValue == null ) {
+        nullIgnoreRleCurrentValue = target;
+        nullIgnoreRleTotalLength += stringBytes.length;
+      }
+      if ( ! nullIgnoreRleCurrentValue.equals( target ) ) {
+        nullIgnoreRleRowGroupCount++;
+        if ( nullIgnoreRleMaxRowGroupLength < nullIgnoreRleCurrentRowGroupLength ) {
+          nullIgnoreRleMaxRowGroupLength = nullIgnoreRleCurrentRowGroupLength;
+        }
+        nullIgnoreRleCurrentValue = target;
+        nullIgnoreRleTotalLength += stringBytes.length;
+        nullIgnoreRleCurrentRowGroupLength = 0;
+      }
+      nullIgnoreRleCurrentRowGroupLength++;
 
       if ( ! dicSet.contains( target ) ) {
         uniqLogicalDataSize += charLength;
@@ -105,6 +126,10 @@ public class StringColumnAnalizer implements IColumnAnalizer {
         }
       }
     }
+    nullIgnoreRleRowGroupCount++;
+    if ( nullIgnoreRleMaxRowGroupLength < nullIgnoreRleCurrentRowGroupLength ) {
+      nullIgnoreRleMaxRowGroupLength = nullIgnoreRleCurrentRowGroupLength;
+    }
 
     int uniqCount = dicSet.size();
 
@@ -126,7 +151,10 @@ public class StringColumnAnalizer implements IColumnAnalizer {
         minUtfBytes ,
         maxUtfBytes ,
         min ,
-        max );
+        max ,
+        nullIgnoreRleRowGroupCount ,
+        nullIgnoreRleCurrentRowGroupLength,
+        nullIgnoreRleTotalLength );
   }
 
 }

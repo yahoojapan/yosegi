@@ -22,6 +22,7 @@ import jp.co.yahoo.yosegi.spread.column.ColumnType;
 import jp.co.yahoo.yosegi.spread.column.ICell;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveCell;
+import jp.co.yahoo.yosegi.util.io.rle.RleConverter;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -46,6 +47,7 @@ public class ByteColumnAnalizer implements IColumnAnalizer {
 
     Byte min = Byte.MAX_VALUE;
     Byte max = Byte.MIN_VALUE;
+    RleConverter<Byte> rleConverter = null;
     for ( int i = 0 ; i < column.size() ; i++ ) {
       ICell cell = column.get(i);
       if ( cell.getType() == ColumnType.NULL ) {
@@ -58,6 +60,11 @@ public class ByteColumnAnalizer implements IColumnAnalizer {
       } else {
         maybeSorted = false;
       }
+
+      if ( rleConverter == null ) {
+        rleConverter = new RleConverter<Byte>( target , null );
+      }
+      rleConverter.add( target );
 
       rowCount++;
       if ( ! dicSet.contains( target ) ) {
@@ -81,7 +88,9 @@ public class ByteColumnAnalizer implements IColumnAnalizer {
         rowCount ,
         uniqCount ,
         min ,
-        max );
+        max ,
+        rleConverter.getRowGroupCount() ,
+        rleConverter.getMaxGroupLength() );
   }
 
 }

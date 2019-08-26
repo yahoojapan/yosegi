@@ -50,6 +50,20 @@ public class ShortNumEncoder implements INumEncoder {
   }
 
   @Override
+  public void toBinary(
+      final Long[] longArray ,
+      final byte[] buffer ,
+      final int start ,
+      final int rows ,
+      final ByteOrder order ) throws IOException {
+    IWriteSupporter wrapBuffer = ByteBufferSupporterFactory
+        .createWriteSupporter( buffer , start , calcBinarySize( rows ) , order );
+    for ( int i = 0 ; i < rows ; i++ ) {
+      wrapBuffer.putShort( longArray[i].shortValue() );
+    }
+  }
+
+  @Override
   public PrimitiveObject[] toPrimitiveArray(
       final byte[] buffer,
       final int start,

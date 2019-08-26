@@ -42,7 +42,7 @@ public class TestIntegerColumnAnalizeResult {
 
   @Test
   public void T_getAnalizer_1() throws IOException{
-    IntegerColumnAnalizeResult result = new IntegerColumnAnalizeResult( "name" , 100 , true , 10 , 90 , 2 , (int)40 , (int)50 );
+    IntegerColumnAnalizeResult result = new IntegerColumnAnalizeResult( "name" , 100 , true , 10 , 90 , 2 , (int)40 , (int)50 , 10 , 2 );
     assertEquals( "name" , result.getColumnName() );
     assertEquals( ColumnType.INTEGER , result.getColumnType() );
     assertEquals( 100 , result.getColumnSize() );

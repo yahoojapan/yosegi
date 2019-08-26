@@ -35,6 +35,13 @@ public interface INumEncoder {
       final int rows,
       final ByteOrder order ) throws IOException;
 
+  void toBinary(
+      final Long[] longArray ,
+      final byte[] buffer ,
+      final int start ,
+      final int rows,
+      final ByteOrder order ) throws IOException;
+
   PrimitiveObject[] toPrimitiveArray(
       final byte[] buffer,
       final int start,

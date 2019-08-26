@@ -114,6 +114,11 @@ public final class ColumnBinaryMakerNameShortCut {
     CLASS_NAME_PAIR.set(
         "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayStringColumnBinaryMaker" , "N4" );
 
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.RleLongColumnBinaryMaker" , "RLE3" );
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.RleStringColumnBinaryMaker" , "RLE4" );
+
   }
 
   private ColumnBinaryMakerNameShortCut() {}

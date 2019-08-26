@@ -22,6 +22,7 @@ import jp.co.yahoo.yosegi.spread.column.ColumnType;
 import jp.co.yahoo.yosegi.spread.column.ICell;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveCell;
+import jp.co.yahoo.yosegi.util.io.rle.RleConverter;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -46,6 +47,7 @@ public class LongColumnAnalizer implements IColumnAnalizer {
 
     Long min = Long.MAX_VALUE;
     Long max = Long.MIN_VALUE;
+    RleConverter<Long> rleConverter = null;
     for ( int i = 0 ; i < column.size() ; i++ ) {
       ICell cell = column.get(i);
       if ( cell.getType() == ColumnType.NULL ) {
@@ -59,6 +61,11 @@ public class LongColumnAnalizer implements IColumnAnalizer {
         maybeSorted = false;
       }
 
+      if ( rleConverter == null ) {
+        rleConverter = new RleConverter<Long>( target , null );
+      }
+      rleConverter.add( target );
+
       rowCount++;
       if ( ! dicSet.contains( target ) ) {
         dicSet.add( target );
@@ -70,6 +77,7 @@ public class LongColumnAnalizer implements IColumnAnalizer {
         }
       }
     }
+    rleConverter.finish();
 
     int uniqCount = dicSet.size();
 
@@ -81,7 +89,9 @@ public class LongColumnAnalizer implements IColumnAnalizer {
         rowCount ,
         uniqCount ,
         min ,
-        max );
+        max ,
+        rleConverter.getRowGroupCount() ,
+        rleConverter.getMaxGroupLength() );
   }
 
 }

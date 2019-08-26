@@ -42,7 +42,7 @@ public class TestLongColumnAnalizeResult {
 
   @Test
   public void T_getAnalizer_1() throws IOException{
-    LongColumnAnalizeResult result = new LongColumnAnalizeResult( "name" , 100 , true , 10 , 90 , 2 , (long)40 , (long)50 );
+    LongColumnAnalizeResult result = new LongColumnAnalizeResult( "name" , 100 , true , 10 , 90 , 2 , (long)40 , (long)50 , 10 , 2);
     assertEquals( "name" , result.getColumnName() );
     assertEquals( ColumnType.LONG , result.getColumnType() );
     assertEquals( 100 , result.getColumnSize() );

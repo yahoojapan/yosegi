@@ -57,6 +57,20 @@ public class LongNumEncoder implements INumEncoder {
   }
 
   @Override
+  public void toBinary(
+      final Long[] longArray ,
+      final byte[] buffer ,
+      final int start ,
+      final int rows ,
+      final ByteOrder order ) throws IOException {
+    IWriteSupporter wrapBuffer =
+        converter.toWriteSuppoter( rows , buffer , start , calcBinarySize( rows ) );
+    for ( int i = 0 ; i < rows ; i++ ) {
+      wrapBuffer.putLong( longArray[i].longValue() );
+    }
+  }
+
+  @Override
   public PrimitiveObject[] toPrimitiveArray(
       final byte[] buffer,
       final int start,

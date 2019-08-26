@@ -42,7 +42,7 @@ public class TestByteColumnAnalizeResult {
 
   @Test
   public void T_getAnalizer_1() throws IOException{
-    ByteColumnAnalizeResult result = new ByteColumnAnalizeResult( "name" , 100 , true , 10 , 90 , 2 , (byte)40 , (byte)50 );
+    ByteColumnAnalizeResult result = new ByteColumnAnalizeResult( "name" , 100 , true , 10 , 90 , 2 , (byte)40 , (byte)50 , 10 , 2 );
     assertEquals( "name" , result.getColumnName() );
     assertEquals( ColumnType.BYTE , result.getColumnType() );
     assertEquals( 100 , result.getColumnSize() );

@@ -42,7 +42,7 @@ public class TestStringColumnAnalizeResult {
 
   @Test
   public void T_getAnalizer_1() throws IOException{
-    StringColumnAnalizeResult result = new StringColumnAnalizeResult( "name" , 100 , true , 10 , 90 , 2 , 40 , 0 , 40 , 50 , 30 , 20 , 10 , 100 , 90 , 80 , "a" , "z"  );
+    StringColumnAnalizeResult result = new StringColumnAnalizeResult( "name" , 100 , true , 10 , 90 , 2 , 40 , 0 , 40 , 50 , 30 , 20 , 10 , 100 , 90 , 80 , "a" , "z"  , 10 , 2 , 100 );
     assertEquals( "name" , result.getColumnName() );
     assertEquals( ColumnType.STRING , result.getColumnType() );
     assertEquals( 100 , result.getColumnSize() );

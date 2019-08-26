@@ -40,6 +40,7 @@ public class TestCalcLogicalDataSizeString {
     return Stream.of(
       arguments( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeDumpStringColumnBinaryMaker" ) ,
       arguments( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeStringColumnBinaryMaker" ),
+      arguments( "jp.co.yahoo.yosegi.binary.maker.RleStringColumnBinaryMaker" ) , 
       arguments( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayStringColumnBinaryMaker" ) , 
       arguments( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpStringColumnBinaryMaker" )
     );
