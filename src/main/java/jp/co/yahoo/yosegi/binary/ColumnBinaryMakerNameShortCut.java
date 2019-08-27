@@ -119,6 +119,9 @@ public final class ColumnBinaryMakerNameShortCut {
     CLASS_NAME_PAIR.set(
         "jp.co.yahoo.yosegi.binary.maker.RleStringColumnBinaryMaker" , "RLE4" );
 
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.DictionaryRleStringColumnBinaryMaker" , "DRLE4" );
+
   }
 
   private ColumnBinaryMakerNameShortCut() {}

@@ -78,6 +78,7 @@ public class TestNullCellIndex{
 
       arguments( createStringTestData( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeStringColumnBinaryMaker" ) ),
       arguments( createStringTestData( "jp.co.yahoo.yosegi.binary.maker.RleStringColumnBinaryMaker" ) ),
+      arguments( createStringTestData( "jp.co.yahoo.yosegi.binary.maker.DictionaryRleStringColumnBinaryMaker" ) ),
       arguments( createStringTestData( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayStringColumnBinaryMaker" ) ),
       arguments( createStringTestData( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpStringColumnBinaryMaker" ) ),
 

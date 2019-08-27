@@ -201,7 +201,7 @@ public class RleStringColumnBinaryMaker implements IColumnBinaryMaker {
         notNullMaxIndex );
 
     IWriteSupporter rowGroupLengthWriter = rowGroupLengthEncoder.toWriteSuppoter(
-        rowCount ,
+        rowGroupCount ,
         binaryRaw , META_LENGTH + nullLength ,
         rowGroupBinaryLength  );
     for ( int i = 0 ; i < rowGroupCount ; i++ ) {
@@ -210,8 +210,9 @@ public class RleStringColumnBinaryMaker implements IColumnBinaryMaker {
 
     if ( ! lengthMinMax.getMin().equals( lengthMinMax.getMax() ) ) {
       IWriteSupporter lengthWriter = lengthConverter.toWriteSuppoter(
-          rowCount ,
-          binaryRaw , META_LENGTH + nullLength + rowGroupBinaryLength ,
+          rowGroupCount ,
+          binaryRaw ,
+          META_LENGTH + nullLength + rowGroupBinaryLength ,
           lengthByteLength  );
       for ( int i = 0 ; i < rowGroupCount; i++ ) {
         lengthWriter.putInt( objList[i].length );
@@ -265,11 +266,6 @@ public class RleStringColumnBinaryMaker implements IColumnBinaryMaker {
   @Override
   public int calcBinarySize( final IColumnAnalizeResult analizeResult ) {
     StringColumnAnalizeResult stringAnalizeResult = (StringColumnAnalizeResult)analizeResult;
-    boolean hasNull = analizeResult.getNullCount() != 0;
-    if ( ! hasNull && analizeResult.getUniqCount() == 1 ) {
-      return stringAnalizeResult.getUniqUtf8ByteSize();
-    }
-
     int startIndex = analizeResult.getRowStart();
     int maxIndex = analizeResult.getRowEnd();
     int nullCount = analizeResult.getNullCount() - startIndex;
@@ -280,9 +276,6 @@ public class RleStringColumnBinaryMaker implements IColumnBinaryMaker {
 
     int nullIndexLength =
         NullBinaryEncoder.getBinarySize( nullCount , notNullCount , maxIndex , maxIndex );
-    NumberToBinaryUtils.IIntConverter indexConverter =
-        NumberToBinaryUtils.getIntConverter( 0 , analizeResult.getUniqCount() );
-
     int minLength = stringAnalizeResult.getMinUtf8Bytes();
     int maxLength = stringAnalizeResult.getMaxUtf8Bytes();
     int lengthBinaryLength = 0;
@@ -389,7 +382,7 @@ public class RleStringColumnBinaryMaker implements IColumnBinaryMaker {
           lengthBinaryLength );
     }
 
-    int currentStart = META_LENGTH + nullLength + lengthBinaryLength;
+    int currentStart = META_LENGTH + nullLength + rowGroupBinaryLength + lengthBinaryLength;
     for ( int i = 0 ; i < startIndex ; i++ ) {
       allocator.setNull( i );
     }
