@@ -223,7 +223,7 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
         nullMaxIndex ,
         notNullMaxIndex );
 
-    IWriteSupporter rowGroupIndexWriter = rowGroupLengthEncoder.toWriteSuppoter(
+    IWriteSupporter rowGroupIndexWriter = rowGroupIndexEncoder.toWriteSuppoter(
         rowGroupCount ,
         binaryRaw , META_LENGTH + nullLength ,
         rowGroupIndexLength  );
