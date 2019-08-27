@@ -42,8 +42,8 @@ public class TestCompressor {
       DeflateCommonsCompressor.class.getName(),
       BZip2CommonsCompressor.class.getName(),
       DeflateCommonsCompressor.class.getName(),
-      //FramedSnappyCommonsCompressor.class.getName(),
-      //FramedLZ4CommonsCompressor.class.getName(),
+      SnappyCommonsCompressor.class.getName(),
+      FramedLZ4CommonsCompressor.class.getName(),
       ZstdCommonsCompressor.class.getName(),
     };
   }

@@ -31,7 +31,7 @@ public final class CompressorNameShortCut {
     CLASS_NAME_PAIR.set( "jp.co.yahoo.yosegi.compressor.DeflateCommonsCompressor" , "deflater" );
     CLASS_NAME_PAIR.set( "jp.co.yahoo.yosegi.compressor.BZip2CommonsCompressor" , "bzip2" );
     CLASS_NAME_PAIR.set( "jp.co.yahoo.yosegi.compressor.FramedLZ4CommonsCompressor" , "lz4" );
-    CLASS_NAME_PAIR.set( "jp.co.yahoo.yosegi.compressor.FramedSnappyCommonsCompressor" , "snappy" );
+    CLASS_NAME_PAIR.set( "jp.co.yahoo.yosegi.compressor.SnappyCommonsCompressor" , "snappy" );
     CLASS_NAME_PAIR.set( "jp.co.yahoo.yosegi.compressor.LzmaCommonsCompressor" , "lzma" );
     CLASS_NAME_PAIR.set( "jp.co.yahoo.yosegi.compressor.ZstdCommonsCompressor" , "zstd" );
   }

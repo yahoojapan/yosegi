@@ -49,7 +49,9 @@ public class BZip2CommonsCompressor extends AbstractCommonsCompressor {
 
   @Override
   public OutputStream createOutputStream(
-      final OutputStream out , final CompressResult compressResult ) throws IOException {
+      final OutputStream out ,
+      final long decompressSize,
+      final CompressResult compressResult ) throws IOException {
     int level = getCompressLevel( compressResult.getCompressionPolicy() );
     int optLevel = compressResult.getCurrentLevel();
     if ( ( level - optLevel ) < BZip2CompressorOutputStream.MIN_BLOCKSIZE ) {
