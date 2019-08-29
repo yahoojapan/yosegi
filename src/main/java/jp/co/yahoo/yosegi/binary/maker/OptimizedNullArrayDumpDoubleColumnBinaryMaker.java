@@ -229,7 +229,7 @@ public class OptimizedNullArrayDumpDoubleColumnBinaryMaker implements IColumnBin
         META_LENGTH + nullIndexLength,
         valueBinaryLength,
         order );
-    int index = startIndex;
+    int index = 0;
     for ( ; index < startIndex ; index++ ) {
       allocator.setNull( index );
     }
@@ -297,7 +297,7 @@ public class OptimizedNullArrayDumpDoubleColumnBinaryMaker implements IColumnBin
       PrimitiveObject[] valueArray = new PrimitiveObject[isNullArray.length];
       int index = startIndex;
       for ( int i = 0 ; i < isNullArray.length ; i++,index++ ) {
-        if ( isNullArray[i]  ) {
+        if ( ! isNullArray[i]  ) {
           valueArray[i] = new DoubleObj( valueReader.getDouble() );
         }
       }
