@@ -164,7 +164,13 @@ public class DumpArrayColumnBinaryMaker implements IColumnBinaryMaker {
       final BlockIndexNode parentNode ,
       final ColumnBinary columnBinary ,
       final int spreadIndex ) throws IOException {
-    parentNode.getChildNode( columnBinary.columnName ).disable();
+    if ( columnBinary.columnBinaryList.isEmpty() ) {
+      parentNode.getChildNode( columnBinary.columnName ).disable();
+      return;
+    }
+    ColumnBinary childColumnBinary = columnBinary.columnBinaryList.get(0);
+    IColumnBinaryMaker maker = FindColumnBinaryMaker.get( childColumnBinary.makerClassName );
+    maker.setBlockIndexNode( parentNode , childColumnBinary , spreadIndex );
   }
 
   public class ArrayCellManager implements ICellManager<ICell> {
