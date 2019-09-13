@@ -184,7 +184,21 @@ public class MaxLengthBasedArrayColumnBinaryMaker implements IColumnBinaryMaker 
       final BlockIndexNode parentNode ,
       final ColumnBinary columnBinary ,
       final int spreadIndex ) throws IOException {
-    parentNode.getChildNode( columnBinary.columnName ).disable();
+    if ( columnBinary.columnBinaryList.isEmpty() ) {
+      parentNode.getChildNode( columnBinary.columnName ).disable();
+      return;
+    }
+    ColumnBinary childColumnBinary = columnBinary.columnBinaryList.get(0);
+    IColumnBinaryMaker maker = FindColumnBinaryMaker.get( childColumnBinary.makerClassName );
+    if ( parentNode.containsKey( columnBinary.columnName ) ) {
+      parentNode.putChildNode( 
+          childColumnBinary.columnName , parentNode.getChildNode( columnBinary.columnName ) );
+
+    }
+    maker.setBlockIndexNode( parentNode , childColumnBinary , spreadIndex );
+    parentNode.putChildNode( 
+        columnBinary.columnName , parentNode.getChildNode( childColumnBinary.columnName ) );
+    parentNode.deleteChildNode( childColumnBinary.columnName );
   }
 
   public class ArrayCellManager implements ICellManager<ICell> {
