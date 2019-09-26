@@ -209,7 +209,6 @@ public class RleStringColumnBinaryMaker implements IColumnBinaryMaker {
     for ( int i = 0 ; i < rowGroupCount ; i++ ) {
       rowGroupLengthWriter.putInt( rowGroupLengthArray[i] );
     }
-    rowGroupLengthWriter.finish();
 
     if ( ! lengthMinMax.getMin().equals( lengthMinMax.getMax() ) ) {
       IWriteSupporter lengthWriter = lengthConverter.toWriteSuppoter(
@@ -220,7 +219,6 @@ public class RleStringColumnBinaryMaker implements IColumnBinaryMaker {
       for ( int i = 0 ; i < rowGroupCount; i++ ) {
         lengthWriter.putInt( objList[i].length );
       }
-      lengthWriter.finish();
     }
 
     ByteBuffer valueBuffer = ByteBuffer.wrap(
