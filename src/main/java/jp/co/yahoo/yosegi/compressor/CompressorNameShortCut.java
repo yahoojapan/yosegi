@@ -27,6 +27,7 @@ public final class CompressorNameShortCut {
   static {
     CLASS_NAME_PAIR.set( "jp.co.yahoo.yosegi.compressor.DefaultCompressor" , "default" );
     CLASS_NAME_PAIR.set( "jp.co.yahoo.yosegi.compressor.GzipCompressor" , "gzip" );
+    CLASS_NAME_PAIR.set( "jp.co.yahoo.yosegi.compressor.SnappyCompressor" , "snappy_2" );
     CLASS_NAME_PAIR.set( "jp.co.yahoo.yosegi.compressor.GzipCommonsCompressor" , "gz" );
     CLASS_NAME_PAIR.set( "jp.co.yahoo.yosegi.compressor.DeflateCommonsCompressor" , "deflater" );
     CLASS_NAME_PAIR.set( "jp.co.yahoo.yosegi.compressor.BZip2CommonsCompressor" , "bzip2" );

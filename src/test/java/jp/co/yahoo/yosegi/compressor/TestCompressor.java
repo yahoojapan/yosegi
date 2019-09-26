@@ -36,6 +36,7 @@ public class TestCompressor {
     return new String[]{
       DefaultCompressor.class.getName(),
       GzipCompressor.class.getName(),
+      SnappyCompressor.class.getName(),
       GzipCommonsCompressor.class.getName(),
       DeflateCommonsCompressor.class.getName(),
       BZip2CommonsCompressor.class.getName(),
