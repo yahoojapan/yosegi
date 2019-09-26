@@ -32,6 +32,9 @@ public class ShortColumnAnalizeResult implements IColumnAnalizeResult {
   private final short min;
   private final short max;
 
+  private final int nullIgnoreRleRowGroupCount;
+  private final int nullIgnoreRleMaxRowGroupLength;
+
   /**
    * Set and initialize results.
    */
@@ -43,7 +46,9 @@ public class ShortColumnAnalizeResult implements IColumnAnalizeResult {
       final int rowCount ,
       final int uniqCount ,
       final short min ,
-      final short max ) {
+      final short max ,
+      final int nullIgnoreRleRowGroupCount , 
+      final int nullIgnoreRleMaxRowGroupLength ) {
     this.columnName = columnName;
     this.columnSize = columnSize;
     this.sortFlag = sortFlag;
@@ -52,6 +57,8 @@ public class ShortColumnAnalizeResult implements IColumnAnalizeResult {
     this.uniqCount = uniqCount;
     this.min = min;
     this.max = max;
+    this.nullIgnoreRleRowGroupCount = nullIgnoreRleRowGroupCount;
+    this.nullIgnoreRleMaxRowGroupLength = nullIgnoreRleMaxRowGroupLength;
   }
 
   @Override
@@ -102,6 +109,16 @@ public class ShortColumnAnalizeResult implements IColumnAnalizeResult {
   @Override
   public int getRowEnd() {
     return columnSize - 1;
+  }
+
+  @Override
+  public int getNullIgnoreRleGroupCount() {
+    return nullIgnoreRleRowGroupCount;
+  }
+
+  @Override
+  public int getNullIgonoreRleMaxRowGroupLength() {
+    return nullIgnoreRleMaxRowGroupLength;
   }
 
   public short getMin() {

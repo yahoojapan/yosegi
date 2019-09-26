@@ -47,22 +47,39 @@ public class TestNumberCellIndex{
     return Stream.of(
       arguments( createByteTestData( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeLongColumnBinaryMaker" ) ),
       arguments( createByteTestData( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeDumpLongColumnBinaryMaker" ) ),
+      arguments( createByteTestData( "jp.co.yahoo.yosegi.binary.maker.RleLongColumnBinaryMaker" ) ),
+      arguments( createByteTestData( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayLongColumnBinaryMaker" ) ),
+      arguments( createByteTestData( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpLongColumnBinaryMaker" ) ),
 
       arguments( createShortTestData( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeLongColumnBinaryMaker" ) ),
       arguments( createShortTestData( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeDumpLongColumnBinaryMaker" ) ),
+      arguments( createShortTestData( "jp.co.yahoo.yosegi.binary.maker.RleLongColumnBinaryMaker" ) ),
+      arguments( createShortTestData( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayLongColumnBinaryMaker" ) ),
+      arguments( createShortTestData( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpLongColumnBinaryMaker" ) ),
 
       arguments( createIntTestData( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeLongColumnBinaryMaker" ) ),
       arguments( createIntTestData( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeDumpLongColumnBinaryMaker" ) ),
+      arguments( createIntTestData( "jp.co.yahoo.yosegi.binary.maker.RleLongColumnBinaryMaker" ) ),
+      arguments( createIntTestData( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayLongColumnBinaryMaker" ) ),
+      arguments( createIntTestData( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpLongColumnBinaryMaker" ) ),
 
       arguments( createLongTestData( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeLongColumnBinaryMaker" ) ),
       arguments( createLongTestData( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeDumpLongColumnBinaryMaker" ) ),
+      arguments( createLongTestData( "jp.co.yahoo.yosegi.binary.maker.RleLongColumnBinaryMaker" ) ),
+      arguments( createLongTestData( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayLongColumnBinaryMaker" ) ),
+      arguments( createLongTestData( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpLongColumnBinaryMaker" ) ),
 
       arguments( createFloatTestData( "jp.co.yahoo.yosegi.binary.maker.UnsafeRangeDumpFloatColumnBinaryMaker" ) ),
+      arguments( createFloatTestData( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayFloatColumnBinaryMaker" ) ),
+      arguments( createFloatTestData( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpFloatColumnBinaryMaker" ) ),
 
       arguments( createDoubleTestData( "jp.co.yahoo.yosegi.binary.maker.UnsafeRangeDumpDoubleColumnBinaryMaker" ) ),
       arguments( createDoubleTestData( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeDoubleColumnBinaryMaker" ) ),
+      arguments( createDoubleTestData( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDoubleColumnBinaryMaker" ) ),
+      arguments( createDoubleTestData( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpDoubleColumnBinaryMaker" ) ),
 
-      arguments( createBytesTestData( "jp.co.yahoo.yosegi.binary.maker.DumpBytesColumnBinaryMaker" ) )
+      arguments( createBytesTestData( "jp.co.yahoo.yosegi.binary.maker.DumpBytesColumnBinaryMaker" ) ),
+      arguments( createBytesTestData( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpBytesColumnBinaryMaker" ) )
     );
   }
 

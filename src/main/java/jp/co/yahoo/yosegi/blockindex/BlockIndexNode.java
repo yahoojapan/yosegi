@@ -92,6 +92,19 @@ public class BlockIndexNode {
     return childContainer.get( nodeName );
   }
 
+  /**
+   * Remove child node.
+   */
+  public void deleteChildNode( final String nodeName ) {
+    if ( childContainer.containsKey( nodeName ) ) {
+      childContainer.remove( nodeName );
+    }
+  }
+
+  public boolean containsKey( final String nodeName ) {
+    return childContainer.containsKey( nodeName );
+  }
+
   public void putChildNode( final String nodeName , final BlockIndexNode node ) {
     childContainer.put( nodeName , node );
   }

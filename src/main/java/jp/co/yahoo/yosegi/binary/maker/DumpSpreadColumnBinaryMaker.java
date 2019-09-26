@@ -141,7 +141,11 @@ public class DumpSpreadColumnBinaryMaker implements IColumnBinaryMaker {
       final BlockIndexNode parentNode ,
       final ColumnBinary columnBinary ,
       final int spreadIndex ) throws IOException {
-    parentNode.getChildNode( columnBinary.columnName ).disable();
+    BlockIndexNode currentNode = parentNode.getChildNode( columnBinary.columnName );
+    for ( ColumnBinary childColumnBinary : columnBinary.columnBinaryList ) {
+      IColumnBinaryMaker maker = FindColumnBinaryMaker.get( childColumnBinary.makerClassName );
+      maker.setBlockIndexNode( currentNode , childColumnBinary , spreadIndex );
+    }
   }
 
   public class SpreadColumnManager implements IColumnManager {

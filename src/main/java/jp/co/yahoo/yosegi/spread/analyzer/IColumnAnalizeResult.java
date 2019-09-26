@@ -45,6 +45,14 @@ public interface IColumnAnalizeResult {
 
   int getRowEnd();
 
+  default int getNullIgnoreRleGroupCount() {
+    throw new RuntimeException( "This method is not supported." );
+  }
+
+  default int getNullIgonoreRleMaxRowGroupLength() {
+    throw new RuntimeException( "This method is not supported." );
+  }
+
   default List<IColumnAnalizeResult> getChild() {
     return new ArrayList<IColumnAnalizeResult>();
   }

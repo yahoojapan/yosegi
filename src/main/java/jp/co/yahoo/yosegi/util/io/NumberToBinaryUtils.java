@@ -409,6 +409,36 @@ public final class NumberToBinaryUtils {
 
   }
 
+  public static class FixedLongReadSupporter implements IReadSupporter {
+
+    private final long num;
+
+    public FixedLongReadSupporter( final long num ) {
+      this.num = num;
+    }
+
+    @Override
+    public long getLong() {
+      return num;
+    }
+
+  }
+
+  public static class FixedIntReadSupporter implements IReadSupporter {
+
+    private final int num;
+
+    public FixedIntReadSupporter( final int num ) {
+      this.num = num;
+    }
+
+    @Override
+    public int getInt() {
+      return num;
+    }
+
+  }
+
   public interface IIntConverter {
 
     int calcBinarySize( final int rows );
@@ -519,9 +549,8 @@ public final class NumberToBinaryUtils {
       ByteOrder order =
           buffer[start + 1] == (byte)0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
       int rows = ( length - HEADER_SIZE ) / ( Byte.BYTES + Short.BYTES );
-      int[] result = new int[rows];
-      int byteLength = Byte.BYTES * result.length;
-      int shortLength = Short.BYTES * result.length;
+      int byteLength = Byte.BYTES * rows;
+      int shortLength = Short.BYTES * rows;
 
       int byteStart = start + HEADER_SIZE;
       int shortStart = byteStart + byteLength;
@@ -579,8 +608,7 @@ public final class NumberToBinaryUtils {
       ByteOrder order =
           buffer[start + 1] == (byte)0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
       int rows = ( length - HEADER_SIZE ) / Short.BYTES;
-      int[] result = new int[rows];
-      int shortLength = Short.BYTES * result.length;
+      int shortLength = Short.BYTES * rows;
 
       int shortStart = start + HEADER_SIZE;
 
@@ -632,8 +660,7 @@ public final class NumberToBinaryUtils {
       ByteOrder order =
           buffer[start + 1] == (byte)0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
       int rows = ( length - HEADER_SIZE ) / Byte.BYTES;
-      int[] result = new int[rows];
-      int byteLength = Byte.BYTES * result.length;
+      int byteLength = Byte.BYTES * rows;
 
       int byteStart = start + HEADER_SIZE;
 
@@ -778,10 +805,9 @@ public final class NumberToBinaryUtils {
       ByteOrder order =
           buffer[start + 1] == (byte)0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
       int rows = ( length - HEADER_SIZE ) / ( Byte.BYTES + Short.BYTES + Integer.BYTES );
-      long[] result = new long[rows];
-      int byteLength = Byte.BYTES * result.length;
-      int shortLength = Short.BYTES * result.length;
-      int intLength = Integer.BYTES * result.length;
+      int byteLength = Byte.BYTES * rows;
+      int shortLength = Short.BYTES * rows;
+      int intLength = Integer.BYTES * rows;
 
       int byteStart = start + HEADER_SIZE;
       int shortStart = byteStart + byteLength;
@@ -843,9 +869,8 @@ public final class NumberToBinaryUtils {
       ByteOrder order =
           buffer[start + 1] == (byte)0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
       int rows = ( length - HEADER_SIZE ) / ( Short.BYTES + Integer.BYTES );
-      long[] result = new long[rows];
-      int shortLength = Short.BYTES * result.length;
-      int intLength = Integer.BYTES * result.length;
+      int shortLength = Short.BYTES * rows;
+      int intLength = Integer.BYTES * rows;
 
       int shortStart = start + HEADER_SIZE;
       int intStart = shortStart + shortLength;
@@ -904,9 +929,8 @@ public final class NumberToBinaryUtils {
       ByteOrder order =
           buffer[start + 1] == (byte)0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
       int rows = ( length - HEADER_SIZE ) / ( Byte.BYTES + Integer.BYTES );
-      long[] result = new long[rows];
-      int byteLength = Byte.BYTES * result.length;
-      int intLength = Integer.BYTES * result.length;
+      int byteLength = Byte.BYTES * rows;
+      int intLength = Integer.BYTES * rows;
 
       int byteStart = start + HEADER_SIZE;
       int intStart = byteStart + byteLength;
@@ -1006,9 +1030,8 @@ public final class NumberToBinaryUtils {
       ByteOrder order =
           buffer[start + 1] == (byte)0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
       int rows = ( length - HEADER_SIZE ) / ( Byte.BYTES + Short.BYTES );
-      long[] result = new long[rows];
-      int byteLength = Byte.BYTES * result.length;
-      int shortLength = Short.BYTES * result.length;
+      int byteLength = Byte.BYTES * rows;
+      int shortLength = Short.BYTES * rows;
 
       int byteStart = start + HEADER_SIZE;
       int shortStart = byteStart + byteLength;
@@ -1060,8 +1083,7 @@ public final class NumberToBinaryUtils {
       ByteOrder order =
           buffer[start + 1] == (byte)0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
       int rows = ( length - HEADER_SIZE ) / ( Short.BYTES );
-      long[] result = new long[rows];
-      int shortLength = Short.BYTES * result.length;
+      int shortLength = Short.BYTES * rows;
 
       int shortStart = start + HEADER_SIZE;
 
@@ -1108,8 +1130,7 @@ public final class NumberToBinaryUtils {
       ByteOrder order = 
           buffer[start + 1] == (byte)0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
       int rows = ( length - HEADER_SIZE ) / ( Byte.BYTES );
-      long[] result = new long[rows];
-      int byteLength = Byte.BYTES * result.length;
+      int byteLength = Byte.BYTES * rows;
 
       int byteStart = start + HEADER_SIZE;
 
@@ -1202,6 +1223,10 @@ public final class NumberToBinaryUtils {
     }
   }
 
+  public static IReadSupporter getFixedLongConverter( final long num ) {
+    return new FixedLongReadSupporter( num );
+  }
+
   /**
    * Create a new IIntConverter from min and max.
    */
@@ -1224,6 +1249,10 @@ public final class NumberToBinaryUtils {
     } else {
       return new IntConverter4();
     }
+  }
+
+  public static IReadSupporter getFixedIntConverter( final int num ) {
+    return new FixedIntReadSupporter( num );
   }
 
 }

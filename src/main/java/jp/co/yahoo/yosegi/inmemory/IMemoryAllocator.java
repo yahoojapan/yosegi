@@ -29,19 +29,19 @@ public interface IMemoryAllocator {
   }
 
   default void setBoolean( final int index , final boolean value ) throws IOException {
-    setNull( index );
+    throw new UnsupportedOperationException( "Unsupported method setBoolean()" );
   }
 
   default void setByte( final int index , final byte value ) throws IOException {
-    setNull( index );
+    throw new UnsupportedOperationException( "Unsupported method setByte()" );
   }
 
   default void setShort( final int index , final short value ) throws IOException {
-    setNull( index );
+    throw new UnsupportedOperationException( "Unsupported method setShort()" );
   }
 
   default void setInteger( final int index , final int value ) throws IOException {
-    setNull( index );
+    throw new UnsupportedOperationException( "Unsupported method setInteger()" );
   }
 
   default void setLong( final int index , final long value ) throws IOException {
@@ -112,6 +112,17 @@ public interface IMemoryAllocator {
   default IMemoryAllocator getArrayChild(
       final int childLength , final ColumnType type ) throws IOException {
     return NullMemoryAllocator.INSTANCE;
+  }
+
+  default IDictionary createDictionary( final int size ) throws IOException {
+    return new PrimitiveObjectDictionary( size );
+  }
+
+  default void setFromDictionary(
+      final int index ,
+      final int dicIndex ,
+      final IDictionary dic ) throws IOException {
+    setPrimitiveObject( index , dic.getPrimitiveObject( dicIndex ) );
   }
 
 }
