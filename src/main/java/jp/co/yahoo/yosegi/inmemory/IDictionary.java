@@ -19,41 +19,37 @@
 package jp.co.yahoo.yosegi.inmemory;
 
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
-import jp.co.yahoo.yosegi.spread.column.ColumnType;
 
 import java.io.IOException;
 
-public interface IMemoryAllocator {
-
-  default void setNull( final int index ) {
-  }
+public interface IDictionary {
 
   default void setBoolean( final int index , final boolean value ) throws IOException {
-    throw new UnsupportedOperationException( "Unsupported method setBoolean()" );
+    throw new UnsupportedOperationException( "setBoolean is not supported." );
   }
 
   default void setByte( final int index , final byte value ) throws IOException {
-    throw new UnsupportedOperationException( "Unsupported method setByte()" );
+    throw new UnsupportedOperationException( "setByte is not supported." );
   }
 
   default void setShort( final int index , final short value ) throws IOException {
-    throw new UnsupportedOperationException( "Unsupported method setShort()" );
+    throw new UnsupportedOperationException( "setShort is not supported." );
   }
 
   default void setInteger( final int index , final int value ) throws IOException {
-    throw new UnsupportedOperationException( "Unsupported method setInteger()" );
+    throw new UnsupportedOperationException( "setInteger is not supported." );
   }
 
   default void setLong( final int index , final long value ) throws IOException {
-    setNull( index );
+    throw new UnsupportedOperationException( "setLong is not supported." );
   }
 
   default void setFloat( final int index , final float value ) throws IOException {
-    setNull( index );
+    throw new UnsupportedOperationException( "setFloat is not supported." );
   }
 
   default void setDouble( final int index , final double value ) throws IOException {
-    setNull( index );
+    throw new UnsupportedOperationException( "setDouble is not supported." );
   }
 
   default void setBytes( final int index , final byte[] value ) throws IOException {
@@ -65,11 +61,11 @@ public interface IMemoryAllocator {
       final byte[] value ,
       final int start ,
       final int length ) throws IOException {
-    setNull( index );
+    throw new UnsupportedOperationException( "setBytes is not supported." );
   }
 
   default void setString( final int index , final String value ) throws IOException {
-    setNull( index );
+    throw new UnsupportedOperationException( "setString is not supported." );
   }
 
   default void setString( final int index , final char[] value ) throws IOException {
@@ -86,43 +82,11 @@ public interface IMemoryAllocator {
 
   default void setPrimitiveObject(
       final int index , final PrimitiveObject value ) throws IOException {
-    setNull( index );
+    throw new UnsupportedOperationException( "setPrimitiveObject is not supported." );
   }
 
-  default void setArrayIndex(
-      final int index , final int start , final int length ) throws IOException {
-    setNull( index );
-  }
-
-  default void setValueCount( final int index ) throws IOException {
-  }
-
-  default int getValueCount() throws IOException {
-    return 0;
-  }
-
-  default void setChildCount( final int childSize ) throws IOException {
-  }
-
-  default IMemoryAllocator getChild(
-      final String columnName , final ColumnType type ) throws IOException {
-    return NullMemoryAllocator.INSTANCE;
-  }
-
-  default IMemoryAllocator getArrayChild(
-      final int childLength , final ColumnType type ) throws IOException {
-    return NullMemoryAllocator.INSTANCE;
-  }
-
-  default IDictionary createDictionary( final int size ) throws IOException {
-    return new PrimitiveObjectDictionary( size );
-  }
-
-  default void setFromDictionary(
-      final int index ,
-      final int dicIndex ,
-      final IDictionary dic ) throws IOException {
-    setPrimitiveObject( index , dic.getPrimitiveObject( dicIndex ) );
+  default PrimitiveObject getPrimitiveObject( final int index ) throws IOException {
+    throw new UnsupportedOperationException( "getPrimitiveObject is not supported." );
   }
 
 }

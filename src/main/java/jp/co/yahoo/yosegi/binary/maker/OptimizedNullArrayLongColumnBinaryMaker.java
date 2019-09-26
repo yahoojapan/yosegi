@@ -28,6 +28,7 @@ import jp.co.yahoo.yosegi.blockindex.LongRangeBlockIndex;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
+import jp.co.yahoo.yosegi.inmemory.IDictionary;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.ByteObj;
 import jp.co.yahoo.yosegi.message.objects.IntegerObj;
@@ -322,11 +323,13 @@ public class OptimizedNullArrayLongColumnBinaryMaker implements IColumnBinaryMak
 
     INumEncoder dicEncoder =
         NumEncoderUtil.createEncoder( min , max );
-    long[] dicArray = dicEncoder.toLongArray(
+    IDictionary dic = allocator.createDictionary( dicSize );
+    dicEncoder.setDictionary(
         binary ,
         META_LENGTH + nullIndexLength + indexLength,
         dicSize,
-        order );
+        order,
+        dic );
 
     allocator.setValueCount( startIndex + isNullArray.length );
 
@@ -340,7 +343,7 @@ public class OptimizedNullArrayLongColumnBinaryMaker implements IColumnBinaryMak
       if ( isNullArray[i]  ) {
         allocator.setNull( index );
       } else {
-        allocator.setLong( index , dicArray[indexReader.getInt()] );
+        allocator.setFromDictionary( index , indexReader.getInt() , dic );
       }
     }
   }

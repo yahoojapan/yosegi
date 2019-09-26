@@ -29,6 +29,7 @@ import jp.co.yahoo.yosegi.blockindex.StringRangeBlockIndex;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
+import jp.co.yahoo.yosegi.inmemory.IDictionary;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.objects.StringObj;
@@ -164,7 +165,8 @@ public class RleStringColumnBinaryMaker implements IColumnBinaryMaker {
 
     int lengthByteLength = 0;
     NumberToBinaryUtils.IIntConverter lengthConverter =
-        NumberToBinaryUtils.getIntConverter( lengthMinMax.getMin() , lengthMinMax.getMax() );
+        NumberToBinaryUtils.getIntConverter(
+            lengthMinMax.getMin() , lengthMinMax.getMax() );
     if ( ! lengthMinMax.getMin().equals( lengthMinMax.getMax() ) ) {
       lengthByteLength = lengthConverter.calcBinarySize( rowGroupCount );
     }
@@ -207,6 +209,7 @@ public class RleStringColumnBinaryMaker implements IColumnBinaryMaker {
     for ( int i = 0 ; i < rowGroupCount ; i++ ) {
       rowGroupLengthWriter.putInt( rowGroupLengthArray[i] );
     }
+    rowGroupLengthWriter.finish();
 
     if ( ! lengthMinMax.getMin().equals( lengthMinMax.getMax() ) ) {
       IWriteSupporter lengthWriter = lengthConverter.toWriteSuppoter(
@@ -217,6 +220,7 @@ public class RleStringColumnBinaryMaker implements IColumnBinaryMaker {
       for ( int i = 0 ; i < rowGroupCount; i++ ) {
         lengthWriter.putInt( objList[i].length );
       }
+      lengthWriter.finish();
     }
 
     ByteBuffer valueBuffer = ByteBuffer.wrap(
@@ -383,6 +387,7 @@ public class RleStringColumnBinaryMaker implements IColumnBinaryMaker {
     }
 
     int currentStart = META_LENGTH + nullLength + rowGroupBinaryLength + lengthBinaryLength;
+    IDictionary dic = allocator.createDictionary( rowGroupCount );
     for ( int i = 0 ; i < startIndex ; i++ ) {
       allocator.setNull( i );
     }
@@ -390,12 +395,13 @@ public class RleStringColumnBinaryMaker implements IColumnBinaryMaker {
     for ( int i = 0 ; i < rowGroupCount ; i++ ) {
       int rowGroupLength = rowGroupLengthReader.getInt();
       int binaryLength = lengthReader.getInt();
+      dic.setBytes( i , binary , currentStart , binaryLength );
       for ( int n = 0 ; n < rowGroupLength ; index++ ) {
         if ( isNullArray[index] ) {
           allocator.setNull( index + startIndex );
           continue;
         }
-        allocator.setBytes( index + startIndex , binary , currentStart , binaryLength );
+        allocator.setFromDictionary( index + startIndex , i , dic );
         n++;
       }
       currentStart += binaryLength;

@@ -18,6 +18,7 @@
 
 package jp.co.yahoo.yosegi.util.io.diffencoder;
 
+import jp.co.yahoo.yosegi.inmemory.IDictionary;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 
@@ -60,6 +61,13 @@ public interface INumEncoder {
       final int rows ,
       final boolean[] isNullArray ,
       final ByteOrder order ) throws IOException;
+
+  void setDictionary(
+      final byte[] buffer ,
+      final int start ,
+      final int rows ,
+      final ByteOrder order ,
+      final IDictionary dic ) throws IOException;
 
   void loadInMemoryStorage(
       final byte[] buffer ,

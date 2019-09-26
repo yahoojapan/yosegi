@@ -77,6 +77,7 @@ public class ShortColumnAnalizer implements IColumnAnalizer {
         }
       }
     }
+    rleConverter.finish();
 
     int uniqCount = dicSet.size();
 

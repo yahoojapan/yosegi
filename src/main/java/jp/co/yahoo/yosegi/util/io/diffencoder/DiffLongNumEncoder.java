@@ -18,6 +18,7 @@
 
 package jp.co.yahoo.yosegi.util.io.diffencoder;
 
+import jp.co.yahoo.yosegi.inmemory.IDictionary;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.LongObj;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
@@ -123,6 +124,20 @@ public class DiffLongNumEncoder implements INumEncoder {
       }
     }
     return result;
+  }
+
+  @Override
+  public void setDictionary(
+      final byte[] buffer ,
+      final int start ,
+      final int rows ,
+      final ByteOrder order ,
+      final IDictionary dic ) throws IOException {
+    IReadSupporter wrapBuffer =
+        converter.toReadSupporter( buffer , start , calcBinarySize( rows ) );
+    for ( int i = 0 ; i < rows ; i++ ) {
+      dic.setLong( i , wrapBuffer.getLong() + min );
+    }
   }
 
   @Override

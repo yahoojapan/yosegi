@@ -77,6 +77,7 @@ public class IntegerColumnAnalizer implements IColumnAnalizer {
         }
       }
     }
+    rleConverter.finish();
 
     int uniqCount = dicSet.size();
 

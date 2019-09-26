@@ -29,6 +29,7 @@ import jp.co.yahoo.yosegi.blockindex.StringRangeBlockIndex;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
+import jp.co.yahoo.yosegi.inmemory.IDictionary;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.objects.StringObj;
@@ -184,7 +185,8 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
 
     int lengthByteLength = 0;
     NumberToBinaryUtils.IIntConverter lengthConverter =
-        NumberToBinaryUtils.getIntConverter( lengthMinMax.getMin() , lengthMinMax.getMax() );
+        NumberToBinaryUtils.getIntConverter(
+            lengthMinMax.getMin() , lengthMinMax.getMax() );
     if ( ! lengthMinMax.getMin().equals( lengthMinMax.getMax() ) ) {
       lengthByteLength = lengthConverter.calcBinarySize( dicMap.size() );
     }
@@ -230,6 +232,7 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
     for ( int i = 0 ; i < rowGroupCount ; i++ ) {
       rowGroupIndexWriter.putInt( rowGroupIndexArray[i] );
     }
+    rowGroupIndexWriter.finish();
 
     IWriteSupporter rowGroupLengthWriter = rowGroupLengthEncoder.toWriteSuppoter(
         rowGroupCount ,
@@ -238,6 +241,7 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
     for ( int i = 0 ; i < rowGroupCount ; i++ ) {
       rowGroupLengthWriter.putInt( rowGroupLengthArray[i] );
     }
+    rowGroupLengthWriter.finish();
 
     if ( ! lengthMinMax.getMin().equals( lengthMinMax.getMax() ) ) {
       IWriteSupporter lengthWriter = lengthConverter.toWriteSuppoter(
@@ -248,6 +252,7 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
       for ( int i = 0 ; i < dicMap.size(); i++ ) {
         lengthWriter.putInt( objList[i].length );
       }
+      lengthWriter.finish();
     }
 
     ByteBuffer valueBuffer = ByteBuffer.wrap(
@@ -428,15 +433,15 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
           META_LENGTH + nullLength + rowGroupIndexLength + rowGroupBinaryLength ,
           lengthBinaryLength );
     }
-    Utf8BytesLinkObj[] dicArray = new Utf8BytesLinkObj[ dicSize ];
+    IDictionary dic = allocator.createDictionary( dicSize );
     int currentStart = META_LENGTH 
         + nullLength 
         + rowGroupIndexLength
         + rowGroupBinaryLength 
         + lengthBinaryLength;
-    for ( int i = 0 ; i < dicArray.length ; i++ ) {
+    for ( int i = 0 ; i < dicSize ; i++ ) {
       int currentLength = lengthReader.getInt();
-      dicArray[i] = new Utf8BytesLinkObj( binary , currentStart , currentLength );
+      dic.setBytes( i , binary , currentStart , currentLength );
       currentStart += currentLength;
     }
 
@@ -445,18 +450,17 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
     }
     int index = 0;
     for ( int i = 0 ; i < rowGroupCount ; i++ ) {
-      Utf8BytesLinkObj obj = dicArray[ rowGroupIndexReader.getInt() ];
+      int dicIndex = rowGroupIndexReader.getInt();
       int rowGroupLength = rowGroupLengthReader.getInt();
       for ( int n = 0 ; n < rowGroupLength ; index++ ) {
         if ( isNullArray[index] ) {
           allocator.setNull( index + startIndex );
           continue;
         }
-        allocator.setBytes(
+        allocator.setFromDictionary(
             index + startIndex ,
-            dicArray[index].getLinkBytes() ,
-            dicArray[index].getStart() ,
-            dicArray[index].getLength() );
+            dicIndex ,
+            dic );
         n++;
       }
     }

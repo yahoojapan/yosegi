@@ -28,6 +28,7 @@ import jp.co.yahoo.yosegi.blockindex.DoubleRangeBlockIndex;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
+import jp.co.yahoo.yosegi.inmemory.IDictionary;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.DoubleObj;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
@@ -259,9 +260,9 @@ public class OptimizedNullArrayDoubleColumnBinaryMaker implements IColumnBinaryM
         META_LENGTH + nullIndexLength + indexLength,
         dicLength,
         order );
-    double[] dicArray = new double[dicSize];
-    for ( int i = 0 ; i < dicArray.length ; i++ ) {
-      dicArray[i] = dicReader.getDouble();
+    IDictionary dic = allocator.createDictionary( dicSize );
+    for ( int i = 0 ; i < dicSize ; i++ ) {
+      dic.setDouble( i , dicReader.getDouble() );
     }
 
     allocator.setValueCount( startIndex + isNullArray.length );
@@ -276,7 +277,7 @@ public class OptimizedNullArrayDoubleColumnBinaryMaker implements IColumnBinaryM
       if ( isNullArray[i]  ) {
         allocator.setNull( index );
       } else {
-        allocator.setDouble( index , dicArray[indexReader.getInt()] );
+        allocator.setFromDictionary( index , indexReader.getInt() , dic );
       }
     }
   }

@@ -77,6 +77,7 @@ public class ByteColumnAnalizer implements IColumnAnalizer {
         }
       }
     }
+    rleConverter.finish();
 
     int uniqCount = dicSet.size();
 

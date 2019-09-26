@@ -28,6 +28,7 @@ import jp.co.yahoo.yosegi.blockindex.StringRangeBlockIndex;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
+import jp.co.yahoo.yosegi.inmemory.IDictionary;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.objects.StringObj;
@@ -144,7 +145,8 @@ public class OptimizedNullArrayStringColumnBinaryMaker implements IColumnBinaryM
 
     int lengthByteLength = 0;
     NumberToBinaryUtils.IIntConverter lengthConverter =
-        NumberToBinaryUtils.getIntConverter( lengthMinMax.getMin() , lengthMinMax.getMax() );
+        NumberToBinaryUtils.getIntConverter(
+            lengthMinMax.getMin() , lengthMinMax.getMax() );
     if ( ! lengthMinMax.getMin().equals( lengthMinMax.getMax() ) ) {
       lengthByteLength = lengthConverter.calcBinarySize( dicMap.size() );
     }
@@ -184,6 +186,7 @@ public class OptimizedNullArrayStringColumnBinaryMaker implements IColumnBinaryM
     for ( int i = 0 ; i < rowCount ; i++ ) {
       indexWriter.putInt( indexArray[i] );
     }
+    indexWriter.finish();
 
     if ( ! lengthMinMax.getMin().equals( lengthMinMax.getMax() ) ) {
       IWriteSupporter lengthWriter = lengthConverter.toWriteSuppoter(
@@ -191,6 +194,7 @@ public class OptimizedNullArrayStringColumnBinaryMaker implements IColumnBinaryM
       for ( int i = 0 ; i < dicMap.size(); i++ ) {
         lengthWriter.putInt( dicArray[i].length );
       }
+      lengthWriter.finish();
     }
 
     ByteBuffer valueBuffer = ByteBuffer.wrap(
@@ -348,11 +352,11 @@ public class OptimizedNullArrayStringColumnBinaryMaker implements IColumnBinaryM
           lengthBinaryLength );
     }
 
-    Utf8BytesLinkObj[] dicArray = new Utf8BytesLinkObj[ dicSize ];
+    IDictionary dic = allocator.createDictionary( dicSize );
     int currentStart = META_LENGTH + nullLength + indexLength + lengthBinaryLength;
-    for ( int i = 0 ; i < dicArray.length ; i++ ) {
+    for ( int i = 0 ; i < dicSize ; i++ ) {
       int currentLength = lengthReader.getInt();
-      dicArray[i] = new Utf8BytesLinkObj( binary , currentStart , currentLength );
+      dic.setBytes( i , binary , currentStart , currentLength );
       currentStart += currentLength;
     }
 
@@ -369,12 +373,7 @@ public class OptimizedNullArrayStringColumnBinaryMaker implements IColumnBinaryM
       if ( isNullArray[i]  ) {
         allocator.setNull( i + startIndex );
       } else {
-        int index = indexReader.getInt(); 
-        allocator.setBytes(
-            i + startIndex,
-            dicArray[index].getLinkBytes() ,
-            dicArray[index].getStart() ,
-            dicArray[index].getLength() );
+        allocator.setFromDictionary( i + startIndex , indexReader.getInt() , dic );
       }
     }
   }

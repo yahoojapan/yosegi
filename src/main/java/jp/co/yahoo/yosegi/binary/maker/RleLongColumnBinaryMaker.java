@@ -28,6 +28,7 @@ import jp.co.yahoo.yosegi.blockindex.LongRangeBlockIndex;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
+import jp.co.yahoo.yosegi.inmemory.IDictionary;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.LongObj;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
@@ -310,11 +311,13 @@ public class RleLongColumnBinaryMaker implements IColumnBinaryMaker {
 
     INumEncoder valueEncoder =
         NumEncoderUtil.createEncoder( min , max );
-    long[] valueArray = valueEncoder.toLongArray(
+    IDictionary dic = allocator.createDictionary( rowGroupCount );
+    valueEncoder.setDictionary(
         binary,
         META_LENGTH + nullIndexLength + lengthBinarySize,
         rowGroupCount,
-        order );
+        order, 
+        dic );
     int index = 0;
     for ( int i = 0 ; i < rowGroupCount ; i++ ) {
       int valueLength = lengthReader.getInt();
@@ -323,7 +326,7 @@ public class RleLongColumnBinaryMaker implements IColumnBinaryMaker {
           allocator.setNull( index + startIndex );
           continue;
         }
-        allocator.setLong( index + startIndex , valueArray[i] );
+        allocator.setFromDictionary( index + startIndex , i , dic );
         n++;
       }
     }
