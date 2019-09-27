@@ -80,21 +80,6 @@ public class ByteNumEncoder implements INumEncoder {
   }
 
   @Override
-  public long[] toLongArray(
-      final byte[] buffer,  
-      final int start,
-      final int rows,
-      final ByteOrder order ) throws IOException {
-    long[] result = new long[rows];
-    IReadSupporter wrapBuffer = ByteBufferSupporterFactory
-        .createReadSupporter( buffer , start , calcBinarySize( rows ) , order );
-    for ( int i = 0 ; i < rows ; i++ ) {
-      result[i] = (long)wrapBuffer.getByte();
-    }
-    return result;
-  }
-
-  @Override
   public PrimitiveObject[] getPrimitiveArray(
       final byte[] buffer ,
       final int start ,

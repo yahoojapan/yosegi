@@ -49,12 +49,6 @@ public interface INumEncoder {
       final int rows,
       final ByteOrder order ) throws IOException;
 
-  long[] toLongArray(
-      final byte[] buffer,
-      final int start,
-      final int rows,
-      final ByteOrder order ) throws IOException;
-
   PrimitiveObject[] getPrimitiveArray(
       final byte[] buffer ,
       final int start ,

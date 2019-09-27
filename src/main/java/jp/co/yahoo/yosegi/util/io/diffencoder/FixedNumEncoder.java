@@ -90,22 +90,6 @@ public class FixedNumEncoder implements INumEncoder {
   }
 
   @Override
-  public long[] toLongArray(
-      final byte[] buffer,
-      final int start,
-      final int rows,
-      final ByteOrder order ) throws IOException {
-    long[] result = new long[rows];
-    IReadSupporter wrapBuffer = ByteBufferSupporterFactory
-        .createReadSupporter( buffer , start , calcBinarySize( rows ) , order );
-    long num = wrapBuffer.getLong();
-    for ( int i = 0 ; i < rows ; i++ ) {
-      result[i] = num;
-    }
-    return result;
-  }
-
-  @Override
   public PrimitiveObject[] getPrimitiveArray(
       final byte[] buffer ,
       final int start ,
