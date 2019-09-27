@@ -73,30 +73,56 @@ public class RleConverter<T> {
     if ( isFinish ) {
       throw new IOException( "Processing has already been completed." );
     }
-    if ( valueArray != null ) {
-      valueArray[rowGroupCount] = currentValue;
-      lengthArray[rowGroupCount] = currentLength;
-    }
-    rowGroupCount++;
-    if ( maxRowGroupLength < currentLength ) {
-      maxRowGroupLength = currentLength;
+    if ( currentLength != 0 ) {
+      if ( valueArray != null ) {
+        valueArray[rowGroupCount] = currentValue;
+        lengthArray[rowGroupCount] = currentLength;
+      }
+      rowGroupCount++;
+      if ( maxRowGroupLength < currentLength ) {
+        maxRowGroupLength = currentLength;
+      }
     }
     isFinish = true;
   }
 
-  public T[] getValueArray() {
+  /**
+   * Get array of value.
+   */
+  public T[] getValueArray() throws IOException {
+    if ( ! isFinish ) {
+      throw new IOException( "Finish is not running." );
+    }
     return valueArray;
   }
 
-  public int[] getLengthArray() {
+  /**
+   * Get array of length.
+   */
+  public int[] getLengthArray() throws IOException {
+    if ( ! isFinish ) {
+      throw new IOException( "Finish is not running." );
+    }
     return lengthArray;
   }
 
-  public int getRowGroupCount() {
+  /**
+   * Get row goup count.
+   */
+  public int getRowGroupCount() throws IOException {
+    if ( ! isFinish ) {
+      throw new IOException( "Finish is not running." );
+    }
     return rowGroupCount;
   }
 
-  public int getMaxGroupLength() {
+  /**
+   * Get maximum length of group.
+   */
+  public int getMaxGroupLength() throws IOException {
+    if ( ! isFinish ) {
+      throw new IOException( "Finish is not running." );
+    }
     return maxRowGroupLength;
   }
 
