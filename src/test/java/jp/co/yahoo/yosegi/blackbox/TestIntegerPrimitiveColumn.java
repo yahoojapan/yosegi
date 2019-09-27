@@ -50,6 +50,19 @@ public class TestIntegerPrimitiveColumn {
     );
   }
 
+  public IColumn createTestColumn( final String targetClassName , final int[] intArray ) throws IOException {
+    IColumn column = new PrimitiveColumn( ColumnType.INTEGER , "column" );
+    for ( int i = 0 ; i < intArray.length ; i++ ) {
+      column.add( ColumnType.INTEGER , new IntegerObj( intArray[i] ) , i );
+    }
+
+    IColumnBinaryMaker maker = FindColumnBinaryMaker.get( targetClassName );
+    ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
+    ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
+    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
+    return FindColumnBinaryMaker.get( columnBinary.makerClassName ).toColumn( columnBinary );
+  }
+
   public IColumn createNotNullColumn( final String targetClassName ) throws IOException{
     IColumn column = new PrimitiveColumn( ColumnType.INTEGER , "column" );
     column.add( ColumnType.INTEGER , new IntegerObj( Integer.MAX_VALUE ) , 0 );
@@ -153,6 +166,183 @@ public class TestIntegerPrimitiveColumn {
       assertNull( column.get(i).getRow() );
     }
     assertEquals( ( (PrimitiveObject)( column.get(10000).getRow() ) ).getInt() , Integer.MAX_VALUE );
+  }
+
+  @ParameterizedTest
+  @MethodSource( "data1" )
+  public void T_encodeAndDecode_equalsSetValue_withIntBit0( final String targetClassName ) throws IOException{
+    int[] intArray = new int[]{
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    };
+    IColumn column = createTestColumn( targetClassName , intArray );
+    assertEquals( column.size() , 10 );
+    for ( int i = 0 ; i < 10 ; i++ ) {
+      assertEquals( ( (PrimitiveObject)( column.get(i).getRow() ) ).getInt() , intArray[i] );
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource( "data1" )
+  public void T_encodeAndDecode_equalsSetValue_withInt1( final String targetClassName ) throws IOException{
+    int[] intArray = new int[]{
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0
+    };
+    IColumn column = createTestColumn( targetClassName , intArray );
+    assertEquals( column.size() , 10 );
+    for ( int i = 0 ; i < 10 ; i++ ) {
+      assertEquals( ( (PrimitiveObject)( column.get(i).getRow() ) ).getInt() , intArray[i] );
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource( "data1" )
+  public void T_encodeAndDecode_equalsSetValue_withInt2( final String targetClassName ) throws IOException{
+    int[] intArray = new int[]{
+      0,
+      0,
+      1,
+      1,
+      2,
+      2,
+      3,
+      3,
+      0,
+      0
+    };
+    IColumn column = createTestColumn( targetClassName , intArray );
+    assertEquals( column.size() , 10 );
+    for ( int i = 0 ; i < 10 ; i++ ) {
+      assertEquals( ( (PrimitiveObject)( column.get(i).getRow() ) ).getInt() , intArray[i] );
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource( "data1" )
+  public void T_encodeAndDecode_equalsSetValue_withInt4( final String targetClassName ) throws IOException{
+    int[] intArray = new int[]{
+      0,
+      0,
+      8,
+      8,
+      15,
+      15,
+      1,
+      2,
+      3,
+      4
+    };
+    IColumn column = createTestColumn( targetClassName , intArray );
+    assertEquals( column.size() , 10 );
+    for ( int i = 0 ; i < 10 ; i++ ) {
+      assertEquals( ( (PrimitiveObject)( column.get(i).getRow() ) ).getInt() , intArray[i] );
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource( "data1" )
+  public void T_encodeAndDecode_equalsSetValue_withInt8( final String targetClassName ) throws IOException{
+    int[] intArray = new int[]{
+      (int)Byte.MAX_VALUE,
+      (int)Byte.MIN_VALUE,
+      0,
+      0,
+      64,
+      -64,
+      32,
+      -32,
+      16,
+      -16
+    };
+    IColumn column = createTestColumn( targetClassName , intArray );
+    assertEquals( column.size() , 10 );
+    for ( int i = 0 ; i < 10 ; i++ ) {
+      assertEquals( ( (PrimitiveObject)( column.get(i).getRow() ) ).getInt() , intArray[i] );
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource( "data1" )
+  public void T_encodeAndDecode_equalsSetValue_withInt16( final String targetClassName ) throws IOException{
+    int[] intArray = new int[]{
+      (int)Short.MAX_VALUE,
+      (int)Short.MIN_VALUE,
+      (int)Byte.MAX_VALUE,
+      (int)Byte.MIN_VALUE,
+      1,
+      1,
+      -1,
+      -1,
+      2,
+      2
+    };
+    IColumn column = createTestColumn( targetClassName , intArray );
+    assertEquals( column.size() , 10 );
+    for ( int i = 0 ; i < 10 ; i++ ) {
+      assertEquals( ( (PrimitiveObject)( column.get(i).getRow() ) ).getInt() , intArray[i] );
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource( "data1" )
+  public void T_encodeAndDecode_equalsSetValue_withInt24( final String targetClassName ) throws IOException{
+    int max = 0xFFFFFF;
+    int[] intArray = new int[]{
+      (int)Short.MAX_VALUE,
+      (int)Short.MAX_VALUE,
+      (int)Byte.MAX_VALUE,
+      (int)Byte.MAX_VALUE,
+      max,
+      max,
+      1,
+      1,
+      2,
+      2
+    };
+    IColumn column = createTestColumn( targetClassName , intArray );
+    assertEquals( column.size() , 10 );
+    for ( int i = 0 ; i < 10 ; i++ ) {
+      assertEquals( ( (PrimitiveObject)( column.get(i).getRow() ) ).getInt() , intArray[i] );
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource( "data1" )
+  public void T_encodeAndDecode_equalsSetValue_withInt32( final String targetClassName ) throws IOException{
+    int[] intArray = new int[]{
+      (int)Integer.MAX_VALUE,
+      (int)Integer.MIN_VALUE,
+      (int)Short.MAX_VALUE,
+      (int)Short.MIN_VALUE,
+      (int)Byte.MAX_VALUE,
+      (int)Byte.MIN_VALUE,
+      1,
+      1,
+      2,
+      2
+    };
+    IColumn column = createTestColumn( targetClassName , intArray );
+    assertEquals( column.size() , 10 );
+    for ( int i = 0 ; i < 10 ; i++ ) {
+      assertEquals( ( (PrimitiveObject)( column.get(i).getRow() ) ).getLong() , intArray[i] );
+    }
   }
 
 }
