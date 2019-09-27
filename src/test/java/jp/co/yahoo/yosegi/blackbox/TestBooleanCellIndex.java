@@ -48,6 +48,7 @@ public class TestBooleanCellIndex{
   public static Stream<Arguments> data1() throws IOException{
     return Stream.of(
       arguments( createBooleanTestData( "jp.co.yahoo.yosegi.binary.maker.DumpBooleanColumnBinaryMaker" ) ),
+      arguments( createBooleanTestData( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpBooleanColumnBinaryMaker" ) ),
       arguments( createBytesTestData( "jp.co.yahoo.yosegi.binary.maker.DumpBytesColumnBinaryMaker" ) ) 
     );
   }
