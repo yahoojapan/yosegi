@@ -39,7 +39,9 @@ public class TestCalcLogicalDataSizeFloat {
   public static Stream<Arguments> data1() throws IOException {
     return Stream.of(
       arguments( "jp.co.yahoo.yosegi.binary.maker.UnsafeRangeDumpFloatColumnBinaryMaker" ) ,
-      arguments( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeFloatColumnBinaryMaker" )
+      arguments( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeFloatColumnBinaryMaker" ),
+      arguments( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpFloatColumnBinaryMaker" ) ,
+      arguments( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayFloatColumnBinaryMaker" )
     );
   }
 
