@@ -232,7 +232,6 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
     for ( int i = 0 ; i < rowGroupCount ; i++ ) {
       rowGroupIndexWriter.putInt( rowGroupIndexArray[i] );
     }
-    rowGroupIndexWriter.finish();
 
     IWriteSupporter rowGroupLengthWriter = rowGroupLengthEncoder.toWriteSuppoter(
         rowGroupCount ,
@@ -241,7 +240,6 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
     for ( int i = 0 ; i < rowGroupCount ; i++ ) {
       rowGroupLengthWriter.putInt( rowGroupLengthArray[i] );
     }
-    rowGroupLengthWriter.finish();
 
     if ( ! lengthMinMax.getMin().equals( lengthMinMax.getMax() ) ) {
       IWriteSupporter lengthWriter = lengthConverter.toWriteSuppoter(
@@ -252,7 +250,6 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
       for ( int i = 0 ; i < dicMap.size(); i++ ) {
         lengthWriter.putInt( objList[i].length );
       }
-      lengthWriter.finish();
     }
 
     ByteBuffer valueBuffer = ByteBuffer.wrap(

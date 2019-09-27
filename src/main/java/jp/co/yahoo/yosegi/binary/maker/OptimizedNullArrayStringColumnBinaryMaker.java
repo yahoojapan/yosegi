@@ -186,7 +186,6 @@ public class OptimizedNullArrayStringColumnBinaryMaker implements IColumnBinaryM
     for ( int i = 0 ; i < rowCount ; i++ ) {
       indexWriter.putInt( indexArray[i] );
     }
-    indexWriter.finish();
 
     if ( ! lengthMinMax.getMin().equals( lengthMinMax.getMax() ) ) {
       IWriteSupporter lengthWriter = lengthConverter.toWriteSuppoter(
@@ -194,7 +193,6 @@ public class OptimizedNullArrayStringColumnBinaryMaker implements IColumnBinaryM
       for ( int i = 0 ; i < dicMap.size(); i++ ) {
         lengthWriter.putInt( dicArray[i].length );
       }
-      lengthWriter.finish();
     }
 
     ByteBuffer valueBuffer = ByteBuffer.wrap(
