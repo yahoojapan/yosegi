@@ -101,10 +101,13 @@ public class OptimizedNullArrayCellManager implements ICellManager<ICell> {
       loopEnd = size();
     }
     for ( int i = start,index = 0 ; i < loopEnd ; i++,index++ ) {
-      if ( i < startIndex || valueArray[ i - startIndex ] == null ) {
+      int valueIndex = indexList.get( i );
+      if ( valueIndex < startIndex 
+          || size() <= valueIndex
+          || valueArray[ valueIndex - startIndex ] == null ) {
         continue;
       }
-      result[index] = valueArray[i - startIndex];
+      result[index] = valueArray[valueIndex - startIndex];
     }
     return result;
   }
