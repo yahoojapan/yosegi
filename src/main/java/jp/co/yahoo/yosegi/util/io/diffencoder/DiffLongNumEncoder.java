@@ -94,21 +94,6 @@ public class DiffLongNumEncoder implements INumEncoder {
   }
 
   @Override
-  public long[] toLongArray(
-      final byte[] buffer,
-      final int start,
-      final int rows,
-      final ByteOrder order ) throws IOException {
-    long[] result = new long[rows];
-    IReadSupporter wrapBuffer =
-        converter.toReadSupporter( buffer , start , calcBinarySize( rows ) );
-    for ( int i = 0 ; i < rows ; i++ ) {
-      result[i] = wrapBuffer.getLong() + min;
-    }
-    return result;
-  }
-
-  @Override
   public PrimitiveObject[] getPrimitiveArray(
       final byte[] buffer ,
       final int start ,
