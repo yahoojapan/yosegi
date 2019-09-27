@@ -44,9 +44,23 @@ public class TestBytePrimitiveColumn {
     return Stream.of(
       arguments( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeDumpLongColumnBinaryMaker" ),
       arguments( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeLongColumnBinaryMaker" ),
+      arguments( "jp.co.yahoo.yosegi.binary.maker.RleLongColumnBinaryMaker" ) ,
       arguments( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayLongColumnBinaryMaker" ),
       arguments( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpLongColumnBinaryMaker" )
     );
+  }
+
+  public IColumn createTestColumn( final String targetClassName , final byte[] valueArray ) throws IOException {
+    IColumn column = new PrimitiveColumn( ColumnType.BYTE , "column" );
+    for ( int i = 0 ; i < valueArray.length ; i++ ) {
+      column.add( ColumnType.BYTE , new ByteObj( valueArray[i] ) , i );
+    }
+
+    IColumnBinaryMaker maker = FindColumnBinaryMaker.get( targetClassName );
+    ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
+    ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
+    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
+    return FindColumnBinaryMaker.get( columnBinary.makerClassName ).toColumn( columnBinary );
   }
 
   public IColumn createNotNullColumn( final String targetClassName ) throws IOException{
@@ -152,6 +166,116 @@ public class TestBytePrimitiveColumn {
       assertNull( column.get(i).getRow() );
     }
     assertEquals( ( (PrimitiveObject)( column.get(10000).getRow() ) ).getByte() , Byte.MAX_VALUE );
+  }
+
+  @ParameterizedTest
+  @MethodSource( "data1" )
+  public void T_encodeAndDecode_equalsSetValue_withIntBit0( final String targetClassName ) throws IOException{
+    byte[] valueArray = new byte[]{
+      (byte)0,
+      (byte)0,
+      (byte)0,
+      (byte)0,
+      (byte)0,
+      (byte)0,
+      (byte)0,
+      (byte)0,
+      (byte)0,
+      (byte)0
+    };
+    IColumn column = createTestColumn( targetClassName , valueArray );
+    assertEquals( column.size() , 10 );
+    for ( int i = 0 ; i < 10 ; i++ ) {
+      assertEquals( ( (PrimitiveObject)( column.get(i).getRow() ) ).getByte() , valueArray[i] );
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource( "data1" )
+  public void T_encodeAndDecode_equalsSetValue_withInt1( final String targetClassName ) throws IOException{
+    byte[] valueArray = new byte[]{
+      (byte)0,
+      (byte)0,
+      (byte)1,
+      (byte)1,
+      (byte)0,
+      (byte)0,
+      (byte)1,
+      (byte)1,
+      (byte)0,
+      (byte)0
+    };
+    IColumn column = createTestColumn( targetClassName , valueArray );
+    assertEquals( column.size() , 10 );
+    for ( int i = 0 ; i < 10 ; i++ ) {
+      assertEquals( ( (PrimitiveObject)( column.get(i).getRow() ) ).getByte() , valueArray[i] );
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource( "data1" )
+  public void T_encodeAndDecode_equalsSetValue_withInt2( final String targetClassName ) throws IOException{
+    byte[] valueArray = new byte[]{
+      (byte)0,
+      (byte)0,
+      (byte)1,
+      (byte)1,
+      (byte)2,
+      (byte)2,
+      (byte)3,
+      (byte)3,
+      (byte)0,
+      (byte)0
+    };
+    IColumn column = createTestColumn( targetClassName , valueArray );
+    assertEquals( column.size() , 10 );
+    for ( int i = 0 ; i < 10 ; i++ ) {
+      assertEquals( ( (PrimitiveObject)( column.get(i).getRow() ) ).getByte() , valueArray[i] );
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource( "data1" )
+  public void T_encodeAndDecode_equalsSetValue_withInt4( final String targetClassName ) throws IOException{
+    byte[] valueArray = new byte[]{
+      (byte)0,
+      (byte)0,
+      (byte)8,
+      (byte)8,
+      (byte)15,
+      (byte)15,
+      (byte)1,
+      (byte)2,
+      (byte)3,
+      (byte)4
+    };
+    IColumn column = createTestColumn( targetClassName , valueArray );
+    assertEquals( column.size() , 10 );
+    for ( int i = 0 ; i < 10 ; i++ ) {
+      assertEquals( ( (PrimitiveObject)( column.get(i).getRow() ) ).getByte() , valueArray[i] );
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource( "data1" )
+  public void T_encodeAndDecode_equalsSetValue_withInt8( final String targetClassName ) throws IOException{
+    byte[] valueArray = new byte[]{
+      (byte)Byte.MAX_VALUE,
+      (byte)Byte.MIN_VALUE,
+      (byte)0,
+      (byte)0,
+      (byte)64,
+      (byte)-64,
+      (byte)32,
+      (byte)-32,
+      (byte)16,
+      (byte)-16
+    };
+    IColumn column = createTestColumn( targetClassName , valueArray );
+    assertEquals( column.size() , 10 );
+    for ( int i = 0 ; i < 10 ; i++ ) {
+      assertEquals( ( (PrimitiveObject)( column.get(i).getRow() ) ).getByte() , valueArray[i] );
+    }
   }
 
 }
