@@ -39,7 +39,6 @@ import jp.co.yahoo.yosegi.reader.YosegiReader;
 import jp.co.yahoo.yosegi.writer.YosegiRecordWriter;
 import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
-import jp.co.yahoo.yosegi.spread.column.filter.PerfectMatchStringFilter;
 import jp.co.yahoo.yosegi.spread.expression.*;
 
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
@@ -129,54 +128,6 @@ public class TestMultiArray{
         assertEquals(2, ((PrimitiveObject) (integerColumn.get(1).getRow())).getInt());
         assertEquals(3, ((PrimitiveObject) (integerColumn.get(2).getRow())).getInt());
         assertEquals(null, stringColumn.get(3).getRow());
-      }
-    }
-  }
-
-  @Test
-  public void T_4() throws IOException{
-    try(YosegiReader reader = new YosegiReader()) {
-      Configuration readerConfig = new Configuration();
-      readerConfig.set("spread.reader.expand.column", "{ \"base\" : { \"node\" : \"array1\" , \"link_name\" : \"expand_array1\", \"child_node\" : { \"node\" : \"array2\"  , \"link_name\" : \"expand_array2\"  } } }");
-      IExpressionNode node = new AndExpressionNode();
-      StringExtractNode array2Node = new StringExtractNode("array2-string");
-      node.addChildNode(new ExecuterNode(new StringExtractNode("expand_array2", array2Node), new PerfectMatchStringFilter("a")));
-      byte[] data = out.toByteArray();
-      InputStream fileIn = new ByteArrayInputStream(data);
-      reader.setNewStream(fileIn, data.length, readerConfig);
-      while (reader.hasNext()) {
-        Spread spread = reader.next();
-        IColumn spreadColumn = spread.getColumn("expand_array2");
-        assertEquals(spreadColumn.getColumnType(), ColumnType.SPREAD);
-        IColumn stringColumn = spreadColumn.getColumn("array2-string");
-        IExpressionIndex indexList = IndexFactory.toExpressionIndex(spread, node.exec(spread));
-        assertEquals(1, indexList.size());
-
-        assertEquals("a", ((PrimitiveObject) (stringColumn.get(indexList.get(0)).getRow())).getString());
-      }
-    }
-  }
-
-  @Test
-  public void T_5() throws IOException{
-    try(YosegiReader reader = new YosegiReader()) {
-      Configuration readerConfig = new Configuration();
-      readerConfig.set("spread.reader.expand.column", "{ \"base\" : { \"node\" : \"array1\" , \"link_name\" : \"expand_array1\", \"child_node\" : { \"node\" : \"array2\"  , \"link_name\" : \"expand_array2\"  } } }");
-      readerConfig.set("spread.reader.flatten.column", "[ { \"link_name\" : \"string\" , \"nodes\" : [\"expand_array2\" , \"array2-string\"] } , { \"link_name\" : \"integer\" , \"nodes\" : [\"expand_array2\" , \"array2-integer\"] } ]");
-      IExpressionNode node = new AndExpressionNode();
-      node.addChildNode(new ExecuterNode(new StringExtractNode("string"), new PerfectMatchStringFilter("b")));
-      byte[] data = out.toByteArray();
-      InputStream fileIn = new ByteArrayInputStream(data);
-      reader.setNewStream(fileIn, data.length, readerConfig);
-      while (reader.hasNext()) {
-        Spread spread = reader.next();
-        IColumn stringColumn = spread.getColumn("string");
-        IColumn integerColumn = spread.getColumn("integer");
-        IExpressionIndex indexList = IndexFactory.toExpressionIndex(spread, node.exec(spread));
-        assertEquals(1, indexList.size());
-
-        assertEquals("b", ((PrimitiveObject) (stringColumn.get(indexList.get(0)).getRow())).getString());
-        assertEquals(2, ((PrimitiveObject) (integerColumn.get(indexList.get(0)).getRow())).getInt());
       }
     }
   }
