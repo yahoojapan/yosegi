@@ -28,18 +28,18 @@ import java.io.IOException;
 
 public class IntegerOptimizer implements IOptimizer {
 
-  private final IColumnBinaryMaker uniqMaker;
+  private final IColumnBinaryMaker rleMaker;
   private final IColumnBinaryMaker[] makerArray;
 
   /**
    * Select logic to convert Integer.
    */
   public IntegerOptimizer( final Configuration config ) throws IOException {
-    uniqMaker = FindColumnBinaryMaker.get(
-        "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeLongColumnBinaryMaker" );
+    rleMaker = FindColumnBinaryMaker.get(
+        "jp.co.yahoo.yosegi.binary.maker.RleLongColumnBinaryMaker" );
     makerArray = new IColumnBinaryMaker[]{
       FindColumnBinaryMaker.get(
-          "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeDumpLongColumnBinaryMaker" ),
+          "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpLongColumnBinaryMaker" ),
     };
   }
 
@@ -47,16 +47,20 @@ public class IntegerOptimizer implements IOptimizer {
   public ColumnBinaryMakerConfig getColumnBinaryMakerConfig(
       final ColumnBinaryMakerConfig commonConfig , final IColumnAnalizeResult analizeResult ) {
     IColumnBinaryMaker maker = null;
-    if ( ( (double)analizeResult.getUniqCount() / (double)analizeResult.getRowCount() ) < 0.05d ) {
-      maker = uniqMaker;
-    } else {
-      int minSize = Integer.MAX_VALUE;
-      for ( IColumnBinaryMaker currentMaker : makerArray ) {
-        int currentSize = currentMaker.calcBinarySize( analizeResult );
-        if ( currentSize <= minSize ) {
-          maker = currentMaker;
-          minSize = currentSize;
-        }
+    int dumpSize = makerArray[0].calcBinarySize( analizeResult );
+    int rleSize = rleMaker.calcBinarySize( analizeResult );
+    if ( 3 <= ( dumpSize / rleSize ) ) {
+      ColumnBinaryMakerConfig currentConfig = new ColumnBinaryMakerConfig( commonConfig );
+      currentConfig.integerMakerClass = rleMaker;
+      return currentConfig;
+    }
+
+    int minSize = Integer.MAX_VALUE;
+    for ( IColumnBinaryMaker currentMaker : makerArray ) {
+      int currentSize = currentMaker.calcBinarySize( analizeResult );
+      if ( currentSize <= minSize ) {
+        maker = currentMaker;
+        minSize = currentSize;
       }
     }
     ColumnBinaryMakerConfig currentConfig = new ColumnBinaryMakerConfig( commonConfig );

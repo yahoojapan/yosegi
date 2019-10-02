@@ -158,7 +158,7 @@ public class OptimizedNullArrayDumpBooleanColumnBinaryMaker implements IColumnBi
         this.getClass().getName() ,
         currentConfig.compressorClass.getClass().getName() ,
         column.getColumnName() ,
-        ColumnType.BYTES ,
+        ColumnType.BOOLEAN ,
         column.size() ,
         binaryRaw.length ,
         Byte.BYTES * rowCount ,
