@@ -36,10 +36,10 @@ public class FloatOptimizer implements IOptimizer {
    */
   public FloatOptimizer( final Configuration config ) throws IOException {
     uniqMaker = FindColumnBinaryMaker.get(
-        "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeFloatColumnBinaryMaker" );
+        "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayFloatColumnBinaryMaker" );
     makerArray = new IColumnBinaryMaker[]{
       FindColumnBinaryMaker.get(
-          "jp.co.yahoo.yosegi.binary.maker.UnsafeRangeDumpFloatColumnBinaryMaker" ),
+          "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpFloatColumnBinaryMaker" ),
     };
   }
 

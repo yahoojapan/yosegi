@@ -29,17 +29,23 @@ import java.io.IOException;
 
 public class StringOptimizer implements IOptimizer {
 
+  private final IColumnBinaryMaker rleMaker;
+  private final IColumnBinaryMaker dicRleMaker;
   private final IColumnBinaryMaker[] makerArray;
 
   /**
    * Select logic to convert String.
    */
   public StringOptimizer( final Configuration config ) throws IOException {
+    rleMaker = FindColumnBinaryMaker.get(
+          "jp.co.yahoo.yosegi.binary.maker.RleStringColumnBinaryMaker" );
+    dicRleMaker = FindColumnBinaryMaker.get(
+          "jp.co.yahoo.yosegi.binary.maker.DictionaryRleStringColumnBinaryMaker" );
     makerArray = new IColumnBinaryMaker[]{
       FindColumnBinaryMaker.get(
-          "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeStringColumnBinaryMaker" ),
+          "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpStringColumnBinaryMaker" ),
       FindColumnBinaryMaker.get(
-          "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeDumpStringColumnBinaryMaker" ),
+          "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayStringColumnBinaryMaker" ),
     };
   }
 
@@ -48,21 +54,29 @@ public class StringOptimizer implements IOptimizer {
         final ColumnBinaryMakerConfig commonConfig ,
         final IColumnAnalizeResult analizeResult ) {
     IColumnBinaryMaker maker = null;
+
+    int dumpSize = makerArray[0].calcBinarySize( analizeResult );
+    int rleSize = rleMaker.calcBinarySize( analizeResult );
+    int dicRleSize = dicRleMaker.calcBinarySize( analizeResult );
+    if ( 3 <= ( dumpSize / rleSize ) ) {
+      ColumnBinaryMakerConfig currentConfig = new ColumnBinaryMakerConfig( commonConfig );
+      if ( rleSize < dicRleSize ) {
+        currentConfig.stringMakerClass = rleMaker;
+      } else {
+        currentConfig.stringMakerClass = dicRleMaker;
+      }
+      return currentConfig;
+    }
+
     int minSize = Integer.MAX_VALUE;
 
     StringColumnAnalizeResult stringResult = (StringColumnAnalizeResult)analizeResult;
 
-    int avgLength = stringResult.getTotalUtf8ByteSize() / stringResult.getRowCount();
-    if ( 4 < avgLength
-        && ( (double)stringResult.getUniqCount() / (double)stringResult.getRowCount() ) < 0.5d ) {
-      maker = makerArray[0];
-    } else {
-      for ( IColumnBinaryMaker currentMaker : makerArray ) {
-        int currentSize = currentMaker.calcBinarySize( analizeResult );
-        if ( currentSize <= minSize ) {
-          maker = currentMaker;
-          minSize = currentSize;
-        }
+    for ( IColumnBinaryMaker currentMaker : makerArray ) {
+      int currentSize = currentMaker.calcBinarySize( analizeResult );
+      if ( currentSize <= minSize ) {
+        maker = currentMaker;
+        minSize = currentSize;
       }
     }
     ColumnBinaryMakerConfig currentConfig = null;

@@ -36,10 +36,12 @@ public class ShortOptimizer implements IOptimizer {
    */
   public ShortOptimizer( final Configuration config ) throws IOException {
     uniqMaker = FindColumnBinaryMaker.get(
-        "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeLongColumnBinaryMaker" );
+        "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayLongColumnBinaryMaker" );
     makerArray = new IColumnBinaryMaker[]{
       FindColumnBinaryMaker.get(
-          "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeDumpLongColumnBinaryMaker" ),
+          "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpLongColumnBinaryMaker" ),
+      FindColumnBinaryMaker.get(
+          "jp.co.yahoo.yosegi.binary.maker.RleLongColumnBinaryMaker" ),
     };
   }
 
@@ -48,16 +50,12 @@ public class ShortOptimizer implements IOptimizer {
       final ColumnBinaryMakerConfig commonConfig , final IColumnAnalizeResult analizeResult ) {
     IColumnBinaryMaker maker = null;
 
-    if ( ( (double)analizeResult.getUniqCount() / (double)analizeResult.getRowCount() ) < 0.025d ) {
-      maker = uniqMaker;
-    } else {
-      int minSize = Integer.MAX_VALUE;
-      for ( IColumnBinaryMaker currentMaker : makerArray ) {
-        int currentSize = currentMaker.calcBinarySize( analizeResult );
-        if ( currentSize <= minSize ) {
-          maker = currentMaker;
-          minSize = currentSize;
-        }
+    int minSize = Integer.MAX_VALUE;
+    for ( IColumnBinaryMaker currentMaker : makerArray ) {
+      int currentSize = currentMaker.calcBinarySize( analizeResult );
+      if ( currentSize <= minSize ) {
+        maker = currentMaker;
+        minSize = currentSize;
       }
     }
 
