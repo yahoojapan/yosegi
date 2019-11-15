@@ -106,6 +106,21 @@ public class TestStringPrimitiveColumn {
     return FindColumnBinaryMaker.get( columnBinary.makerClassName ).toColumn( columnBinary );
   }
 
+  public IColumn createNullExistsContinuouslyColumn( final String targetClassName ) throws IOException {
+    IColumn column = new PrimitiveColumn( ColumnType.STRING , "column" );
+    for ( int i = 0 ; i < 1000000 ; i++ ) {
+      if ( ( i % 100 ) < 10 ) {
+        column.add( ColumnType.STRING , new StringObj( Integer.toString( i ) ) , i );
+      }
+    }
+
+    IColumnBinaryMaker maker = FindColumnBinaryMaker.get( targetClassName );
+    ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
+    ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
+    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
+    return FindColumnBinaryMaker.get( columnBinary.makerClassName ).toColumn( columnBinary );
+  }
+
   @ParameterizedTest
   @MethodSource( "data1" )
   public void T_notNull_1( final String targetClassName ) throws IOException{
@@ -154,6 +169,20 @@ public class TestStringPrimitiveColumn {
       assertNull( column.get(i).getRow() );
     }
     assertEquals( ( (PrimitiveObject)( column.get(10000).getRow() ) ).getString() , "c" );
+  }
+
+  @ParameterizedTest
+  @MethodSource( "data1" )
+  public void T_get_equalsSetValue_whenNullExistsContinuously( final String targetClassName ) throws IOException{
+    IColumn column = createNullExistsContinuouslyColumn( targetClassName );
+    for ( int i = 0 ; i < 1000000 ; i++ ) {
+      if ( ( i % 100 ) < 10 ) {
+        assertEquals( ( (PrimitiveObject)( column.get(i).getRow() ) ).getString() , Integer.toString(i) );
+      }
+      else {
+        assertNull( column.get(i).getRow() );
+      }
+    }
   }
 
 }
