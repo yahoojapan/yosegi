@@ -90,7 +90,7 @@ public class OptimizedNullArrayStringColumnBinaryMaker implements IColumnBinaryM
     int rowCount = 0;
     int nullCount = 0;
     int nullMaxIndex = 0;
-    final int notNullMaxIndex = 0;
+    int notNullMaxIndex = 0;
 
     int startIndex = 0;
     for ( ; startIndex < column.size() ; startIndex++ ) {
@@ -128,6 +128,7 @@ public class OptimizedNullArrayStringColumnBinaryMaker implements IColumnBinaryM
       }
       logicalDataLength += Integer.BYTES + obj.length;
       indexArray[rowCount] = dicMap.get( target );
+      notNullMaxIndex = arrayIndex;
       rowCount++;
     }
 
