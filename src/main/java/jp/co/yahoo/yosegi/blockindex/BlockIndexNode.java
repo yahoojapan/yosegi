@@ -25,9 +25,9 @@ import java.util.Map;
 
 public class BlockIndexNode {
 
-  private Map<String,BlockIndexNode> childContainer;
-  private IBlockIndex blockIndex;
-  private boolean isDisable;
+  protected Map<String,BlockIndexNode> childContainer;
+  protected IBlockIndex blockIndex;
+  protected boolean isDisable;
 
   public BlockIndexNode() {
     childContainer = new HashMap<String,BlockIndexNode>();
