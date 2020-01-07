@@ -19,6 +19,7 @@
 package jp.co.yahoo.yosegi.reader;
 
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
+import jp.co.yahoo.yosegi.block.BlockReaderNameShortCut;
 import jp.co.yahoo.yosegi.block.IBlockReader;
 import jp.co.yahoo.yosegi.config.Configuration;
 import jp.co.yahoo.yosegi.spread.Spread;
@@ -96,7 +97,7 @@ public class YosegiReader implements AutoCloseable {
     CharBuffer viewCharBuffer = classNameBuffer.asCharBuffer();
     char[] classNameChars = new char[ classNameSize / Character.BYTES ];
     viewCharBuffer.get( classNameChars );
-    String blockReaderClass = new String( classNameChars );
+    String blockReaderClass = BlockReaderNameShortCut.getClassName( new String( classNameChars ) );
 
     return new FileHeaderMeta(
         readBlockSize , 

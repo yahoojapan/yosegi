@@ -19,6 +19,7 @@
 package jp.co.yahoo.yosegi.writer;
 
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
+import jp.co.yahoo.yosegi.block.BlockReaderNameShortCut;
 import jp.co.yahoo.yosegi.block.FindBlockWriter;
 import jp.co.yahoo.yosegi.block.IBlockWriter;
 import jp.co.yahoo.yosegi.block.PushdownSupportedBlockWriter;
@@ -49,7 +50,8 @@ public class YosegiWriter implements AutoCloseable {
     blockMaker = FindBlockWriter.get(
         config.get( "block.maker.class" , PushdownSupportedBlockWriter.class.getName() ) );
     blockMaker.setup( blockSize , config );
-    String blockMakerClassName = blockMaker.getReaderClassName();
+    String blockMakerClassName = BlockReaderNameShortCut
+        .getShortCutName( blockMaker.getReaderClassName() );
     int classNameLength = blockMakerClassName.length() * Character.BYTES;
 
     byte[] header = new byte[MAGIC.length + Integer.BYTES + Integer.BYTES + classNameLength ];
