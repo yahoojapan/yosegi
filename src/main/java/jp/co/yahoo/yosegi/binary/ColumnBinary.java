@@ -24,17 +24,54 @@ import jp.co.yahoo.yosegi.spread.column.ColumnTypeFactory;
 import jp.co.yahoo.yosegi.stats.ColumnStats;
 import jp.co.yahoo.yosegi.stats.SummaryStats;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.util.List;
 
+/**
+ * This class is a variable that holds the serialized data of the column.
+ * Its role is to get statistics, get binary data size,
+ * serialize and deserialize when saving to a block.
+ *
+ * <p>Does not allow NULL except columnBinaryList.
+ * If columnBinaryList is NULL, it means Primitive type.
+ * 
+ * <p>This object is generated from a class that implements the
+ * {@link jp.co.yahoo.yosegi.binary.maker.IColumnBinaryMaker} interface.
+ * Since the serialized byte array is a reference,
+ * there is a risk of being rewritten by other classes.
+ * The reason for creating a new byte array and not copying
+ * it is because of poor performance.
+ *
+ * <p>Multi-thread access is not assumed because variables are referenced directly.
+ *
+ * <p>The binary layout is shown below.
+ *
+ * <ul>
+ * <li>makerClassNameCharLength int
+ * <li>makerClassName varchar
+ * <li>compressorClassNameCharLength int
+ * <li>compressorClassName varchar
+ * <li>columnNameCharLength int 
+ * <li>columnName varchar
+ * <li>columnType byte
+ * <li>rowCount int
+ * <li>logicalDataSize int
+ * <li>cardinality int
+ * <li>binaryStart int
+ * <li>binaryLength int
+ * </ul>
+ *
+ * <p>The fixed length is Integer.BYTES * 9 + Byte.BYTES. 
+ * This serialized data contains no data. This is because when creating a block,
+ * meta and data are separated and copied into a byte array.
+ */
 public class ColumnBinary {
 
+  /** The fixed length is Integer.BYTES * 9 + Byte.BYTES. */
+  private static final int FIXED_BINARY_SIZE = Integer.BYTES * 9 + Byte.BYTES;
+
   public final String makerClassName;
-
   public final String compressorClassName;
-
   public final String columnName;
   public final ColumnType columnType;
   public final int rowCount;
@@ -50,6 +87,20 @@ public class ColumnBinary {
 
   /**
    * Create an object initialized with argument values.
+   * There is a risk that the value set at initialization is rewritten
+   * because direct reference is allowed.
+   *
+   * @param makerClassName the class name that has the interface of IColumnBinaryMaker.
+   * @param compressorClassName compression class name used for serialization.
+   * @param columnName column name.
+   * @param columnType column type.
+   * @param rowCount the raw count for this column. Does not include NULL.
+   * @param rawDataSize data size after serialization.
+   * @param logicalDataSize logical data size of this column.
+   * @param cardinality cardinality of this column. If not calculated, it is -1.
+   * @param binary byte array with column serialized.
+   * @param binaryStart binary start position.
+   * @param binaryLength binary length.
    */
   public ColumnBinary(
       final String makerClassName ,
@@ -79,9 +130,16 @@ public class ColumnBinary {
   }
 
   /**
-   * Calculate the converted binary size of this object.
+   * Returns the size of the data.
+   * It does not include the binary size of the meta.
+   * If List is not NULL, calculate the sum.
+   * There is a {@link #getMetaSize ()} that calculates the metasize,
+   * but does not include the size of the data.
+   *
+   * @return Size of byte array when saving to block.
+   *         If children are included, add them up.
    */
-  public int binarySize() throws IOException {
+  public int binarySize() {
     int length = binaryLength;
 
     if ( columnBinaryList != null ) {
@@ -93,69 +151,63 @@ public class ColumnBinary {
   }
 
   /**
-   * Calculate meta size.
+   * Returns the binary size of this object.
+   * The difference from {@link #binarySize ()} is that it does not include children.
+   *
+   * @return Size of byte array when saving to block.
+   *         If children are included, add them up.
    */
-  public int getMetaSize() throws IOException {
+  public int getMetaSize() {
     return
         ( ColumnBinaryMakerNameShortCut.getShortCutName( makerClassName ).length()
           * Character.BYTES )
-        + Integer.BYTES
         + ( CompressorNameShortCut.getShortCutName( compressorClassName ).length()
           * Character.BYTES )
-        + Integer.BYTES
         + ( columnName.length() * Character.BYTES )
-        + Integer.BYTES
-        + Byte.BYTES
-        + Integer.BYTES
-        + Integer.BYTES
-        + Integer.BYTES
-        + Integer.BYTES
-        + Integer.BYTES
-        + Integer.BYTES;
+        + FIXED_BINARY_SIZE;
   }
 
   /**
-   * Restore from byte array to ColumnBinary.
+   * Deserializes a ColumnBinary from a byte array.
+   * The data is created by the caller.
+   *
+   * @param metaBinary the byte array to deserialize.
+   * @param start binary start position.
+   * @param length binary length.
+   * @param dataBuffer a byte array representing the data.
+   *        Make a shallow copy to {@link #binary}.
+   * @param childList the column list object of this column's children.
+   *
+   * @return A new deserialized ColumnBinary object.
    */
   public static ColumnBinary newInstanceFromMetaBinary(
       final byte[] metaBinary ,
       final int start ,
       final int length ,
       final byte[] dataBuffer ,
-      final List<ColumnBinary> childList ) throws IOException {
-    int offset = start;
+      final List<ColumnBinary> childList ) {
     ByteBuffer wrapBuffer = ByteBuffer.wrap( metaBinary , start , length );
-    CharBuffer viewCharBuffer = wrapBuffer.asCharBuffer();
 
-    int classNameLength = wrapBuffer.getInt( offset );
-    offset += Integer.BYTES;
-    viewCharBuffer.position( ( offset - start ) / Character.BYTES );
+    int classNameLength = wrapBuffer.getInt();
     char[] classNameChars = new char[ classNameLength / Character.BYTES ];
-    viewCharBuffer.get( classNameChars );
+    wrapBuffer.asCharBuffer().get( classNameChars );
     final String metaClassName = String.valueOf( classNameChars );
-    offset += classNameLength;
+    wrapBuffer.position( wrapBuffer.position() + classNameLength );
 
-    int compressorClassNameLength = wrapBuffer.getInt( offset );
-    offset += Integer.BYTES;
-    viewCharBuffer.position( ( offset - start ) / Character.BYTES );
+    int compressorClassNameLength = wrapBuffer.getInt();
     char[] compressorClassNameChars = new char[ compressorClassNameLength / Character.BYTES ];
-    viewCharBuffer.get( compressorClassNameChars );
+    wrapBuffer.asCharBuffer().get( compressorClassNameChars );
     final String metaCompressorClassName = String.valueOf( compressorClassNameChars );
-    offset += compressorClassNameLength;
+    wrapBuffer.position( wrapBuffer.position() + compressorClassNameLength );
 
-    int columnNameLength = wrapBuffer.getInt( offset );
-    offset += Integer.BYTES;
-    viewCharBuffer.position( ( offset - start ) / Character.BYTES );
+    int columnNameLength = wrapBuffer.getInt();
     char[] columnNameChars = new char[ columnNameLength / Character.BYTES ];
-    viewCharBuffer.get( columnNameChars );
+    wrapBuffer.asCharBuffer().get( columnNameChars );
     final String metaColumnName = String.valueOf( columnNameChars );
-    offset += columnNameLength;
+    wrapBuffer.position( wrapBuffer.position() + columnNameLength );
 
-    byte columnTypeByte = wrapBuffer.get( offset );
+    byte columnTypeByte = wrapBuffer.get();
     ColumnType metaColumnType = ColumnTypeFactory.getColumnTypeFromByte( columnTypeByte );
-    offset += Byte.BYTES;
-
-    wrapBuffer.position( offset );
     int metaRowCount = wrapBuffer.getInt();
     int metaRowData = wrapBuffer.getInt();
     int metaLogicalData = wrapBuffer.getInt();
@@ -179,42 +231,35 @@ public class ColumnBinary {
   }
 
   /**
-   * Convert this object to byte array.
+   * Serializes this object.
+   * Does not include data.
+   *
+   * @return The new serialized byte array.
    */
-  public byte[] toMetaBinary() throws IOException {
-    String shortCutClassName = ColumnBinaryMakerNameShortCut.getShortCutName( makerClassName );
+  public byte[] toMetaBinary() {
+    String shortCutClassName =
+        ColumnBinaryMakerNameShortCut.getShortCutName( makerClassName );
 
-    byte[] result = new byte[getMetaSize()];
-    ByteBuffer wrapBuffer = ByteBuffer.wrap( result );
-    CharBuffer viewCharBuffer = wrapBuffer.asCharBuffer();
-    int offset = 0;
+    ByteBuffer wrapBuffer = ByteBuffer.allocate( getMetaSize() );
 
     int classNameLength = shortCutClassName.length() * 2;
-    wrapBuffer.putInt( offset , classNameLength );
-    offset += Integer.BYTES;
-    viewCharBuffer.position( offset / Character.BYTES );
-    viewCharBuffer.put( shortCutClassName.toCharArray() );
-    offset += classNameLength;
+    wrapBuffer.putInt( classNameLength );
+    wrapBuffer.asCharBuffer().put( shortCutClassName.toCharArray() );
+    wrapBuffer.position( wrapBuffer.position() + classNameLength );
 
     String shortCutCompressorClassName =
         CompressorNameShortCut.getShortCutName( compressorClassName );
     int compressorClassNameLength = shortCutCompressorClassName.length() * 2;
-    wrapBuffer.putInt( offset , compressorClassNameLength );
-    offset += Integer.BYTES;
-    viewCharBuffer.position( offset / Character.BYTES );
-    viewCharBuffer.put( shortCutCompressorClassName.toCharArray() );
-    offset += compressorClassNameLength;
+    wrapBuffer.putInt( compressorClassNameLength );
+    wrapBuffer.asCharBuffer().put( shortCutCompressorClassName.toCharArray() );
+    wrapBuffer.position( wrapBuffer.position() + compressorClassNameLength );
 
     int columnNameLength = columnName.length() * 2;
-    wrapBuffer.putInt( offset , columnNameLength );
-    offset += Integer.BYTES;
-    viewCharBuffer.position( offset / Character.BYTES );
-    viewCharBuffer.put( columnName.toCharArray() );
-    offset += columnNameLength;
+    wrapBuffer.putInt( columnNameLength );
+    wrapBuffer.asCharBuffer().put( columnName.toCharArray() );
+    wrapBuffer.position( wrapBuffer.position() + columnNameLength );
 
     byte columnTypeByte = ColumnTypeFactory.getColumnTypeByte( columnType );
-
-    wrapBuffer.position( offset );
     wrapBuffer.put( columnTypeByte );
     wrapBuffer.putInt( rowCount );
     wrapBuffer.putInt( rawDataSize );
@@ -223,11 +268,13 @@ public class ColumnBinary {
     wrapBuffer.putInt( binaryStart );
     wrapBuffer.putInt( binaryLength );
 
-    return result;
+    return wrapBuffer.array();
   }
 
   /**
    * Convert this object to SummaryStats.
+   *
+   * @return Returns a new SummaryStats object containing the child elements.
    */
   public SummaryStats toSummaryStats() {
     SummaryStats stats = new SummaryStats(
@@ -242,6 +289,11 @@ public class ColumnBinary {
 
   /**
    * Convert this object to ColumnStats.
+   * In the case of Union, the elements of List are considered as one
+   * column and are added together.
+   * For other types, create an object containing the children.
+   *
+   * @return Returns a new ColumnStats object containing the child elements.
    */
   public ColumnStats toColumnStats() {
     ColumnStats columnStats = new ColumnStats( columnName );
