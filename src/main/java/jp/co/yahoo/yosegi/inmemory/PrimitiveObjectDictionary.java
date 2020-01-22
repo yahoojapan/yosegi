@@ -80,7 +80,7 @@ public class PrimitiveObjectDictionary implements IDictionary {
       final byte[] value ,
       final int start ,
       final int length ) throws IOException {
-    dic[index] = new BytesObj( value );
+    dic[index] = new BytesObj( value, start, length );
   }
 
   @Override
