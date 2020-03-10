@@ -98,4 +98,8 @@ public class EncryptionSupportedBlockReadOffset
     return encryptBinaryLength;
   }
 
+  public int getEncryptBinaryLength() {
+    return encryptBinaryLength;
+  }
+
 }

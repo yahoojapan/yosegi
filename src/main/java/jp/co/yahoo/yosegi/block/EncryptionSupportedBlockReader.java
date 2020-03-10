@@ -74,6 +74,7 @@ public class EncryptionSupportedBlockReader implements IBlockReader {
   private KeyStore keyStore;
   private AdditionalAuthenticationData aad;
   private IEncryptorFactory encryptorFactory;
+  private long readBytes;
 
   public EncryptionSupportedBlockReader() {
     block = new EncryptionSupportedBlock();
@@ -156,11 +157,12 @@ public class EncryptionSupportedBlockReader implements IBlockReader {
   public void setStream( final InputStream in , final int blockSize ) throws IOException {
     clear();
     byte[] blockHeaderSizeBytes = new byte[Integer.BYTES];
-    InputStreamUtils.read( in , blockHeaderSizeBytes , 0 , blockHeaderSizeBytes.length );
+    readBytes += InputStreamUtils.read(
+        in , blockHeaderSizeBytes , 0 , blockHeaderSizeBytes.length );
     int blockHeaderSize = ByteBuffer.wrap( blockHeaderSizeBytes ).getInt();
 
     byte[] blockHeaderBinary = new byte[blockHeaderSize];
-    InputStreamUtils.read( in , blockHeaderBinary , 0 , blockHeaderBinary.length );
+    readBytes += InputStreamUtils.read( in , blockHeaderBinary , 0 , blockHeaderBinary.length );
     ByteBuffer wrapBuffer = ByteBuffer.wrap( blockHeaderBinary );
     int compressorClassLength = wrapBuffer.getInt();
     compressor = FindCompressor.get( CompressorNameShortCut.getClassName( new String(
@@ -288,6 +290,7 @@ public class EncryptionSupportedBlockReader implements IBlockReader {
     for ( EncryptionSupportedBlockReadOffset blockReadOffset : readOffsetList ) {
       inOffset += InputStreamUtils.skip( in , blockReadOffset.streamStart - inOffset );
       inOffset += blockReadOffset.read( in , aad , keyStore , encryptorFactory );
+      readBytes += blockReadOffset.getEncryptBinaryLength();
     }
     if ( inOffset < dataBufferLength ) {
       inOffset += InputStreamUtils.skip( in , dataBufferLength - inOffset );
@@ -332,6 +335,11 @@ public class EncryptionSupportedBlockReader implements IBlockReader {
   }
 
   @Override
+  public long getReadBytes() {
+    return readBytes;
+  }
+
+  @Override
   public int getBlockCount() {
     return block.size();
   }
@@ -358,6 +366,7 @@ public class EncryptionSupportedBlockReader implements IBlockReader {
     spreadSizeList.clear();
     columnBinaryTree.clear();
     readCount = 0;
+    readBytes = 0;
     block.setColumnBinaryTree( null );
   }
 

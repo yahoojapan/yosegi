@@ -59,6 +59,7 @@ public class PushdownSupportedBlockReader implements IBlockReader {
   private IFlattenFunction flattenFunction;
   private BlockIndexNode blockIndexNode = new BlockIndexNode();
   private IExpressionNode blockSkipIndex;
+  private long readBytes = 0;
 
   public PushdownSupportedBlockReader() {
     block = new Block();
@@ -147,10 +148,10 @@ public class PushdownSupportedBlockReader implements IBlockReader {
         CompressorNameShortCut.getClassName( new String( compressorClassBytes , "UTF-8" ) ) );
 
     byte[] blockIndexLengthBytes = new byte[Integer.BYTES];
-    InputStreamUtils.read( in , blockIndexLengthBytes , 0 , Integer.BYTES );
+    readBytes += InputStreamUtils.read( in , blockIndexLengthBytes , 0 , Integer.BYTES );
     int blockIndexLength = ByteBuffer.wrap( blockIndexLengthBytes ).getInt();
     byte[] blockIndexBinary = new byte[ blockIndexLength ];
-    InputStreamUtils.read( in , blockIndexBinary , 0 , blockIndexBinary.length );
+    readBytes += InputStreamUtils.read( in , blockIndexBinary , 0 , blockIndexBinary.length );
 
     blockIndexNode = BlockIndexNode.createFromBinary( blockIndexBinary , 0 );
     expandFunction.expandIndexNode( blockIndexNode );
@@ -185,24 +186,25 @@ public class PushdownSupportedBlockReader implements IBlockReader {
 
     byte[] spreadSizeLengthBytes = new byte[Integer.BYTES];
     ByteBuffer wrapBuffer = ByteBuffer.wrap( spreadSizeLengthBytes );
-    InputStreamUtils.read( in , spreadSizeLengthBytes , 0 , Integer.BYTES );
+    readBytes += InputStreamUtils.read( in , spreadSizeLengthBytes , 0 , Integer.BYTES );
     int spreadSizeLength = wrapBuffer.getInt(0);
 
     byte[] spreadSizeBytes = new byte[ Integer.BYTES * spreadSizeLength ];
     wrapBuffer = ByteBuffer.wrap( spreadSizeBytes );
-    InputStreamUtils.read( in , spreadSizeBytes , 0 , Integer.BYTES * spreadSizeLength );
+    readBytes += InputStreamUtils.read(
+        in , spreadSizeBytes , 0 , Integer.BYTES * spreadSizeLength );
     for ( int i = 0 ; i < spreadSizeLength ; i++ ) {
       spreadSizeList.add( wrapBuffer.getInt() );
     }
 
     byte[] lengthBytes = new byte[Integer.BYTES];
     wrapBuffer = ByteBuffer.wrap( lengthBytes );
-    InputStreamUtils.read( in , lengthBytes , 0 , Integer.BYTES );
+    readBytes += InputStreamUtils.read( in , lengthBytes , 0 , Integer.BYTES );
 
     int metaLength = wrapBuffer.getInt( 0 );
     byte[] metaBytes = new byte[metaLength];
 
-    InputStreamUtils.read( in , metaBytes , 0 , metaLength );
+    readBytes += InputStreamUtils.read( in , metaBytes , 0 , metaLength );
 
     int decompressSize = compressor.getDecompressSize( metaBytes , 0 , metaLength );
     byte[] metaBinary = new byte[decompressSize];
@@ -226,6 +228,7 @@ public class PushdownSupportedBlockReader implements IBlockReader {
       inOffset = blockReadOffset.streamStart;
       inOffset += InputStreamUtils.read(
           in , blockReadOffset.buffer , blockReadOffset.bufferStart , blockReadOffset.length );
+      readBytes += blockReadOffset.length;
     }
     if ( inOffset < dataBufferLength ) {
       inOffset += InputStreamUtils.skip( in , dataBufferLength - inOffset );
@@ -270,6 +273,11 @@ public class PushdownSupportedBlockReader implements IBlockReader {
   }
 
   @Override
+  public long getReadBytes() {
+    return readBytes;
+  }
+
+  @Override
   public int getBlockCount() {
     return block.size();
   }
@@ -294,6 +302,7 @@ public class PushdownSupportedBlockReader implements IBlockReader {
     spreadSizeList.clear();
     columnBinaryTree.clear();
     readCount = 0;
+    readBytes = 0;
     block.setColumnBinaryTree( null );
   }
 
