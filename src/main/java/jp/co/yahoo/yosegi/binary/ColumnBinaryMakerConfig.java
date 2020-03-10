@@ -38,6 +38,18 @@ import jp.co.yahoo.yosegi.spread.column.ColumnType;
 
 import java.io.IOException;
 
+/**
+ * This class holds the settings for serialization of IColumnBinaryMaker.
+ * The internal variables consist of a combination of type and IColumnBinaryMaker,
+ * compression codec, and parameters related to compression optimization.
+ * The default IColumnBinaryMaker should be a class that is efficient and stable on average.
+ *
+ * <p>This class is intended to define default settings and column-specific settings respectively.
+ *
+ * <p>This class does not determine if IColumnBinaryMaker is appropriate for the type.
+ *
+ * <p>Multi-threading is not supported because references to variables are made directly.
+ */
 public class ColumnBinaryMakerConfig {
 
   public Configuration param = new Configuration();
@@ -63,6 +75,10 @@ public class ColumnBinaryMakerConfig {
 
   /**
    * Initialize with the default value.
+   * Each variable is set to the newly created object.
+   *
+   * @throws IOException Occurs when a class does not exist when an instance is created.
+   *         However, it should not occur because we are assigning names from classes.
    */
   public ColumnBinaryMakerConfig() throws IOException {
     compressorClass = FindCompressor.get( GzipCompressor.class.getName() );
@@ -98,6 +114,9 @@ public class ColumnBinaryMakerConfig {
 
   /**
    * Initialize with other Config settings.
+   * The purpose of this constructor is to prevent creating unnecessary
+   * objects when you want to create the same settings.
+   * For example, if you want to duplicate the same settings in a nested column.
    */
   public ColumnBinaryMakerConfig( final ColumnBinaryMakerConfig otherConfig ) {
     this.compressorClass = otherConfig.compressorClass;
@@ -119,6 +138,10 @@ public class ColumnBinaryMakerConfig {
 
   /**
    * Select IColumnBinaryMaker from column type.
+   * The purpose of this method is to prevent it from being duplicated
+   * in classes that use type-specific judgment processing.
+   *
+   * @return Returns the appropriate variable for the type.
    */
   public IColumnBinaryMaker getColumnMaker( final ColumnType columnType ) {
     switch ( columnType ) {

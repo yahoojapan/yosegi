@@ -220,6 +220,10 @@ public class YosegiReader implements AutoCloseable {
     return currentBlockReader.getReadStats();
   }
 
+  public long getReadBytes() {
+    return currentBlockReader.getReadBytes();
+  }
+
   /**
    * Close InputStream and reset internal data.
    */

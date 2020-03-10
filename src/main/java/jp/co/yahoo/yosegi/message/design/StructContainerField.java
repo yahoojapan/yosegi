@@ -56,6 +56,9 @@ public class StructContainerField implements INamedContainerField {
 
   @Override
   public void set( final IField field ) throws IOException {
+    if ( field == null ) {
+      return;
+    }
     String fieldName = field.getName();
     if ( fieldContainer.containsKey( fieldName ) ) {
       throw new IOException(

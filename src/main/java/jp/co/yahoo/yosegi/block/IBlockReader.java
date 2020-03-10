@@ -48,6 +48,10 @@ public interface IBlockReader {
 
   int getBlockCount();
 
+  default long getReadBytes() {
+    return 0;
+  }
+
   SummaryStats getReadStats();
 
   Integer getCurrentSpreadSize();
