@@ -25,7 +25,7 @@ public final class BlockReaderNameShortCut {
   private static final Pair CLASS_NAME_PAIR = new Pair();
 
   static {
-    CLASS_NAME_PAIR.set( "jp.co.yahoo.yosegi.block.PushdownSupportedBlockReader"   , "B0" );
+    //CLASS_NAME_PAIR.set( "jp.co.yahoo.yosegi.block.PushdownSupportedBlockReader"   , "B0" );
     CLASS_NAME_PAIR.set( "jp.co.yahoo.yosegi.block.EncryptionSupportedBlockReader" , "B1" );
   }
 

@@ -190,7 +190,7 @@ public class OptimizedNullArrayStringColumnBinaryMaker implements IColumnBinaryM
 
     if ( ! lengthMinMax.getMin().equals( lengthMinMax.getMax() ) ) {
       IWriteSupporter lengthWriter = lengthConverter.toWriteSuppoter(
-          rowCount , binaryRaw , META_LENGTH + nullLength + indexLength , lengthByteLength  );
+          dicMap.size() , binaryRaw , META_LENGTH + nullLength + indexLength , lengthByteLength  );
       for ( int i = 0 ; i < dicMap.size(); i++ ) {
         lengthWriter.putInt( dicArray[i].length );
       }
