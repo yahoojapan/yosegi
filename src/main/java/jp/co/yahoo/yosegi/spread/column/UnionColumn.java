@@ -215,7 +215,7 @@ public class UnionColumn implements IColumn {
       final int start ,
       final int length ,
       final IMemoryAllocator allocator ) throws IOException {
-    cellManager.getPrimitiveObjectArray( indexList , start , length );
+    cellManager.setPrimitiveObjectArray( indexList , start , length , allocator );
   }
 
   @Override
