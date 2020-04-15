@@ -29,6 +29,8 @@ import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
 
 import java.io.IOException;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SequentialStringCellIndex implements ICellIndex {
 
@@ -146,9 +148,10 @@ public class SequentialStringCellIndex implements ICellIndex {
 
   private boolean[] regexpMatch(
       final String targetStr , boolean[] filterArray ) throws IOException {
+    Pattern pt = Pattern.compile( targetStr );
     for ( int i = 0 ; i < dicManager.getDicSize() ; i++ ) {
       PrimitiveObject obj = dicManager.get( i );
-      if ( obj != null && obj.getString().matches( targetStr ) ) {
+      if ( obj != null && pt.matcher( obj.getString() ).find() ) {
         filterArray[i] = true;
       }
     }
