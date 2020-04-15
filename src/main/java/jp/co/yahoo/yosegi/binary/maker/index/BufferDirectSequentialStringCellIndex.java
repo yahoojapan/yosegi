@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class BufferDirectSequentialStringCellIndex implements ICellIndex {
 
@@ -165,10 +166,11 @@ public class BufferDirectSequentialStringCellIndex implements ICellIndex {
   }
 
   private Set<Integer> regexpMatch( final String targetStr ) throws IOException {
+    Pattern pt = Pattern.compile( targetStr );
     Set<Integer> matchDicList = new HashSet<Integer>();
     for ( int i = 0 ; i < dicManager.getDicSize() ; i++ ) {
       PrimitiveObject obj = dicManager.get( i );
-      if ( obj != null && obj.getString().matches( targetStr ) ) {
+      if ( obj != null && pt.matcher( obj.getString() ).find() ) {
         matchDicList.add( Integer.valueOf( i ) );
       }
     }
