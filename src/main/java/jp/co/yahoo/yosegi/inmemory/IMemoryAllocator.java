@@ -125,4 +125,19 @@ public interface IMemoryAllocator {
     setPrimitiveObject( index , dic.getPrimitiveObject( dicIndex ) );
   }
 
+  /**
+   * This interface is used by Row Type to determine if a child column needs to be loaded.
+   * In the load process of Row Type, load can be skipped
+   * if the child IMemoryAllocator returns true.
+   * However, whether to skip load depends on the implementation of IColumnBinary.
+   * Therefore, this method is not meant to guarantee skipping.
+   * Regardless of this method, set method should be implemented so
+   * that it is NULL for columns that do not need to be processed.
+   *
+   * @return Whether load can be skipped
+   */
+  default boolean isLoadingSkipped() {
+    return false;
+  } 
+
 }
