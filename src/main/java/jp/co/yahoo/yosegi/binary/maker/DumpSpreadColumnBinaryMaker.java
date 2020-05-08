@@ -128,6 +128,9 @@ public class DumpSpreadColumnBinaryMaker implements IColumnBinaryMaker {
       IColumnBinaryMaker maker = FindColumnBinaryMaker.get( childColumnBinary.makerClassName );
       IMemoryAllocator childAllocator =
           allocator.getChild( childColumnBinary.columnName , childColumnBinary.columnType );
+      if ( childAllocator.isLoadingSkipped() ) {
+        continue;
+      }
       maker.loadInMemoryStorage( childColumnBinary , childAllocator );
       if ( maxValueCount < childAllocator.getValueCount() ) {
         maxValueCount = childAllocator.getValueCount();
