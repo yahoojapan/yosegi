@@ -40,23 +40,23 @@ public class ExpandSpread extends Spread {
   private final List<IColumn> expandColumnList;
   private final Map<String,Integer> expandColumnIndexMap;
   private int[] spreadIndexArray;
-  private Spread expandSpread;
+  private Spread innnerSpread;
 
   /**
    * Initialize.
    */
   public ExpandSpread() {
     super();
-    expandColumn = new LinkedHashMap<String,IColumn>();
-    expandColumnList = new ArrayList<IColumn>();
-    expandColumnIndexMap = new HashMap<String,Integer>();
+    expandColumn = new LinkedHashMap<>();
+    expandColumnList = new ArrayList<>();
+    expandColumnIndexMap = new HashMap<>();
   }
 
   /**
    * Set the original Spread.
    */
   public void setOriginalSpread( final Spread original , final int[] spreadIndexArray ) {
-    expandSpread = original;
+    innnerSpread = original;
     this.spreadIndexArray = spreadIndexArray;
   }
 
@@ -82,7 +82,7 @@ public class ExpandSpread extends Spread {
 
   @Override
   public Map<String,ICell> getLine(final Map<String,ICell> previous , final int index ) {
-    Map<String,ICell> result = expandSpread.getLine( previous , spreadIndexArray[index] );
+    Map<String,ICell> result = innnerSpread.getLine( previous , spreadIndexArray[index] );
     for ( Map.Entry<String,IColumn> entry : expandColumn.entrySet() ) {
       result.put( entry.getKey() , entry.getValue().get( index ) );
     }
@@ -92,28 +92,28 @@ public class ExpandSpread extends Spread {
 
   @Override
   public int addRow( final String key , final Object row ) throws IOException {
-    throw new UnsupportedOperationException( "Expand spread is read only." );
+    throw new UnsupportedOperationException( getReadOnlyExceptionMessage() );
   }
 
   @Override
   public int addRow( final Map<String,Object> row ) {
-    throw new UnsupportedOperationException( "Expand spread is read only." );
+    throw new UnsupportedOperationException( getReadOnlyExceptionMessage() );
   }
 
   @Override
   public int addParserRow( final IParser parser )throws IOException {
-    throw new UnsupportedOperationException( "Expand spread is read only." );
+    throw new UnsupportedOperationException( getReadOnlyExceptionMessage() );
   }
 
   @Override
   public int addRows( final List<Map<String,Object>> rows ) {
-    throw new UnsupportedOperationException( "Expand spread is read only." );
+    throw new UnsupportedOperationException( getReadOnlyExceptionMessage() );
   }
 
   @Override
   public List<IColumn> getListColumn() {
-    List<IColumn> result = new ArrayList<IColumn>();
-    for ( IColumn column : expandSpread.getListColumn() ) {
+    List<IColumn> result = new ArrayList<>();
+    for ( IColumn column : innnerSpread.getListColumn() ) {
       result.add( new ExpandColumn( column , spreadIndexArray ) );
     }
     result.addAll( expandColumnList );
@@ -122,8 +122,8 @@ public class ExpandSpread extends Spread {
 
   @Override
   public Map<String,IColumn> getAllColumn() {
-    Map<String,IColumn> result = new HashMap<String,IColumn>();
-    for ( Map.Entry<String,IColumn> entry : expandSpread.getAllColumn().entrySet() ) {
+    Map<String,IColumn> result = new HashMap<>();
+    for ( Map.Entry<String,IColumn> entry : innnerSpread.getAllColumn().entrySet() ) {
       result.put( entry.getKey() , new ExpandColumn( entry.getValue() , spreadIndexArray ) );
     }
     result.putAll( expandColumn );
@@ -132,7 +132,7 @@ public class ExpandSpread extends Spread {
 
   @Override
   public List<String> getColumnKeys() {
-    List<String> result = expandSpread.getColumnKeys();
+    List<String> result = innnerSpread.getColumnKeys();
     for ( Map.Entry<String,IColumn> entry : expandColumn.entrySet() ) {
       result.add( entry.getKey() );
     }
@@ -142,13 +142,13 @@ public class ExpandSpread extends Spread {
 
   @Override
   public IColumn getColumn( final int index ) {
-    int spreadSize = expandSpread.getColumnSize();
+    int spreadSize = innnerSpread.getColumnSize();
     if ( spreadSize <= index ) {
       return NullColumn.getInstance();
     } else if ( index < spreadSize ) {
-      return new ExpandColumn( expandSpread.getColumn( index ) , spreadIndexArray );
+      return new ExpandColumn( innnerSpread.getColumn( index ) , spreadIndexArray );
     } else if ( index < ( spreadSize + expandColumnList.size() ) ) {
-      return expandColumnList.get( index - expandSpread.getColumnSize() );
+      return expandColumnList.get( index - innnerSpread.getColumnSize() );
     } else {
       return NullColumn.getInstance();
     }
@@ -159,35 +159,35 @@ public class ExpandSpread extends Spread {
     if ( expandColumn.containsKey( columnName ) ) {
       return expandColumn.get( columnName );
     }
-    return new ExpandColumn( expandSpread.getColumn( columnName ) , spreadIndexArray );
+    return new ExpandColumn( innnerSpread.getColumn( columnName ) , spreadIndexArray );
   }
 
   @Override
   public void addColumn( final IColumn column ) {
-    throw new UnsupportedOperationException( "Expand spread is read only." );
+    throw new UnsupportedOperationException( getReadOnlyExceptionMessage() );
   }
 
   @Override
   public boolean containsColumn( final String columnName ) {
-    return ( expandColumn.containsKey( columnName ) || expandSpread.containsColumn( columnName ) );
+    return ( expandColumn.containsKey( columnName ) || innnerSpread.containsColumn( columnName ) );
   }
 
   @Override
   public int getColumnIndex( final String columnName ) {
     if ( expandColumn.containsKey( columnName ) ) {
-      return expandColumnIndexMap.get( columnName ) + expandSpread.getColumnSize();
+      return expandColumnIndexMap.get( columnName ) + innnerSpread.getColumnSize();
     }
-    return expandSpread.getColumnIndex( columnName );
+    return innnerSpread.getColumnIndex( columnName );
   }
 
   @Override
   public void setRowCount( final int rowCount ) {
-    throw new UnsupportedOperationException( "Expand spread is read only." );
+    throw new UnsupportedOperationException( getReadOnlyExceptionMessage() );
   }
 
   @Override
   public int getColumnSize() {
-    return expandColumn.size() + expandSpread.getColumnSize();
+    return expandColumn.size() + innnerSpread.getColumnSize();
   }
 
   @Override
@@ -202,7 +202,7 @@ public class ExpandSpread extends Spread {
 
   @Override
   public IField getSchema( final String schemaName ) throws IOException {
-    StructContainerField schema = (StructContainerField)expandSpread.getSchema();
+    StructContainerField schema = (StructContainerField)innnerSpread.getSchema();
     for ( Map.Entry<String,IColumn> entry : expandColumn.entrySet() ) {
       schema.set( entry.getValue().getSchema() );
     }
@@ -224,6 +224,10 @@ public class ExpandSpread extends Spread {
         } );
 
     return result.toString();
+  }
+
+  private String getReadOnlyExceptionMessage() {
+    return "Expand spread is read only.";
   }
 
 }

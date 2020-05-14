@@ -39,7 +39,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -72,7 +72,7 @@ public class DumpUnionColumnBinaryMaker implements IColumnBinaryMaker {
   private MargeType checkSameAllColumnType(
       final List<IColumn> columnList , final MargeType mergeType ) {
     for ( IColumn column : columnList ) {
-      if ( ! ( getMargeType( column.getColumnType() ) == mergeType ) ) {
+      if ( getMargeType( column.getColumnType() ) != mergeType ) {
         return MargeType.MIX;
       }
     }
@@ -227,7 +227,7 @@ public class DumpUnionColumnBinaryMaker implements IColumnBinaryMaker {
     private UnionColumn unionColumn;
     private boolean isCreate;
 
-    public UnionColumnManager( final ColumnBinary columnBinary ) throws IOException {
+    public UnionColumnManager( final ColumnBinary columnBinary ) {
       this.columnBinary = columnBinary;
     }
 
@@ -236,7 +236,7 @@ public class DumpUnionColumnBinaryMaker implements IColumnBinaryMaker {
         return;
       }
 
-      Map<ColumnType,IColumn> columnContainer = new HashMap<ColumnType,IColumn>();
+      Map<ColumnType,IColumn> columnContainer = new EnumMap<>( ColumnType.class );
       unionColumn = new UnionColumn( columnBinary.columnName , columnContainer );
 
       for ( ColumnBinary childColumnBinary : columnBinary.columnBinaryList ) {
@@ -274,7 +274,7 @@ public class DumpUnionColumnBinaryMaker implements IColumnBinaryMaker {
 
     @Override
     public List<String> getColumnKeys() {
-      return new ArrayList<String>();
+      return new ArrayList<>();
     }
 
     @Override

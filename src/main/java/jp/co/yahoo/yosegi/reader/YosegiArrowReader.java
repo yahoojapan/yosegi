@@ -76,9 +76,10 @@ public class YosegiArrowReader {
    */
   public static YosegiArrowReader newInstance(
       final InputStream in , final long length , final Configuration config ) throws IOException {
-    YosegiReader reader = new YosegiReader();
-    reader.setNewStream( in , length , config );
-    return new YosegiArrowReader( reader , config );
+    try ( YosegiReader reader = new YosegiReader(); ) {
+      reader.setNewStream( in , length , config );
+      return new YosegiArrowReader( reader , config );
+    }
   }
 
   /**

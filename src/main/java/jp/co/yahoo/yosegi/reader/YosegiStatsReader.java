@@ -32,8 +32,8 @@ import java.util.List;
 public class YosegiStatsReader {
 
   private final List<SpreadSummaryStats> spreadSummaryStatsList =
-      new ArrayList<SpreadSummaryStats>();
-  private final List<ColumnStats> columnStatsList = new ArrayList<ColumnStats>();
+      new ArrayList<>();
+  private final List<ColumnStats> columnStatsList = new ArrayList<>();
 
   public void readStream(
       final InputStream in ,
@@ -54,23 +54,24 @@ public class YosegiStatsReader {
     spreadSummaryStatsList.clear();
     columnStatsList.clear();
 
-    YosegiReader reader = new YosegiReader();
-    reader.setNewStream( in , dataSize , config , start , length );
-    while ( reader.hasNext() ) {
-      List<ColumnBinary> columnBinaryList = reader.nextRaw();
-      int lineCount = reader.getCurrentSpreadSize();
-      SummaryStats stats = new SummaryStats();
-      ColumnStats columnStats = new ColumnStats( "ROOT" );
-      for ( ColumnBinary columnBinary : columnBinaryList ) {
-        if ( columnBinary != null ) {
-          stats.merge( columnBinary.toSummaryStats() );
-          columnStats.addChild( columnBinary.columnName , columnBinary.toColumnStats() );
+    try ( YosegiReader reader = new YosegiReader(); ) {
+      reader.setNewStream( in , dataSize , config , start , length );
+      while ( reader.hasNext() ) {
+        List<ColumnBinary> columnBinaryList = reader.nextRaw();
+        int lineCount = reader.getCurrentSpreadSize();
+        SummaryStats stats = new SummaryStats();
+        ColumnStats columnStats = new ColumnStats( "ROOT" );
+        for ( ColumnBinary columnBinary : columnBinaryList ) {
+          if ( columnBinary != null ) {
+            stats.merge( columnBinary.toSummaryStats() );
+            columnStats.addChild( columnBinary.columnName , columnBinary.toColumnStats() );
+          }
         }
+        spreadSummaryStatsList.add( new SpreadSummaryStats( lineCount , stats ) );
+        columnStatsList.add( columnStats );
       }
-      spreadSummaryStatsList.add( new SpreadSummaryStats( lineCount , stats ) );
-      columnStatsList.add( columnStats );
+      reader.close();
     }
-    reader.close();
   }
 
   /**
