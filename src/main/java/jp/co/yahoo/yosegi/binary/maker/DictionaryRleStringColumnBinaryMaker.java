@@ -23,7 +23,6 @@ import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.binary.maker.index.RangeStringIndex;
-import jp.co.yahoo.yosegi.binary.maker.index.SequentialStringCellIndex;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.blockindex.StringRangeBlockIndex;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
@@ -31,8 +30,6 @@ import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.inmemory.IDictionary;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
-import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
-import jp.co.yahoo.yosegi.message.objects.StringObj;
 import jp.co.yahoo.yosegi.message.objects.Utf8BytesLinkObj;
 import jp.co.yahoo.yosegi.spread.analyzer.IColumnAnalizeResult;
 import jp.co.yahoo.yosegi.spread.analyzer.StringColumnAnalizeResult;
@@ -47,7 +44,6 @@ import jp.co.yahoo.yosegi.util.io.IReadSupporter;
 import jp.co.yahoo.yosegi.util.io.IWriteSupporter;
 import jp.co.yahoo.yosegi.util.io.NumberToBinaryUtils;
 import jp.co.yahoo.yosegi.util.io.nullencoder.NullBinaryEncoder;
-import jp.co.yahoo.yosegi.util.io.unsafe.ByteBufferSupporterFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -305,7 +301,6 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
     int notNullCount = analizeResult.getRowCount();
     int nullIgnoreRleRowGroupCount = analizeResult.getNullIgnoreRleGroupCount();
     int nullIgnoreRleMaxRowGroupLength = analizeResult.getNullIgonoreRleMaxRowGroupLength();
-    int nullIgnoreRleTotalLength = stringAnalizeResult.getNullIgnoreRleTotalUtf8Bytes();
 
     int nullIndexLength =
         NullBinaryEncoder.getBinarySize( nullCount , notNullCount , maxIndex , maxIndex );
@@ -388,7 +383,7 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
         columnBinary.binaryStart + headerSize ,
         columnBinary.binaryLength - headerSize );
     ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
-    ByteOrder order = wrapBuffer.get() == (byte)0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+    wrapBuffer.get();
     int startIndex = wrapBuffer.getInt();
     final int rowGroupCount = wrapBuffer.getInt();
     int maxRowGroupCount = wrapBuffer.getInt();
@@ -514,8 +509,7 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
       ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
       byte[] binary = compressor.decompress( columnBinary.binary , binaryStart , binaryLength );
       ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
-      ByteOrder order =
-          wrapBuffer.get() == (byte)0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+      wrapBuffer.get();
       final int startIndex = wrapBuffer.getInt();
       final int rowGroupCount = wrapBuffer.getInt();
       int maxRowGroupCount = wrapBuffer.getInt();

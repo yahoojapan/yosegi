@@ -77,7 +77,13 @@ public class ByteColumnAnalizer implements IColumnAnalizer {
         }
       }
     }
-    rleConverter.finish();
+    int rowGourpCount = 0;
+    int getMaxGroupLength = 0;
+    if ( rleConverter != null ) {
+      rleConverter.finish();
+      rowGourpCount = rleConverter.getRowGroupCount();
+      getMaxGroupLength = rleConverter.getMaxGroupLength();
+    }
 
     int uniqCount = dicSet.size();
 
@@ -90,8 +96,8 @@ public class ByteColumnAnalizer implements IColumnAnalizer {
         uniqCount ,
         min ,
         max ,
-        rleConverter.getRowGroupCount() ,
-        rleConverter.getMaxGroupLength() );
+        rowGourpCount ,
+        getMaxGroupLength );
   }
 
 }

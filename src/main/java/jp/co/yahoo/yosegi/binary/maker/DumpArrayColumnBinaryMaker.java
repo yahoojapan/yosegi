@@ -83,7 +83,7 @@ public class DumpArrayColumnBinaryMaker implements IColumnBinaryMaker {
         binaryRaw , 0 , binaryRaw.length , compressResult );
 
     IColumn childColumn = column.getColumn( 0 );
-    List<ColumnBinary> columnBinaryList = new ArrayList<ColumnBinary>();
+    List<ColumnBinary> columnBinaryList = new ArrayList<>();
 
     ColumnBinaryMakerCustomConfigNode childColumnConfigNode = null;
     IColumnBinaryMaker maker = commonConfig.getColumnMaker( childColumn.getColumnType() );
@@ -212,19 +212,21 @@ public class DumpArrayColumnBinaryMaker implements IColumnBinaryMaker {
     }
 
     @Override
-    public void clear() {}
+    public void clear() {
+      // Do nothing
+    }
 
     @Override
-    public void setIndex( final ICellIndex index ) {}
+    public void setIndex( final ICellIndex index ) {
+      // Do nothing
+    }
 
     @Override
     public boolean[] filter(
         final IFilter filter , final boolean[] filterArray ) throws IOException {
       switch ( filter.getFilterType() ) {
         case NOT_NULL:
-          return null;
         case NULL:
-          return null;
         default:
           return null;
       }
@@ -244,7 +246,7 @@ public class DumpArrayColumnBinaryMaker implements IColumnBinaryMaker {
         final int start ,
         final int length ,
         final IMemoryAllocator allocator ) {
-      return;
+      // Do nothing
     }
 
   }
@@ -255,7 +257,7 @@ public class DumpArrayColumnBinaryMaker implements IColumnBinaryMaker {
     private ArrayColumn arrayColumn;
     private boolean isCreate;
 
-    public ArrayColumnManager( final ColumnBinary columnBinary ) throws IOException {
+    public ArrayColumnManager( final ColumnBinary columnBinary ) {
       this.columnBinary = columnBinary;
     }
 
@@ -298,7 +300,7 @@ public class DumpArrayColumnBinaryMaker implements IColumnBinaryMaker {
       if ( isCreate ) {
         return arrayColumn.getColumnKeys();
       } else {
-        return new ArrayList<String>();
+        return new ArrayList<>();
       }
     }
 
