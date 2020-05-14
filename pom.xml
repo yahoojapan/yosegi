@@ -63,6 +63,7 @@
     <buildtype>test</buildtype>
     <spotbugs-maven-plugin.version>3.1.8</spotbugs-maven-plugin.version>
     <spotbugs.version>3.1.9</spotbugs.version>
+    <junit.version>5.6.2</junit.version>
   </properties>
 
   <distributionManagement>
@@ -117,19 +118,19 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>5.3.2</version>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.3.2</version>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-params</artifactId>
-      <version>5.3.2</version>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -143,7 +144,7 @@
           <useSystemClassLoader>false</useSystemClassLoader>
           <forkCount>2</forkCount>
           <reuseForks>true</reuseForks>
-          <argLine>-Xmx1536m -XX:MaxPermSize=512m</argLine>
+          <argLine>@{surefireArgLine} -Xmx1536m -XX:MaxPermSize=512m</argLine>
         </configuration>
         <dependencies>
           <dependency>
@@ -269,6 +270,40 @@
           <encoding>UTF-8</encoding>
           <consoleOutput>false</consoleOutput>
           <outputFile>${project.build.directory}/site/checkstyle/checkstyle-result.xml</outputFile>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.0</version>
+        <executions>
+          <execution>
+            <id>jacoco-initialize</id>
+            <goals>
+                <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>jacoco-report</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>post-unit-test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+            <configuration>
+              <dataFile>target/jacoco.exec</dataFile>
+              <outputDirectory>target/jacoco-ut</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+        <configuration>
+          <propertyName>surefireArgLine</propertyName>
         </configuration>
       </plugin>
     </plugins>
