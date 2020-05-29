@@ -36,7 +36,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class TestOptimizedNullArrayCellManager {
+public class TestOptimizedNullArrayDicCellManager {
 
   private class TestAllocator implements IMemoryAllocator {
 
@@ -73,8 +73,14 @@ public class TestOptimizedNullArrayCellManager {
     valueArray[7] = new StringObj( "h" );
     valueArray[8] = new StringObj( "i" );
     valueArray[9] = new StringObj( "j" );
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 0 , valueArray );
+    int[] indexArray = new int[]{0,1,2,3,4,5,6,7,8,9};
+    boolean[] isNullArray = new boolean[10];
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        0 ,
+        isNullArray,
+        indexArray,
+        valueArray );
     assertEquals( cellManager.size() , 10 );
     assertEquals( "a" , ( (PrimitiveObject)( cellManager.get( 0 , null ).getRow() ) ).getString() );
     assertEquals( "b" , ( (PrimitiveObject)( cellManager.get( 1 , null ).getRow() ) ).getString() );
@@ -103,8 +109,14 @@ public class TestOptimizedNullArrayCellManager {
     valueArray[7] = new StringObj( "h" );
     valueArray[8] = new StringObj( "i" );
     valueArray[9] = new StringObj( "j" );
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 10 , valueArray );
+    int[] indexArray = new int[]{0,1,2,3,4,5,6,7,8,9};
+    boolean[] isNullArray = new boolean[10];
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        10 ,
+        isNullArray,
+        indexArray,
+        valueArray );
     assertEquals( cellManager.size() , 20 );
     assertNull( cellManager.get( 0 , null ) );
     assertNull( cellManager.get( 1 , null ) );
@@ -133,7 +145,7 @@ public class TestOptimizedNullArrayCellManager {
   @Test
   public void T_get_equalsSetArray_withHeadIndexIsNullArrayAndStartIndexZero() throws IOException {
     PrimitiveObject[] valueArray = new PrimitiveObject[10];
-    valueArray[0] = null;
+    valueArray[0] = new StringObj( "a" );
     valueArray[1] = new StringObj( "b" );
     valueArray[2] = new StringObj( "c" );
     valueArray[3] = new StringObj( "d" );
@@ -143,8 +155,15 @@ public class TestOptimizedNullArrayCellManager {
     valueArray[7] = new StringObj( "h" );
     valueArray[8] = new StringObj( "i" );
     valueArray[9] = new StringObj( "j" );
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 0 , valueArray );
+    int[] indexArray = new int[]{0,1,2,3,4,5,6,7,8,9};
+    boolean[] isNullArray = new boolean[10];
+    isNullArray[0] = true;
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        0 ,
+        isNullArray,
+        indexArray,
+        valueArray );
     assertEquals( cellManager.size() , 10 );
     assertNull( cellManager.get( 0 , null ) );
     assertEquals( "b" , ( (PrimitiveObject)( cellManager.get( 1 , null ).getRow() ) ).getString() );
@@ -172,9 +191,16 @@ public class TestOptimizedNullArrayCellManager {
     valueArray[6] = new StringObj( "g" );
     valueArray[7] = new StringObj( "h" );
     valueArray[8] = new StringObj( "i" );
-    valueArray[9] = null;
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 0 , valueArray );
+    valueArray[9] = new StringObj( "j" );
+    int[] indexArray = new int[]{0,1,2,3,4,5,6,7,8,9};
+    boolean[] isNullArray = new boolean[10];
+    isNullArray[9] = true;
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        0 ,
+        isNullArray,
+        indexArray,
+        valueArray );
     assertEquals( cellManager.size() , 10 );
     assertEquals( "a" , ( (PrimitiveObject)( cellManager.get( 0 , null ).getRow() ) ).getString() );
     assertEquals( "b" , ( (PrimitiveObject)( cellManager.get( 1 , null ).getRow() ) ).getString() );
@@ -195,12 +221,22 @@ public class TestOptimizedNullArrayCellManager {
     valueArray[1] = new StringObj( "b" );
     valueArray[2] = new StringObj( "c" );
     valueArray[3] = new StringObj( "d" );
+    valueArray[4] = new StringObj( "e" );
+    valueArray[5] = new StringObj( "f" );
     valueArray[6] = new StringObj( "g" );
     valueArray[7] = new StringObj( "h" );
     valueArray[8] = new StringObj( "i" );
     valueArray[9] = new StringObj( "j" );
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 0 , valueArray );
+    int[] indexArray = new int[]{0,1,2,3,4,5,6,7,8,9};
+    boolean[] isNullArray = new boolean[10];
+    isNullArray[4] = true;
+    isNullArray[5] = true;
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        0 ,
+        isNullArray,
+        indexArray,
+        valueArray );
     assertEquals( cellManager.size() , 10 );
     assertEquals( "a" , ( (PrimitiveObject)( cellManager.get( 0 , null ).getRow() ) ).getString() );
     assertEquals( "b" , ( (PrimitiveObject)( cellManager.get( 1 , null ).getRow() ) ).getString() );
@@ -217,7 +253,7 @@ public class TestOptimizedNullArrayCellManager {
   @Test
   public void T_get_equalsSetArray_withHeadIndexIsNullArrayAndStartIndexIsNotZero() throws IOException {
     PrimitiveObject[] valueArray = new PrimitiveObject[10];
-    valueArray[0] = null;
+    valueArray[0] = new StringObj( "a" );
     valueArray[1] = new StringObj( "b" );
     valueArray[2] = new StringObj( "c" );
     valueArray[3] = new StringObj( "d" );
@@ -227,8 +263,15 @@ public class TestOptimizedNullArrayCellManager {
     valueArray[7] = new StringObj( "h" );
     valueArray[8] = new StringObj( "i" );
     valueArray[9] = new StringObj( "j" );
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 10 , valueArray );
+    int[] indexArray = new int[]{0,1,2,3,4,5,6,7,8,9};
+    boolean[] isNullArray = new boolean[10];
+    isNullArray[0] = true;
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        10 ,
+        isNullArray,
+        indexArray,
+        valueArray );
     assertEquals( cellManager.size() , 20 );
     assertNull( cellManager.get( 10 , null ) );
     assertEquals( "b" , ( (PrimitiveObject)( cellManager.get( 11 , null ).getRow() ) ).getString() );
@@ -254,9 +297,16 @@ public class TestOptimizedNullArrayCellManager {
     valueArray[6] = new StringObj( "g" );
     valueArray[7] = new StringObj( "h" );
     valueArray[8] = new StringObj( "i" );
-    valueArray[9] = null;
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 10 , valueArray );
+    valueArray[9] = new StringObj( "j" );
+    int[] indexArray = new int[]{0,1,2,3,4,5,6,7,8,9};
+    boolean[] isNullArray = new boolean[10];
+    isNullArray[9] = true;
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        10 ,
+        isNullArray,
+        indexArray,
+        valueArray );
     assertEquals( cellManager.size() , 20 );
     assertEquals( "a" , ( (PrimitiveObject)( cellManager.get( 10 , null ).getRow() ) ).getString() );
     assertEquals( "b" , ( (PrimitiveObject)( cellManager.get( 11 , null ).getRow() ) ).getString() );
@@ -277,12 +327,22 @@ public class TestOptimizedNullArrayCellManager {
     valueArray[1] = new StringObj( "b" );
     valueArray[2] = new StringObj( "c" );
     valueArray[3] = new StringObj( "d" );
+    valueArray[4] = new StringObj( "e" );
+    valueArray[5] = new StringObj( "f" );
     valueArray[6] = new StringObj( "g" );
     valueArray[7] = new StringObj( "h" );
     valueArray[8] = new StringObj( "i" );
     valueArray[9] = new StringObj( "j" );
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 10 , valueArray );
+    int[] indexArray = new int[]{0,1,2,3,4,5,6,7,8,9};
+    boolean[] isNullArray = new boolean[10];
+    isNullArray[4] = true;
+    isNullArray[5] = true;
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        10 ,
+        isNullArray,
+        indexArray,
+        valueArray );
     assertEquals( cellManager.size() , 20 );
     assertEquals( "a" , ( (PrimitiveObject)( cellManager.get( 10 , null ).getRow() ) ).getString() );
     assertEquals( "b" , ( (PrimitiveObject)( cellManager.get( 11 , null ).getRow() ) ).getString() );
@@ -309,8 +369,14 @@ public class TestOptimizedNullArrayCellManager {
     valueArray[7] = new StringObj( "h" );
     valueArray[8] = new StringObj( "i" );
     valueArray[9] = new StringObj( "j" );
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 0 , valueArray );
+    int[] indexArray = new int[]{0,1,2,3,4,5,6,7,8,9};
+    boolean[] isNullArray = new boolean[10];
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        0 ,
+        isNullArray,
+        indexArray,
+        valueArray );
     AllExpressionIndex index = new AllExpressionIndex( cellManager.size() );
 
     PrimitiveObject[] objArray = cellManager.getPrimitiveObjectArray( index , 0 , 5 );
@@ -343,8 +409,14 @@ public class TestOptimizedNullArrayCellManager {
     valueArray[7] = new StringObj( "h" );
     valueArray[8] = new StringObj( "i" );
     valueArray[9] = new StringObj( "j" );
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 0 , valueArray );
+    int[] indexArray = new int[]{0,1,2,3,4,5,6,7,8,9};
+    boolean[] isNullArray = new boolean[10];
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        0 ,
+        isNullArray,
+        indexArray,
+        valueArray );
     ListIndexExpressionIndex index = new ListIndexExpressionIndex(
         Arrays.asList( 0 , 0 , 2 , 2 , 4 , 4 , 6 , 6 , 8 , 8 ) );
 
@@ -378,8 +450,14 @@ public class TestOptimizedNullArrayCellManager {
     valueArray[7] = new StringObj( "h" );
     valueArray[8] = new StringObj( "i" );
     valueArray[9] = new StringObj( "j" );
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 0 , valueArray );
+    int[] indexArray = new int[]{0,1,2,3,4,5,6,7,8,9};
+    boolean[] isNullArray = new boolean[10];
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        0 ,
+        isNullArray,
+        indexArray,
+        valueArray );
     AllExpressionIndex index = new AllExpressionIndex( cellManager.size() );
     TestAllocator allocator = new TestAllocator(5);
     cellManager.setPrimitiveObjectArray( index , 0 , 5 , allocator );
@@ -420,8 +498,14 @@ public class TestOptimizedNullArrayCellManager {
     valueArray[7] = new StringObj( "h" );
     valueArray[8] = new StringObj( "i" );
     valueArray[9] = new StringObj( "j" );
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 0 , valueArray );
+    int[] indexArray = new int[]{0,1,2,3,4,5,6,7,8,9};
+    boolean[] isNullArray = new boolean[10];
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        0 ,
+        isNullArray,
+        indexArray,
+        valueArray );
     ListIndexExpressionIndex index = new ListIndexExpressionIndex(
         Arrays.asList( 0 , 0 , 2 , 2 , 4 , 4 , 6 , 6 , 8 , 8 ) );
     TestAllocator allocator = new TestAllocator(5);
@@ -464,8 +548,14 @@ public class TestOptimizedNullArrayCellManager {
     valueArray[7] = new StringObj( "h" );
     valueArray[8] = new StringObj( "i" );
     valueArray[9] = new StringObj( "j" );
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 10 , valueArray );
+    int[] indexArray = new int[]{0,1,2,3,4,5,6,7,8,9};
+    boolean[] isNullArray = new boolean[10];
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        10 ,
+        isNullArray,
+        indexArray,
+        valueArray );
     AllExpressionIndex index = new AllExpressionIndex( cellManager.size() );
     PrimitiveObject[] objArray = cellManager.getPrimitiveObjectArray( index , 0 , 5 );
     for ( int i = 0 ; i < objArray.length ; i++ ) {
@@ -507,8 +597,14 @@ public class TestOptimizedNullArrayCellManager {
     valueArray[7] = new StringObj( "h" );
     valueArray[8] = new StringObj( "i" );
     valueArray[9] = new StringObj( "j" );
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 10 , valueArray );
+    int[] indexArray = new int[]{0,1,2,3,4,5,6,7,8,9};
+    boolean[] isNullArray = new boolean[10];
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        10 ,
+        isNullArray,
+        indexArray,
+        valueArray );
     AllExpressionIndex index = new AllExpressionIndex( cellManager.size() );
     TestAllocator allocator = new TestAllocator(5);
     cellManager.setPrimitiveObjectArray( index , 0 , 5 , allocator );
@@ -549,6 +645,47 @@ public class TestOptimizedNullArrayCellManager {
   }
 
   @Test
+  public void T_getPrimitiveObjectArray_equalsSetArray_withNotNullArrayAndStartIndexNotZeroWhenExpand() throws IOException {
+    PrimitiveObject[] valueArray = new PrimitiveObject[10];
+    valueArray[0] = new StringObj( "a" );
+    valueArray[1] = new StringObj( "b" );
+    valueArray[2] = new StringObj( "c" );
+    valueArray[3] = new StringObj( "d" );
+    valueArray[4] = new StringObj( "e" );
+    valueArray[5] = new StringObj( "f" );
+    valueArray[6] = new StringObj( "g" );
+    valueArray[7] = new StringObj( "h" );
+    valueArray[8] = new StringObj( "i" );
+    valueArray[9] = new StringObj( "j" );
+    int[] indexArray = new int[]{0,1,2,3,4,5,6,7,8,9};
+    boolean[] isNullArray = new boolean[10];
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        10 ,
+        isNullArray,
+        indexArray,
+        valueArray );
+    ListIndexExpressionIndex index = new ListIndexExpressionIndex(
+        Arrays.asList( 5 , 5 , 10 , 10 , 12 , 12 , 14 , 14 , 16 , 16 ) );
+    PrimitiveObject[] objArray = cellManager.getPrimitiveObjectArray( index , 0 , 5 );
+    assertNull( objArray[0] );
+    assertNull( objArray[1] );
+    assertEquals( "a" ,  objArray[2].getString() );
+    assertEquals( "a" ,  objArray[3].getString() );
+    assertEquals( "c" ,  objArray[4].getString() );
+
+    objArray = cellManager.getPrimitiveObjectArray( index , 5 , 3 );
+    assertEquals( "c" ,  objArray[0].getString() );
+    assertEquals( "e" ,  objArray[1].getString() );
+    assertEquals( "e" ,  objArray[2].getString() );
+
+    objArray = cellManager.getPrimitiveObjectArray( index , 8 , 3 );
+    assertEquals( "g" ,  objArray[0].getString() );
+    assertEquals( "g" ,  objArray[1].getString() );
+    assertNull( objArray[2] );
+  }
+
+  @Test
   public void T_setPrimitiveObjectArray_equalsSetArray_withNotNullArrayAndStartIndexNotZeroWhenExpand() throws IOException {
     PrimitiveObject[] valueArray = new PrimitiveObject[10];
     valueArray[0] = new StringObj( "a" );
@@ -561,8 +698,14 @@ public class TestOptimizedNullArrayCellManager {
     valueArray[7] = new StringObj( "h" );
     valueArray[8] = new StringObj( "i" );
     valueArray[9] = new StringObj( "j" );
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 10 , valueArray );
+    int[] indexArray = new int[]{0,1,2,3,4,5,6,7,8,9};
+    boolean[] isNullArray = new boolean[10];
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        10 ,
+        isNullArray,
+        indexArray,
+        valueArray );
     ListIndexExpressionIndex index = new ListIndexExpressionIndex(
         Arrays.asList( 5 , 5 , 10 , 10 , 12 , 12 , 14 , 14 , 16 , 16 ) );
     TestAllocator allocator = new TestAllocator(5);
@@ -591,11 +734,17 @@ public class TestOptimizedNullArrayCellManager {
 
   @Test
   public void T_setPrimitiveObjectArray_equalsSetArray_withNotNullArrayAndStartIndexNotZeroWhenLongExpand() throws IOException {
-    PrimitiveObject[] valueArray = new PrimitiveObject[2];
+    PrimitiveObject[] valueArray = new PrimitiveObject[10];
     valueArray[0] = new StringObj( "a" );
     valueArray[1] = new StringObj( "b" );
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 1 , valueArray );
+    int[] indexArray = new int[]{0,1};
+    boolean[] isNullArray = new boolean[2];
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        1 ,
+        isNullArray,
+        indexArray,
+        valueArray );
     ListIndexExpressionIndex index = new ListIndexExpressionIndex(
         Arrays.asList( 0 , 0 , 1 , 1 , 2 , 2 , 3 , 3 , 4 , 4 ) );
     TestAllocator allocator = new TestAllocator(5);

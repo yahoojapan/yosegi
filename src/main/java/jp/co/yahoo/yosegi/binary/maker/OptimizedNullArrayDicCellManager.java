@@ -103,14 +103,17 @@ public class OptimizedNullArrayDicCellManager implements ICellManager<ICell> {
       final int length ) {
     PrimitiveObject[] result = new PrimitiveObject[length];
     int loopEnd = ( start + length );
-    if ( size() < loopEnd ) {
-      loopEnd = size();
+    if ( indexList.size() < loopEnd ) {
+      loopEnd = indexList.size();
     }
     for ( int i = start , index = 0 ; i < loopEnd ; i++,index++ ) {
-      if ( i < startIndex || isNullArray[ i - startIndex ] ) {
+      int valueIndex = indexList.get( i );
+      if ( valueIndex < startIndex
+          || size() <= valueIndex 
+          || isNullArray[ valueIndex - startIndex ] ) {
         continue;
       }
-      result[index] = dicArray[dicIndexArray[i - startIndex]];
+      result[index] = dicArray[ dicIndexArray[ valueIndex - startIndex ] ];
     }
     return result;
   }
@@ -122,16 +125,20 @@ public class OptimizedNullArrayDicCellManager implements ICellManager<ICell> {
       final int length ,
       final IMemoryAllocator allocator ) {
     int loopEnd = ( start + length );
-    if ( size() < loopEnd ) {
-      loopEnd = size();
+    if ( indexList.size() < loopEnd ) {
+      loopEnd = indexList.size();
     }
     int index = 0;
     for ( int i = start ; i < loopEnd ; i++,index++ ) {
-      if ( i < startIndex || isNullArray[ i - startIndex ] ) {
+      int valueIndex = indexList.get( i );
+      if ( valueIndex < startIndex
+          || size() <= valueIndex
+          || isNullArray[ valueIndex - startIndex ] ) {
         allocator.setNull( index );
       } else {
         try {
-          allocator.setPrimitiveObject( index , dicArray[dicIndexArray[i - startIndex]] );
+          allocator.setPrimitiveObject(
+              index , dicArray[dicIndexArray[ valueIndex - startIndex] ] );
         } catch ( IOException ex ) {
           throw new UncheckedIOException( ex );
         }

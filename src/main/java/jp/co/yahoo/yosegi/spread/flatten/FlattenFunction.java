@@ -31,7 +31,13 @@ public class FlattenFunction implements IFlattenFunction {
 
   private final List<FlattenColumn> flattenColumnList = new ArrayList<FlattenColumn>();
   private final Map<String,FlattenColumn> flattenColumnMap = new HashMap<String,FlattenColumn>();
+  private final Map<String,Integer> duplicateKeyMap = new HashMap<String,Integer>();
   private final List<String> filterColumnList = new ArrayList<String>();
+  private String delimiter = "_";
+
+  public void setDelimiter( final String delimiter ) {
+    this.delimiter = delimiter;
+  }
 
   public boolean isEmpty() {
     return flattenColumnList.isEmpty();
@@ -48,6 +54,25 @@ public class FlattenFunction implements IFlattenFunction {
     if ( ! flattenColumnMap.containsKey( flattenColumn.getLinkName() ) ) {
       flattenColumnList.add( flattenColumn );
       flattenColumnMap.put( flattenColumn.getLinkName() , flattenColumn );
+    } else {
+      if ( ! duplicateKeyMap.containsKey( flattenColumn.getLinkName() ) ) {
+        duplicateKeyMap.put( flattenColumn.getLinkName() , Integer.valueOf( 0 ) );
+      }
+      int num = duplicateKeyMap.get( flattenColumn.getLinkName() ).intValue();
+      String newLinkKey = String.format(
+          "%s%s%d" ,
+          flattenColumn.getLinkName() ,
+          delimiter ,
+          num );
+      duplicateKeyMap.put( flattenColumn.getLinkName() , Integer.valueOf( num + 1 ) );
+      if ( flattenColumnMap.containsKey( newLinkKey ) ) {
+        add( flattenColumn );
+      } else {
+        FlattenColumn newFlattenColumn = new FlattenColumn(
+            newLinkKey , flattenColumn.getFilterColumnNameArray() );
+        flattenColumnList.add( newFlattenColumn );
+        flattenColumnMap.put( newLinkKey , newFlattenColumn );
+      }
     }
   }
 

@@ -97,8 +97,8 @@ public class OptimizedNullArrayCellManager implements ICellManager<ICell> {
       final int length ) {
     PrimitiveObject[] result = new PrimitiveObject[length];
     int loopEnd = ( start + length );
-    if ( size() < loopEnd ) {
-      loopEnd = size();
+    if ( indexList.size() < loopEnd ) {
+      loopEnd = indexList.size();
     }
     for ( int i = start,index = 0 ; i < loopEnd ; i++,index++ ) {
       int valueIndex = indexList.get( i );
@@ -119,16 +119,19 @@ public class OptimizedNullArrayCellManager implements ICellManager<ICell> {
       final int length ,
       final IMemoryAllocator allocator ) {
     int loopEnd = ( start + length );
-    if ( size() < loopEnd ) {
-      loopEnd = size();
+    if ( indexList.size() < loopEnd ) {
+      loopEnd = indexList.size();
     }
     int index = 0;
     for ( int i = start ; i < loopEnd ; i++,index++ ) {
-      if ( i < startIndex || valueArray[ i - startIndex ] == null ) {
+      int valueIndex = indexList.get( i );
+      if ( valueIndex < startIndex
+          || size() <= valueIndex
+          || valueArray[ valueIndex - startIndex ] == null ) {
         allocator.setNull( index );
       } else {
         try {
-          allocator.setPrimitiveObject( index , valueArray[i - startIndex] );
+          allocator.setPrimitiveObject( index , valueArray[valueIndex - startIndex] );
         } catch ( IOException ex ) {
           throw new UncheckedIOException( ex );
         }
