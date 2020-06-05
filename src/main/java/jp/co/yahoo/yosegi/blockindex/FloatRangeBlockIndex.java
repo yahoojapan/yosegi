@@ -150,12 +150,12 @@ public class FloatRangeBlockIndex implements IBlockIndex {
           }
           return null;
         } else if ( minHasEquals ) {
-          if ( ( 0 < min.compareTo( setMax ) || max.compareTo( setMin ) <= 0 ) ) {
+          if ( ( 0 <= min.compareTo( setMax ) || max.compareTo( setMin ) < 0 ) ) {
             return new ArrayList<Integer>();
           }
           return null;
         } else if ( maxHasEquals ) {
-          if ( ( 0 <= min.compareTo( setMax ) || max.compareTo( setMin ) < 0 ) ) {
+          if ( ( 0 < min.compareTo( setMax ) || max.compareTo( setMin ) <= 0 ) ) {
             return new ArrayList<Integer>();
           }
           return null;

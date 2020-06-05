@@ -73,6 +73,63 @@ public class TestByteRangeBlockIndex{
       arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)9 ) , true , new ByteObj( (byte)9 ) , true ) , true ),
       arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)21 ) , true , new ByteObj( (byte)21 ) , true ) , true ),
 
+      // 10 <= c < 11
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)10 ) , true , new ByteObj( (byte)11 ) , false ) , false ),
+      // 5 <= c < 16
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)5 ) , true , new ByteObj( (byte)16 ) , false ) , false ),
+      // 20 <= c < 22
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)20 ) , true , new ByteObj( (byte)22 ) , false ) , false ),
+      // 15 <= c < 26
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)15 ) , true , new ByteObj( (byte)26 ) , false ) , false ),
+      // 10 <= c < 21
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)10 ) , true , new ByteObj( (byte)21 ) , false ) , false ),
+      // 20 <= c < 21
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)20 ) , true , new ByteObj( (byte)21 ) , false ) , false ),
+      // 15 <= c < 17
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)15 ) , true , new ByteObj( (byte)17 ) , false ) , false ),
+      // 9 <= c < 10
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)9 ) , true , new ByteObj( (byte)10 ) , false ) , true ),
+      // 21 <= c < 22
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)21 ) , true , new ByteObj( (byte)22 ) , false ) , true ),
+
+      // 9 < c <= 10
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)9 ) , false , new ByteObj( (byte)10 ) , true ) , false ),
+      // 4 < c <= 15
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)4 ) , false , new ByteObj( (byte)15 ) , true ) , false ),
+      // 19 < c <= 21
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)19 ) , false , new ByteObj( (byte)21 ) , true ) , false ),
+      // 14 < c <= 25
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)14 ) , false , new ByteObj( (byte)25 ) , true ) , false ),
+      // 9 < c <= 20
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)9 ) , false , new ByteObj( (byte)20 ) , true ) , false ),
+      // 19 < c <= 20
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)19 ) , false , new ByteObj( (byte)20 ) , true ) , false ),
+      // 14 < c <= 16
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)14 ) , false , new ByteObj( (byte)16 ) , true ) , false ),
+      // 8 < c <= 9
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)8 ) , false , new ByteObj( (byte)9 ) , true ) , true ),
+      // 20 < c <= 21
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)20 ) , false , new ByteObj( (byte)21 ) , true ) , true ),
+
+      // 9 < c < 11
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)9 ) , false , new ByteObj( (byte)11 ) , false ) , false ),
+      // 4 < c < 16
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)4 ) , false , new ByteObj( (byte)16 ) , false ) , false ),
+      // 19 < c < 22
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)19 ) , false , new ByteObj( (byte)22 ) , false ) , false ),
+      // 14 < c < 26
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)14 ) , false , new ByteObj( (byte)26 ) , false ) , false ),
+      // 9 < c < 21
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)9 ) , false , new ByteObj( (byte)21 ) , false ) , false ),
+      // 19 < c < 21
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)19 ) , false , new ByteObj( (byte)21 ) , false ) , false ),
+      // 14 < c < 17
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)14 ) , false , new ByteObj( (byte)17 ) , false ) , false ),
+      // 8 < c < 10
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)8 ) , false , new ByteObj( (byte)10 ) , false ) , true ),
+      // 20 < c < 22
+      arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( false , new ByteObj( (byte)20 ) , false , new ByteObj( (byte)22 ) , false ) , true ),
+
       arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( true , new ByteObj( (byte)10 ) , true , new ByteObj( (byte)10 ) , true ) , false ),
       arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( true , new ByteObj( (byte)5 ) , true , new ByteObj( (byte)15 ) , true ) , false ),
       arguments( new ByteRangeBlockIndex( (byte)10 , (byte)20 ) , new NumberRangeFilter( true , new ByteObj( (byte)20 ) , true , new ByteObj( (byte)21 ) , true ) , false ),

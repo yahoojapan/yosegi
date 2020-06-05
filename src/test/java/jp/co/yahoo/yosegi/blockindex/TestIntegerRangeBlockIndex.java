@@ -73,6 +73,63 @@ public class TestIntegerRangeBlockIndex{
       arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)9 ) , true , new IntegerObj( (int)9 ) , true ) , true ),
       arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)21 ) , true , new IntegerObj( (int)21 ) , true ) , true ),
 
+      // 10 <= c < 11
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)10 ) , true , new IntegerObj( (int)11 ) , false ) , false ),
+      // 5 <= c < 16
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)5 ) , true , new IntegerObj( (int)16 ) , false ) , false ),
+      // 20 <= c < 22
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)20 ) , true , new IntegerObj( (int)22 ) , false ) , false ),
+      // 15 <= c < 26
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)15 ) , true , new IntegerObj( (int)26 ) , false ) , false ),
+      // 10 <= c < 21
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)10 ) , true , new IntegerObj( (int)21 ) , false ) , false ),
+      // 20 <= c < 21
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)20 ) , true , new IntegerObj( (int)21 ) , false ) , false ),
+      // 15 <= c < 17
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)15 ) , true , new IntegerObj( (int)17 ) , false ) , false ),
+      // 9 <= c < 10
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)9 ) , true , new IntegerObj( (int)10 ) , false ) , true ),
+      // 21 <= c < 22
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)21 ) , true , new IntegerObj( (int)22 ) , false ) , true ),
+
+      // 9 < c <= 10
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)9 ) , false , new IntegerObj( (int)10 ) , true ) , false ),
+      // 4 < c <= 15
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)4 ) , false , new IntegerObj( (int)15 ) , true ) , false ),
+      // 19 < c <= 21
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)19 ) , false , new IntegerObj( (int)21 ) , true ) , false ),
+      // 14 < c <= 25
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)14 ) , false , new IntegerObj( (int)25 ) , true ) , false ),
+      // 9 < c <= 20
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)9 ) , false , new IntegerObj( (int)20 ) , true ) , false ),
+      // 19 < c <= 20
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)19 ) , false , new IntegerObj( (int)20 ) , true ) , false ),
+      // 14 < c <= 16
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)14 ) , false , new IntegerObj( (int)16 ) , true ) , false ),
+      // 8 < c <= 9
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)8 ) , false , new IntegerObj( (int)9 ) , true ) , true ),
+      // 20 < c <= 21
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)20 ) , false , new IntegerObj( (int)21 ) , true ) , true ),
+
+      // 9 < c < 11
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)9 ) , false , new IntegerObj( (int)11 ) , false ) , false ),
+      // 4 < c < 16
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)4 ) , false , new IntegerObj( (int)16 ) , false ) , false ),
+      // 19 < c < 22
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)19 ) , false , new IntegerObj( (int)22 ) , false ) , false ),
+      // 14 < c < 26
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)14 ) , false , new IntegerObj( (int)26 ) , false ) , false ),
+      // 9 < c < 21
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)9 ) , false , new IntegerObj( (int)21 ) , false ) , false ),
+      // 19 < c < 21
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)19 ) , false , new IntegerObj( (int)21 ) , false ) , false ),
+      // 14 < c < 17
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)14 ) , false , new IntegerObj( (int)17 ) , false ) , false ),
+      // 8 < c < 10
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)8 ) , false , new IntegerObj( (int)10 ) , false ) , true ),
+      // 20 < c < 22
+      arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( false , new IntegerObj( (int)20 ) , false , new IntegerObj( (int)22 ) , false ) , true ),
+
       arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( true , new IntegerObj( (int)10 ) , true , new IntegerObj( (int)10 ) , true ) , false ),
       arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( true , new IntegerObj( (int)5 ) , true , new IntegerObj( (int)15 ) , true ) , false ),
       arguments( new IntegerRangeBlockIndex( (int)10 , (int)20 ) , new NumberRangeFilter( true , new IntegerObj( (int)20 ) , true , new IntegerObj( (int)21 ) , true ) , false ),

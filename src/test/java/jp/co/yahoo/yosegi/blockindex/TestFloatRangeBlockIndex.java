@@ -72,6 +72,63 @@ public class TestFloatRangeBlockIndex{
       arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)9 ) , true , new FloatObj( (float)9 ) , true ) , true ),
       arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)21 ) , true , new FloatObj( (float)21 ) , true ) , true ),
 
+      // 10 <= c < 11
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)10 ) , true , new FloatObj( (float)11 ) , false ) , false ),
+      // 5 <= c < 16
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)5 ) , true , new FloatObj( (float)16 ) , false ) , false ),
+      // 20 <= c < 22
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)20 ) , true , new FloatObj( (float)22 ) , false ) , false ),
+      // 15 <= c < 26
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)15 ) , true , new FloatObj( (float)26 ) , false ) , false ),
+      // 10 <= c < 21
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)10 ) , true , new FloatObj( (float)21 ) , false ) , false ),
+      // 20 <= c < 21
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)20 ) , true , new FloatObj( (float)21 ) , false ) , false ),
+      // 15 <= c < 17
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)15 ) , true , new FloatObj( (float)17 ) , false ) , false ),
+      // 9 <= c < 10
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)9 ) , true , new FloatObj( (float)10 ) , false ) , true ),
+      // 21 <= c < 22
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)21 ) , true , new FloatObj( (float)22 ) , false ) , true ),
+
+      // 9 < c <= 10
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)9 ) , false , new FloatObj( (float)10 ) , true ) , false ),
+      // 4 < c <= 15
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)4 ) , false , new FloatObj( (float)15 ) , true ) , false ),
+      // 19 < c <= 21
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)19 ) , false , new FloatObj( (float)21 ) , true ) , false ),
+      // 14 < c <= 25
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)14 ) , false , new FloatObj( (float)25 ) , true ) , false ),
+      // 9 < c <= 20
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)9 ) , false , new FloatObj( (float)20 ) , true ) , false ),
+      // 19 < c <= 20
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)19 ) , false , new FloatObj( (float)20 ) , true ) , false ),
+      // 14 < c <= 16
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)14 ) , false , new FloatObj( (float)16 ) , true ) , false ),
+      // 8 < c <= 9
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)8 ) , false , new FloatObj( (float)9 ) , true ) , true ),
+      // 20 < c <= 21
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)20 ) , false , new FloatObj( (float)21 ) , true ) , true ),
+
+      // 9 < c < 11
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)9 ) , false , new FloatObj( (float)11 ) , false ) , false ),
+      // 4 < c < 16
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)4 ) , false , new FloatObj( (float)16 ) , false ) , false ),
+      // 19 < c < 22
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)19 ) , false , new FloatObj( (float)22 ) , false ) , false ),
+      // 14 < c < 26
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)14 ) , false , new FloatObj( (float)26 ) , false ) , false ),
+      // 9 < c < 21
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)9 ) , false , new FloatObj( (float)21 ) , false ) , false ),
+      // 19 < c < 21
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)19 ) , false , new FloatObj( (float)21 ) , false ) , false ),
+      // 14 < c < 17
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)14 ) , false , new FloatObj( (float)17 ) , false ) , false ),
+      // 8 < c < 10
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)8 ) , false , new FloatObj( (float)10 ) , false ) , true ),
+      // 20 < c < 22
+      arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( false , new FloatObj( (float)20 ) , false , new FloatObj( (float)22 ) , false ) , true ),
+
       arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( true , new FloatObj( (float)10 ) , true , new FloatObj( (float)10 ) , true ) , false ),
       arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( true , new FloatObj( (float)5 ) , true , new FloatObj( (float)15 ) , true ) , false ),
       arguments( new FloatRangeBlockIndex( (float)10 , (float)20 ) , new NumberRangeFilter( true , new FloatObj( (float)20 ) , true , new FloatObj( (float)21 ) , true ) , false ),

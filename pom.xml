@@ -16,7 +16,7 @@
 
   <groupId>jp.co.yahoo.yosegi</groupId>
   <artifactId>yosegi</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
   <packaging>jar</packaging>
   <name>Yosegi</name>
   <description>Yosegi package.</description>
