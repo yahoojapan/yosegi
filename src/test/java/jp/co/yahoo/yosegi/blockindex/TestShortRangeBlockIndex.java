@@ -73,6 +73,63 @@ public class TestShortRangeBlockIndex{
       arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)9 ) , true , new ShortObj( (short)9 ) , true ) , true ),
       arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)21 ) , true , new ShortObj( (short)21 ) , true ) , true ),
 
+      // 10 <= c < 11
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)10 ) , true , new ShortObj( (short)11 ) , false ) , false ),
+      // 5 <= c < 16
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)5 ) , true , new ShortObj( (short)16 ) , false ) , false ),
+      // 20 <= c < 22
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)20 ) , true , new ShortObj( (short)22 ) , false ) , false ),
+      // 15 <= c < 26
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)15 ) , true , new ShortObj( (short)26 ) , false ) , false ),
+      // 10 <= c < 21
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)10 ) , true , new ShortObj( (short)21 ) , false ) , false ),
+      // 20 <= c < 21
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)20 ) , true , new ShortObj( (short)21 ) , false ) , false ),
+      // 15 <= c < 17
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)15 ) , true , new ShortObj( (short)17 ) , false ) , false ),
+      // 9 <= c < 10
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)9 ) , true , new ShortObj( (short)10 ) , false ) , true ),
+      // 21 <= c < 22
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)21 ) , true , new ShortObj( (short)22 ) , false ) , true ),
+
+      // 9 < c <= 10
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)9 ) , false , new ShortObj( (short)10 ) , true ) , false ),
+      // 4 < c <= 15
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)4 ) , false , new ShortObj( (short)15 ) , true ) , false ),
+      // 19 < c <= 21
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)19 ) , false , new ShortObj( (short)21 ) , true ) , false ),
+      // 14 < c <= 25
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)14 ) , false , new ShortObj( (short)25 ) , true ) , false ),
+      // 9 < c <= 20
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)9 ) , false , new ShortObj( (short)20 ) , true ) , false ),
+      // 19 < c <= 20
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)19 ) , false , new ShortObj( (short)20 ) , true ) , false ),
+      // 14 < c <= 16
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)14 ) , false , new ShortObj( (short)16 ) , true ) , false ),
+      // 8 < c <= 9
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)8 ) , false , new ShortObj( (short)9 ) , true ) , true ),
+      // 20 < c <= 21
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)20 ) , false , new ShortObj( (short)21 ) , true ) , true ),
+
+      // 9 < c < 11
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)9 ) , false , new ShortObj( (short)11 ) , false ) , false ),
+      // 4 < c < 16
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)4 ) , false , new ShortObj( (short)16 ) , false ) , false ),
+      // 19 < c < 22
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)19 ) , false , new ShortObj( (short)22 ) , false ) , false ),
+      // 14 < c < 26
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)14 ) , false , new ShortObj( (short)26 ) , false ) , false ),
+      // 9 < c < 21
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)9 ) , false , new ShortObj( (short)21 ) , false ) , false ),
+      // 19 < c < 21
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)19 ) , false , new ShortObj( (short)21 ) , false ) , false ),
+      // 14 < c < 17
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)14 ) , false , new ShortObj( (short)17 ) , false ) , false ),
+      // 8 < c < 10
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)8 ) , false , new ShortObj( (short)10 ) , false ) , true ),
+      // 20 < c < 22
+      arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( false , new ShortObj( (short)20 ) , false , new ShortObj( (short)22 ) , false ) , true ),
+
       arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( true , new ShortObj( (short)10 ) , true , new ShortObj( (short)10 ) , true ) , false ),
       arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( true , new ShortObj( (short)5 ) , true , new ShortObj( (short)15 ) , true ) , false ),
       arguments( new ShortRangeBlockIndex( (short)10 , (short)20 ) , new NumberRangeFilter( true , new ShortObj( (short)20 ) , true , new ShortObj( (short)21 ) , true ) , false ),

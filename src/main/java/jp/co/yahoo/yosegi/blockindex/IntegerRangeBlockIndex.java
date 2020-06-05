@@ -150,12 +150,12 @@ public class IntegerRangeBlockIndex implements IBlockIndex {
           }
           return null;
         } else if ( minHasEquals ) {
-          if ( ( setMax < min || max <= setMin ) ) {
+          if ( ( setMax <= min || max < setMin ) ) {
             return new ArrayList<Integer>();
           }
           return null;
         } else if ( maxHasEquals ) {
-          if ( ( setMax <= min || max < setMin ) ) {
+          if ( ( setMax < min || max <= setMin ) ) {
             return new ArrayList<Integer>();
           }
           return null;

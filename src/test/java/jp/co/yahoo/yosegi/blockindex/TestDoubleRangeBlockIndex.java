@@ -73,6 +73,63 @@ public class TestDoubleRangeBlockIndex{
       arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)9 ) , true , new DoubleObj( (double)9 ) , true ) , true ),
       arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)21 ) , true , new DoubleObj( (double)21 ) , true ) , true ),
 
+      // 10 <= c < 11
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)10 ) , true , new DoubleObj( (double)11 ) , false ) , false ),
+      // 5 <= c < 16
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)5 ) , true , new DoubleObj( (double)16 ) , false ) , false ),
+      // 20 <= c < 22
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)20 ) , true , new DoubleObj( (double)22 ) , false ) , false ),
+      // 15 <= c < 26
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)15 ) , true , new DoubleObj( (double)26 ) , false ) , false ),
+      // 10 <= c < 21
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)10 ) , true , new DoubleObj( (double)21 ) , false ) , false ),
+      // 20 <= c < 21
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)20 ) , true , new DoubleObj( (double)21 ) , false ) , false ),
+      // 15 <= c < 17
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)15 ) , true , new DoubleObj( (double)17 ) , false ) , false ),
+      // 9 <= c < 10
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)9 ) , true , new DoubleObj( (double)10 ) , false ) , true ),
+      // 21 <= c < 22
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)21 ) , true , new DoubleObj( (double)22 ) , false ) , true ),
+
+      // 9 < c <= 10
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)9 ) , false , new DoubleObj( (double)10 ) , true ) , false ),
+      // 4 < c <= 15
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)4 ) , false , new DoubleObj( (double)15 ) , true ) , false ),
+      // 19 < c <= 21
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)19 ) , false , new DoubleObj( (double)21 ) , true ) , false ),
+      // 14 < c <= 25
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)14 ) , false , new DoubleObj( (double)25 ) , true ) , false ),
+      // 9 < c <= 20
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)9 ) , false , new DoubleObj( (double)20 ) , true ) , false ),
+      // 19 < c <= 20
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)19 ) , false , new DoubleObj( (double)20 ) , true ) , false ),
+      // 14 < c <= 16
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)14 ) , false , new DoubleObj( (double)16 ) , true ) , false ),
+      // 8 < c <= 9
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)8 ) , false , new DoubleObj( (double)9 ) , true ) , true ),
+      // 20 < c <= 21
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)20 ) , false , new DoubleObj( (double)21 ) , true ) , true ),
+
+      // 9 < c < 11
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)9 ) , false , new DoubleObj( (double)11 ) , false ) , false ),
+      // 4 < c < 16
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)4 ) , false , new DoubleObj( (double)16 ) , false ) , false ),
+      // 19 < c < 22
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)19 ) , false , new DoubleObj( (double)22 ) , false ) , false ),
+      // 14 < c < 26
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)14 ) , false , new DoubleObj( (double)26 ) , false ) , false ),
+      // 9 < c < 21
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)9 ) , false , new DoubleObj( (double)21 ) , false ) , false ),
+      // 19 < c < 21
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)19 ) , false , new DoubleObj( (double)21 ) , false ) , false ),
+      // 14 < c < 17
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)14 ) , false , new DoubleObj( (double)17 ) , false ) , false ),
+      // 8 < c < 10
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)8 ) , false , new DoubleObj( (double)10 ) , false ) , true ),
+      // 20 < c < 22
+      arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( false , new DoubleObj( (double)20 ) , false , new DoubleObj( (double)22 ) , false ) , true ),
+
       arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( true , new DoubleObj( (double)10 ) , true , new DoubleObj( (double)10 ) , true ) , false ),
       arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( true , new DoubleObj( (double)5 ) , true , new DoubleObj( (double)15 ) , true ) , false ),
       arguments( new DoubleRangeBlockIndex( (double)10 , (double)20 ) , new NumberRangeFilter( true , new DoubleObj( (double)20 ) , true , new DoubleObj( (double)21 ) , true ) , false ),
