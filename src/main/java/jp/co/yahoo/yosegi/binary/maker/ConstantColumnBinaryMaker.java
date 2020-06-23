@@ -342,12 +342,8 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
         final IFilter filter , final boolean[] filterArray ) throws IOException {
       switch ( filter.getFilterType() ) {
         case NOT_NULL:
-          return null;
         case NULL:
-          if ( columnType != ( (INullFilter)filter ).getTargetColumnType() ) {
-            return null;
-          }
-          return new boolean[filterArray.length];
+          return null;
         default:
           return index.filter( filter , filterArray );
       }

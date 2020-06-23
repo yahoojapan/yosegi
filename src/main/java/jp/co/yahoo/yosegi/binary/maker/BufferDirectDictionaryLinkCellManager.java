@@ -101,33 +101,8 @@ public class BufferDirectDictionaryLinkCellManager implements IDictionaryCellMan
       final boolean[] filterArray ) throws IOException {
     switch ( filter.getFilterType() ) {
       case NOT_NULL:
-        if ( columnType != ( (INullFilter)filter ).getTargetColumnType() ) {
-          return null;
-        }
-        for ( int i = 0 ; i < filterArray.length ; i++ ) {
-          if ( i < size() ) {
-            if ( dicIndexIntBuffer.get(i) != 0 ) {
-              filterArray[i] = true;
-            }
-          } else {
-            filterArray[i] = false;
-          }
-        }
-        return filterArray;
       case NULL:
-        if ( columnType != ( (INullFilter)filter ).getTargetColumnType() ) {
-          return null;
-        }
-        for ( int i = 0 ; i < filterArray.length ; i++ ) {
-          if ( i < size() ) {
-            if ( dicIndexIntBuffer.get(i) == 0 ) {
-              filterArray[i] = true;
-            }
-          } else {
-            filterArray[i] = true;
-          }
-        }
-        return filterArray;
+        return null;
       default:
         return index.filter( filter , filterArray );
     }
