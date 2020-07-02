@@ -101,10 +101,10 @@ public class GzipCompressor implements ICompressor {
 
     ByteArrayInputStream byteArrayIn =
         new ByteArrayInputStream( data , start + Integer.BYTES , length );
-    GZIPInputStream in = new GZIPInputStream( byteArrayIn , 1024 * 256 );
-
     byte[] retVal = new byte[dataLength];
-    InputStreamUtils.read( in , retVal , 0 , dataLength );
+    try ( GZIPInputStream in = new GZIPInputStream( byteArrayIn , 1024 * 256 ); ) {
+      InputStreamUtils.read( in , retVal , 0 , dataLength );
+    }
 
     return retVal;
   }
@@ -120,9 +120,9 @@ public class GzipCompressor implements ICompressor {
 
     ByteArrayInputStream byteArrayIn =
         new ByteArrayInputStream( data , start + Integer.BYTES , length );
-    GZIPInputStream in = new GZIPInputStream( byteArrayIn , 1024 * 256 );
-
-    InputStreamUtils.read( in , buffer , 0 , dataLength );
+    try ( GZIPInputStream in = new GZIPInputStream( byteArrayIn , 1024 * 256 ); ) {
+      InputStreamUtils.read( in , buffer , 0 , dataLength );
+    }
 
     return dataLength;
   }
