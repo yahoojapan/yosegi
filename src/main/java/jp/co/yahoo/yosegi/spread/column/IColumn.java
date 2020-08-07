@@ -83,4 +83,16 @@ public interface IColumn {
       final int length ,
       final IMemoryAllocator allocator ) throws IOException;
 
+  default boolean isExpandColumn() {
+    return false;
+  }
+
+  default IColumn getInnerColumn() {
+    throw new UnsupportedOperationException( "This method only supports expanded columns." );
+  }
+
+  default int[] getExpandIndexArray() {
+    throw new UnsupportedOperationException( "This method only supports expanded columns." );
+  }
+
 }
