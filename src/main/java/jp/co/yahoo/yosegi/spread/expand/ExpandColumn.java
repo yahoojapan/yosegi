@@ -256,4 +256,19 @@ public class ExpandColumn implements IColumn {
     }
   }
 
+  @Override
+  public boolean isExpandColumn() {
+    return true;
+  }
+
+  @Override
+  public IColumn getInnerColumn() {
+    return original;
+  }
+
+  @Override
+  public int[] getExpandIndexArray() {
+    return columnIndexArray;
+  }
+
 }
