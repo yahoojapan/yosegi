@@ -89,7 +89,7 @@ public class TestIndexAndObject {
   public void T_addAndGet_throwsExeption_withSmallerThanStartIndex(){
     IndexAndObject<String> indexAndObj = new IndexAndObject<String>( 5 );
     indexAndObj.add( "test0" );
-    assertThrows( ArrayIndexOutOfBoundsException.class ,
+    assertThrows( IndexOutOfBoundsException.class ,
       () -> {
         indexAndObj.get(4);
       }
