@@ -24,7 +24,7 @@ import jp.co.yahoo.yosegi.spread.column.CellMakerFactory;
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
 import jp.co.yahoo.yosegi.spread.column.ICell;
 import jp.co.yahoo.yosegi.spread.column.ICellMaker;
-import jp.co.yahoo.yosegi.spread.column.IDictionaryCellManager;
+import jp.co.yahoo.yosegi.spread.column.ICellManager;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveCell;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveColumn;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
@@ -37,7 +37,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.IntBuffer;
 
-public class BufferDirectDictionaryLinkCellManager implements IDictionaryCellManager {
+public class BufferDirectDictionaryLinkCellManager implements ICellManager<ICell> {
 
   private final ColumnType columnType;
   private final ICellMaker cellMaker;
@@ -165,34 +165,6 @@ public class BufferDirectDictionaryLinkCellManager implements IDictionaryCellMan
     for ( int i = index ; i < length ; i++ ) {
       allocator.setNull( i );
     }
-  }
-
-  @Override
-  public int[] getIndexArray( final IExpressionIndex indexList ) throws IOException {
-    int[] result = new int[indexList.size()];
-    for ( int i = 0 ; i < indexList.size() && i < indexSize ; i++ ) {
-      result[i] = dicIndexIntBuffer.get( indexList.get(i) );
-    }
-    return result;
-  }
-
-  @Override
-  public int[] getIndexArray() throws IOException {
-    int[] result = new int[indexSize];
-    for ( int i = 0 ; i < indexSize ; i++ ) {
-      result[i] = dicIndexIntBuffer.get( i );
-    }
-    return result;
-  }
-
-  @Override
-  public PrimitiveObject[] getDictionary() throws IOException {
-    PrimitiveObject[] result = new PrimitiveObject[dicManager.getDicSize()];
-    result[0] = null;
-    for ( int i = 1 ; i < result.length ; i++ ) {
-      result[i] = dicManager.get(i);
-    }
-    return result;
   }
 
 }

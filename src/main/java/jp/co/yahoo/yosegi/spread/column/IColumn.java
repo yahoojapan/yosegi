@@ -95,4 +95,24 @@ public interface IColumn {
     throw new UnsupportedOperationException( "This method only supports expanded columns." );
   }
 
+  default boolean isDictionary() {
+    return false;
+  }
+
+  default int getDictionarySize() {
+    throw new UnsupportedOperationException( "This method only supports dictionary columns." );
+  }
+
+  default boolean[] getDictionaryIsNullArray() {
+    throw new UnsupportedOperationException( "This method only supports dictionary columns." );
+  }
+
+  default int[] getDictionaryIndexArray() {
+    throw new UnsupportedOperationException( "This method only supports dictionary columns." );
+  }
+
+  default PrimitiveObject[] getDictionaryArray() {
+    throw new UnsupportedOperationException( "This method only supports dictionary columns." );
+  }
+
 }

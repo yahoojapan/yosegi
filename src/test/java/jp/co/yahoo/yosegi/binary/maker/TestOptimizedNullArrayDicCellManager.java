@@ -771,4 +771,165 @@ public class TestOptimizedNullArrayDicCellManager {
     assertNull( objArray[2] );
   }
 
+  @Test
+  public void T_getDictionary_equalsSetArray_withNotNullAndStartIndexZero() throws IOException {
+    PrimitiveObject[] dicArray = new PrimitiveObject[10];
+    dicArray[0] = new StringObj( "a" );
+    dicArray[1] = new StringObj( "b" );
+    dicArray[2] = new StringObj( "c" );
+    dicArray[3] = new StringObj( "d" );
+    dicArray[4] = new StringObj( "e" );
+    dicArray[5] = new StringObj( "f" );
+    dicArray[6] = new StringObj( "g" );
+    dicArray[7] = new StringObj( "h" );
+    dicArray[8] = new StringObj( "i" );
+    dicArray[9] = new StringObj( "j" );
+    int[] indexArray = new int[]{0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9};
+    boolean[] isNullArray = new boolean[20];
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        0 ,
+        isNullArray,
+        indexArray,
+        dicArray );
+    assertTrue( cellManager.isDictionary() );
+    assertEquals( cellManager.getDictionarySize() , 10 );
+    assertEquals( cellManager.size() , 20 );
+    boolean[] newIsNullArray = cellManager.getDictionaryIsNullArray();
+    int[] newIndexArray = cellManager.getDictionaryIndexArray();
+    PrimitiveObject[] newDicArray = cellManager.getDictionaryArray();
+    for ( int i = 0 ; i < cellManager.size() ; i++ ) {
+      assertFalse( newIsNullArray[i] );
+      assertEquals( dicArray[indexArray[i]].getString() , newDicArray[newIndexArray[i]].getString() );
+    }
+  }
+
+  @Test
+  public void T_getDictionary_equalsSetArray_withNotNullAndStartIndexTen() throws IOException {
+    PrimitiveObject[] dicArray = new PrimitiveObject[10];
+    dicArray[0] = new StringObj( "a" );
+    dicArray[1] = new StringObj( "b" );
+    dicArray[2] = new StringObj( "c" );
+    dicArray[3] = new StringObj( "d" );
+    dicArray[4] = new StringObj( "e" );
+    dicArray[5] = new StringObj( "f" );
+    dicArray[6] = new StringObj( "g" );
+    dicArray[7] = new StringObj( "h" );
+    dicArray[8] = new StringObj( "i" );
+    dicArray[9] = new StringObj( "j" );
+    int[] indexArray = new int[]{0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9};
+    boolean[] isNullArray = new boolean[20];
+    int startIndex = 10;
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        startIndex ,
+        isNullArray,
+        indexArray,
+        dicArray );
+    assertTrue( cellManager.isDictionary() );
+    assertEquals( cellManager.getDictionarySize() , 10 );
+    assertEquals( cellManager.size() , 30 );
+    boolean[] newIsNullArray = cellManager.getDictionaryIsNullArray();
+    int[] newIndexArray = cellManager.getDictionaryIndexArray();
+    PrimitiveObject[] newDicArray = cellManager.getDictionaryArray();
+    for ( int i = 0 ; i < cellManager.size() ; i++ ) {
+      if ( i < 10 ) {
+        assertTrue( newIsNullArray[i] );
+      } else {
+        assertFalse( newIsNullArray[i] );
+        assertEquals( dicArray[indexArray[i-startIndex]].getString() , newDicArray[newIndexArray[i]].getString() );
+      }
+    }
+  }
+
+  @Test
+  public void T_getDictionary_equalsSetArray_withNullAndStartIndexZero() throws IOException {
+    PrimitiveObject[] dicArray = new PrimitiveObject[10];
+    dicArray[0] = new StringObj( "a" );
+    dicArray[1] = new StringObj( "b" );
+    dicArray[2] = new StringObj( "c" );
+    dicArray[3] = new StringObj( "d" );
+    dicArray[4] = new StringObj( "e" );
+    dicArray[5] = new StringObj( "f" );
+    dicArray[6] = new StringObj( "g" );
+    dicArray[7] = new StringObj( "h" );
+    dicArray[8] = new StringObj( "i" );
+    dicArray[9] = new StringObj( "j" );
+    int[] indexArray = new int[]{0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9};
+    boolean[] isNullArray = new boolean[20];
+    for ( int i = 0 ; i < isNullArray.length ; i++ ) {
+      if ( ( i % 2 ) == 0 ) {
+        isNullArray[i] = true;
+      }
+    }
+    int startIndex = 0;
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        startIndex ,
+        isNullArray,
+        indexArray,
+        dicArray );
+    assertTrue( cellManager.isDictionary() );
+    assertEquals( cellManager.getDictionarySize() , 10 );
+    assertEquals( cellManager.size() , 20 );
+    boolean[] newIsNullArray = cellManager.getDictionaryIsNullArray();
+    int[] newIndexArray = cellManager.getDictionaryIndexArray();
+    PrimitiveObject[] newDicArray = cellManager.getDictionaryArray();
+    for ( int i = 0 ; i < cellManager.size() ; i++ ) {
+      if ( ( i % 2 ) == 0 ) {
+        assertTrue( newIsNullArray[i] );
+      } else {
+        assertFalse( newIsNullArray[i] );
+        assertEquals( dicArray[indexArray[i-startIndex]].getString() , newDicArray[newIndexArray[i]].getString() );
+      }
+    }
+  }
+
+  @Test
+  public void T_getDictionary_equalsSetArray_withNullAndStartIndexTen() throws IOException {
+    PrimitiveObject[] dicArray = new PrimitiveObject[10];
+    dicArray[0] = new StringObj( "a" );
+    dicArray[1] = new StringObj( "b" );
+    dicArray[2] = new StringObj( "c" );
+    dicArray[3] = new StringObj( "d" );
+    dicArray[4] = new StringObj( "e" );
+    dicArray[5] = new StringObj( "f" );
+    dicArray[6] = new StringObj( "g" );
+    dicArray[7] = new StringObj( "h" );
+    dicArray[8] = new StringObj( "i" );
+    dicArray[9] = new StringObj( "j" );
+    int[] indexArray = new int[]{0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9};
+    boolean[] isNullArray = new boolean[20];
+    for ( int i = 0 ; i < isNullArray.length ; i++ ) {
+      if ( ( i % 2 ) == 0 ) {
+        isNullArray[i] = true;
+      }
+    }
+    int startIndex = 10;
+    OptimizedNullArrayDicCellManager cellManager = new OptimizedNullArrayDicCellManager(
+        ColumnType.STRING ,
+        startIndex ,
+        isNullArray,
+        indexArray,
+        dicArray );
+    assertTrue( cellManager.isDictionary() );
+    assertEquals( cellManager.getDictionarySize() , 10 );
+    assertEquals( cellManager.size() , 30 );
+    boolean[] newIsNullArray = cellManager.getDictionaryIsNullArray();
+    int[] newIndexArray = cellManager.getDictionaryIndexArray();
+    PrimitiveObject[] newDicArray = cellManager.getDictionaryArray();
+    for ( int i = 0 ; i < cellManager.size() ; i++ ) {
+      if ( i < 10 ) {
+        assertTrue( newIsNullArray[i] );
+      } else {
+        if ( ( i % 2 ) == 0 ) {
+          assertTrue( newIsNullArray[i] );
+        } else {
+          assertFalse( newIsNullArray[i] );
+          assertEquals( dicArray[indexArray[i-startIndex]].getString() , newDicArray[newIndexArray[i]].getString() );
+        }
+      }
+    }
+  }
+
 }

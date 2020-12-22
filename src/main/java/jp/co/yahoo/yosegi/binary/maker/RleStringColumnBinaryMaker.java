@@ -489,17 +489,17 @@ public class RleStringColumnBinaryMaker implements IColumnBinaryMaker {
             META_LENGTH + nullLength + rowGroupBinaryLength ,
             lengthBinaryLength );
       }
-
-      PrimitiveObject[] valueArray = new PrimitiveObject[ isNullArray.length ];
+      int[] dicIndexArray = new int[isNullArray.length];
+      PrimitiveObject[] dicArray = new PrimitiveObject[rowGroupCount];
       int currentStart = META_LENGTH + nullLength + rowGroupBinaryLength + lengthBinaryLength;
       int index = 0;
       for ( int i = 0 ; i < rowGroupCount ; i++ ) {
         int rowGroupLength = rowGroupLengthReader.getInt();
         int binaryLength = lengthReader.getInt();
-        PrimitiveObject obj = new Utf8BytesLinkObj( binary , currentStart , binaryLength );
+        dicArray[i] = new Utf8BytesLinkObj( binary , currentStart , binaryLength );
         for ( int n = 0 ; n < rowGroupLength ; index++ ) {
           if ( ! isNullArray[index] ) {
-            valueArray[index] = obj;
+            dicIndexArray[index] = i;
             n++;
           }
         }
@@ -507,9 +507,8 @@ public class RleStringColumnBinaryMaker implements IColumnBinaryMaker {
       }
 
       column = new PrimitiveColumn( columnBinary.columnType , columnBinary.columnName );
-      column.setCellManager( new OptimizedNullArrayCellManager(
-          columnBinary.columnType , startIndex , valueArray ) );
-
+      column.setCellManager( new OptimizedNullArrayDicCellManager(
+          columnBinary.columnType , startIndex , isNullArray , dicIndexArray , dicArray ) );
       isCreate = true;
     }
 
