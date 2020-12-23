@@ -149,4 +149,36 @@ public class OptimizedNullArrayDicCellManager implements ICellManager<ICell> {
     }
   }
 
+  @Override
+  public boolean isDictionary() {
+    return true;
+  }
+
+  @Override
+  public int getDictionarySize() {
+    return dicArray.length;
+  }
+
+  @Override
+  public boolean[] getDictionaryIsNullArray() {
+    boolean[] result = new boolean[size()];
+    for ( int i = 0 ; i < startIndex ; i++ ) {
+      result[i] = true;
+    }
+    System.arraycopy( isNullArray , 0 , result , startIndex , isNullArray.length );
+    return result;
+  }
+
+  @Override
+  public int[] getDictionaryIndexArray() {
+    int[] result = new int[size()];
+    System.arraycopy( dicIndexArray , 0 , result , startIndex , dicIndexArray.length );
+    return result;
+  }
+
+  @Override
+  public PrimitiveObject[] getDictionaryArray() {
+    return dicArray;
+  }
+
 }

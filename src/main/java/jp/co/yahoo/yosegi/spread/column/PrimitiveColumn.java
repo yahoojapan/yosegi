@@ -196,4 +196,29 @@ public class PrimitiveColumn implements IColumn {
     return result.toString();
   }
 
+  @Override
+  public boolean isDictionary() {
+    return cellManager.isDictionary();
+  }
+
+  @Override
+  public int getDictionarySize() {
+    return cellManager.getDictionarySize();
+  }
+
+  @Override
+  public boolean[] getDictionaryIsNullArray() {
+    return cellManager.getDictionaryIsNullArray();
+  }
+
+  @Override
+  public int[] getDictionaryIndexArray() {
+    return cellManager.getDictionaryIndexArray();
+  }
+
+  @Override
+  public PrimitiveObject[] getDictionaryArray() {
+    return cellManager.getDictionaryArray();
+  }
+
 }
