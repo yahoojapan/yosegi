@@ -17,7 +17,7 @@ We are also welcoming bug reports, new ideas, discussions and reviews.
 This document is a way to contribute.
 
 ## CLA
-Please accept [Contributer licence agreement](https://gist.github.com/ydnjp/3095832f100d5c3d2592)
+Please accept [Contributer licence agreement](https://gist.github.com/yahoojapanoss/9bf8afd6ea67f32d29b4082abf220340)
 when participating as a developer.
 
 ## Mailing list
