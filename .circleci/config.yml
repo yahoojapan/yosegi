@@ -1,4 +1,9 @@
-version: 2
+version: 2.1
+
+orbs:
+  sonatype: sonatype-nexus-community/circleci-maven-release-orb@0.0.16
+  sonatype-dryrun: sonatype-nexus-community/circleci-maven-release-orb@0.0.16
+
 jobs:
   build:
     docker:
@@ -40,16 +45,10 @@ jobs:
       - run: mvn clean package
 
       # Save JUnit result.
-      - run:
-          name: Save test results
-          command: |
-            mkdir -p ~/junit/
-            find . -type f -regex "./src/.*/target/surefire-reports/.*xml" -exec cp {} ~/junit/ \;
-          when: always
       - store_test_results:
-          path: ~/junit
+          path: target/surefire-reports
       - store_artifacts:
-          path: ~/junit     
+          path: target/surefire-reports
 
       # run site
       - run: mvn site
@@ -60,3 +59,42 @@ jobs:
 
       - store_artifacts:
           path: ~/site
+
+custom_filters:
+  master_only: &master_only
+    filters:
+      branches:
+        only: master
+  master_ignore: &master_ignore
+    filters:
+      branches:
+        ignore: master
+
+workflows:
+  build-and-test:
+    jobs:
+      - build:
+          <<: *master_ignore
+  run-release:
+    jobs:
+      - build:
+          <<: *master_only
+      - sonatype-dryrun/run-maven-release:
+          <<: *master_only
+          requires:
+            - build
+          mvn-release-perform-command: |
+            mvn --batch-mode release:perform -DdryRun=true -s .circleci/.maven.xml
+          mvn-release-prepare-command: |
+            mvn --batch-mode release:prepare -DscmCommentPrefix="[skip ci][maven-release-plugin] " -DdryRun=true -s .circleci/.maven.xml
+          ssh-fingerprints: b2:fa:12:27:7a:f5:b8:39:85:90:05:6d:58:8e:24:32
+      - approve:
+          type: approval
+          <<: *master_only
+          requires:
+            - sonatype-dryrun/run-maven-release
+      - sonatype/run-maven-release:
+          <<: *master_only
+          requires:
+            - approve
+          ssh-fingerprints: b2:fa:12:27:7a:f5:b8:39:85:90:05:6d:58:8e:24:32
