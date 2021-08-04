@@ -21,7 +21,6 @@ import java.io.IOException;
 
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.Arguments;
@@ -29,7 +28,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-public class TestRangeBlockIndexNameShortCut{
+public class TestBlockIndexNameShortCut {
 
   public static Stream<Arguments> data1() {
     return Stream.of(
@@ -39,15 +38,17 @@ public class TestRangeBlockIndexNameShortCut{
       arguments( "jp.co.yahoo.yosegi.blockindex.LongRangeBlockIndex" , "R3" ),
       arguments( "jp.co.yahoo.yosegi.blockindex.FloatRangeBlockIndex" , "R4" ),
       arguments( "jp.co.yahoo.yosegi.blockindex.DoubleRangeBlockIndex" , "R5" ),
-      arguments( "jp.co.yahoo.yosegi.blockindex.StringRangeBlockIndex" , "R6" )
+      arguments( "jp.co.yahoo.yosegi.blockindex.StringRangeBlockIndex" , "R6" ),
+      arguments( "jp.co.yahoo.yosegi.blockindex.FullRangeBlockIndex" , "FR0" ),
+      arguments( "jp.co.yahoo.yosegi.blockindex.BooleanBlockIndex" , "BI0" )
     );
   }
 
   @ParameterizedTest
   @MethodSource( "data1" )
   public void T_get_1( final String c , final String sc ) throws IOException{
-    assertEquals( sc , RangeBlockIndexNameShortCut.getShortCutName( c ) );
-    assertEquals( c , RangeBlockIndexNameShortCut.getClassName( sc ) );
+    assertEquals( sc , BlockIndexNameShortCut.getShortCutName( c ) );
+    assertEquals( c , BlockIndexNameShortCut.getClassName( sc ) );
   }
 
 }

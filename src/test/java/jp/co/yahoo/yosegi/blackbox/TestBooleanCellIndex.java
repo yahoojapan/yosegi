@@ -49,7 +49,8 @@ public class TestBooleanCellIndex{
     return Stream.of(
       arguments( createBooleanTestData( "jp.co.yahoo.yosegi.binary.maker.DumpBooleanColumnBinaryMaker" ) ),
       arguments( createBooleanTestData( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpBooleanColumnBinaryMaker" ) ),
-      arguments( createBytesTestData( "jp.co.yahoo.yosegi.binary.maker.DumpBytesColumnBinaryMaker" ) ) 
+      arguments( createBytesTestData( "jp.co.yahoo.yosegi.binary.maker.DumpBytesColumnBinaryMaker" ) ),
+      arguments( createBooleanTestData( "jp.co.yahoo.yosegi.binary.maker.FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker" ) )
     );
   }
 

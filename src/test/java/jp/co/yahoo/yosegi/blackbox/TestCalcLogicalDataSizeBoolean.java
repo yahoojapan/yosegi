@@ -39,7 +39,8 @@ public class TestCalcLogicalDataSizeBoolean {
   public static Stream<Arguments> data1() throws IOException {
     return Stream.of(
       arguments( "jp.co.yahoo.yosegi.binary.maker.DumpBooleanColumnBinaryMaker" ),
-      arguments( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpBooleanColumnBinaryMaker" )
+      arguments( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpBooleanColumnBinaryMaker" ),
+      arguments( "jp.co.yahoo.yosegi.binary.maker.FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker" )
     );
   }
 

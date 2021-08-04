@@ -104,6 +104,9 @@ public final class ColumnBinaryMakerNameShortCut {
         "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpBooleanColumnBinaryMaker" , "ND5" );
     CLASS_NAME_PAIR.set(
         "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpBytesColumnBinaryMaker" , "ND6" );
+    CLASS_NAME_PAIR.set(
+        "jp.co.yahoo.yosegi.binary.maker.FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker",
+        "ND7");
 
     CLASS_NAME_PAIR.set(
         "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayFloatColumnBinaryMaker" , "N1" );

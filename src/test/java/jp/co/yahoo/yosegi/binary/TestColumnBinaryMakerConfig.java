@@ -39,7 +39,7 @@ public class TestColumnBinaryMakerConfig{
       arguments( ColumnType.UNION , DumpUnionColumnBinaryMaker.class.getName() ),
       arguments( ColumnType.ARRAY , MaxLengthBasedArrayColumnBinaryMaker.class.getName() ),
       arguments( ColumnType.SPREAD , DumpSpreadColumnBinaryMaker.class.getName() ),
-      arguments( ColumnType.BOOLEAN , OptimizedNullArrayDumpBooleanColumnBinaryMaker.class.getName() ),
+      arguments( ColumnType.BOOLEAN , FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker.class.getName() ),
       arguments( ColumnType.BYTE , OptimizedNullArrayDumpLongColumnBinaryMaker.class.getName() ),
       arguments( ColumnType.BYTES , OptimizedNullArrayDumpBytesColumnBinaryMaker.class.getName() ),
       arguments( ColumnType.DOUBLE , OptimizedNullArrayDumpDoubleColumnBinaryMaker.class.getName() ),
