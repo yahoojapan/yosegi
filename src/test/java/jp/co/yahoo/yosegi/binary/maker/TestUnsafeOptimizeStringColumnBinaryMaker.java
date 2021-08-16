@@ -52,8 +52,6 @@ import jp.co.yahoo.yosegi.message.objects.Utf8BytesLinkObj;
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
-import jp.co.yahoo.yosegi.binary.maker.index.RangeStringIndex;
-import jp.co.yahoo.yosegi.binary.maker.index.BufferDirectSequentialStringCellIndex;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.blockindex.StringRangeBlockIndex;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;

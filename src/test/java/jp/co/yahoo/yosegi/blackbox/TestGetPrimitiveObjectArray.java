@@ -75,8 +75,7 @@ public class TestGetPrimitiveObjectArray{
       while (reader.hasNext()) {
         Spread spread = reader.next();
         IColumn key1Column = spread.getColumn("key1");
-        IExpressionIndex indexList = new AllExpressionIndex(spread.size());
-        PrimitiveObject[] primitiveArray = key1Column.getPrimitiveObjectArray(indexList, 0, spread.size());
+        PrimitiveObject[] primitiveArray = key1Column.getPrimitiveObjectArray(0, spread.size());
         assertEquals(7, primitiveArray.length);
         assertEquals("a", primitiveArray[0].getString());
         assertEquals("b", primitiveArray[1].getString());
@@ -100,9 +99,8 @@ public class TestGetPrimitiveObjectArray{
       while (reader.hasNext()) {
         IExpressionNode node = new AndExpressionNode();
         Spread spread = reader.next();
-        IExpressionIndex indexList = IndexFactory.toExpressionIndex(spread, node.exec(spread));
         IColumn key1Column = spread.getColumn("key1");
-        PrimitiveObject[] primitiveArray = key1Column.getPrimitiveObjectArray(indexList, 0, indexList.size());
+        PrimitiveObject[] primitiveArray = key1Column.getPrimitiveObjectArray(0, spread.size());
         assertEquals(15, primitiveArray.length);
         assertEquals("a", primitiveArray[0].getString());
         assertEquals("a", primitiveArray[1].getString());

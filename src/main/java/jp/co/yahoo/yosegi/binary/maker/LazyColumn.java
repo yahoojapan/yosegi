@@ -27,8 +27,6 @@ import jp.co.yahoo.yosegi.spread.column.ICellManager;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
 import jp.co.yahoo.yosegi.spread.column.NullColumn;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
-import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 
 import java.io.IOException;
 import java.util.List;
@@ -155,32 +153,18 @@ public class LazyColumn implements IColumn {
   }
 
   @Override
-  public void setIndex( final ICellIndex index ) {
-    columnManager.get().setIndex( index );
-  }
-
-  @Override
-  public boolean[] filter(  
-      final IFilter filter ,
-      final boolean[] filterArray ) throws IOException {
-    return columnManager.get().filter( filter , filterArray );
-  }
-
-  @Override
   public PrimitiveObject[] getPrimitiveObjectArray(
-      final IExpressionIndex indexList ,
       final int start ,
       final int length ) {
-    return columnManager.get().getPrimitiveObjectArray( indexList , start , length );
+    return columnManager.get().getPrimitiveObjectArray( start , length );
   }
 
   @Override
   public void setPrimitiveObjectArray(
-      final IExpressionIndex indexList ,
       final int start ,
       final int length ,
       final IMemoryAllocator allocator ) throws IOException {
-    columnManager.get().setPrimitiveObjectArray( indexList , start , length , allocator );
+    columnManager.get().setPrimitiveObjectArray( start , length , allocator );
   }
 
   @Override

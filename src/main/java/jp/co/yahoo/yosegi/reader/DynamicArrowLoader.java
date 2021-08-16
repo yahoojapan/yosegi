@@ -21,10 +21,7 @@ package jp.co.yahoo.yosegi.reader;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
-import jp.co.yahoo.yosegi.spread.expression.AllExpressionIndex;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 import jp.co.yahoo.yosegi.spread.expression.IExpressionNode;
-import jp.co.yahoo.yosegi.spread.expression.IndexFactory;
 
 import org.apache.arrow.memory.BufferAllocator;
 import org.apache.arrow.vector.SchemaChangeCallBack;
@@ -75,20 +72,12 @@ public class DynamicArrowLoader implements IArrowLoader {
     Spread spread = reader.next();
     IMemoryAllocator memoryAllocator =
         rootMemoryAllocator.create( allocator , rootVector , spread.size() );
-    IExpressionIndex index = new AllExpressionIndex( spread.size() );
-    if ( node != null ) {
-      index = IndexFactory.toExpressionIndex( spread , node.exec( spread ) );
-      if ( index.size() == 0 ) {
-        memoryAllocator.setValueCount( 0 );
-        return rootVector;
-      }
-    }
-    memoryAllocator.setValueCount( index.size() );
+    memoryAllocator.setValueCount( spread.size() );
     for ( IColumn column : spread.getListColumn() ) {
       IMemoryAllocator childMemoryAllocator =
           memoryAllocator.getChild( column.getColumnName() , column.getColumnType() );
-      column.setPrimitiveObjectArray( index , 0 , index.size() , childMemoryAllocator );
-      childMemoryAllocator.setValueCount( index.size() );
+      column.setPrimitiveObjectArray( 0 , spread.size() , childMemoryAllocator );
+      childMemoryAllocator.setValueCount( spread.size() );
     }
     return rootVector;
   }

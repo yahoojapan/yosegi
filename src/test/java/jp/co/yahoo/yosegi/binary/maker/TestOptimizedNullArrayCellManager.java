@@ -21,8 +21,6 @@ package jp.co.yahoo.yosegi.binary.maker;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.objects.StringObj;
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
-import jp.co.yahoo.yosegi.spread.expression.AllExpressionIndex;
-import jp.co.yahoo.yosegi.spread.expression.ListIndexExpressionIndex;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 
 import org.junit.jupiter.api.Test;
@@ -311,9 +309,7 @@ public class TestOptimizedNullArrayCellManager {
     valueArray[9] = new StringObj( "j" );
     OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
         ColumnType.STRING , 0 , valueArray );
-    AllExpressionIndex index = new AllExpressionIndex( cellManager.size() );
-
-    PrimitiveObject[] objArray = cellManager.getPrimitiveObjectArray( index , 0 , 5 );
+    PrimitiveObject[] objArray = cellManager.getPrimitiveObjectArray( 0 , 5 );
     assertEquals( 5 , objArray.length );
     assertEquals( "a" ,  objArray[0].getString() );
     assertEquals( "b" ,  objArray[1].getString() );
@@ -321,48 +317,13 @@ public class TestOptimizedNullArrayCellManager {
     assertEquals( "d" ,  objArray[3].getString() );
     assertEquals( "e" ,  objArray[4].getString() );
 
-    objArray = cellManager.getPrimitiveObjectArray( index , 5 , 5 );
+    objArray = cellManager.getPrimitiveObjectArray( 5 , 5 );
     assertEquals( 5 , objArray.length );
     assertEquals( "f" ,  objArray[0].getString() );
     assertEquals( "g" ,  objArray[1].getString() );
     assertEquals( "h" ,  objArray[2].getString() );
     assertEquals( "i" ,  objArray[3].getString() );
     assertEquals( "j" ,  objArray[4].getString() );
-  }
-
-  @Test
-  public void T_getPrimitiveObjectArray_equalsSetArray_withNotNullArrayAndStartIndexZeroWhenExpand() throws IOException {
-    PrimitiveObject[] valueArray = new PrimitiveObject[10];
-    valueArray[0] = new StringObj( "a" );
-    valueArray[1] = new StringObj( "b" );
-    valueArray[2] = new StringObj( "c" );
-    valueArray[3] = new StringObj( "d" );
-    valueArray[4] = new StringObj( "e" );
-    valueArray[5] = new StringObj( "f" );
-    valueArray[6] = new StringObj( "g" );
-    valueArray[7] = new StringObj( "h" );
-    valueArray[8] = new StringObj( "i" );
-    valueArray[9] = new StringObj( "j" );
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 0 , valueArray );
-    ListIndexExpressionIndex index = new ListIndexExpressionIndex(
-        Arrays.asList( 0 , 0 , 2 , 2 , 4 , 4 , 6 , 6 , 8 , 8 ) );
-
-    PrimitiveObject[] objArray = cellManager.getPrimitiveObjectArray( index , 0 , 5 );
-    assertEquals( 5 , objArray.length );
-    assertEquals( "a" ,  objArray[0].getString() );
-    assertEquals( "a" ,  objArray[1].getString() );
-    assertEquals( "c" ,  objArray[2].getString() );
-    assertEquals( "c" ,  objArray[3].getString() );
-    assertEquals( "e" ,  objArray[4].getString() );
-
-    objArray = cellManager.getPrimitiveObjectArray( index , 5 , 5 );
-    assertEquals( 5 , objArray.length );
-    assertEquals( "e" ,  objArray[0].getString() );
-    assertEquals( "g" ,  objArray[1].getString() );
-    assertEquals( "g" ,  objArray[2].getString() );
-    assertEquals( "i" ,  objArray[3].getString() );
-    assertEquals( "i" ,  objArray[4].getString() );
   }
 
   @Test
@@ -380,9 +341,8 @@ public class TestOptimizedNullArrayCellManager {
     valueArray[9] = new StringObj( "j" );
     OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
         ColumnType.STRING , 0 , valueArray );
-    AllExpressionIndex index = new AllExpressionIndex( cellManager.size() );
     TestAllocator allocator = new TestAllocator(5);
-    cellManager.setPrimitiveObjectArray( index , 0 , 5 , allocator );
+    cellManager.setPrimitiveObjectArray( 0 , 5 , allocator );
     PrimitiveObject[] objArray = allocator.getResult();
     assertEquals( 5 , objArray.length );
     assertEquals( "a" ,  objArray[0].getString() );
@@ -392,7 +352,7 @@ public class TestOptimizedNullArrayCellManager {
     assertEquals( "e" ,  objArray[4].getString() );
 
     allocator = new TestAllocator(3);
-    cellManager.setPrimitiveObjectArray( index , 5 , 3 , allocator );
+    cellManager.setPrimitiveObjectArray( 5 , 3 , allocator );
     objArray = allocator.getResult();
     assertEquals( 3 , objArray.length );
     assertEquals( "f" ,  objArray[0].getString() );
@@ -400,54 +360,11 @@ public class TestOptimizedNullArrayCellManager {
     assertEquals( "h" ,  objArray[2].getString() );
 
     allocator = new TestAllocator(3);
-    cellManager.setPrimitiveObjectArray( index , 8 , 3 , allocator );
+    cellManager.setPrimitiveObjectArray( 8 , 3 , allocator );
     objArray = allocator.getResult();
     assertEquals( 3 , objArray.length );
     assertEquals( "i" ,  objArray[0].getString() );
     assertEquals( "j" ,  objArray[1].getString() );
-    assertNull( objArray[2] );
-  }
-
-  @Test                                                                                     public void T_setPrimitiveObjectArray_equalsSetArray_withNotNullArrayAndStartIndexZeroWhenExpand() throws IOException {
-    PrimitiveObject[] valueArray = new PrimitiveObject[10];
-    valueArray[0] = new StringObj( "a" );
-    valueArray[1] = new StringObj( "b" );
-    valueArray[2] = new StringObj( "c" );
-    valueArray[3] = new StringObj( "d" );
-    valueArray[4] = new StringObj( "e" );
-    valueArray[5] = new StringObj( "f" );
-    valueArray[6] = new StringObj( "g" );
-    valueArray[7] = new StringObj( "h" );
-    valueArray[8] = new StringObj( "i" );
-    valueArray[9] = new StringObj( "j" );
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 0 , valueArray );
-    ListIndexExpressionIndex index = new ListIndexExpressionIndex(
-        Arrays.asList( 0 , 0 , 2 , 2 , 4 , 4 , 6 , 6 , 8 , 8 ) );
-    TestAllocator allocator = new TestAllocator(5);
-    cellManager.setPrimitiveObjectArray( index , 0 , 5 , allocator );
-    PrimitiveObject[] objArray = allocator.getResult();
-    assertEquals( 5 , objArray.length );
-    assertEquals( "a" ,  objArray[0].getString() );
-    assertEquals( "a" ,  objArray[1].getString() );
-    assertEquals( "c" ,  objArray[2].getString() );
-    assertEquals( "c" ,  objArray[3].getString() );
-    assertEquals( "e" ,  objArray[4].getString() );
-
-    allocator = new TestAllocator(3);
-    cellManager.setPrimitiveObjectArray( index , 5 , 3 , allocator );
-    objArray = allocator.getResult();
-    assertEquals( 3 , objArray.length );
-    assertEquals( "e" ,  objArray[0].getString() );
-    assertEquals( "g" ,  objArray[1].getString() );
-    assertEquals( "g" ,  objArray[2].getString() );
-
-    allocator = new TestAllocator(3);
-    cellManager.setPrimitiveObjectArray( index , 8 , 3 , allocator );
-    objArray = allocator.getResult();
-    assertEquals( 3 , objArray.length );
-    assertEquals( "i" ,  objArray[0].getString() );
-    assertEquals( "i" ,  objArray[1].getString() );
     assertNull( objArray[2] );
   }
 
@@ -466,18 +383,17 @@ public class TestOptimizedNullArrayCellManager {
     valueArray[9] = new StringObj( "j" );
     OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
         ColumnType.STRING , 10 , valueArray );
-    AllExpressionIndex index = new AllExpressionIndex( cellManager.size() );
-    PrimitiveObject[] objArray = cellManager.getPrimitiveObjectArray( index , 0 , 5 );
+    PrimitiveObject[] objArray = cellManager.getPrimitiveObjectArray( 0 , 5 );
     for ( int i = 0 ; i < objArray.length ; i++ ) {
       assertNull( objArray[i] );
     } 
 
-    objArray = cellManager.getPrimitiveObjectArray( index , 5 , 5 );
+    objArray = cellManager.getPrimitiveObjectArray( 5 , 5 );
     for ( int i = 0 ; i < objArray.length ; i++ ) {
       assertNull( objArray[i] );
     } 
 
-    objArray = cellManager.getPrimitiveObjectArray( index , 10 , 5 );
+    objArray = cellManager.getPrimitiveObjectArray( 10 , 5 );
     assertEquals( 5 , objArray.length );
     assertEquals( "a" ,  objArray[0].getString() );
     assertEquals( "b" ,  objArray[1].getString() );
@@ -485,7 +401,7 @@ public class TestOptimizedNullArrayCellManager {
     assertEquals( "d" ,  objArray[3].getString() );
     assertEquals( "e" ,  objArray[4].getString() );
 
-    objArray = cellManager.getPrimitiveObjectArray( index , 15 , 5 );
+    objArray = cellManager.getPrimitiveObjectArray( 15 , 5 );
     assertEquals( 5 , objArray.length );
     assertEquals( "f" ,  objArray[0].getString() );
     assertEquals( "g" ,  objArray[1].getString() );
@@ -509,23 +425,22 @@ public class TestOptimizedNullArrayCellManager {
     valueArray[9] = new StringObj( "j" );
     OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
         ColumnType.STRING , 10 , valueArray );
-    AllExpressionIndex index = new AllExpressionIndex( cellManager.size() );
     TestAllocator allocator = new TestAllocator(5);
-    cellManager.setPrimitiveObjectArray( index , 0 , 5 , allocator );
+    cellManager.setPrimitiveObjectArray( 0 , 5 , allocator );
     PrimitiveObject[] objArray = allocator.getResult();
     for ( int i = 0 ; i < objArray.length ; i++ ) {
       assertNull( objArray[i] );
     }
 
     allocator = new TestAllocator(5);
-    cellManager.setPrimitiveObjectArray( index , 5 , 5 , allocator );
+    cellManager.setPrimitiveObjectArray( 5 , 5 , allocator );
     objArray = allocator.getResult();
     for ( int i = 0 ; i < objArray.length ; i++ ) {
       assertNull( objArray[i] );
     }
 
     allocator = new TestAllocator(5);
-    cellManager.setPrimitiveObjectArray( index , 10 , 5 , allocator );
+    cellManager.setPrimitiveObjectArray( 10 , 5 , allocator );
     objArray = allocator.getResult();
     assertEquals( "a" ,  objArray[0].getString() );
     assertEquals( "b" ,  objArray[1].getString() );
@@ -534,91 +449,17 @@ public class TestOptimizedNullArrayCellManager {
     assertEquals( "e" ,  objArray[4].getString() );
 
     allocator = new TestAllocator(3);
-    cellManager.setPrimitiveObjectArray( index , 15 , 3 , allocator );
+    cellManager.setPrimitiveObjectArray( 15 , 3 , allocator );
     objArray = allocator.getResult();
     assertEquals( "f" ,  objArray[0].getString() );
     assertEquals( "g" ,  objArray[1].getString() );
     assertEquals( "h" ,  objArray[2].getString() );
 
     allocator = new TestAllocator(3);
-    cellManager.setPrimitiveObjectArray( index , 18 , 3 , allocator );
+    cellManager.setPrimitiveObjectArray( 18 , 3 , allocator );
     objArray = allocator.getResult();
     assertEquals( "i" ,  objArray[0].getString() );
     assertEquals( "j" ,  objArray[1].getString() );
-    assertNull( objArray[2] );
-  }
-
-  @Test
-  public void T_setPrimitiveObjectArray_equalsSetArray_withNotNullArrayAndStartIndexNotZeroWhenExpand() throws IOException {
-    PrimitiveObject[] valueArray = new PrimitiveObject[10];
-    valueArray[0] = new StringObj( "a" );
-    valueArray[1] = new StringObj( "b" );
-    valueArray[2] = new StringObj( "c" );
-    valueArray[3] = new StringObj( "d" );
-    valueArray[4] = new StringObj( "e" );
-    valueArray[5] = new StringObj( "f" );
-    valueArray[6] = new StringObj( "g" );
-    valueArray[7] = new StringObj( "h" );
-    valueArray[8] = new StringObj( "i" );
-    valueArray[9] = new StringObj( "j" );
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 10 , valueArray );
-    ListIndexExpressionIndex index = new ListIndexExpressionIndex(
-        Arrays.asList( 5 , 5 , 10 , 10 , 12 , 12 , 14 , 14 , 16 , 16 ) );
-    TestAllocator allocator = new TestAllocator(5);
-    cellManager.setPrimitiveObjectArray( index , 0 , 5 , allocator );
-    PrimitiveObject[] objArray = allocator.getResult();
-    assertNull( objArray[0] );
-    assertNull( objArray[1] );
-    assertEquals( "a" ,  objArray[2].getString() );
-    assertEquals( "a" ,  objArray[3].getString() );
-    assertEquals( "c" ,  objArray[4].getString() );
-
-    allocator = new TestAllocator(3);
-    cellManager.setPrimitiveObjectArray( index , 5 , 3 , allocator );
-    objArray = allocator.getResult();
-    assertEquals( "c" ,  objArray[0].getString() );
-    assertEquals( "e" ,  objArray[1].getString() );
-    assertEquals( "e" ,  objArray[2].getString() );
-
-    allocator = new TestAllocator(3);
-    cellManager.setPrimitiveObjectArray( index , 8 , 3 , allocator );
-    objArray = allocator.getResult();
-    assertEquals( "g" ,  objArray[0].getString() );
-    assertEquals( "g" ,  objArray[1].getString() );
-    assertNull( objArray[2] );
-  }
-
-  @Test
-  public void T_setPrimitiveObjectArray_equalsSetArray_withNotNullArrayAndStartIndexNotZeroWhenLongExpand() throws IOException {
-    PrimitiveObject[] valueArray = new PrimitiveObject[2];
-    valueArray[0] = new StringObj( "a" );
-    valueArray[1] = new StringObj( "b" );
-    OptimizedNullArrayCellManager cellManager = new OptimizedNullArrayCellManager(
-        ColumnType.STRING , 1 , valueArray );
-    ListIndexExpressionIndex index = new ListIndexExpressionIndex(
-        Arrays.asList( 0 , 0 , 1 , 1 , 2 , 2 , 3 , 3 , 4 , 4 ) );
-    TestAllocator allocator = new TestAllocator(5);
-    cellManager.setPrimitiveObjectArray( index , 0 , 5 , allocator );
-    PrimitiveObject[] objArray = allocator.getResult();
-    assertNull( objArray[0] );
-    assertNull( objArray[1] );
-    assertEquals( "a" ,  objArray[2].getString() );
-    assertEquals( "a" ,  objArray[3].getString() );
-    assertEquals( "b" ,  objArray[4].getString() );
-
-    allocator = new TestAllocator(3);
-    cellManager.setPrimitiveObjectArray( index , 5 , 3 , allocator );
-    objArray = allocator.getResult();
-    assertEquals( "b" ,  objArray[0].getString() );
-    assertNull( objArray[1] );
-    assertNull( objArray[2] );
-
-    allocator = new TestAllocator(3);
-    cellManager.setPrimitiveObjectArray( index , 8 , 3 , allocator );
-    objArray = allocator.getResult();
-    assertNull( objArray[0] );
-    assertNull( objArray[1] );
     assertNull( objArray[2] );
   }
 

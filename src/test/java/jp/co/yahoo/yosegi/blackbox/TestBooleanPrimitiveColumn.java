@@ -161,8 +161,7 @@ public class TestBooleanPrimitiveColumn {
   @MethodSource( "data1" )
   public void T_getPrimitiveObjectArray_1( final String targetClassName ) throws IOException{
     IColumn column = createNotNullColumn( targetClassName );
-    IExpressionIndex indexList = new AllExpressionIndex( column.size() );
-    PrimitiveObject[] objArray = column.getPrimitiveObjectArray( indexList , 0 , indexList.size() );
+    PrimitiveObject[] objArray = column.getPrimitiveObjectArray( 0 , column.size() );
 
     assertEquals( objArray[0].getBoolean() , true );
     assertEquals( objArray[1].getBoolean() , false );
@@ -175,52 +174,6 @@ public class TestBooleanPrimitiveColumn {
     assertEquals( objArray[8].getBoolean() , true );
     assertEquals( objArray[9].getBoolean() , false );
     assertEquals( objArray[10].getBoolean() , true );
-  }
-
-  @ParameterizedTest
-  @MethodSource( "data1" )
-  public void T_getPrimitiveObjectArray_2( final String targetClassName ) throws IOException{
-    IColumn column = createNotNullColumn( targetClassName );
-    List<Integer> list = new ArrayList<Integer>();
-    list.add( Integer.valueOf( 0 ) );
-    list.add( Integer.valueOf( 2 ) );
-    list.add( Integer.valueOf( 4 ) );
-    list.add( Integer.valueOf( 6 ) );
-    list.add( Integer.valueOf( 8 ) );
-    list.add( Integer.valueOf( 10 ) );
-    IExpressionIndex indexList = new ListIndexExpressionIndex( list );
-    PrimitiveObject[] objArray = column.getPrimitiveObjectArray( indexList , 0 , indexList.size() );
-
-    assertEquals( objArray[0].getBoolean() , true );
-    assertEquals( objArray[1].getBoolean() , true );
-    assertEquals( objArray[2].getBoolean() , true );
-    assertEquals( objArray[3].getBoolean() , true );
-    assertEquals( objArray[4].getBoolean() , true );
-    assertEquals( objArray[5].getBoolean() , true );
-  }
-
-  @ParameterizedTest
-  @MethodSource( "data1" )
-  public void T_getPrimitiveObjectArray_3( final String targetClassName ) throws IOException{
-    IColumn column = createNotNullColumn( targetClassName );
-    List<Integer> list = new ArrayList<Integer>();
-    list.add( Integer.valueOf( 0 ) );
-    list.add( Integer.valueOf( 2 ) );
-    list.add( Integer.valueOf( 4 ) );
-    list.add( Integer.valueOf( 6 ) );
-    list.add( Integer.valueOf( 8 ) );
-    list.add( Integer.valueOf( 10 ) );
-    list.add( Integer.valueOf( 12 ) );
-    IExpressionIndex indexList = new ListIndexExpressionIndex( list );
-    PrimitiveObject[] objArray = column.getPrimitiveObjectArray( indexList , 0 , indexList.size() );
-
-    assertEquals( objArray[0].getBoolean() , true );
-    assertEquals( objArray[1].getBoolean() , true );
-    assertEquals( objArray[2].getBoolean() , true );
-    assertEquals( objArray[3].getBoolean() , true );
-    assertEquals( objArray[4].getBoolean() , true );
-    assertEquals( objArray[5].getBoolean() , true );
-    assertNull( objArray[6] );
   }
 
 }

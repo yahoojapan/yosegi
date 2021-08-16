@@ -29,8 +29,6 @@ public interface IExpressionNode extends Serializable {
 
   void addChildNode( final IExpressionNode node );
 
-  boolean[] exec( final Spread spread ) throws IOException;
-
   List<Integer> getBlockSpreadIndex( final BlockIndexNode indexNode ) throws IOException;
 
 }

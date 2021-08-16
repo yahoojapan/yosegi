@@ -22,8 +22,6 @@ import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
-import jp.co.yahoo.yosegi.binary.maker.index.BufferDirectSequentialNumberCellIndex;
-import jp.co.yahoo.yosegi.binary.maker.index.RangeDoubleIndex;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.blockindex.DoubleRangeBlockIndex;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
@@ -404,7 +402,7 @@ public class UnsafeOptimizeDoubleColumnBinaryMaker implements IColumnBinaryMaker
 
     IDictionaryIndexMaker indexMaker = chooseDictionaryIndexMaker( columnBinary.rowCount );
     IDictionaryMaker dicMaker = chooseDictionaryMaker( min.doubleValue() , max.doubleValue() );
-    return new HeaderIndexLazyColumn(
+    return new LazyColumn(
       columnBinary.columnName ,
       columnBinary.columnType ,
       new ColumnManager(
@@ -412,8 +410,7 @@ public class UnsafeOptimizeDoubleColumnBinaryMaker implements IColumnBinaryMaker
         indexMaker ,
         dicMaker ,
         order
-      ) ,
-      new RangeDoubleIndex( min , max )
+      ) 
     );
   }
 
@@ -533,10 +530,6 @@ public class UnsafeOptimizeDoubleColumnBinaryMaker implements IColumnBinaryMaker
       column = new PrimitiveColumn( columnBinary.columnType , columnBinary.columnName );
       column.setCellManager(
           new BufferDirectDictionaryLinkCellManager(
-            columnBinary.columnType , dicManager , indexIntBuffer
-          ) );
-      column.setIndex(
-          new BufferDirectSequentialNumberCellIndex(
             columnBinary.columnType , dicManager , indexIntBuffer
           ) );
 

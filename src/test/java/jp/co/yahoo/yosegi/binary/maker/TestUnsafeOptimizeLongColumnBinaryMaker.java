@@ -61,8 +61,6 @@ import jp.co.yahoo.yosegi.spread.analyzer.LongColumnAnalizeResult;
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
-import jp.co.yahoo.yosegi.binary.maker.index.RangeLongIndex;
-import jp.co.yahoo.yosegi.binary.maker.index.BufferDirectSequentialNumberCellIndex;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.blockindex.LongRangeBlockIndex;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;

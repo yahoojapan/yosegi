@@ -24,9 +24,7 @@ import jp.co.yahoo.yosegi.message.parser.IStreamReader;
 import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.column.SpreadColumn;
 import jp.co.yahoo.yosegi.spread.expression.AndExpressionNode;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 import jp.co.yahoo.yosegi.spread.expression.IExpressionNode;
-import jp.co.yahoo.yosegi.spread.expression.IndexFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,8 +32,8 @@ import java.util.List;
 public class YosegiSchemaSpreadReader implements IStreamReader {
 
   private final ISettableIndexParser currentParser;
-  private final IExpressionIndex currentIndexList;
   private int currentIndex;
+  private int currentSpreadSize;
 
   /**
    * Set Spread to read and initialize.
@@ -44,40 +42,22 @@ public class YosegiSchemaSpreadReader implements IStreamReader {
     SpreadColumn spreadColumn = new SpreadColumn( "root" );
     spreadColumn.setSpread( spread );
 
-    IExpressionNode node = new AndExpressionNode();
-    currentIndexList = IndexFactory.toExpressionIndex( spread , node.exec( spread ) );
     currentIndex = 0;
-    currentParser = YosegiParserFactory.get( spreadColumn , currentIndexList.get( currentIndex ) );
-  }
-
-  /**
-   * Set Spread to read and initialize.
-   */
-  public YosegiSchemaSpreadReader(
-      final Spread spread , final IExpressionNode filterNode ) throws IOException {
-    IExpressionNode node = new AndExpressionNode();
-    if ( filterNode != null ) {
-      node = filterNode;
-    }
-    SpreadColumn spreadColumn = new SpreadColumn( "root" );
-    spreadColumn.setSpread( spread );
-
-    currentIndexList = IndexFactory.toExpressionIndex( spread , node.exec( spread ) );
-    currentIndex = 0;
-    currentParser = YosegiParserFactory.get( spreadColumn , currentIndexList.get( currentIndex ) );
+    currentSpreadSize = spread.size();
+    currentParser = YosegiParserFactory.get( spreadColumn , currentIndex );
   }
 
   @Override
   public boolean hasNext() throws IOException {
-    return currentIndex != currentIndexList.size();
+    return currentIndex != currentSpreadSize;
   }
 
   @Override
   public IParser next() throws IOException {
-    if ( currentIndex == currentIndexList.size() ) {
+    if ( currentIndex == currentSpreadSize ) {
       return null;
     }
-    currentParser.setIndex( currentIndexList.get( currentIndex ) );
+    currentParser.setIndex( currentIndex );
     currentIndex++;
     return currentParser;
   }

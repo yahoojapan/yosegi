@@ -22,7 +22,6 @@ import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
-import jp.co.yahoo.yosegi.binary.maker.index.SequentialBooleanCellIndex;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
@@ -40,9 +39,6 @@ import jp.co.yahoo.yosegi.spread.column.IColumn;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveCell;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveColumn;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
-import jp.co.yahoo.yosegi.spread.column.index.DefaultCellIndex;
-import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -148,8 +144,6 @@ public class DumpBooleanColumnBinaryMaker implements IColumnBinaryMaker {
     private final PrimitiveCell[] cellArray;
     private byte[] buffer;
 
-    private ICellIndex index = new DefaultCellIndex();
-
     /**
      * Manage byte array as Boolean cell.
      */
@@ -194,35 +188,15 @@ public class DumpBooleanColumnBinaryMaker implements IColumnBinaryMaker {
     }
 
     @Override
-    public void setIndex( final ICellIndex index ) {
-      this.index = index;
-    }
-
-    @Override
-    public boolean[] filter(
-        final IFilter filter , final boolean[] filterArray ) throws IOException {
-      switch ( filter.getFilterType() ) {
-        case NOT_NULL:
-          return null;
-        case NULL:
-          return null;
-        default:
-          return index.filter( filter , filterArray );
-      }
-    }
-
-    @Override
     public PrimitiveObject[] getPrimitiveObjectArray(
-        final IExpressionIndex indexList ,
         final int start ,
         final int length ) {
       PrimitiveObject[] result = new PrimitiveObject[length];
       for ( int i = start , index = 0 ; i < ( start + length ); i++,index++ ) {
-        int targetIndex = indexList.get(i);
-        if ( buffer.length <= targetIndex ) {
+        if ( buffer.length <= i ) {
           break;
         }
-        int cellIndex = buffer[targetIndex];
+        int cellIndex = buffer[i];
         if ( cellIndex == Byte.MAX_VALUE ) {
           cellIndex = 2;
         }
@@ -236,17 +210,15 @@ public class DumpBooleanColumnBinaryMaker implements IColumnBinaryMaker {
 
     @Override
     public void setPrimitiveObjectArray(
-        final IExpressionIndex indexList ,
         final int start ,
         final int length ,
         final IMemoryAllocator allocator ) {
       int index = 0;
       for ( int i = start ; i < ( start + length ); i++,index++ ) {
-        int targetIndex = indexList.get(i);
-        if ( buffer.length <= targetIndex ) {
+        if ( buffer.length <= i ) {
           break;
         }
-        int cellIndex = buffer[targetIndex];
+        int cellIndex = buffer[i];
         try {
           if ( cellIndex == Byte.MAX_VALUE ) {
             allocator.setNull( index );
@@ -291,7 +263,6 @@ public class DumpBooleanColumnBinaryMaker implements IColumnBinaryMaker {
       column = new PrimitiveColumn( ColumnType.BOOLEAN , columnBinary.columnName );
       column.setCellManager(
           new DirectBufferBooleanCellManager( binary , trueObject , falseObject ) );
-      column.setIndex( new SequentialBooleanCellIndex( binary ) );
 
       isCreate = true;
     }

@@ -39,8 +39,6 @@ import jp.co.yahoo.yosegi.spread.column.ICellManager;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
 import jp.co.yahoo.yosegi.spread.column.SpreadArrayLink;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
-import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -217,24 +215,7 @@ public class DumpArrayColumnBinaryMaker implements IColumnBinaryMaker {
     }
 
     @Override
-    public void setIndex( final ICellIndex index ) {
-      // Do nothing
-    }
-
-    @Override
-    public boolean[] filter(
-        final IFilter filter , final boolean[] filterArray ) throws IOException {
-      switch ( filter.getFilterType() ) {
-        case NOT_NULL:
-        case NULL:
-        default:
-          return null;
-      }
-    }
-
-    @Override
     public PrimitiveObject[] getPrimitiveObjectArray(
-        final IExpressionIndex indexList ,
         final int start ,
         final int length ) {
       return new PrimitiveObject[length];
@@ -242,7 +223,6 @@ public class DumpArrayColumnBinaryMaker implements IColumnBinaryMaker {
 
     @Override
     public void setPrimitiveObjectArray(
-        final IExpressionIndex indexList ,
         final int start ,
         final int length ,
         final IMemoryAllocator allocator ) {

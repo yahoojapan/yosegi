@@ -29,9 +29,6 @@ import jp.co.yahoo.yosegi.spread.column.PrimitiveCell;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveColumn;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
 import jp.co.yahoo.yosegi.spread.column.filter.INullFilter;
-import jp.co.yahoo.yosegi.spread.column.index.DefaultCellIndex;
-import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -44,8 +41,6 @@ public class BufferDirectDictionaryLinkCellManager implements ICellManager<ICell
   private final IDicManager dicManager;
   private final IntBuffer dicIndexIntBuffer;
   private final int indexSize;
-
-  private ICellIndex index = new DefaultCellIndex();
 
   /**
    * Object for managing cells from IntBuffer.
@@ -91,39 +86,16 @@ public class BufferDirectDictionaryLinkCellManager implements ICellManager<ICell
   public void clear() {}
 
   @Override
-  public void setIndex( final ICellIndex index ) {
-    this.index = index;
-  }
-
-  @Override
-  public boolean[] filter(
-      final IFilter filter ,
-      final boolean[] filterArray ) throws IOException {
-    switch ( filter.getFilterType() ) {
-      case NOT_NULL:
-      case NULL:
-        return null;
-      default:
-        return index.filter( filter , filterArray );
-    }
-  }
-
-  @Override
   public PrimitiveObject[] getPrimitiveObjectArray(
-      final IExpressionIndex indexList ,
       final int start ,
       final int length ) {
     PrimitiveObject[] result = new PrimitiveObject[length];
     int loopEnd = ( start + length );
-    if ( indexList.size() < loopEnd ) {
-      loopEnd = indexList.size();
-    }
     for ( int i = start , index = 0 ; i < loopEnd ; i++,index++ ) {
-      int targetIndex = indexList.get( i );
-      if ( indexSize <= targetIndex ) {
+      if ( indexSize <= i ) {
         break;
       }
-      int dicIndex = dicIndexIntBuffer.get( targetIndex );
+      int dicIndex = dicIndexIntBuffer.get( i);
       if ( dicIndex != 0 ) {
         try {
           result[index] = dicManager.get( dicIndex );
@@ -137,21 +109,16 @@ public class BufferDirectDictionaryLinkCellManager implements ICellManager<ICell
 
   @Override
   public void setPrimitiveObjectArray( 
-        final IExpressionIndex indexList ,
         final int start ,
         final int length ,
         final IMemoryAllocator allocator ) {
     int loopEnd = ( start + length );
-    if ( indexList.size() < loopEnd ) {
-      loopEnd = indexList.size();
-    }
     int index = 0;
     for ( int i = start ; i < loopEnd ; i++,index++ ) {
-      int targetIndex = indexList.get( i );
-      if ( indexSize <= targetIndex ) {
+      if ( indexSize <= i ) {
         break;
       }
-      int dicIndex = dicIndexIntBuffer.get( targetIndex );
+      int dicIndex = dicIndexIntBuffer.get( i );
       try {
         if ( dicIndex == 0 ) {
           allocator.setNull( index );

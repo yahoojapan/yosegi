@@ -22,7 +22,6 @@ import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
-import jp.co.yahoo.yosegi.binary.maker.index.RangeDoubleIndex;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.blockindex.DoubleRangeBlockIndex;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
@@ -218,13 +217,12 @@ public class OptimizedNullArrayDoubleColumnBinaryMaker implements IColumnBinaryM
     Double min = Double.valueOf( wrapBuffer.getDouble() );
     Double max = Double.valueOf( wrapBuffer.getDouble() );
 
-    return new HeaderIndexLazyColumn(
+    return new LazyColumn(
       columnBinary.columnName ,
       columnBinary.columnType ,
       new ColumnManager(
         columnBinary
-      ) ,
-      new RangeDoubleIndex( min , max )
+      )
     );
   }
 

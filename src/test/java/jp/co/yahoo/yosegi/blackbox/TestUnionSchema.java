@@ -319,12 +319,9 @@ public class TestUnionSchema{
     reader.setNewStream( fileIn , data.length , readerConfig );
     while( reader.hasNext() ){
       Spread spread = reader.next();
-      IExpressionIndex indexList = IndexFactory.toExpressionIndex( spread , node.exec( spread ) );
       IColumn arrayColumn = spread.getColumn( "other" );
-      assertEquals( spread.size() , indexList.size() );
-      assertEquals( 0 , indexList.get(0) );
 
-      assertEquals( "a" , ( (PrimitiveObject)( arrayColumn.get( indexList.get(0) ).getRow() ) ).getString() );
+      assertEquals( "a" , ( (PrimitiveObject)( arrayColumn.get( 0 ).getRow() ) ).getString() );
     }
   }
 

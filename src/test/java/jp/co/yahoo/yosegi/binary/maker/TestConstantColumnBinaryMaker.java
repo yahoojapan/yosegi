@@ -34,7 +34,6 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
-import jp.co.yahoo.yosegi.spread.expression.AllExpressionIndex;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveColumn;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
@@ -235,8 +234,7 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( decodeColumn.getColumnKeys().size() , 0 );
     assertEquals( decodeColumn.getColumnSize() , 0 );
 
-    AllExpressionIndex index = new AllExpressionIndex( 10 );
-    PrimitiveObject[] array = decodeColumn.getPrimitiveObjectArray( index , 0 , 10 );
+    PrimitiveObject[] array = decodeColumn.getPrimitiveObjectArray( 0 , 10 );
     assertEquals( str ,  array[0].getString() );
     assertEquals( str ,  array[1].getString() );
     assertEquals( str ,  array[2].getString() );
@@ -260,9 +258,8 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( decodeColumn.getColumnKeys().size() , 0 );
     assertEquals( decodeColumn.getColumnSize() , 0 );
 
-    AllExpressionIndex index = new AllExpressionIndex( 10 );
     MyAllocator allocator = new MyAllocator();
-    decodeColumn.setPrimitiveObjectArray( index , 0 , 10 , allocator );
+    decodeColumn.setPrimitiveObjectArray( 0 , 10 , allocator );
 
     assertEquals( str ,  allocator.array[0].getString() );
     assertEquals( str ,  allocator.array[1].getString() );

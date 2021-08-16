@@ -25,9 +25,6 @@ import jp.co.yahoo.yosegi.message.design.NullField;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
-import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
-import jp.co.yahoo.yosegi.spread.expression.ListIndexExpressionIndex;
 import org.apache.arrow.vector.FieldVector;
 import org.apache.arrow.vector.complex.ListVector;
 
@@ -183,34 +180,22 @@ public class ArrowArrayColumn implements IColumn {
   }
 
   @Override
-  public void setIndex( final ICellIndex index ) {
-    throw new UnsupportedOperationException( "This column is read only." );
-  }
-
-  @Override
-  public boolean[] filter( final IFilter filter , boolean[] filterArray ) throws IOException {
-    throw new UnsupportedOperationException( "This column is read only." );
-  }
-
-  @Override
   public PrimitiveObject[] getPrimitiveObjectArray(
-      final IExpressionIndex indexList , final int start , final int length ) {
+      final int start , final int length ) {
     PrimitiveObject[] result = new PrimitiveObject[length];
     return result;
   }
 
   @Override
   public void setPrimitiveObjectArray(
-      final IExpressionIndex indexList ,
       final int start ,
       final int length ,
       final IMemoryAllocator allocator ) throws IOException {
     allocator.setValueCount( length );
     List<Integer> childIndexList = new ArrayList<Integer>();
     for ( int i = start ; i < start + length ; i++ ) {
-      int index = indexList.get( i );
-      if ( cellArray[index].getType() == ColumnType.EMPTY_ARRAY ) {
-        allocator.setNull( index );
+      if ( cellArray[i].getType() == ColumnType.EMPTY_ARRAY ) {
+        allocator.setNull( i );
         continue;
       }
       ArrayCell arrayCell = (ArrayCell)cellArray[i];
@@ -218,11 +203,11 @@ public class ArrowArrayColumn implements IColumn {
         childIndexList.add( Integer.valueOf( ii ) );
       }
     }
-    ListIndexExpressionIndex newIndexList = new ListIndexExpressionIndex( childIndexList );
     IColumn column = spread.getColumn(0);
     IMemoryAllocator childAllocator =
-        allocator.getArrayChild( newIndexList.size() , column.getColumnType() );
-    column.setPrimitiveObjectArray( newIndexList , 0 , newIndexList.size() , childAllocator );
+        allocator.getArrayChild( childIndexList.size() , column.getColumnType() );
+    column.setPrimitiveObjectArray(
+        childIndexList.get(0) , childIndexList.size() , childAllocator );
   }
 
   @Override

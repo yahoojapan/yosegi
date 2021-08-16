@@ -20,7 +20,6 @@ package jp.co.yahoo.yosegi.spread.column;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.*;
 import jp.co.yahoo.yosegi.spread.column.filter.NotNullFilter;
-import jp.co.yahoo.yosegi.spread.expression.AllExpressionIndex;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -193,56 +192,6 @@ public class TestPrimitiveCellManager {
   }
 
   @Test
-  public void T_filter_nulIsFiltered() throws IOException {
-    ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
-    PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
-    cellManager.add( new StringObj( "test" ) , 5 );
-
-    boolean[] filters = new boolean[cellManager.size()];
-    assertEquals( filters.length , 6 );
-
-    assertEquals( filters[0] , false );
-    assertEquals( filters[1] , false );
-    assertEquals( filters[2] , false );
-    assertEquals( filters[3] , false );
-    assertEquals( filters[4] , false );
-    assertEquals( filters[5] , false );
-    cellManager.filter( new NotNullFilter( ColumnType.STRING ) , filters );
-    assertEquals( filters[0] , false );
-    assertEquals( filters[1] , false );
-    assertEquals( filters[2] , false );
-    assertEquals( filters[3] , false );
-    assertEquals( filters[4] , false );
-    assertEquals( filters[5] , true );
-  }
-
-  @Test
-  public void T_filter_nulIsFiltered_whenBetweenIsNull() throws IOException {
-    ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
-    PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
-    cellManager.add( new StringObj( "test" ) , 1 );
-    cellManager.add( new StringObj( "test" ) , 3 );
-    cellManager.add( new StringObj( "test" ) , 5 );
-
-    boolean[] filters = new boolean[cellManager.size()];
-    assertEquals( filters.length , 6 );
-
-    assertEquals( filters[0] , false );
-    assertEquals( filters[1] , false );
-    assertEquals( filters[2] , false );
-    assertEquals( filters[3] , false );
-    assertEquals( filters[4] , false );
-    assertEquals( filters[5] , false );
-    cellManager.filter( new NotNullFilter( ColumnType.STRING ) , filters );
-    assertEquals( filters[0] , false );
-    assertEquals( filters[1] , true );
-    assertEquals( filters[2] , false );
-    assertEquals( filters[3] , true );
-    assertEquals( filters[4] , false );
-    assertEquals( filters[5] , true );
-  }
-
-  @Test
   public void T_getPrimitiveObject_primitiveObjectArray_withAllAtOnce() throws IOException {
     ICellMaker maker = CellMakerFactory.getCellMaker( ColumnType.STRING );
     PrimitiveCellManager cellManager = new PrimitiveCellManager( maker );
@@ -250,8 +199,7 @@ public class TestPrimitiveCellManager {
     cellManager.add( new StringObj( "test3" ) , 3 );
     cellManager.add( new StringObj( "test5" ) , 5 );
 
-    PrimitiveObject[] result = cellManager.getPrimitiveObjectArray(
-        new AllExpressionIndex( cellManager.size() ) , 0 , 10 );
+    PrimitiveObject[] result = cellManager.getPrimitiveObjectArray( 0 , 10 );
 
     assertEquals( result[0] , null );
     assertEquals( result[1].getString() , "test1" );
@@ -273,15 +221,13 @@ public class TestPrimitiveCellManager {
     cellManager.add( new StringObj( "test3" ) , 3 );
     cellManager.add( new StringObj( "test5" ) , 5 );
 
-    PrimitiveObject[] result1 = cellManager.getPrimitiveObjectArray(
-        new AllExpressionIndex( cellManager.size() ) , 0 , 3 );
+    PrimitiveObject[] result1 = cellManager.getPrimitiveObjectArray( 0 , 3 );
 
     assertEquals( result1[0] , null );
     assertEquals( result1[1].getString() , "test1" );
     assertEquals( result1[2] , null );
 
-    PrimitiveObject[] result2 = cellManager.getPrimitiveObjectArray(
-        new AllExpressionIndex( cellManager.size() ) , 3 , 3 );
+    PrimitiveObject[] result2 = cellManager.getPrimitiveObjectArray( 3 , 3 );
 
     assertEquals( result2[0].getString() , "test3" );
     assertEquals( result2[1] , null );
@@ -325,8 +271,7 @@ public class TestPrimitiveCellManager {
     cellManager.add( new StringObj( "test5" ) , 5 );
 
     TmpAllocator allocator1 = new TmpAllocator(3);
-    cellManager.setPrimitiveObjectArray(
-        new AllExpressionIndex( cellManager.size() ) , 0 , 3 , allocator1 );
+    cellManager.setPrimitiveObjectArray( 0 , 3 , allocator1 );
 
     String[] result = allocator1.array;
     assertEquals( result[0] , null );
@@ -334,8 +279,7 @@ public class TestPrimitiveCellManager {
     assertEquals( result[2] , null );
 
     TmpAllocator allocator2 = new TmpAllocator(3);
-    cellManager.setPrimitiveObjectArray(
-        new AllExpressionIndex( cellManager.size() ) , 3 , 3 , allocator2 );
+    cellManager.setPrimitiveObjectArray( 3 , 3 , allocator2 );
 
     String[] result2 = allocator2.array;
     assertEquals( result2[0] , "test3" );

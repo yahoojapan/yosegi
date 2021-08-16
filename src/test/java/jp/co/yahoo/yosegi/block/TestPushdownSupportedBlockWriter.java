@@ -336,7 +336,7 @@ public class TestPushdownSupportedBlockWriter {
     while ( reader.hasNext() ) {
       Spread spread = reader.next();
       IColumn c1 = spread.getColumn( "column1" );
-      PrimitiveObject[] c1Array = c1.getPrimitiveObjectArray( new AllExpressionIndex( 10 ) , 0 , 10 );
+      PrimitiveObject[] c1Array = c1.getPrimitiveObjectArray( 0 , 10 );
       assertEquals( c1Array[0].getString() , "a" );
       assertEquals( c1Array[1].getString() , "ab" );
       assertEquals( c1Array[2].getString() , "abc" );
@@ -348,7 +348,7 @@ public class TestPushdownSupportedBlockWriter {
       assertEquals( c1Array[8].getString() , "c" );
       assertEquals( c1Array[9].getString() , "cd" );
       IColumn c2 = spread.getColumn( "column2" );
-      PrimitiveObject[] c2Array = c1.getPrimitiveObjectArray( new AllExpressionIndex( 10 ) , 0 , 10 );
+      PrimitiveObject[] c2Array = c1.getPrimitiveObjectArray( 0 , 10 );
       assertEquals( c2Array[0].getString() , "a" );
       assertEquals( c2Array[1].getString() , "ab" );
       assertEquals( c2Array[2].getString() , "abc" );
@@ -395,7 +395,7 @@ public class TestPushdownSupportedBlockWriter {
     while ( reader.hasNext() ) {
       Spread spread = reader.next();
       IColumn c1 = spread.getColumn( "column1" );
-      PrimitiveObject[] c1Array = c1.getPrimitiveObjectArray( new AllExpressionIndex( 10 ) , 0 , 10 );
+      PrimitiveObject[] c1Array = c1.getPrimitiveObjectArray( 0 , 10 );
       assertEquals( c1Array[0].getString() , "a" );
       assertEquals( c1Array[1].getString() , "ab" );
       assertEquals( c1Array[2].getString() , "abc" );
@@ -407,7 +407,7 @@ public class TestPushdownSupportedBlockWriter {
       assertEquals( c1Array[8].getString() , "c" );
       assertEquals( c1Array[9].getString() , "cd" );
       IColumn c2 = spread.getColumn( "column2" );
-      PrimitiveObject[] c2Array = c1.getPrimitiveObjectArray( new AllExpressionIndex( 10 ) , 0 , 10 );
+      PrimitiveObject[] c2Array = c1.getPrimitiveObjectArray( 0 , 10 );
       assertEquals( c2Array[0].getString() , "a" );
       assertEquals( c2Array[1].getString() , "ab" );
       assertEquals( c2Array[2].getString() , "abc" );

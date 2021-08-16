@@ -40,23 +40,6 @@ public class NotExpressionNode implements IExpressionNode {
   }
 
   @Override
-  public boolean[] exec( final Spread spread ) throws IOException {
-    if ( childNode == null ) {
-      return null;
-    }
-    boolean[] childCollection = childNode.exec( spread );
-    if ( childCollection == null ) {
-      return null;
-    }
-
-    for ( int i = 0 ; i < childCollection.length ; i++ ) {
-      childCollection[i] = ! childCollection[i];
-    }
-
-    return childCollection;
-  }
-
-  @Override
   public List<Integer> getBlockSpreadIndex( final BlockIndexNode indexNode ) throws IOException {
     return null;
   }

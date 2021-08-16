@@ -25,9 +25,7 @@ import jp.co.yahoo.yosegi.message.parser.IStreamReader;
 import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.column.SpreadColumn;
 import jp.co.yahoo.yosegi.spread.expression.AndExpressionNode;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 import jp.co.yahoo.yosegi.spread.expression.IExpressionNode;
-import jp.co.yahoo.yosegi.spread.expression.IndexFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +38,6 @@ public class YosegiSchemaReader implements IStreamReader {
 
   private ISettableIndexParser currentParser;
   private IExpressionNode node = new AndExpressionNode();
-  private IExpressionIndex currentIndexList;
   private Spread currentSpread;
   private int currentIndex;
 
@@ -83,21 +80,17 @@ public class YosegiSchemaReader implements IStreamReader {
     if ( currentSpread.size() == 0 ) {
       return nextReader();
     }
-    currentIndexList = IndexFactory.toExpressionIndex( currentSpread , node.exec( currentSpread ) );
     currentIndex = 0;
-    if ( currentIndexList.size() == 0 ) {
-      return nextReader();
-    }
 
     spreadColumn.setSpread( currentSpread );
-    currentParser = YosegiParserFactory.get( spreadColumn , currentIndexList.get( currentIndex ) );
+    currentParser = YosegiParserFactory.get( spreadColumn , currentIndex );
     return true;
   }
 
 
   @Override
   public boolean hasNext() throws IOException {
-    if ( currentSpread == null || currentIndex == currentIndexList.size() ) {
+    if ( currentSpread == null || currentIndex == currentSpread.size() ) {
       if ( ! nextReader() ) {
         return false;
       }
@@ -107,12 +100,12 @@ public class YosegiSchemaReader implements IStreamReader {
 
   @Override
   public IParser next() throws IOException {
-    if ( currentSpread == null || currentIndex == currentIndexList.size() ) {
+    if ( currentSpread == null || currentIndex == currentSpread.size() ) {
       if ( ! nextReader() ) {
         return null;
       }
     }
-    currentParser.setIndex( currentIndexList.get( currentIndex ) );
+    currentParser.setIndex( currentIndex );
     currentIndex++;
     return currentParser;
   }
