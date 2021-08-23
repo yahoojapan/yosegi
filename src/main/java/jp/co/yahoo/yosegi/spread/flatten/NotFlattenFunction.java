@@ -18,8 +18,11 @@
 
 package jp.co.yahoo.yosegi.spread.flatten;
 
+import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.spread.Spread;
+
+import java.util.List;
 
 public class NotFlattenFunction implements IFlattenFunction {
 
@@ -31,6 +34,12 @@ public class NotFlattenFunction implements IFlattenFunction {
   @Override
   public Spread flatten( final Spread spread ) {
     return spread;
+  }
+
+  @Override
+  public List<ColumnBinary> flattenFromColumnBinary(
+      final List<ColumnBinary> columnBinaryList ) {
+    return columnBinaryList;
   }
 
   @Override
