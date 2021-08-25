@@ -168,46 +168,6 @@ class TestFlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker {
     }
   }
 
-  public static Stream<Arguments> D_columnFilter_1() {
-    return Stream.of(
-        // columnName, columnValues, filterFlag, expectedNull
-        arguments("TEST1", new Boolean[] {true}, true, true),
-        arguments("TEST1", new Boolean[] {true}, false, false),
-        arguments("TEST1", new Boolean[] {false}, true, false),
-        arguments("TEST1", new Boolean[] {false}, false, true),
-        arguments("TEST1", new Boolean[] {null, true}, true, true),
-        arguments("TEST1", new Boolean[] {null, true}, false, false),
-        arguments("TEST1", new Boolean[] {null, false}, true, false),
-        arguments("TEST1", new Boolean[] {null, false}, false, true),
-        arguments("TEST1", new Boolean[] {true, false}, true, true),
-        arguments("TEST1", new Boolean[] {true, false}, false, true),
-        arguments("TEST1", new Boolean[] {false, true}, true, true),
-        arguments("TEST1", new Boolean[] {false, true}, false, true),
-        arguments("TEST1", new Boolean[] {true, null, false}, true, true),
-        arguments("TEST1", new Boolean[] {true, null, false}, false, true));
-  }
-
-  @ParameterizedTest
-  @MethodSource("D_columnFilter_1")
-  public void T_columnFilter_1(
-      final String columnName,
-      final Boolean[] columnValues,
-      final boolean filterFlag,
-      final boolean expectedNull)
-      throws IOException {
-    ColumnBinary columnBinary = makeColumnBinary(columnName, columnValues);
-    FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker maker =
-        new FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker();
-    IColumn newColumn = maker.toColumn(columnBinary);
-    boolean[] bArray = new boolean[newColumn.size()];
-    if (expectedNull) {
-      assertNull(newColumn.filter(new BooleanFilter(filterFlag), bArray));
-    } else {
-      boolean[] expected = new boolean[newColumn.size()];
-      assertArrayEquals(expected, newColumn.filter(new BooleanFilter(filterFlag), bArray));
-    }
-  }
-
   public static Stream<Arguments> D_loadInMemoryStorage_1() {
     return Stream.of(
         // columnName, columnValues

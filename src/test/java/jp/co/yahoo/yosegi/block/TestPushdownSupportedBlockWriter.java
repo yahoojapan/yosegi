@@ -22,10 +22,8 @@ import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
-import jp.co.yahoo.yosegi.binary.maker.DumpBooleanColumnBinaryMaker;
 import jp.co.yahoo.yosegi.binary.maker.DumpSpreadColumnBinaryMaker;
 import jp.co.yahoo.yosegi.binary.maker.IColumnBinaryMaker;
-import jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeDumpStringColumnBinaryMaker;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.DefaultCompressor;
 import jp.co.yahoo.yosegi.compressor.GzipCompressor;
@@ -62,8 +60,8 @@ public class TestPushdownSupportedBlockWriter {
     IColumn column = new PrimitiveColumn( ColumnType.BOOLEAN , "c" );
     column.add( ColumnType.BOOLEAN , new BooleanObj( true ) , 0 );
 
-    DumpBooleanColumnBinaryMaker maker = new DumpBooleanColumnBinaryMaker();
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
+    IColumnBinaryMaker maker = defaultConfig.getColumnMaker( ColumnType.BOOLEAN );
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
 
     return Arrays.asList(
@@ -83,8 +81,8 @@ public class TestPushdownSupportedBlockWriter {
     column.add( ColumnType.STRING , new StringObj( "c" ) , 8 );
     column.add( ColumnType.STRING , new StringObj( "cd" ) , 9 );
 
-    UnsafeOptimizeDumpStringColumnBinaryMaker maker = new UnsafeOptimizeDumpStringColumnBinaryMaker();
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
+    IColumnBinaryMaker maker = defaultConfig.getColumnMaker( ColumnType.STRING );
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
 
     return Arrays.asList(
@@ -116,8 +114,8 @@ public class TestPushdownSupportedBlockWriter {
     column2.add( ColumnType.STRING , new StringObj( "c" ) , 8 );
     column2.add( ColumnType.STRING , new StringObj( "cd" ) , 9 );
 
-    UnsafeOptimizeDumpStringColumnBinaryMaker maker = new UnsafeOptimizeDumpStringColumnBinaryMaker();
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
+    IColumnBinaryMaker maker = defaultConfig.getColumnMaker( ColumnType.STRING );
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
 
     return Arrays.asList(
@@ -336,29 +334,27 @@ public class TestPushdownSupportedBlockWriter {
     while ( reader.hasNext() ) {
       Spread spread = reader.next();
       IColumn c1 = spread.getColumn( "column1" );
-      PrimitiveObject[] c1Array = c1.getPrimitiveObjectArray( new AllExpressionIndex( 10 ) , 0 , 10 );
-      assertEquals( c1Array[0].getString() , "a" );
-      assertEquals( c1Array[1].getString() , "ab" );
-      assertEquals( c1Array[2].getString() , "abc" );
-      assertEquals( c1Array[3].getString() , "abcd" );
-      assertEquals( c1Array[4].getString() , "b" );
-      assertEquals( c1Array[5].getString() , "bc" );
-      assertEquals( c1Array[6].getString() , "bcd" );
-      assertEquals( c1Array[7].getString() , "bcde" );
-      assertEquals( c1Array[8].getString() , "c" );
-      assertEquals( c1Array[9].getString() , "cd" );
+      assertEquals( ( (PrimitiveObject)( c1.get(0).getRow() ) ).getString() , "a" );
+      assertEquals( ( (PrimitiveObject)( c1.get(1).getRow() ) ).getString() , "ab" );
+      assertEquals( ( (PrimitiveObject)( c1.get(2).getRow() ) ).getString() , "abc" );
+      assertEquals( ( (PrimitiveObject)( c1.get(3).getRow() ) ).getString() , "abcd" );
+      assertEquals( ( (PrimitiveObject)( c1.get(4).getRow() ) ).getString() , "b" );
+      assertEquals( ( (PrimitiveObject)( c1.get(5).getRow() ) ).getString() , "bc" );
+      assertEquals( ( (PrimitiveObject)( c1.get(6).getRow() ) ).getString() , "bcd" );
+      assertEquals( ( (PrimitiveObject)( c1.get(7).getRow() ) ).getString() , "bcde" );
+      assertEquals( ( (PrimitiveObject)( c1.get(8).getRow() ) ).getString() , "c" );
+      assertEquals( ( (PrimitiveObject)( c1.get(9).getRow() ) ).getString() , "cd" );
       IColumn c2 = spread.getColumn( "column2" );
-      PrimitiveObject[] c2Array = c1.getPrimitiveObjectArray( new AllExpressionIndex( 10 ) , 0 , 10 );
-      assertEquals( c2Array[0].getString() , "a" );
-      assertEquals( c2Array[1].getString() , "ab" );
-      assertEquals( c2Array[2].getString() , "abc" );
-      assertEquals( c2Array[3].getString() , "abcd" );
-      assertEquals( c2Array[4].getString() , "b" );
-      assertEquals( c2Array[5].getString() , "bc" );
-      assertEquals( c2Array[6].getString() , "bcd" );
-      assertEquals( c2Array[7].getString() , "bcde" );
-      assertEquals( c2Array[8].getString() , "c" );
-      assertEquals( c2Array[9].getString() , "cd" );
+      assertEquals( ( (PrimitiveObject)( c2.get(0).getRow() ) ).getString() , "a" );
+      assertEquals( ( (PrimitiveObject)( c2.get(1).getRow() ) ).getString() , "ab" );
+      assertEquals( ( (PrimitiveObject)( c2.get(2).getRow() ) ).getString() , "abc" );
+      assertEquals( ( (PrimitiveObject)( c2.get(3).getRow() ) ).getString() , "abcd" );
+      assertEquals( ( (PrimitiveObject)( c2.get(4).getRow() ) ).getString() , "b" );
+      assertEquals( ( (PrimitiveObject)( c2.get(5).getRow() ) ).getString() , "bc" );
+      assertEquals( ( (PrimitiveObject)( c2.get(6).getRow() ) ).getString() , "bcd" );
+      assertEquals( ( (PrimitiveObject)( c2.get(7).getRow() ) ).getString() , "bcde" );
+      assertEquals( ( (PrimitiveObject)( c2.get(8).getRow() ) ).getString() , "c" );
+      assertEquals( ( (PrimitiveObject)( c2.get(9).getRow() ) ).getString() , "cd" );
     }
     reader.close();
   }
@@ -395,29 +391,27 @@ public class TestPushdownSupportedBlockWriter {
     while ( reader.hasNext() ) {
       Spread spread = reader.next();
       IColumn c1 = spread.getColumn( "column1" );
-      PrimitiveObject[] c1Array = c1.getPrimitiveObjectArray( new AllExpressionIndex( 10 ) , 0 , 10 );
-      assertEquals( c1Array[0].getString() , "a" );
-      assertEquals( c1Array[1].getString() , "ab" );
-      assertEquals( c1Array[2].getString() , "abc" );
-      assertEquals( c1Array[3].getString() , "abcd" );
-      assertEquals( c1Array[4].getString() , "b" );
-      assertEquals( c1Array[5].getString() , "bc" );
-      assertEquals( c1Array[6].getString() , "bcd" );
-      assertEquals( c1Array[7].getString() , "bcde" );
-      assertEquals( c1Array[8].getString() , "c" );
-      assertEquals( c1Array[9].getString() , "cd" );
+      assertEquals( ( (PrimitiveObject)( c1.get(0).getRow() ) ).getString() , "a" );
+      assertEquals( ( (PrimitiveObject)( c1.get(1).getRow() ) ).getString() , "ab" );
+      assertEquals( ( (PrimitiveObject)( c1.get(2).getRow() ) ).getString() , "abc" );
+      assertEquals( ( (PrimitiveObject)( c1.get(3).getRow() ) ).getString() , "abcd" );
+      assertEquals( ( (PrimitiveObject)( c1.get(4).getRow() ) ).getString() , "b" );
+      assertEquals( ( (PrimitiveObject)( c1.get(5).getRow() ) ).getString() , "bc" );
+      assertEquals( ( (PrimitiveObject)( c1.get(6).getRow() ) ).getString() , "bcd" );
+      assertEquals( ( (PrimitiveObject)( c1.get(7).getRow() ) ).getString() , "bcde" );
+      assertEquals( ( (PrimitiveObject)( c1.get(8).getRow() ) ).getString() , "c" );
+      assertEquals( ( (PrimitiveObject)( c1.get(9).getRow() ) ).getString() , "cd" );
       IColumn c2 = spread.getColumn( "column2" );
-      PrimitiveObject[] c2Array = c1.getPrimitiveObjectArray( new AllExpressionIndex( 10 ) , 0 , 10 );
-      assertEquals( c2Array[0].getString() , "a" );
-      assertEquals( c2Array[1].getString() , "ab" );
-      assertEquals( c2Array[2].getString() , "abc" );
-      assertEquals( c2Array[3].getString() , "abcd" );
-      assertEquals( c2Array[4].getString() , "b" );
-      assertEquals( c2Array[5].getString() , "bc" );
-      assertEquals( c2Array[6].getString() , "bcd" );
-      assertEquals( c2Array[7].getString() , "bcde" );
-      assertEquals( c2Array[8].getString() , "c" );
-      assertEquals( c2Array[9].getString() , "cd" );
+      assertEquals( ( (PrimitiveObject)( c2.get(0).getRow() ) ).getString() , "a" );
+      assertEquals( ( (PrimitiveObject)( c2.get(1).getRow() ) ).getString() , "ab" );
+      assertEquals( ( (PrimitiveObject)( c2.get(2).getRow() ) ).getString() , "abc" );
+      assertEquals( ( (PrimitiveObject)( c2.get(3).getRow() ) ).getString() , "abcd" );
+      assertEquals( ( (PrimitiveObject)( c2.get(4).getRow() ) ).getString() , "b" );
+      assertEquals( ( (PrimitiveObject)( c2.get(5).getRow() ) ).getString() , "bc" );
+      assertEquals( ( (PrimitiveObject)( c2.get(6).getRow() ) ).getString() , "bcd" );
+      assertEquals( ( (PrimitiveObject)( c2.get(7).getRow() ) ).getString() , "bcde" );
+      assertEquals( ( (PrimitiveObject)( c2.get(8).getRow() ) ).getString() , "c" );
+      assertEquals( ( (PrimitiveObject)( c2.get(9).getRow() ) ).getString() , "cd" );
     }
     reader.close();
   }

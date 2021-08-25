@@ -53,14 +53,6 @@ public class TestConstBooleanCellIndex{
     );
   }
 
-  public static Stream<Arguments> data2() throws IOException{
-    return Stream.of(
-      arguments( createConstTestData( new BooleanObj( true ) ) ),
-      arguments( createConstTestData( new StringObj( "true" ) ) ),
-      arguments( createConstTestData( new BytesObj( "true".getBytes() ) ) )
-    );
-  }
-
   private static IColumn createConstTestData( final PrimitiveObject value ) throws IOException{
     ConstantColumnBinaryMaker maker = new ConstantColumnBinaryMaker();
     ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( value , "t" , 10 );
@@ -73,22 +65,6 @@ public class TestConstBooleanCellIndex{
     System.out.println( "-----------------------" );
     for( int i = 0 ; i < result.length ; i++ ){
       System.out.println( String.format( "index:%d = %s" , i , Boolean.toString( result[i] ) ) );
-    }
-  }
-
-  @ParameterizedTest
-  @MethodSource( "data2" )
-  public void T_match_2( final IColumn column ) throws IOException{
-    int[] mustReadIndex = { 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 };
-    IFilter filter = new BooleanFilter( false );
-    boolean[] filterResult = new boolean[10];
-    filterResult = column.filter( filter , filterResult );
-    if( filterResult == null ){
-      assertTrue( true );
-      return;
-    }
-    for( int i = 0 ; i < mustReadIndex.length ; i++ ){
-      assertTrue( filterResult[mustReadIndex[i]] );
     }
   }
 

@@ -22,8 +22,7 @@ import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
-import jp.co.yahoo.yosegi.binary.maker.IColumnBinaryMaker;
-import jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeDumpStringColumnBinaryMaker;
+import jp.co.yahoo.yosegi.binary.maker.*;
 import jp.co.yahoo.yosegi.block.PushdownSupportedBlockWriter;
 import jp.co.yahoo.yosegi.config.Configuration;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
@@ -60,7 +59,7 @@ public class TestYosegiReader {
     column.add( ColumnType.STRING , new StringObj( "D" ) , 2 );
     column.add( ColumnType.STRING , new StringObj( "D" ) , 3 );
 
-    IColumnBinaryMaker maker = new UnsafeOptimizeDumpStringColumnBinaryMaker();
+    IColumnBinaryMaker maker = new OptimizedNullArrayDumpStringColumnBinaryMaker();
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     return maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
@@ -73,7 +72,7 @@ public class TestYosegiReader {
     column.add( ColumnType.STRING , new StringObj( "D" ) , 2 );
     column.add( ColumnType.STRING , new StringObj( "D" ) , 3 );
 
-    IColumnBinaryMaker maker = new UnsafeOptimizeDumpStringColumnBinaryMaker();
+    IColumnBinaryMaker maker = new OptimizedNullArrayDumpStringColumnBinaryMaker();
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     return maker.toBinary( defaultConfig , null , new CompressResultNode() , column );

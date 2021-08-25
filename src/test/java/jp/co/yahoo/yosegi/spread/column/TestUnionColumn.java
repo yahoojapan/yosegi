@@ -22,7 +22,6 @@ import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.StringObj;
 import jp.co.yahoo.yosegi.message.objects.IntegerObj;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
-import jp.co.yahoo.yosegi.spread.expression.AllExpressionIndex;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -71,9 +70,8 @@ public class TestUnionColumn {
     column.add( ColumnType.INTEGER , new IntegerObj( 101 ) , 2 );
     column.add( ColumnType.INTEGER , new IntegerObj( 102 ) , 3 );
 
-    AllExpressionIndex index = new AllExpressionIndex( 4 );
     TestAllocator allocator = new TestAllocator( 4 );
-    column.setPrimitiveObjectArray( index , 0 , 4 , allocator );    
+    column.setPrimitiveObjectArray( 0 , 4 , allocator );    
 
     assertTrue( allocator.isNull[0] );
     assertEquals( 100 , allocator.values[1] );

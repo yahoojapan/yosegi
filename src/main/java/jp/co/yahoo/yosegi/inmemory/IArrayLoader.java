@@ -16,23 +16,16 @@
  * limitations under the License.
  */
 
-package jp.co.yahoo.yosegi.spread.expression;
+package jp.co.yahoo.yosegi.inmemory;
 
-import jp.co.yahoo.yosegi.spread.Spread;
+import java.io.IOException;
 
-public final class IndexFactory {
+public interface IArrayLoader extends ILoader {
 
-  private IndexFactory() {}
+  void setArrayIndex(
+      final int index , final int start , final int length ) throws IOException;
 
-  /**
-   * Determine the state of the filter and create IExpressionIndex.
-   */
-  public static IExpressionIndex toExpressionIndex( final Spread spread , final boolean[] index ) {
-    if ( index == null ) {
-      return new AllExpressionIndex( spread.size() );
-    } else {
-      return new FilterdExpressionIndex( index );
-    }
-  }
+  ILoaderFactory createLoaderFactory(
+      final int childLength ) throws IOException;
 
 }

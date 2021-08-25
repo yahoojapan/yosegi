@@ -23,7 +23,6 @@ import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.binary.maker.IColumnBinaryMaker;
-import jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeDumpStringColumnBinaryMaker;
 import jp.co.yahoo.yosegi.config.Configuration;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.objects.StringObj;
@@ -56,8 +55,8 @@ public class TestPushdownSupportedBlockReader {
     column.add( ColumnType.STRING , new StringObj( "D" ) , 2 );
     column.add( ColumnType.STRING , new StringObj( "D" ) , 3 );
 
-    IColumnBinaryMaker maker = new UnsafeOptimizeDumpStringColumnBinaryMaker();
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
+    IColumnBinaryMaker maker = defaultConfig.getColumnMaker( ColumnType.STRING );
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     return maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
   }

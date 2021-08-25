@@ -88,7 +88,7 @@ public class TestArrowFloatMemoryAllocator{
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
 
-    IColumnBinaryMaker maker = new UnsafeOptimizeFloatColumnBinaryMaker();
+    IColumnBinaryMaker maker = defaultConfig.getColumnMaker( ColumnType.FLOAT );
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
 
     BufferAllocator allocator = new RootAllocator( 1024 * 1024 * 10 );

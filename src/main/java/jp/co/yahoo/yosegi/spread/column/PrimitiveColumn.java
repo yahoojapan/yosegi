@@ -22,8 +22,6 @@ import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.design.IField;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
-import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -157,29 +155,18 @@ public class PrimitiveColumn implements IColumn {
   }
 
   @Override
-  public void setIndex( final ICellIndex index ) {
-    cellManager.setIndex( index );
-  }
-
-  @Override
-  public boolean[] filter( final IFilter filter , final boolean[] filterArray ) throws IOException {
-    return cellManager.filter( filter , filterArray );
-  }
-
-  @Override
   public PrimitiveObject[] getPrimitiveObjectArray(
-      final IExpressionIndex indexList , final int start , final int length ) {
-    return cellManager.getPrimitiveObjectArray( indexList , start , length );
+      final int start , final int length ) {
+    return cellManager.getPrimitiveObjectArray( start , length );
   }
 
   @Override
   public void setPrimitiveObjectArray(
-      final IExpressionIndex indexList ,
       final int start ,
       final int length ,
       final IMemoryAllocator allocator ) throws IOException {
     allocator.setValueCount( length );
-    cellManager.setPrimitiveObjectArray( indexList , start , length , allocator );
+    cellManager.setPrimitiveObjectArray( start , length , allocator );
   }
 
   @Override

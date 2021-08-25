@@ -27,8 +27,6 @@ import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.parser.IParser;
 import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
-import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -178,23 +176,14 @@ public class SpreadColumn implements IColumn {
   }
 
   @Override
-  public void setIndex( final ICellIndex index ) {}
-
-  @Override
-  public boolean[] filter( final IFilter filter , final boolean[] filterArray ) throws IOException {
-    return null;
-  }
-
-  @Override
   public PrimitiveObject[] getPrimitiveObjectArray(
-      final IExpressionIndex indexList , final int start , final int length ) {
+      final int start , final int length ) {
     PrimitiveObject[] result = new PrimitiveObject[length];
     return result;
   }
 
   @Override
   public void setPrimitiveObjectArray(
-      final IExpressionIndex indexList ,
       final int start ,
       final int length ,
       final IMemoryAllocator allocator ) throws IOException {
@@ -202,7 +191,7 @@ public class SpreadColumn implements IColumn {
     for ( IColumn column : spread.getListColumn() ) {
       IMemoryAllocator childAllocator =
           allocator.getChild( column.getColumnName() , column.getColumnType() );
-      column.setPrimitiveObjectArray( indexList , start , length , childAllocator );
+      column.setPrimitiveObjectArray( start , length , childAllocator );
     }
   }
 

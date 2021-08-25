@@ -19,7 +19,6 @@ import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
-import jp.co.yahoo.yosegi.binary.maker.index.FlagBooleanIndex;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.blockindex.BooleanBlockIndex;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
@@ -191,11 +190,10 @@ public class FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker
   public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
     BooleanBlockIndex.BitFlags bitFlags = getBitFlags(columnBinary);
 
-    return new HeaderIndexLazyColumn(
+    return new LazyColumn(
         columnBinary.columnName,
         columnBinary.columnType,
-        new BooleanColumnManager(columnBinary),
-        new FlagBooleanIndex(bitFlags.hasTrue(), bitFlags.hasFalse(), bitFlags.hasNull()));
+        new BooleanColumnManager(columnBinary));
   }
 
   @Override

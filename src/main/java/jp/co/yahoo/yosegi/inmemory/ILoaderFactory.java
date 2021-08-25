@@ -16,12 +16,17 @@
  * limitations under the License.
  */
 
-package jp.co.yahoo.yosegi.spread.expression;
+package jp.co.yahoo.yosegi.inmemory;
 
-public interface IExpressionIndex {
+import jp.co.yahoo.yosegi.binary.ColumnBinary;
 
-  int size();
+import java.io.IOException;
 
-  int get( final int index );
+public interface ILoaderFactory {
+
+  ILoader createLoader(
+      final ColumnBinary columnBinary ,
+      final int loadSize ,
+      final LoadType loadType ) throws IOException;
 
 }

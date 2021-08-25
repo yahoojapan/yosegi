@@ -16,24 +16,17 @@
  * limitations under the License.
  */
 
-package jp.co.yahoo.yosegi.spread.expression;
+package jp.co.yahoo.yosegi.inmemory;
 
-public class AllExpressionIndex implements IExpressionIndex {
+public enum LoadType {
 
-  private final int length;
+  NULL,
 
-  public AllExpressionIndex( final int length ) {
-    this.length = length;
-  }
+  SPREAD,
+  ARRAY,
+  UNION,
 
-  @Override
-  public int size() {
-    return length;
-  }
-
-  @Override
-  public int get( final int index ) {
-    return index;
-  }
+  SEQUENTIAL,
+  DICTIONARY,
 
 }

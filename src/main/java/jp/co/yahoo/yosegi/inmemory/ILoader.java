@@ -16,26 +16,24 @@
  * limitations under the License.
  */
 
-package jp.co.yahoo.yosegi.spread.expression;
+package jp.co.yahoo.yosegi.inmemory;
 
-import java.util.List;
+import java.io.IOException;
 
-public class ListIndexExpressionIndex implements IExpressionIndex {
+public interface ILoader<T> {
 
-  private final List<Integer> indexList;
+  LoadType getLoaderType();
 
-  public ListIndexExpressionIndex( final List<Integer> indexList ) {
-    this.indexList = indexList;
-  }
+  int getLoadSize();
 
-  @Override
-  public int size() {
-    return indexList.size();
-  }
+  void setNull( final int index ) throws IOException;
 
-  @Override
-  public int get( final int index ) {
-    return indexList.get( index );
+  void finish() throws IOException;
+
+  T build() throws IOException;
+
+  default boolean isLoadingSkipped() {
+    return false;
   }
 
 }

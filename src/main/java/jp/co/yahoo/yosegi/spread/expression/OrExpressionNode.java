@@ -38,33 +38,6 @@ public class OrExpressionNode implements IExpressionNode {
   }
 
   @Override
-  public boolean[] exec( final Spread spread ) throws IOException {
-    boolean[] union = null;
-    for ( IExpressionNode node : childNode ) {
-      boolean[] result = node.exec( spread );
-      if ( result == null ) {
-        return null;
-      }
-      if ( union == null ) {
-        union = result;
-      } else {
-        boolean isAll = true;
-        for ( int i = 0 ; i < union.length ; i++ ) {
-          union[i] = union[i] || result[i];
-          if ( ! union[i] ) {
-            isAll = false;
-          }
-        }
-        if ( isAll ) {
-          return union;
-        }
-      }
-    }
-
-    return union;
-  }
-
-  @Override
   public List<Integer> getBlockSpreadIndex( final BlockIndexNode indexNode ) throws IOException {
     if ( childNode.isEmpty() ) {
       return null;

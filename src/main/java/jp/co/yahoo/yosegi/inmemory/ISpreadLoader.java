@@ -16,14 +16,13 @@
  * limitations under the License.
  */
 
-package jp.co.yahoo.yosegi.spread.column.index;
-
-import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
+package jp.co.yahoo.yosegi.inmemory;
 
 import java.io.IOException;
 
-public interface ICellIndex {
+public interface ISpreadLoader extends ILoader {
 
-  boolean[] filter( final IFilter filter , final boolean[] filterArray ) throws IOException;
+  ILoaderFactory createLoaderFactory(
+      final String columnName ) throws IOException;
 
 }

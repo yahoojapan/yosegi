@@ -16,17 +16,40 @@
  * limitations under the License.
  */
 
-package jp.co.yahoo.yosegi.spread.column.index;
+package jp.co.yahoo.yosegi.inmemory;
 
-import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
+import jp.co.yahoo.yosegi.spread.column.IColumn;
+import jp.co.yahoo.yosegi.spread.column.NullColumn;
 
 import java.io.IOException;
 
-public class DefaultCellIndex implements ICellIndex {
+public class YosegiNullLoader implements ILoader<IColumn> {
+
+  private final int loadSize;
+
+  public YosegiNullLoader( final int loadSize ) {
+    this.loadSize = loadSize;
+  }
 
   @Override
-  public boolean[] filter( final IFilter filter , final boolean[] filterArray ) throws IOException {
-    return null;
+  public LoadType getLoaderType() {
+    return LoadType.NULL;
+  }
+
+  @Override
+  public int getLoadSize() {
+    return loadSize;
+  }
+
+  @Override
+  public void setNull( final int index ) throws IOException {}
+
+  @Override
+  public void finish() throws IOException {}
+
+  @Override
+  public IColumn build() throws IOException {
+    return NullColumn.getInstance();
   }
 
 }

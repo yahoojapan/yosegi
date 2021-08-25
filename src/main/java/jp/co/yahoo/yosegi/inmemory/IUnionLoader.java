@@ -16,35 +16,15 @@
  * limitations under the License.
  */
 
-package jp.co.yahoo.yosegi.spread.expression;
+package jp.co.yahoo.yosegi.inmemory;
 
-public class FilterdExpressionIndex implements IExpressionIndex {
+import jp.co.yahoo.yosegi.spread.column.ColumnType;
 
-  private final int[] indexList;
-  private int size;
+import java.io.IOException;
 
-  /**
-   * Create a valid row index from row flags.
-   */
-  public FilterdExpressionIndex( final boolean[] filterArray ) {
-    size = 0;
-    indexList = new int[filterArray.length];
-    for ( int i = 0 ; i < filterArray.length ; i++ ) {
-      if ( filterArray[i] ) {
-        indexList[size] = i;
-        size++;
-      }
-    }
-  }
+public interface IUnionLoader extends ILoader {
 
-  @Override
-  public int size() {
-    return size;
-  }
-
-  @Override
-  public int get( final int index ) {
-    return indexList[index];
-  }
+  ILoaderFactory createLoaderFactory(
+      final ColumnType type ) throws IOException;
 
 }

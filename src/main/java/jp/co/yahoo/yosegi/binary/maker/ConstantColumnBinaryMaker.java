@@ -22,13 +22,6 @@ import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
-import jp.co.yahoo.yosegi.binary.maker.index.RangeByteIndex;
-import jp.co.yahoo.yosegi.binary.maker.index.RangeDoubleIndex;
-import jp.co.yahoo.yosegi.binary.maker.index.RangeFloatIndex;
-import jp.co.yahoo.yosegi.binary.maker.index.RangeIntegerIndex;
-import jp.co.yahoo.yosegi.binary.maker.index.RangeLongIndex;
-import jp.co.yahoo.yosegi.binary.maker.index.RangeShortIndex;
-import jp.co.yahoo.yosegi.binary.maker.index.RangeStringIndex;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.blockindex.ByteRangeBlockIndex;
 import jp.co.yahoo.yosegi.blockindex.DoubleRangeBlockIndex;
@@ -61,9 +54,6 @@ import jp.co.yahoo.yosegi.spread.column.PrimitiveCell;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveColumn;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
 import jp.co.yahoo.yosegi.spread.column.filter.INullFilter;
-import jp.co.yahoo.yosegi.spread.column.index.DefaultCellIndex;
-import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -106,25 +96,21 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
         byte byteValue = wrapBuffer.get();
         cellManager = new ConstantCellManager(
             columnBinary.columnType , new ByteObj( byteValue ) , columnBinary.rowCount );
-        cellManager.setIndex( new RangeByteIndex( byteValue , byteValue ) );
         break;
       case SHORT:
         short shortValue = wrapBuffer.getShort();
         cellManager = new ConstantCellManager(
             columnBinary.columnType , new ShortObj( shortValue ) , columnBinary.rowCount );
-        cellManager.setIndex( new RangeShortIndex( shortValue , shortValue ) );
         break;
       case INTEGER:
         int intValue = wrapBuffer.getInt();
         cellManager = new ConstantCellManager(
             columnBinary.columnType , new IntegerObj( intValue ) , columnBinary.rowCount );
-        cellManager.setIndex( new RangeIntegerIndex( intValue , intValue ) );
         break;
       case LONG:
         long longValue = wrapBuffer.getLong();
         cellManager = new ConstantCellManager(
             columnBinary.columnType , new LongObj( longValue ) , columnBinary.rowCount );
-        cellManager.setIndex( new RangeLongIndex( longValue , longValue ) );
         break;
       case FLOAT:
         float floatValue = wrapBuffer.getFloat();
@@ -132,7 +118,6 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
             columnBinary.columnType ,
             new FloatObj( floatValue ) ,
             columnBinary.rowCount );
-        cellManager.setIndex( new RangeFloatIndex( floatValue , floatValue ) );
         break;
       case DOUBLE:
         double doubleValue = wrapBuffer.getDouble();
@@ -140,7 +125,6 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
             columnBinary.columnType ,
             new DoubleObj( doubleValue ) ,
             columnBinary.rowCount );
-        cellManager.setIndex( new RangeDoubleIndex( doubleValue , doubleValue ) );
         break;
       case STRING:
         int stringLength = wrapBuffer.getInt();
@@ -151,7 +135,6 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
             new Utf8BytesLinkObj( stringBytes , 0 , stringBytes.length ) ,
             columnBinary.rowCount );
         String string = new String( stringBytes , 0 , stringBytes.length , "UTF-8" );
-        cellManager.setIndex( new RangeStringIndex( string , string ) );
         break;
       case BYTES:
         int byteLength = wrapBuffer.getInt();
@@ -294,8 +277,6 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
     private final PrimitiveObject value;
     private final int length;
 
-    private ICellIndex index = new DefaultCellIndex();
-
     /**
      * Create a Column from a given ColumnBinary.
      */
@@ -333,34 +314,13 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
     public void clear() {}
 
     @Override
-    public void setIndex( final ICellIndex index ) {
-      this.index = index;
-    }
-
-    @Override
-    public boolean[] filter(
-        final IFilter filter , final boolean[] filterArray ) throws IOException {
-      switch ( filter.getFilterType() ) {
-        case NOT_NULL:
-        case NULL:
-          return null;
-        default:
-          return index.filter( filter , filterArray );
-      }
-    }
-
-    @Override
     public PrimitiveObject[] getPrimitiveObjectArray(
-        final IExpressionIndex indexList ,
         final int start ,
         final int length ) {
       PrimitiveObject[] result = new PrimitiveObject[length];
       int loopEnd = ( start + length );
-      if ( indexList.size() < loopEnd ) {
-        loopEnd = indexList.size();
-      }
       for ( int i = start , index = 0 ; i < loopEnd ; i++ , index++ ) {
-        if ( indexList.get( i ) < this.length ) {
+        if ( i < this.length ) {
           result[index] = value;
         }
       }
@@ -369,16 +329,12 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
 
     @Override
     public void setPrimitiveObjectArray(
-        final IExpressionIndex indexList ,
         final int start ,
         final int length ,
         final IMemoryAllocator allocator ) {
       int loopEnd = ( start + length );
-      if ( indexList.size() < loopEnd ) {
-        loopEnd = indexList.size();
-      }
       for ( int i = start , index = 0 ; i < loopEnd ; i++ , index++ ) {
-        if ( this.length <= indexList.get( i ) ) {
+        if ( this.length <= i ) {
           allocator.setNull( index );
         } else {
           try {

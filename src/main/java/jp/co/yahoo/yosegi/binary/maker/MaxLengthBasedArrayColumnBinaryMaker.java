@@ -39,8 +39,6 @@ import jp.co.yahoo.yosegi.spread.column.ICellManager;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
 import jp.co.yahoo.yosegi.spread.column.SpreadArrayLink;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
-import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 import jp.co.yahoo.yosegi.util.io.IReadSupporter;
 import jp.co.yahoo.yosegi.util.io.IWriteSupporter;
 import jp.co.yahoo.yosegi.util.io.NumberToBinaryUtils;
@@ -238,24 +236,7 @@ public class MaxLengthBasedArrayColumnBinaryMaker implements IColumnBinaryMaker 
     public void clear() {}
 
     @Override
-    public void setIndex( final ICellIndex index ) {}
-
-    @Override
-    public boolean[] filter(
-        final IFilter filter , final boolean[] filterArray ) throws IOException {
-      switch ( filter.getFilterType() ) {
-        case NOT_NULL:
-          return null;
-        case NULL:
-          return null;
-        default:
-          return null;
-      }
-    }
-
-    @Override
     public PrimitiveObject[] getPrimitiveObjectArray(
-        final IExpressionIndex indexList ,
         final int start ,
         final int length ) {
       return new PrimitiveObject[length];
@@ -263,7 +244,6 @@ public class MaxLengthBasedArrayColumnBinaryMaker implements IColumnBinaryMaker 
 
     @Override
     public void setPrimitiveObjectArray(
-        final IExpressionIndex indexList ,
         final int start ,
         final int length ,
         final IMemoryAllocator allocator ) {

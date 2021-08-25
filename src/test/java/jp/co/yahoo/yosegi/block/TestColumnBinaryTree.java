@@ -22,7 +22,6 @@ import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.binary.maker.IColumnBinaryMaker;
-import jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeDumpStringColumnBinaryMaker;
 import jp.co.yahoo.yosegi.binary.maker.DumpSpreadColumnBinaryMaker;
 import jp.co.yahoo.yosegi.config.Configuration;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
@@ -63,8 +62,8 @@ public class TestColumnBinaryTree{
     column.add( ColumnType.STRING , new StringObj( "c" ) , 8 );
     column.add( ColumnType.STRING , new StringObj( "cd" ) , 9 );
 
-    UnsafeOptimizeDumpStringColumnBinaryMaker maker = new UnsafeOptimizeDumpStringColumnBinaryMaker();
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
+    IColumnBinaryMaker maker = defaultConfig.getColumnMaker( ColumnType.STRING );
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
 
     return Arrays.asList(
@@ -96,8 +95,8 @@ public class TestColumnBinaryTree{
     column2.add( ColumnType.STRING , new StringObj( "c" ) , 8 );
     column2.add( ColumnType.STRING , new StringObj( "cd" ) , 9 );
 
-    UnsafeOptimizeDumpStringColumnBinaryMaker maker = new UnsafeOptimizeDumpStringColumnBinaryMaker();
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
+    IColumnBinaryMaker maker = defaultConfig.getColumnMaker( ColumnType.STRING );
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
 
     return Arrays.asList(

@@ -42,7 +42,6 @@ public class TestBytesPrimitiveColumn {
 
   public static Stream<Arguments> data1() throws IOException{
     return Stream.of(
-      arguments( "jp.co.yahoo.yosegi.binary.maker.DumpBytesColumnBinaryMaker" ),
       arguments( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpBytesColumnBinaryMaker" )
     );
   }

@@ -28,9 +28,6 @@ import jp.co.yahoo.yosegi.spread.column.ICellManager;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveCell;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveColumn;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
-import jp.co.yahoo.yosegi.spread.column.index.DefaultCellIndex;
-import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -41,8 +38,6 @@ public class BufferDirectCellManager implements ICellManager<ICell> {
   private final ICellMaker cellMaker;
   private final IDicManager dicManager;
   private final int indexSize;
-
-  private ICellIndex index = new DefaultCellIndex();
 
   /**
    * Object for managing cells from IntBuffer.
@@ -87,40 +82,17 @@ public class BufferDirectCellManager implements ICellManager<ICell> {
   public void clear() {}
 
   @Override
-  public void setIndex( final ICellIndex index ) {
-    this.index = index;
-  }
-
-  @Override
-  public boolean[] filter(
-      final IFilter filter , final boolean[] filterArray ) throws IOException {
-    switch ( filter.getFilterType() ) {
-      case NOT_NULL:
-        return null;
-      case NULL:
-        return null;
-      default:
-        return index.filter( filter , filterArray );
-    }
-  }
-
-  @Override
   public PrimitiveObject[] getPrimitiveObjectArray(
-      final IExpressionIndex indexList ,
       final int start ,
       final int length ) {
     PrimitiveObject[] result = new PrimitiveObject[length];
     int loopEnd = ( start + length );
-    if ( indexList.size() < loopEnd ) {
-      loopEnd = indexList.size();
-    }
     for ( int i = start , index = 0 ; i < loopEnd ; i++,index++ ) {
-      int targetIndex = indexList.get( i );
-      if ( indexSize <= targetIndex ) {
+      if ( indexSize <= i ) {
         break;
       }
       try {
-        result[index] = dicManager.get( targetIndex );
+        result[index] = dicManager.get( i );
       } catch ( IOException ex ) {
         throw new UncheckedIOException( ex );
       }
@@ -130,22 +102,17 @@ public class BufferDirectCellManager implements ICellManager<ICell> {
 
   @Override
   public void setPrimitiveObjectArray(
-      final IExpressionIndex indexList ,
       final int start ,
       final int length ,
       final IMemoryAllocator allocator ) {
     int loopEnd = ( start + length );
-    if ( indexList.size() < loopEnd ) {
-      loopEnd = indexList.size();
-    }
     try {
       int index = 0;
       for ( int i = start ; i < loopEnd ; i++,index++ ) {
-        int targetIndex = indexList.get( i );
-        if ( indexSize <= targetIndex ) {
+        if ( indexSize <= i ) {
           break;
         }
-        PrimitiveObject obj = dicManager.get( targetIndex );
+        PrimitiveObject obj = dicManager.get( i );
         if ( obj == null ) {
           allocator.setNull( index );
         } else {

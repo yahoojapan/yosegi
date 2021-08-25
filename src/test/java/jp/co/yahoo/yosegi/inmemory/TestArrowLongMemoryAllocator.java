@@ -88,7 +88,7 @@ public class TestArrowLongMemoryAllocator{
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
 
-    IColumnBinaryMaker maker = new UnsafeOptimizeLongColumnBinaryMaker();
+    IColumnBinaryMaker maker = defaultConfig.getColumnMaker( ColumnType.LONG );
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
 
     BufferAllocator allocator = new RootAllocator( 1024 * 1024 * 10 );

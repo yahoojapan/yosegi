@@ -21,9 +21,6 @@ package jp.co.yahoo.yosegi.spread.column;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
-import jp.co.yahoo.yosegi.spread.column.index.DefaultCellIndex;
-import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 import jp.co.yahoo.yosegi.util.IndexAndObject;
 import jp.co.yahoo.yosegi.util.RangeBinarySearch;
 
@@ -35,7 +32,6 @@ public class CellManager implements ICellManager<ICell> {
 
   private final RangeBinarySearch<ICell> rangeBinarySearch =
       new RangeBinarySearch<ICell>();
-  private ICellIndex index = new DefaultCellIndex();
 
   @Override
   public void add( final ICell cell , final int index ) {
@@ -62,34 +58,11 @@ public class CellManager implements ICellManager<ICell> {
   }
 
   @Override
-  public void setIndex( final ICellIndex index ) {
-    this.index = index;
-  }
-
-  @Override
-  public boolean[] filter( final IFilter filter , final boolean[] filterArray ) throws IOException {
-    switch ( filter.getFilterType() ) {
-      case NOT_NULL:
-        for ( IndexAndObject index : rangeBinarySearch.getIndexAndObjectList() ) {
-          int startIndex = index.getStartIndex();
-          for ( int i = startIndex ; i < ( startIndex + index.size() ) ; i++ ) {
-            filterArray[i] = true;
-          }
-        }
-        return filterArray;
-      case NULL:
-        return null;
-      default:
-        return index.filter( filter , filterArray );
-    }
-  }
-
-  @Override
   public PrimitiveObject[] getPrimitiveObjectArray(
-      final IExpressionIndex indexList , final int start , final int length ) {
+      final int start , final int length ) {
     PrimitiveObject[] result = new PrimitiveObject[length];
-    for ( int i = 0,index = start ; i < length && index < indexList.size() ; i++,index++ ) {
-      Object obj = get( indexList.get( index ) , NullCell.getInstance() ).getRow();
+    for ( int i = 0,index = start ; i < length ; i++,index++ ) {
+      Object obj = get( index , NullCell.getInstance() ).getRow();
       if ( obj instanceof PrimitiveObject ) {
         result[i] = (PrimitiveObject)obj;
       }
@@ -99,14 +72,13 @@ public class CellManager implements ICellManager<ICell> {
 
   @Override
   public void setPrimitiveObjectArray(
-      final IExpressionIndex indexList ,
       final int start ,
       final int length ,
       final IMemoryAllocator allocator ) {
     int arrayIndex = 0;
-    for ( int index = start ; arrayIndex < length && index < indexList.size() ;
+    for ( int index = start ; arrayIndex < length ;
         arrayIndex++,index++ ) {
-      Object obj = get( indexList.get( index ) , NullCell.getInstance() ).getRow();
+      Object obj = get( index , NullCell.getInstance() ).getRow();
       try {
         if ( obj instanceof PrimitiveObject ) {
           allocator.setPrimitiveObject( arrayIndex , (PrimitiveObject)obj );

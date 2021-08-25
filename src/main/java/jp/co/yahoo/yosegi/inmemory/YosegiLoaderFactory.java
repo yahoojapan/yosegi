@@ -16,35 +16,31 @@
  * limitations under the License.
  */
 
-package jp.co.yahoo.yosegi.binary.maker;
+package jp.co.yahoo.yosegi.inmemory;
 
-import jp.co.yahoo.yosegi.spread.column.ColumnType;
-import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
-import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
+import jp.co.yahoo.yosegi.binary.ColumnBinary;
+import jp.co.yahoo.yosegi.binary.FindColumnBinaryMaker;
+import jp.co.yahoo.yosegi.binary.maker.IColumnBinaryMaker;
+import jp.co.yahoo.yosegi.spread.column.IColumn;
 
 import java.io.IOException;
 
-public class HeaderIndexLazyColumn extends LazyColumn {
-
-  private final ICellIndex rangeIndex;
-
-  public HeaderIndexLazyColumn(
-      final String columnName ,
-      final ColumnType columnType ,
-      final IColumnManager columnManager ,
-      final ICellIndex rangeIndex ) {
-    super( columnName , columnType , columnManager );
-    this.rangeIndex = rangeIndex;
-  }
+public class YosegiLoaderFactory implements ILoaderFactory {
 
   @Override
-  public boolean[] filter(
-      final IFilter filter , final boolean[] filterArray ) throws IOException {
-    boolean[] result = rangeIndex.filter( filter , filterArray );
-    if ( result != null ) {
-      return result;
+  public ILoader<IColumn> createLoader(
+      final ColumnBinary columnBinary ,
+      final int loadSize ,
+      final LoadType loadType ) throws IOException {
+    switch ( loadType ) {
+      case NULL :
+        return new YosegiNullLoader( loadSize );
+      case SEQUENTIAL :
+        return new YosegiSequentialLoader( columnBinary , loadSize );
+      case DICTIONARY :
+        return new YosegiDictionaryLoader( columnBinary , loadSize );
+      default: throw new IOException( "This type is not supported : " + loadType );
     }
-    return super.filter( filter , filterArray );
   }
 
 }

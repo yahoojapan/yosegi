@@ -38,8 +38,6 @@ public class TestCalcLogicalDataSizeString {
 
   public static Stream<Arguments> data1() throws IOException {
     return Stream.of(
-      arguments( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeDumpStringColumnBinaryMaker" ) ,
-      arguments( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeStringColumnBinaryMaker" ),
       arguments( "jp.co.yahoo.yosegi.binary.maker.RleStringColumnBinaryMaker" ) , 
       arguments( "jp.co.yahoo.yosegi.binary.maker.DictionaryRleStringColumnBinaryMaker" ) , 
       arguments( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayStringColumnBinaryMaker" ) , 

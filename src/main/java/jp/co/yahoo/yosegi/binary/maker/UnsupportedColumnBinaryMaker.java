@@ -23,7 +23,9 @@ import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
+import jp.co.yahoo.yosegi.inmemory.ILoader;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
+import jp.co.yahoo.yosegi.inmemory.LoadType;
 import jp.co.yahoo.yosegi.spread.analyzer.IColumnAnalizeResult;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
 import jp.co.yahoo.yosegi.spread.column.NullColumn;
@@ -51,6 +53,22 @@ public class UnsupportedColumnBinaryMaker implements IColumnBinaryMaker {
         0 ,
         0 ,
         null );
+  }
+
+  @Override
+  public LoadType getLoadType( final ColumnBinary columnBinary ) {
+    return LoadType.NULL;
+  }
+
+  @Override
+  public void load(
+      final ColumnBinary columnBinary ,
+      final ILoader loader ) throws IOException {
+    for ( int i = 0 ; i < loader.getLoadSize() ; i++ ) {
+      loader.setNull(i);
+    }
+    loader.finish();
+    return;
   }
 
   @Override

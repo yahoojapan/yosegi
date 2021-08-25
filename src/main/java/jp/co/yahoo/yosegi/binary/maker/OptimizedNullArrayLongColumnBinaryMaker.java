@@ -22,7 +22,6 @@ import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
-import jp.co.yahoo.yosegi.binary.maker.index.RangeLongIndex;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.blockindex.LongRangeBlockIndex;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
@@ -279,15 +278,14 @@ public class OptimizedNullArrayLongColumnBinaryMaker implements IColumnBinaryMak
     Long min = Long.valueOf( wrapBuffer.getLong() );
     Long max = Long.valueOf( wrapBuffer.getLong() );
 
-    return new HeaderIndexLazyColumn(
+    return new LazyColumn(
       columnBinary.columnName ,
       columnBinary.columnType ,
       new ColumnManager(
         min.longValue(),
         max.longValue(),
         columnBinary
-      ) ,
-      new RangeLongIndex( min , max )
+      )
     );
   }
 
