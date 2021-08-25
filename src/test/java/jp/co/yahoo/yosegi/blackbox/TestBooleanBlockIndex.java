@@ -15,7 +15,6 @@
 
 package jp.co.yahoo.yosegi.blackbox;
 
-import javafx.util.Pair;
 import jp.co.yahoo.yosegi.config.Configuration;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.parser.IParser;
@@ -98,31 +97,48 @@ public class TestBooleanBlockIndex {
 
   public static Stream<Arguments> D_blackbox_1() {
     return Stream.of(
-        // list{pair<columnName, columnValues>, pair<columnName, columnValues> ...}
+        // list{list{columnName, columnValues}, list{columnName, columnValues} ...}
         arguments(
-            new ArrayList<>(
+            new ArrayList<List<Object>>(
                 Arrays.asList(
-                    new Pair<>("col1", new ArrayList<>(Arrays.asList(true, true, true))),
-                    new Pair<>("col2", new ArrayList<>(Arrays.asList(false, false, false))),
-                    new Pair<>("col3", new ArrayList<>(Arrays.asList(true, true, false))),
-                    new Pair<>("col4", new ArrayList<>(Arrays.asList(true, false, true))),
-                    new Pair<>("col5", new ArrayList<>(Arrays.asList(false, false, true))),
-                    new Pair<>("col6", new ArrayList<>(Arrays.asList(false, true, false))),
-                    new Pair<>("col7", new ArrayList<>(Arrays.asList(true, null, null))),
-                    new Pair<>("col8", new ArrayList<>(Arrays.asList(false, null, null))),
-                    new Pair<>("col9", new ArrayList<>(Arrays.asList(true, true, null))),
-                    new Pair<>("col10", new ArrayList<>(Arrays.asList(true, false, null))),
-                    new Pair<>("col11", new ArrayList<>(Arrays.asList(false, false, null))),
-                    new Pair<>("col12", new ArrayList<>(Arrays.asList(false, true, null))),
-                    new Pair<>("col13", new ArrayList<>(Arrays.asList(true, null, true))),
-                    new Pair<>("col14", new ArrayList<>(Arrays.asList(true, null, false))),
-                    new Pair<>("col15", new ArrayList<>(Arrays.asList(false, null, false))),
-                    new Pair<>("col16", new ArrayList<>(Arrays.asList(false, null, true)))))));
+                    new ArrayList<>(
+                        Arrays.asList("col1", new ArrayList<>(Arrays.asList(true, true, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col2", new ArrayList<>(Arrays.asList(false, false, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col3", new ArrayList<>(Arrays.asList(true, true, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col4", new ArrayList<>(Arrays.asList(true, false, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col5", new ArrayList<>(Arrays.asList(false, false, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col6", new ArrayList<>(Arrays.asList(false, true, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col7", new ArrayList<>(Arrays.asList(true, null, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col8", new ArrayList<>(Arrays.asList(false, null, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col9", new ArrayList<>(Arrays.asList(true, true, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col10", new ArrayList<>(Arrays.asList(true, false, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col11", new ArrayList<>(Arrays.asList(false, false, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col12", new ArrayList<>(Arrays.asList(false, true, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col13", new ArrayList<>(Arrays.asList(true, null, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col14", new ArrayList<>(Arrays.asList(true, null, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col15", new ArrayList<>(Arrays.asList(false, null, false)))),
+                    new ArrayList<>(
+                        Arrays.asList(
+                            "col16", new ArrayList<>(Arrays.asList(false, null, true))))))));
   }
 
   @ParameterizedTest
   @MethodSource("D_blackbox_1")
-  public void T_blackbox_1(final List<Pair<String, List<Boolean>>> expecteds) throws IOException {
+  public void T_blackbox_1(final List<List<Object>> expecteds) throws IOException {
     try (YosegiReader reader = new YosegiReader()) {
       Configuration readerConfig = new Configuration();
       byte[] data = getData();
@@ -130,10 +146,11 @@ public class TestBooleanBlockIndex {
       reader.setNewStream(in, data.length, readerConfig);
       while (reader.hasNext()) {
         Spread spread = reader.next();
-        for (Pair<String, List<Boolean>> expected : expecteds) {
-          IColumn col = spread.getColumn(expected.getKey());
+        for (List<Object> expected : expecteds) {
+          String columnName = (String) expected.get(0);
+          IColumn col = spread.getColumn(columnName);
           for (int i = 0; i < spread.size(); i++) {
-            List<Boolean> expectedValues = expected.getValue();
+            List<Boolean> expectedValues = (List<Boolean>) expected.get(1);
             if (expectedValues.get(i) == null) {
               assertEquals(ColumnType.NULL, col.get(i).getType());
             } else {
@@ -234,8 +251,8 @@ public class TestBooleanBlockIndex {
 
   public static Stream<Arguments> D_blackbox_4() {
     return Stream.of(
-        // columnName1, filterValue1, columnName2, filterValue2, list{pair<columnName,
-        // columnValues>, pair<columnName, columnValues> ...}
+        // columnName1, filterValue1, columnName2, filterValue2, list{list{columnName,
+        // columnValues}, list{columnName, columnValues} ...}
         arguments(
             "col1",
             true,
@@ -243,22 +260,39 @@ public class TestBooleanBlockIndex {
             false,
             new ArrayList<>(
                 Arrays.asList(
-                    new Pair<>("col1", new ArrayList<>(Arrays.asList(true, true, true))),
-                    new Pair<>("col2", new ArrayList<>(Arrays.asList(false, false, false))),
-                    new Pair<>("col3", new ArrayList<>(Arrays.asList(true, true, false))),
-                    new Pair<>("col4", new ArrayList<>(Arrays.asList(true, false, true))),
-                    new Pair<>("col5", new ArrayList<>(Arrays.asList(false, false, true))),
-                    new Pair<>("col6", new ArrayList<>(Arrays.asList(false, true, false))),
-                    new Pair<>("col7", new ArrayList<>(Arrays.asList(true, null, null))),
-                    new Pair<>("col8", new ArrayList<>(Arrays.asList(false, null, null))),
-                    new Pair<>("col9", new ArrayList<>(Arrays.asList(true, true, null))),
-                    new Pair<>("col10", new ArrayList<>(Arrays.asList(true, false, null))),
-                    new Pair<>("col11", new ArrayList<>(Arrays.asList(false, false, null))),
-                    new Pair<>("col12", new ArrayList<>(Arrays.asList(false, true, null))),
-                    new Pair<>("col13", new ArrayList<>(Arrays.asList(true, null, true))),
-                    new Pair<>("col14", new ArrayList<>(Arrays.asList(true, null, false))),
-                    new Pair<>("col15", new ArrayList<>(Arrays.asList(false, null, false))),
-                    new Pair<>("col16", new ArrayList<>(Arrays.asList(false, null, true)))))));
+                    new ArrayList<>(
+                        Arrays.asList("col1", new ArrayList<>(Arrays.asList(true, true, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col2", new ArrayList<>(Arrays.asList(false, false, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col3", new ArrayList<>(Arrays.asList(true, true, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col4", new ArrayList<>(Arrays.asList(true, false, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col5", new ArrayList<>(Arrays.asList(false, false, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col6", new ArrayList<>(Arrays.asList(false, true, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col7", new ArrayList<>(Arrays.asList(true, null, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col8", new ArrayList<>(Arrays.asList(false, null, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col9", new ArrayList<>(Arrays.asList(true, true, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col10", new ArrayList<>(Arrays.asList(true, false, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col11", new ArrayList<>(Arrays.asList(false, false, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col12", new ArrayList<>(Arrays.asList(false, true, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col13", new ArrayList<>(Arrays.asList(true, null, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col14", new ArrayList<>(Arrays.asList(true, null, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col15", new ArrayList<>(Arrays.asList(false, null, false)))),
+                    new ArrayList<>(
+                        Arrays.asList(
+                            "col16", new ArrayList<>(Arrays.asList(false, null, true))))))));
   }
 
   @ParameterizedTest
@@ -268,7 +302,7 @@ public class TestBooleanBlockIndex {
       final Boolean filterValue1,
       final String columnName2,
       final Boolean filterValue2,
-      List<Pair<String, List<Boolean>>> expecteds)
+      List<List<Object>> expecteds)
       throws IOException {
     try (YosegiReader reader = new YosegiReader()) {
       IExpressionNode index = new AndExpressionNode();
@@ -283,10 +317,11 @@ public class TestBooleanBlockIndex {
       reader.setNewStream(in, data.length, readerConfig);
       while (reader.hasNext()) {
         Spread spread = reader.next();
-        for (Pair<String, List<Boolean>> expected : expecteds) {
-          IColumn col = spread.getColumn(expected.getKey());
+        for (List<Object> expected : expecteds) {
+          String columnName = (String) expected.get(0);
+          IColumn col = spread.getColumn(columnName);
           for (int i = 0; i < spread.size(); i++) {
-            List<Boolean> expectedValues = expected.getValue();
+            List<Boolean> expectedValues = (List<Boolean>) expected.get(1);
             if (expectedValues.get(i) == null) {
               assertEquals(ColumnType.NULL, col.get(i).getType());
             } else {
@@ -387,8 +422,8 @@ public class TestBooleanBlockIndex {
 
   public static Stream<Arguments> D_blackbox_7() {
     return Stream.of(
-        // columnName1, filterValue1, columnName2, filterValue2, list{pair<columnName,
-        // columnValues>, pair<columnName, columnValues> ...}
+        // columnName1, filterValue1, columnName2, filterValue2, list{list{columnName,
+        // columnValues}, list{columnName, columnValues} ...}
         arguments(
             "col1",
             true,
@@ -396,22 +431,39 @@ public class TestBooleanBlockIndex {
             false,
             new ArrayList<>(
                 Arrays.asList(
-                    new Pair<>("col1", new ArrayList<>(Arrays.asList(true, true, true))),
-                    new Pair<>("col2", new ArrayList<>(Arrays.asList(false, false, false))),
-                    new Pair<>("col3", new ArrayList<>(Arrays.asList(true, true, false))),
-                    new Pair<>("col4", new ArrayList<>(Arrays.asList(true, false, true))),
-                    new Pair<>("col5", new ArrayList<>(Arrays.asList(false, false, true))),
-                    new Pair<>("col6", new ArrayList<>(Arrays.asList(false, true, false))),
-                    new Pair<>("col7", new ArrayList<>(Arrays.asList(true, null, null))),
-                    new Pair<>("col8", new ArrayList<>(Arrays.asList(false, null, null))),
-                    new Pair<>("col9", new ArrayList<>(Arrays.asList(true, true, null))),
-                    new Pair<>("col10", new ArrayList<>(Arrays.asList(true, false, null))),
-                    new Pair<>("col11", new ArrayList<>(Arrays.asList(false, false, null))),
-                    new Pair<>("col12", new ArrayList<>(Arrays.asList(false, true, null))),
-                    new Pair<>("col13", new ArrayList<>(Arrays.asList(true, null, true))),
-                    new Pair<>("col14", new ArrayList<>(Arrays.asList(true, null, false))),
-                    new Pair<>("col15", new ArrayList<>(Arrays.asList(false, null, false))),
-                    new Pair<>("col16", new ArrayList<>(Arrays.asList(false, null, true)))))),
+                    new ArrayList<>(
+                        Arrays.asList("col1", new ArrayList<>(Arrays.asList(true, true, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col2", new ArrayList<>(Arrays.asList(false, false, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col3", new ArrayList<>(Arrays.asList(true, true, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col4", new ArrayList<>(Arrays.asList(true, false, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col5", new ArrayList<>(Arrays.asList(false, false, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col6", new ArrayList<>(Arrays.asList(false, true, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col7", new ArrayList<>(Arrays.asList(true, null, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col8", new ArrayList<>(Arrays.asList(false, null, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col9", new ArrayList<>(Arrays.asList(true, true, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col10", new ArrayList<>(Arrays.asList(true, false, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col11", new ArrayList<>(Arrays.asList(false, false, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col12", new ArrayList<>(Arrays.asList(false, true, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col13", new ArrayList<>(Arrays.asList(true, null, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col14", new ArrayList<>(Arrays.asList(true, null, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col15", new ArrayList<>(Arrays.asList(false, null, false)))),
+                    new ArrayList<>(
+                        Arrays.asList(
+                            "col16", new ArrayList<>(Arrays.asList(false, null, true))))))),
         arguments(
             "col1",
             true,
@@ -419,22 +471,39 @@ public class TestBooleanBlockIndex {
             true,
             new ArrayList<>(
                 Arrays.asList(
-                    new Pair<>("col1", new ArrayList<>(Arrays.asList(true, true, true))),
-                    new Pair<>("col2", new ArrayList<>(Arrays.asList(false, false, false))),
-                    new Pair<>("col3", new ArrayList<>(Arrays.asList(true, true, false))),
-                    new Pair<>("col4", new ArrayList<>(Arrays.asList(true, false, true))),
-                    new Pair<>("col5", new ArrayList<>(Arrays.asList(false, false, true))),
-                    new Pair<>("col6", new ArrayList<>(Arrays.asList(false, true, false))),
-                    new Pair<>("col7", new ArrayList<>(Arrays.asList(true, null, null))),
-                    new Pair<>("col8", new ArrayList<>(Arrays.asList(false, null, null))),
-                    new Pair<>("col9", new ArrayList<>(Arrays.asList(true, true, null))),
-                    new Pair<>("col10", new ArrayList<>(Arrays.asList(true, false, null))),
-                    new Pair<>("col11", new ArrayList<>(Arrays.asList(false, false, null))),
-                    new Pair<>("col12", new ArrayList<>(Arrays.asList(false, true, null))),
-                    new Pair<>("col13", new ArrayList<>(Arrays.asList(true, null, true))),
-                    new Pair<>("col14", new ArrayList<>(Arrays.asList(true, null, false))),
-                    new Pair<>("col15", new ArrayList<>(Arrays.asList(false, null, false))),
-                    new Pair<>("col16", new ArrayList<>(Arrays.asList(false, null, true)))))),
+                    new ArrayList<>(
+                        Arrays.asList("col1", new ArrayList<>(Arrays.asList(true, true, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col2", new ArrayList<>(Arrays.asList(false, false, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col3", new ArrayList<>(Arrays.asList(true, true, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col4", new ArrayList<>(Arrays.asList(true, false, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col5", new ArrayList<>(Arrays.asList(false, false, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col6", new ArrayList<>(Arrays.asList(false, true, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col7", new ArrayList<>(Arrays.asList(true, null, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col8", new ArrayList<>(Arrays.asList(false, null, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col9", new ArrayList<>(Arrays.asList(true, true, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col10", new ArrayList<>(Arrays.asList(true, false, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col11", new ArrayList<>(Arrays.asList(false, false, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col12", new ArrayList<>(Arrays.asList(false, true, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col13", new ArrayList<>(Arrays.asList(true, null, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col14", new ArrayList<>(Arrays.asList(true, null, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col15", new ArrayList<>(Arrays.asList(false, null, false)))),
+                    new ArrayList<>(
+                        Arrays.asList(
+                            "col16", new ArrayList<>(Arrays.asList(false, null, true))))))),
         arguments(
             "col1",
             false,
@@ -442,22 +511,39 @@ public class TestBooleanBlockIndex {
             false,
             new ArrayList<>(
                 Arrays.asList(
-                    new Pair<>("col1", new ArrayList<>(Arrays.asList(true, true, true))),
-                    new Pair<>("col2", new ArrayList<>(Arrays.asList(false, false, false))),
-                    new Pair<>("col3", new ArrayList<>(Arrays.asList(true, true, false))),
-                    new Pair<>("col4", new ArrayList<>(Arrays.asList(true, false, true))),
-                    new Pair<>("col5", new ArrayList<>(Arrays.asList(false, false, true))),
-                    new Pair<>("col6", new ArrayList<>(Arrays.asList(false, true, false))),
-                    new Pair<>("col7", new ArrayList<>(Arrays.asList(true, null, null))),
-                    new Pair<>("col8", new ArrayList<>(Arrays.asList(false, null, null))),
-                    new Pair<>("col9", new ArrayList<>(Arrays.asList(true, true, null))),
-                    new Pair<>("col10", new ArrayList<>(Arrays.asList(true, false, null))),
-                    new Pair<>("col11", new ArrayList<>(Arrays.asList(false, false, null))),
-                    new Pair<>("col12", new ArrayList<>(Arrays.asList(false, true, null))),
-                    new Pair<>("col13", new ArrayList<>(Arrays.asList(true, null, true))),
-                    new Pair<>("col14", new ArrayList<>(Arrays.asList(true, null, false))),
-                    new Pair<>("col15", new ArrayList<>(Arrays.asList(false, null, false))),
-                    new Pair<>("col16", new ArrayList<>(Arrays.asList(false, null, true)))))));
+                    new ArrayList<>(
+                        Arrays.asList("col1", new ArrayList<>(Arrays.asList(true, true, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col2", new ArrayList<>(Arrays.asList(false, false, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col3", new ArrayList<>(Arrays.asList(true, true, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col4", new ArrayList<>(Arrays.asList(true, false, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col5", new ArrayList<>(Arrays.asList(false, false, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col6", new ArrayList<>(Arrays.asList(false, true, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col7", new ArrayList<>(Arrays.asList(true, null, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col8", new ArrayList<>(Arrays.asList(false, null, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col9", new ArrayList<>(Arrays.asList(true, true, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col10", new ArrayList<>(Arrays.asList(true, false, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col11", new ArrayList<>(Arrays.asList(false, false, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col12", new ArrayList<>(Arrays.asList(false, true, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col13", new ArrayList<>(Arrays.asList(true, null, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col14", new ArrayList<>(Arrays.asList(true, null, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col15", new ArrayList<>(Arrays.asList(false, null, false)))),
+                    new ArrayList<>(
+                        Arrays.asList(
+                            "col16", new ArrayList<>(Arrays.asList(false, null, true))))))));
   }
 
   @ParameterizedTest
@@ -467,7 +553,7 @@ public class TestBooleanBlockIndex {
       final Boolean filterValue1,
       final String columnName2,
       final Boolean filterValue2,
-      List<Pair<String, List<Boolean>>> expecteds)
+      List<List<Object>> expecteds)
       throws IOException {
     try (YosegiReader reader = new YosegiReader()) {
       IExpressionNode index = new OrExpressionNode();
@@ -482,10 +568,11 @@ public class TestBooleanBlockIndex {
       reader.setNewStream(in, data.length, readerConfig);
       while (reader.hasNext()) {
         Spread spread = reader.next();
-        for (Pair<String, List<Boolean>> expected : expecteds) {
-          IColumn col = spread.getColumn(expected.getKey());
+        for (List<Object> expected : expecteds) {
+          String columnName = (String) expected.get(0);
+          IColumn col = spread.getColumn(columnName);
           for (int i = 0; i < spread.size(); i++) {
-            List<Boolean> expectedValues = expected.getValue();
+            List<Boolean> expectedValues = (List<Boolean>) expected.get(1);
             if (expectedValues.get(i) == null) {
               assertEquals(ColumnType.NULL, col.get(i).getType());
             } else {
@@ -554,58 +641,90 @@ public class TestBooleanBlockIndex {
 
   public static Stream<Arguments> D_blackbox_9() {
     return Stream.of(
-        // columnName, filterValue, list{pair<columnName, columnValues>, pair<columnName,
-        // columnValues> ...}
+        // columnName, filterValue, list{list{columnName, columnValues}, list{columnName,
+        // columnValues} ...}
         arguments(
             "col1",
             true,
             new ArrayList<>(
                 Arrays.asList(
-                    new Pair<>("col1", new ArrayList<>(Arrays.asList(true, true, true))),
-                    new Pair<>("col2", new ArrayList<>(Arrays.asList(false, false, false))),
-                    new Pair<>("col3", new ArrayList<>(Arrays.asList(true, true, false))),
-                    new Pair<>("col4", new ArrayList<>(Arrays.asList(true, false, true))),
-                    new Pair<>("col5", new ArrayList<>(Arrays.asList(false, false, true))),
-                    new Pair<>("col6", new ArrayList<>(Arrays.asList(false, true, false))),
-                    new Pair<>("col7", new ArrayList<>(Arrays.asList(true, null, null))),
-                    new Pair<>("col8", new ArrayList<>(Arrays.asList(false, null, null))),
-                    new Pair<>("col9", new ArrayList<>(Arrays.asList(true, true, null))),
-                    new Pair<>("col10", new ArrayList<>(Arrays.asList(true, false, null))),
-                    new Pair<>("col11", new ArrayList<>(Arrays.asList(false, false, null))),
-                    new Pair<>("col12", new ArrayList<>(Arrays.asList(false, true, null))),
-                    new Pair<>("col13", new ArrayList<>(Arrays.asList(true, null, true))),
-                    new Pair<>("col14", new ArrayList<>(Arrays.asList(true, null, false))),
-                    new Pair<>("col15", new ArrayList<>(Arrays.asList(false, null, false))),
-                    new Pair<>("col16", new ArrayList<>(Arrays.asList(false, null, true)))))),
+                    new ArrayList<>(
+                        Arrays.asList("col1", new ArrayList<>(Arrays.asList(true, true, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col2", new ArrayList<>(Arrays.asList(false, false, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col3", new ArrayList<>(Arrays.asList(true, true, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col4", new ArrayList<>(Arrays.asList(true, false, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col5", new ArrayList<>(Arrays.asList(false, false, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col6", new ArrayList<>(Arrays.asList(false, true, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col7", new ArrayList<>(Arrays.asList(true, null, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col8", new ArrayList<>(Arrays.asList(false, null, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col9", new ArrayList<>(Arrays.asList(true, true, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col10", new ArrayList<>(Arrays.asList(true, false, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col11", new ArrayList<>(Arrays.asList(false, false, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col12", new ArrayList<>(Arrays.asList(false, true, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col13", new ArrayList<>(Arrays.asList(true, null, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col14", new ArrayList<>(Arrays.asList(true, null, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col15", new ArrayList<>(Arrays.asList(false, null, false)))),
+                    new ArrayList<>(
+                        Arrays.asList(
+                            "col16", new ArrayList<>(Arrays.asList(false, null, true))))))),
         arguments(
             "col1",
             false,
             new ArrayList<>(
                 Arrays.asList(
-                    new Pair<>("col1", new ArrayList<>(Arrays.asList(true, true, true))),
-                    new Pair<>("col2", new ArrayList<>(Arrays.asList(false, false, false))),
-                    new Pair<>("col3", new ArrayList<>(Arrays.asList(true, true, false))),
-                    new Pair<>("col4", new ArrayList<>(Arrays.asList(true, false, true))),
-                    new Pair<>("col5", new ArrayList<>(Arrays.asList(false, false, true))),
-                    new Pair<>("col6", new ArrayList<>(Arrays.asList(false, true, false))),
-                    new Pair<>("col7", new ArrayList<>(Arrays.asList(true, null, null))),
-                    new Pair<>("col8", new ArrayList<>(Arrays.asList(false, null, null))),
-                    new Pair<>("col9", new ArrayList<>(Arrays.asList(true, true, null))),
-                    new Pair<>("col10", new ArrayList<>(Arrays.asList(true, false, null))),
-                    new Pair<>("col11", new ArrayList<>(Arrays.asList(false, false, null))),
-                    new Pair<>("col12", new ArrayList<>(Arrays.asList(false, true, null))),
-                    new Pair<>("col13", new ArrayList<>(Arrays.asList(true, null, true))),
-                    new Pair<>("col14", new ArrayList<>(Arrays.asList(true, null, false))),
-                    new Pair<>("col15", new ArrayList<>(Arrays.asList(false, null, false))),
-                    new Pair<>("col16", new ArrayList<>(Arrays.asList(false, null, true)))))));
+                    new ArrayList<>(
+                        Arrays.asList("col1", new ArrayList<>(Arrays.asList(true, true, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col2", new ArrayList<>(Arrays.asList(false, false, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col3", new ArrayList<>(Arrays.asList(true, true, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col4", new ArrayList<>(Arrays.asList(true, false, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col5", new ArrayList<>(Arrays.asList(false, false, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col6", new ArrayList<>(Arrays.asList(false, true, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col7", new ArrayList<>(Arrays.asList(true, null, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col8", new ArrayList<>(Arrays.asList(false, null, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col9", new ArrayList<>(Arrays.asList(true, true, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col10", new ArrayList<>(Arrays.asList(true, false, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col11", new ArrayList<>(Arrays.asList(false, false, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col12", new ArrayList<>(Arrays.asList(false, true, null)))),
+                    new ArrayList<>(
+                        Arrays.asList("col13", new ArrayList<>(Arrays.asList(true, null, true)))),
+                    new ArrayList<>(
+                        Arrays.asList("col14", new ArrayList<>(Arrays.asList(true, null, false)))),
+                    new ArrayList<>(
+                        Arrays.asList("col15", new ArrayList<>(Arrays.asList(false, null, false)))),
+                    new ArrayList<>(
+                        Arrays.asList(
+                            "col16", new ArrayList<>(Arrays.asList(false, null, true))))))));
   }
 
   @ParameterizedTest
   @MethodSource("D_blackbox_9")
   public void T_blackbox_9(
-      final String columnName,
-      final Boolean filterValue,
-      List<Pair<String, List<Boolean>>> expecteds)
+      final String columnName, final Boolean filterValue, List<List<Object>> expecteds)
       throws IOException {
     try (YosegiReader reader = new YosegiReader()) {
       IExpressionNode index = new NotExpressionNode();
@@ -618,10 +737,11 @@ public class TestBooleanBlockIndex {
       reader.setNewStream(in, data.length, readerConfig);
       while (reader.hasNext()) {
         Spread spread = reader.next();
-        for (Pair<String, List<Boolean>> expected : expecteds) {
-          IColumn col = spread.getColumn(expected.getKey());
+        for (List<Object> expected : expecteds) {
+          String colName = (String) expected.get(0);
+          IColumn col = spread.getColumn(colName);
           for (int i = 0; i < spread.size(); i++) {
-            List<Boolean> expectedValues = expected.getValue();
+            List<Boolean> expectedValues = (List<Boolean>) expected.get(1);
             if (expectedValues.get(i) == null) {
               assertEquals(ColumnType.NULL, col.get(i).getType());
             } else {
