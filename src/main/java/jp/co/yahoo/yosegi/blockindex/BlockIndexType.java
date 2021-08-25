@@ -30,5 +30,6 @@ public enum BlockIndexType {
   RANGE_LONG,
   RANGE_FLOAT,
   RANGE_DOUBLE,
+  BOOLEAN,
 
 }

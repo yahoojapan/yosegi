@@ -20,7 +20,6 @@ package jp.co.yahoo.yosegi.blockindex;
 
 import jp.co.yahoo.yosegi.encryptor.AdditionalAuthenticationData;
 import jp.co.yahoo.yosegi.encryptor.EncryptionSettingNode;
-import jp.co.yahoo.yosegi.encryptor.EncryptorFactoryNameShortCut;
 import jp.co.yahoo.yosegi.encryptor.IEncryptor;
 import jp.co.yahoo.yosegi.encryptor.IEncryptorFactory;
 import jp.co.yahoo.yosegi.encryptor.Module;
@@ -94,12 +93,12 @@ public class EncryptionSupportedBlockIndexNode extends BlockIndexNode {
       length += Integer.BYTES;
     } else {
       byte[] nodeNameBytes = nodeName.getBytes( "UTF-8" );
-      byte[] rangeClassNameBytes = RangeBlockIndexNameShortCut.getShortCutName(
+      byte[] blockIndexClassNameBytes = BlockIndexNameShortCut.getShortCutName(
           blockIndex.getClass().getName() ).getBytes( "UTF-8" );
       byte[] indexBinary = blockIndex.toBinary();
       int newIndexBinarySize = Integer.BYTES * 3
           + nodeNameBytes.length
-          + rangeClassNameBytes.length
+          + blockIndexClassNameBytes.length
           + indexBinary.length;
 
       length += Integer.BYTES;
@@ -170,19 +169,19 @@ public class EncryptionSupportedBlockIndexNode extends BlockIndexNode {
       wrapBuffer.putInt( 0 );
     } else {
       byte[] nodeNameBinary = nodeName.getBytes( "UTF-8" );
-      byte[] rangeClassNameBytes = RangeBlockIndexNameShortCut.getShortCutName(
+      byte[] blockIndexClassNameBytes = BlockIndexNameShortCut.getShortCutName(
           blockIndex.getClass().getName() ).getBytes( "UTF-8" );
       byte[] indexBinary = blockIndex.toBinary();
       byte[] newIndexBinary = new byte[ Integer.BYTES * 3
           + nodeNameBinary.length
-          + rangeClassNameBytes.length
+          + blockIndexClassNameBytes.length
           + indexBinary.length ];
 
       ByteBuffer newIndexBuffer = ByteBuffer.wrap( newIndexBinary );
       newIndexBuffer.putInt( nodeNameBinary.length );
       newIndexBuffer.put( nodeNameBinary );
-      newIndexBuffer.putInt( rangeClassNameBytes.length );
-      newIndexBuffer.put( rangeClassNameBytes );
+      newIndexBuffer.putInt( blockIndexClassNameBytes.length );
+      newIndexBuffer.put( blockIndexClassNameBytes );
       newIndexBuffer.putInt( indexBinary.length );
       newIndexBuffer.put( indexBinary );
 
@@ -244,7 +243,7 @@ public class EncryptionSupportedBlockIndexNode extends BlockIndexNode {
         "UTF-8" );
     decriptBuffer.position( decriptBuffer.position() + blockIndexClassNameBinaryLength );
     IBlockIndex blockIndex = FindBlockIndex.get(
-        RangeBlockIndexNameShortCut.getClassName( blockIndexClassName ) );
+        BlockIndexNameShortCut.getClassName( blockIndexClassName ) );
     int indexBinaryLength = decriptBuffer.getInt();
     blockIndex.setFromBinary(
         decriptBuffer.array() , decriptBuffer.position() , indexBinaryLength );

@@ -10,13 +10,12 @@
   limitations under the License. See accompanying LICENSE file.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>jp.co.yahoo.yosegi</groupId>
   <artifactId>yosegi</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.2-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Yosegi</name>
   <description>Yosegi package.</description>
@@ -214,32 +213,6 @@
       </plugin>
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <version>1.5</version>
-        <executions>
-          <execution>
-            <id>sign-artifacts</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.6.7</version>
-        <extensions>true</extensions>
-        <configuration>
-          <serverId>ossrh</serverId>
-          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-          <autoReleaseAfterClose>true</autoReleaseAfterClose>
-        </configuration>
-      </plugin>
-
-      <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
         <version>0.13</version>
@@ -247,7 +220,7 @@
           <excludes>
             <exclude>**/*.json</exclude>
             <exclude>.gitignore</exclude>
-            <exclude>.circleci/config.yml</exclude>
+            <exclude>.circleci/*</exclude>
             <exclude>.github/PULL_REQUEST_TEMPLATE.md</exclude>
           </excludes>
         </configuration>
@@ -306,6 +279,15 @@
           <propertyName>surefireArgLine</propertyName>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.5.3</version>
+        <configuration>
+          <releaseProfiles>gpg-sign</releaseProfiles>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
@@ -327,4 +309,38 @@
     </plugins>
   </reporting>
 
+  <profiles>
+    <profile>
+      <id>gpg-sign</id>
+      <!--
+      only sign during deploy phase
+      -->
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.5</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+      <properties>
+        <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
+      </properties>
+    </profile>
+  </profiles>
 </project>

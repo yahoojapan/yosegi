@@ -20,7 +20,7 @@ package jp.co.yahoo.yosegi.blockindex;
 
 import jp.co.yahoo.yosegi.util.Pair;
 
-public final class RangeBlockIndexNameShortCut {
+public final class BlockIndexNameShortCut {
 
   private static final Pair CLASS_NAME_PAIR = new Pair();
 
@@ -34,9 +34,11 @@ public final class RangeBlockIndexNameShortCut {
     CLASS_NAME_PAIR.set( "jp.co.yahoo.yosegi.blockindex.StringRangeBlockIndex"   , "R6" );
 
     CLASS_NAME_PAIR.set( "jp.co.yahoo.yosegi.blockindex.FullRangeBlockIndex"   , "FR0" );
+
+    CLASS_NAME_PAIR.set( "jp.co.yahoo.yosegi.blockindex.BooleanBlockIndex"   , "BI0" );
   }
 
-  private RangeBlockIndexNameShortCut() {}
+  private BlockIndexNameShortCut() {}
 
   /**
    * Get the shortcut name from the class name.
