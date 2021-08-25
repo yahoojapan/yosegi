@@ -318,6 +318,7 @@ public class ColumnBinary {
   /**
    * Sets the index of the element to be copied at load time.
    * This index is only used for loading, not when writing to a file.
+   * The load index must be greater than 0 and equal to or greater than the previous number.
    */
   public void setLoadIndex( final int[] loadIndex ) {
     this.loadIndex = loadIndex;

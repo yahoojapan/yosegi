@@ -46,10 +46,8 @@ public class TestStringBlockIndex{
 
   public static Stream<Arguments> data1() throws IOException{
     return Stream.of(
-      arguments( createStringTestData( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeDumpStringColumnBinaryMaker" ) ),
-      arguments( createStringTestData( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeStringColumnBinaryMaker" ) ),
-      arguments( createStringTestData( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeDumpStringColumnBinaryMaker" ) ),
-      arguments( createStringTestData( "jp.co.yahoo.yosegi.binary.maker.UnsafeOptimizeStringColumnBinaryMaker" ) ),
+      arguments( createStringTestData( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpStringColumnBinaryMaker" ) ),
+      arguments( createStringTestData( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayStringColumnBinaryMaker" ) ),
       arguments( createStringTestData( "jp.co.yahoo.yosegi.binary.maker.RleStringColumnBinaryMaker" ) ),
       arguments( createStringTestData( "jp.co.yahoo.yosegi.binary.maker.DictionaryRleStringColumnBinaryMaker" ) )
     );
