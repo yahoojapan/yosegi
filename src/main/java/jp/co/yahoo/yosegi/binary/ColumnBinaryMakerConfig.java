@@ -20,6 +20,7 @@ package jp.co.yahoo.yosegi.binary;
 
 import jp.co.yahoo.yosegi.binary.maker.DumpSpreadColumnBinaryMaker;
 import jp.co.yahoo.yosegi.binary.maker.DumpUnionColumnBinaryMaker;
+import jp.co.yahoo.yosegi.binary.maker.FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker;
 import jp.co.yahoo.yosegi.binary.maker.IColumnBinaryMaker;
 import jp.co.yahoo.yosegi.binary.maker.MaxLengthBasedArrayColumnBinaryMaker;
 import jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpBooleanColumnBinaryMaker;
@@ -89,7 +90,7 @@ public class ColumnBinaryMakerConfig {
     spreadMakerClass = FindColumnBinaryMaker.get( DumpSpreadColumnBinaryMaker.class.getName() );
 
     booleanMakerClass = FindColumnBinaryMaker.get(
-        OptimizedNullArrayDumpBooleanColumnBinaryMaker.class.getName() );
+        FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker.class.getName() );
     byteMakerClass = FindColumnBinaryMaker.get(
         OptimizedNullArrayDumpLongColumnBinaryMaker.class.getName() );
     doubleMakerClass = FindColumnBinaryMaker.get(
