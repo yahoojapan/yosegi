@@ -18,13 +18,13 @@
 
 package jp.co.yahoo.yosegi.inmemory;
 
-import jp.co.yahoo.yosegi.spread.column.ColumnType;
+import jp.co.yahoo.yosegi.binary.ColumnBinary;
 
 import java.io.IOException;
 
-public interface IUnionLoader extends ILoader {
+public interface IUnionLoader<T> extends ILoader<T> {
 
-  ILoaderFactory createLoaderFactory(
-      final ColumnType type ) throws IOException;
+  void loadChild(
+      final ColumnBinary columnBinary , final int childLoadSize ) throws IOException;
 
 }

@@ -19,27 +19,25 @@
 package jp.co.yahoo.yosegi.inmemory;
 
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
-import jp.co.yahoo.yosegi.binary.FindColumnBinaryMaker;
-import jp.co.yahoo.yosegi.binary.maker.IColumnBinaryMaker;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
 
 import java.io.IOException;
 
-public class YosegiLoaderFactory implements ILoaderFactory {
+public class YosegiLoaderFactory implements ILoaderFactory<IColumn> {
 
   @Override
   public ILoader<IColumn> createLoader(
       final ColumnBinary columnBinary ,
-      final int loadSize ,
-      final LoadType loadType ) throws IOException {
-    switch ( loadType ) {
+      final int loadSize ) throws IOException {
+    switch ( getLoadType( columnBinary ) ) {
       case NULL :
         return new YosegiNullLoader( loadSize );
       case SEQUENTIAL :
         return new YosegiSequentialLoader( columnBinary , loadSize );
       case DICTIONARY :
         return new YosegiDictionaryLoader( columnBinary , loadSize );
-      default: throw new IOException( "This type is not supported : " + loadType );
+      default: throw new IOException(
+          "This type is not supported : " + getLoadType( columnBinary ) );
     }
   }
 

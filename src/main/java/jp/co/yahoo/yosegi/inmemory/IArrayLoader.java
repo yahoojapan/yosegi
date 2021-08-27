@@ -18,14 +18,16 @@
 
 package jp.co.yahoo.yosegi.inmemory;
 
+import jp.co.yahoo.yosegi.binary.ColumnBinary;
+
 import java.io.IOException;
 
-public interface IArrayLoader extends ILoader {
+public interface IArrayLoader<T> extends ILoader<T> {
 
   void setArrayIndex(
       final int index , final int start , final int length ) throws IOException;
 
-  ILoaderFactory createLoaderFactory(
-      final int childLength ) throws IOException;
+  void loadChild(
+      final ColumnBinary columnBinary , final int childLength ) throws IOException;
 
 }
