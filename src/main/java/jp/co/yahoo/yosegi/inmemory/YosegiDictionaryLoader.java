@@ -139,12 +139,12 @@ public class YosegiDictionaryLoader implements IDictionaryLoader<IColumn> {
   }
 
   @Override
-  public void createDictionary( final int dictionarySize ) {
+  public void createDictionary( final int dictionarySize ) throws IOException {
     dic = new PrimitiveObject[dictionarySize];
   }
 
   @Override
-  public void setDictionaryIndex( final int index , final int dicIndex ) {
+  public void setDictionaryIndex( final int index , final int dicIndex ) throws IOException {
     ids[index] = dicIndex;
   }
 

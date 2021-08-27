@@ -21,10 +21,10 @@ package jp.co.yahoo.yosegi.inmemory;
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
 
 import java.io.IOException;
+import java.util.List;
 
-public interface ISpreadLoader<T> extends ILoader<T> {
+public interface IRawConverter<T> {
 
-  void loadChild(
-      final ColumnBinary columnBinary , final int loadSize ) throws IOException;
+  T convert( final List<ColumnBinary> raw , final int loadSize ) throws IOException;
 
 }

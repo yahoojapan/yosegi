@@ -257,10 +257,8 @@ public class OptimizedNullArrayDumpStringColumnBinaryMaker implements IColumnBin
     if ( columnBinary.loadIndex != null ) {
       loadCount = columnBinary.loadIndex.length;
     }
-    ILoader<IColumn> loader = new YosegiLoaderFactory().createLoader(
-        columnBinary , loadCount , getLoadType( columnBinary ) );
-    load( columnBinary , loader );
-    return loader.build();
+    return new YosegiLoaderFactory().create(
+        columnBinary , loadCount );
   }
 
   @Override

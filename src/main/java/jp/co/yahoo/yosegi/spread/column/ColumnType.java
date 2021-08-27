@@ -38,5 +38,8 @@ public enum ColumnType {
   EMPTY_ARRAY,
   EMPTY_SPREAD,
 
+  MAP,
+  STRUCT,
+
   UNKNOWN,
 }

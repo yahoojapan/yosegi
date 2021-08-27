@@ -27,9 +27,9 @@ public interface IDictionaryLoader<T> extends ILoader<T> {
     return LoadType.DICTIONARY;
   }
 
-  void createDictionary( final int dictionarySize );
+  void createDictionary( final int dictionarySize ) throws IOException;
 
-  void setDictionaryIndex( final int index , final int dicIndex );
+  void setDictionaryIndex( final int index , final int dicIndex ) throws IOException;
 
   void setNullToDic( final int index ) throws IOException;
 

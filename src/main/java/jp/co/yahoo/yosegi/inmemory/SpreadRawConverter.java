@@ -19,12 +19,27 @@
 package jp.co.yahoo.yosegi.inmemory;
 
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
+import jp.co.yahoo.yosegi.spread.Spread;
+import jp.co.yahoo.yosegi.spread.column.IColumn;
 
 import java.io.IOException;
+import java.util.List;
 
-public interface ISpreadLoader<T> extends ILoader<T> {
+public class SpreadRawConverter implements IRawConverter<Spread> {
 
-  void loadChild(
-      final ColumnBinary columnBinary , final int loadSize ) throws IOException;
+  private final ILoaderFactory<IColumn> columnLoaderFactory = new YosegiLoaderFactory();
+
+  @Override
+  public Spread convert(
+      final List<ColumnBinary> raw , final int loadSize ) throws IOException {
+    Spread spread = new Spread();
+    for ( ColumnBinary columnBinary : raw ) {
+      if ( columnBinary != null ) {
+        spread.addColumn( columnLoaderFactory.create( columnBinary , loadSize ) );
+      }
+    }
+    spread.setRowCount( loadSize );
+    return spread;
+  }
 
 }

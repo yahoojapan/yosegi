@@ -18,13 +18,48 @@
 
 package jp.co.yahoo.yosegi.inmemory;
 
-import jp.co.yahoo.yosegi.binary.ColumnBinary;
+import org.apache.arrow.vector.ValueVector;
 
 import java.io.IOException;
 
-public interface ISpreadLoader<T> extends ILoader<T> {
+public class ArrowNullLoader implements ILoader<ValueVector> {
 
-  void loadChild(
-      final ColumnBinary columnBinary , final int loadSize ) throws IOException;
+  private final ValueVector vector;
+  private final int loadSize;
+
+  /**
+   * Null type loader.
+   */
+  public ArrowNullLoader( final ValueVector vector , final int loadSize ) {
+    vector.allocateNew();
+    this.vector = vector;
+    this.loadSize = loadSize;
+  }
+
+  @Override
+  public LoadType getLoaderType() {
+    return LoadType.NULL;
+  }
+
+  @Override
+  public int getLoadSize() {
+    return loadSize;
+  }
+
+  @Override
+  public void finish() {}
+
+  @Override
+  public void setNull( int index ) {}
+
+  @Override
+  public ValueVector build() throws IOException {
+    return vector;
+  }
+
+  @Override
+  public boolean isLoadingSkipped() {
+    return true;
+  }
 
 }

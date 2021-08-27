@@ -19,14 +19,34 @@
 package jp.co.yahoo.yosegi.inmemory;
 
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
+import jp.co.yahoo.yosegi.binary.FindColumnBinaryMaker;
+import jp.co.yahoo.yosegi.binary.maker.IColumnBinaryMaker;
 
 import java.io.IOException;
 
-public interface ILoaderFactory {
+public interface ILoaderFactory<T> {
+
+  default LoadType getLoadType(
+      final ColumnBinary columnBinary ) throws IOException {
+    IColumnBinaryMaker maker = FindColumnBinaryMaker.get( columnBinary.makerClassName );
+    return maker.getLoadType( columnBinary );
+  }
+
+  /**
+   * Returns the result of loading.
+   */
+  default T create(
+      final ColumnBinary columnBinary , final int loadSize ) throws IOException {
+    ILoader<T> loader = createLoader( columnBinary , loadSize );
+    if ( ! loader.isLoadingSkipped() ) {
+      IColumnBinaryMaker maker = FindColumnBinaryMaker.get( columnBinary.makerClassName );
+      maker.load( columnBinary , loader );
+    }
+    return loader.build();
+  }
 
   ILoader createLoader(
       final ColumnBinary columnBinary ,
-      final int loadSize ,
-      final LoadType loadType ) throws IOException;
+      final int loadSize ) throws IOException;
 
 }
