@@ -41,6 +41,8 @@ public interface ILoaderFactory<T> {
     if ( ! loader.isLoadingSkipped() ) {
       IColumnBinaryMaker maker = FindColumnBinaryMaker.get( columnBinary.makerClassName );
       maker.load( columnBinary , loader );
+    } else {
+      loader.finish();
     }
     return loader.build();
   }

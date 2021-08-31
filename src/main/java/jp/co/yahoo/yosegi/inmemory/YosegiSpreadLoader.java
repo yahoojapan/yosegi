@@ -18,22 +18,31 @@
 
 package jp.co.yahoo.yosegi.inmemory;
 
+import jp.co.yahoo.yosegi.binary.ColumnBinary;
+import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
-import jp.co.yahoo.yosegi.spread.column.NullColumn;
+import jp.co.yahoo.yosegi.spread.column.SpreadColumn;
 
 import java.io.IOException;
 
-public class YosegiNullLoader implements ILoader<IColumn> {
+public class YosegiSpreadLoader implements ISpreadLoader<IColumn> {
 
+  private final Spread spread;
+  private final SpreadColumn spreadColumn;
   private final int loadSize;
 
-  public YosegiNullLoader( final int loadSize ) {
+  /**
+   * A loader that holds elements dictionary.
+   */
+  public YosegiSpreadLoader( final ColumnBinary columnBinary , final int loadSize ) {
+    spreadColumn = new SpreadColumn( columnBinary.columnName );
+    spread = new Spread();
     this.loadSize = loadSize;
   }
 
   @Override
   public LoadType getLoaderType() {
-    return LoadType.NULL;
+    return LoadType.SPREAD;
   }
 
   @Override
@@ -45,16 +54,23 @@ public class YosegiNullLoader implements ILoader<IColumn> {
   public void setNull( final int index ) throws IOException {}
 
   @Override
-  public void finish() throws IOException {}
-
-  @Override
-  public IColumn build() throws IOException {
-    return NullColumn.getInstance();
+  public void finish() throws IOException {
+    spread.setRowCount( loadSize );
+    spreadColumn.setSpread( spread );
   }
 
   @Override
-  public boolean isLoadingSkipped() {
-    return true;
+  public IColumn build() throws IOException {
+    return spreadColumn;
+  }
+
+  @Override
+  public void loadChild(
+      final ColumnBinary columnBinary , final int childLoadSize ) throws IOException {
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn child = factory.create( columnBinary , childLoadSize );
+    child.setParentsColumn( spreadColumn );
+    spread.addColumn( child );
   }
 
 }

@@ -32,6 +32,10 @@ public class YosegiLoaderFactory implements ILoaderFactory<IColumn> {
     switch ( getLoadType( columnBinary ) ) {
       case NULL :
         return new YosegiNullLoader( loadSize );
+      case ARRAY :
+        return new YosegiArrayLoader( columnBinary , loadSize );
+      case SPREAD :
+        return new YosegiSpreadLoader( columnBinary , loadSize );
       case SEQUENTIAL :
         return new YosegiSequentialLoader( columnBinary , loadSize );
       case DICTIONARY :

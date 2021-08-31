@@ -27,7 +27,11 @@ import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
+import jp.co.yahoo.yosegi.inmemory.IArrayLoader;
+import jp.co.yahoo.yosegi.inmemory.ILoader;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
+import jp.co.yahoo.yosegi.inmemory.LoadType;
+import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.analyzer.IColumnAnalizeResult;
@@ -138,10 +142,104 @@ public class MaxLengthBasedArrayColumnBinaryMaker implements IColumnBinaryMaker 
 
   @Override
   public IColumn toColumn( final ColumnBinary columnBinary ) throws IOException {
+    // Note: When all encoders are ready, integrate them into the load interface.
     return new LazyColumn(
         columnBinary.columnName ,
         columnBinary.columnType ,
         new ArrayColumnManager( columnBinary ) );
+  }
+
+  @Override
+  public LoadType getLoadType( final ColumnBinary columnBinary ) {
+    return LoadType.ARRAY;
+  }
+
+  private void loadFromColumnBinary(
+      final ColumnBinary columnBinary , final IArrayLoader loader ) throws IOException {
+    ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
+    byte[] decompressBuffer = compressor.decompress(
+        columnBinary.binary , columnBinary.binaryStart , columnBinary.binaryLength );
+    int maxSize = ByteBuffer.wrap( decompressBuffer ).getInt();
+    NumberToBinaryUtils.IIntConverter encoder = NumberToBinaryUtils.getIntConverter( 0 , maxSize );
+    IReadSupporter reader = encoder.toReadSupporter(
+        decompressBuffer , Integer.BYTES , decompressBuffer.length - Integer.BYTES );
+
+    int currentIndex = 0;
+    for ( int i = 0 ; i < loader.getLoadSize() ; i++ ) {
+      if ( columnBinary.rowCount <= i ) {
+        loader.setNull( i );
+      }
+      int arrayLength = reader.getInt();
+      if ( arrayLength == 0 ) {
+        loader.setNull(i);
+      } else {
+        loader.setArrayIndex( i , currentIndex , arrayLength );
+        currentIndex += arrayLength;
+      }
+    }
+
+    ColumnBinary child = columnBinary.columnBinaryList.get(0);
+    loader.loadChild( child , currentIndex );
+  }
+
+  private void loadFromExpandColumnBinary(
+      final ColumnBinary columnBinary , final IArrayLoader loader ) throws IOException {
+    if ( columnBinary.loadIndex.length == 0
+        || columnBinary.rowCount <= columnBinary.loadIndex[0] ) {
+      for ( int i = 0 ; i < loader.getLoadSize() ; i++ ) {
+        loader.setNull(i);
+      }
+      return;
+    }
+
+    ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
+    byte[] decompressBuffer = compressor.decompress(
+        columnBinary.binary , columnBinary.binaryStart , columnBinary.binaryLength );
+    int maxSize = ByteBuffer.wrap( decompressBuffer ).getInt();
+    NumberToBinaryUtils.IIntConverter encoder = NumberToBinaryUtils.getIntConverter( 0 , maxSize );
+    IReadSupporter reader = encoder.toReadSupporter(
+        decompressBuffer , Integer.BYTES , decompressBuffer.length - Integer.BYTES );
+
+    int currentIndex = 0;
+    boolean[] isNullArray = new boolean[columnBinary.rowCount];
+    int[] startArray = new int[columnBinary.rowCount];
+    int[] lengthArray = new int[columnBinary.rowCount];
+    for ( int i = 0 ; i < columnBinary.rowCount ; i++ ) {
+      int arrayLength = reader.getInt();
+      if ( arrayLength == 0 ) {
+        isNullArray[i] = true;
+      } else {
+        startArray[i] = currentIndex;
+        lengthArray[i] = arrayLength;
+        currentIndex += arrayLength;
+      }
+    }
+
+    for ( int loadIndex : columnBinary.loadIndex ) {
+      if ( columnBinary.rowCount <= loadIndex || isNullArray[loadIndex] ) {
+        loader.setNull(loadIndex);
+      } else {
+        loader.setArrayIndex( loadIndex , startArray[loadIndex] , lengthArray[loadIndex] );
+      }
+    }
+
+    ColumnBinary child = columnBinary.columnBinaryList.get(0);
+    loader.loadChild( child , child.loadIndex.length );
+  }
+
+  @Override
+  public void load(
+      final ColumnBinary columnBinary , final ILoader loader ) throws IOException {
+    if ( loader.getLoaderType() != LoadType.ARRAY ) {
+      throw new IOException( "Loader type is not ARRAY." );
+    }
+
+    if ( columnBinary.loadIndex == null ) {
+      loadFromColumnBinary( columnBinary , (IArrayLoader)loader );
+    } else {
+      loadFromExpandColumnBinary( columnBinary , (IArrayLoader)loader );
+    }
+    loader.finish();
   }
 
   @Override
