@@ -25,7 +25,11 @@ import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.binary.FindColumnBinaryMaker;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.compressor.DefaultCompressor;
+import jp.co.yahoo.yosegi.inmemory.ILoader;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
+import jp.co.yahoo.yosegi.inmemory.ISpreadLoader;
+import jp.co.yahoo.yosegi.inmemory.LoadType;
+import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.analyzer.IColumnAnalizeResult;
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
@@ -112,10 +116,30 @@ public class DumpSpreadColumnBinaryMaker implements IColumnBinaryMaker {
 
   @Override
   public IColumn toColumn( final ColumnBinary columnBinary ) throws IOException {
+    // Note: When all encoders are ready, integrate them into the load interface.
     return new LazyColumn(
         columnBinary.columnName ,
         columnBinary.columnType ,
         new SpreadColumnManager( columnBinary ) );
+  }
+
+  @Override
+  public LoadType getLoadType( final ColumnBinary columnBinary ) {
+    return LoadType.SPREAD;
+  }
+
+  @Override
+  public void load(
+      final ColumnBinary columnBinary , final ILoader loader ) throws IOException {
+    if ( loader.getLoaderType() != LoadType.SPREAD ) {
+      throw new IOException( "Loader type is not SPREAD." );
+    }
+    ISpreadLoader spreadLoader = (ISpreadLoader)loader;
+    for ( ColumnBinary child : columnBinary.columnBinaryList ) {
+      spreadLoader.loadChild( child , loader.getLoadSize() );
+    }
+    
+    spreadLoader.finish();
   }
 
   @Override
