@@ -24,6 +24,11 @@ import java.io.IOException;
 
 public interface IArrayLoader<T> extends ILoader<T> {
 
+  @Override
+  default LoadType getLoaderType() {
+    return LoadType.ARRAY;
+  }
+
   void setArrayIndex(
       final int index , final int start , final int length ) throws IOException;
 

@@ -262,7 +262,7 @@ public class OptimizedNullArrayDumpStringColumnBinaryMaker implements IColumnBin
   }
 
   @Override
-  public LoadType getLoadType( final ColumnBinary columnBinary ) {
+  public LoadType getLoadType( final ColumnBinary columnBinary , final int loadSize ) {
     if ( columnBinary.loadIndex == null ) {
       return LoadType.SEQUENTIAL;
     } else {

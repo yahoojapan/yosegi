@@ -56,7 +56,7 @@ public class UnsupportedColumnBinaryMaker implements IColumnBinaryMaker {
   }
 
   @Override
-  public LoadType getLoadType( final ColumnBinary columnBinary ) {
+  public LoadType getLoadType( final ColumnBinary columnBinary , final int loadSize ) {
     return LoadType.NULL;
   }
 

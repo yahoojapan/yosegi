@@ -37,6 +37,7 @@ import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveColumn;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
+import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 
 import jp.co.yahoo.yosegi.message.objects.*;
 
@@ -45,41 +46,363 @@ import jp.co.yahoo.yosegi.spread.column.ColumnType;
 public class TestConstantColumnBinaryMaker {
 
   @Test
-  public void T_createBinary_boolean_1() throws IOException{
+  public void T_createBoolean_equals_whenLoadSizeEqualsRowCount() throws IOException{
     ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new BooleanObj( true ) , "hoge" , 3 );
-
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.BOOLEAN );
 
-    ConstantColumnBinaryMaker maker = new ConstantColumnBinaryMaker();
-    IColumn decodeColumn = maker.toColumn( columnBinary );
-    assertEquals( decodeColumn.getColumnKeys().size() , 0 );
-    assertEquals( decodeColumn.getColumnSize() , 0 );
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.rowCount );
 
-    assertEquals( true , ( (PrimitiveObject)( decodeColumn.get(0).getRow() ) ).getBoolean() );
-    assertEquals( true , ( (PrimitiveObject)( decodeColumn.get(1).getRow() ) ).getBoolean() );
-    assertEquals( true , ( (PrimitiveObject)( decodeColumn.get(2).getRow() ) ).getBoolean() );
-    assertNull( decodeColumn.get(3).getRow() );
+    assertEquals( column.size() , 3 );
+
+    assertEquals( true , ( (PrimitiveObject)( column.get(0).getRow() ) ).getBoolean() );
+    assertEquals( true , ( (PrimitiveObject)( column.get(1).getRow() ) ).getBoolean() );
+    assertEquals( true , ( (PrimitiveObject)( column.get(2).getRow() ) ).getBoolean() );
+    assertNull( column.get(3).getRow() );
   }
 
   @Test
-  public void T_createBinary_byte_1() throws IOException{
-    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new ByteObj( (byte)20 ) , "hoge" , 3 );
+  public void T_createBoolean_equals_whenLoadSizeLessThanRowCount() throws IOException{
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new BooleanObj( true ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.BOOLEAN );
 
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , 2 );
+
+    assertEquals( column.size() , 2 );
+
+    assertEquals( true , ( (PrimitiveObject)( column.get(0).getRow() ) ).getBoolean() );
+    assertEquals( true , ( (PrimitiveObject)( column.get(1).getRow() ) ).getBoolean() );
+    assertNull( column.get(2).getRow() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createBoolean_equals_whenLoadSizeGreaterThanRowCount() throws IOException{
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new BooleanObj( true ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.BOOLEAN );
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , 4 );
+
+    assertEquals( column.size() , 4 );
+
+    assertEquals( true , ( (PrimitiveObject)( column.get(0).getRow() ) ).getBoolean() );
+    assertEquals( true , ( (PrimitiveObject)( column.get(1).getRow() ) ).getBoolean() );
+    assertEquals( true , ( (PrimitiveObject)( column.get(2).getRow() ) ).getBoolean() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createBoolean_equals_whenLastLoadIndexEqualsRowCount() throws IOException{
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new BooleanObj( true ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.BOOLEAN );
+    columnBinary.loadIndex = new int[]{0,0,1,2,2};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 5 );
+
+    assertEquals( true , ( (PrimitiveObject)( column.get(0).getRow() ) ).getBoolean() );
+    assertEquals( true , ( (PrimitiveObject)( column.get(1).getRow() ) ).getBoolean() );
+    assertEquals( true , ( (PrimitiveObject)( column.get(2).getRow() ) ).getBoolean() );
+    assertEquals( true , ( (PrimitiveObject)( column.get(3).getRow() ) ).getBoolean() );
+    assertEquals( true , ( (PrimitiveObject)( column.get(4).getRow() ) ).getBoolean() );
+    assertNull( column.get(5).getRow() );
+  }
+
+  @Test
+  public void T_createBoolean_equals_whenLastLoadIndexLessThanRowCount() throws IOException{
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new BooleanObj( true ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.BOOLEAN );
+    columnBinary.loadIndex = new int[]{0,0,1};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 3 );
+
+    assertEquals( true , ( (PrimitiveObject)( column.get(0).getRow() ) ).getBoolean() );
+    assertEquals( true , ( (PrimitiveObject)( column.get(1).getRow() ) ).getBoolean() );
+    assertEquals( true , ( (PrimitiveObject)( column.get(2).getRow() ) ).getBoolean() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createBoolean_equals_whenLastLoadIndexGeraterThanRowCount() throws IOException{
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new BooleanObj( true ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.BOOLEAN );
+    columnBinary.loadIndex = new int[]{0,0,1,2,2,3};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 6 );
+
+    assertEquals( true , ( (PrimitiveObject)( column.get(0).getRow() ) ).getBoolean() );
+    assertEquals( true , ( (PrimitiveObject)( column.get(1).getRow() ) ).getBoolean() );
+    assertEquals( true , ( (PrimitiveObject)( column.get(2).getRow() ) ).getBoolean() );
+    assertEquals( true , ( (PrimitiveObject)( column.get(3).getRow() ) ).getBoolean() );
+    assertEquals( true , ( (PrimitiveObject)( column.get(4).getRow() ) ).getBoolean() );
+    assertEquals( true , ( (PrimitiveObject)( column.get(5).getRow() ) ).getBoolean() );
+    assertNull( column.get(6).getRow() );
+  }
+
+  @Test
+  public void T_createByte_equals_whenLoadSizeEqualsRowCount() throws IOException{
+    byte value = (byte)100;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new ByteObj( value ) , "hoge" , 3 );
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.BYTE );
 
-    ConstantColumnBinaryMaker maker = new ConstantColumnBinaryMaker();
-    IColumn decodeColumn = maker.toColumn( columnBinary  );
-    assertEquals( decodeColumn.getColumnKeys().size() , 0 );
-    assertEquals( decodeColumn.getColumnSize() , 0 );
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.rowCount );
 
-    assertEquals( (byte)20 , ( (PrimitiveObject)( decodeColumn.get(0).getRow() ) ).getByte() );
-    assertEquals( (byte)20 , ( (PrimitiveObject)( decodeColumn.get(1).getRow() ) ).getByte() );
-    assertEquals( (byte)20 , ( (PrimitiveObject)( decodeColumn.get(2).getRow() ) ).getByte() );
-    assertNull( decodeColumn.get(3).getRow() );
+    assertEquals( column.size() , 3 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getByte() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getByte() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getByte() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createByte_equals_whenLoadSizeLessThanRowCount() throws IOException{
+    byte value = (byte)100;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new ByteObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.BYTE );
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , 2 );
+
+    assertEquals( column.size() , 2 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getByte() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getByte() );
+    assertNull( column.get(2).getRow() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createByte_equals_whenLoadSizeGreaterThanRowCount() throws IOException{
+    byte value = (byte)100;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new ByteObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.BYTE );
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , 4 );
+
+    assertEquals( column.size() , 4 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getByte() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getByte() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getByte() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createByte_equals_whenLastLoadIndexEqualsRowCount() throws IOException{
+    byte value = (byte)100;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new ByteObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.BYTE );
+    columnBinary.loadIndex = new int[]{0,0,1,2,2};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 5 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getByte() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getByte() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getByte() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getByte() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getByte() );
+    assertNull( column.get(5).getRow() );
+  }
+
+  @Test
+  public void T_createByte_equals_whenLastLoadIndexLessThanRowCount() throws IOException{
+    byte value = (byte)100;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new ByteObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.BYTE );
+    columnBinary.loadIndex = new int[]{0,0,1};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 3 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getByte() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getByte() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getByte() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createByte_equals_whenLastLoadIndexGeraterThanRowCount() throws IOException{
+    byte value = (byte)100;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new ByteObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.BYTE );
+    columnBinary.loadIndex = new int[]{0,0,1,2,2,3};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 6 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getByte() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getByte() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getByte() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getByte() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getByte() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(5).getRow() ) ).getByte() );
+    assertNull( column.get(6).getRow() );
+  }
+
+  @Test
+  public void T_createShort_equals_whenLoadSizeEqualsRowCount() throws IOException{
+    short value = (short)100;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new ShortObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.SHORT );
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.rowCount );
+
+    assertEquals( column.size() , 3 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getShort() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getShort() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getShort() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createShort_equals_whenLoadSizeLessThanRowCount() throws IOException{
+    short value = (short)100;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new ShortObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.SHORT );
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , 2 );
+
+    assertEquals( column.size() , 2 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getShort() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getShort() );
+    assertNull( column.get(2).getRow() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createShort_equals_whenLoadSizeGreaterThanRowCount() throws IOException{
+    short value = (short)100;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new ShortObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.SHORT );
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , 4 );
+
+    assertEquals( column.size() , 4 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getShort() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getShort() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getShort() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createShort_equals_whenLastLoadIndexEqualsRowCount() throws IOException{
+    short value = (short)100;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new ShortObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.SHORT );
+    columnBinary.loadIndex = new int[]{0,0,1,2,2};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 5 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getShort() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getShort() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getShort() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getShort() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getShort() );
+    assertNull( column.get(5).getRow() );
+  }
+
+  @Test
+  public void T_createShort_equals_whenLastLoadIndexLessThanRowCount() throws IOException{
+    short value = (short)100;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new ShortObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.SHORT );
+    columnBinary.loadIndex = new int[]{0,0,1};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 3 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getShort() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getShort() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getShort() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createShort_equals_whenLastLoadIndexGeraterThanRowCount() throws IOException{
+    short value = (short)100;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new ShortObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.SHORT );
+    columnBinary.loadIndex = new int[]{0,0,1,2,2,3};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 6 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getShort() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getShort() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getShort() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getShort() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getShort() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(5).getRow() ) ).getShort() );
+    assertNull( column.get(6).getRow() );
   }
 
   @Test
@@ -102,181 +425,716 @@ public class TestConstantColumnBinaryMaker {
   }
 
   @Test
-  public void T_createBinary_int_1() throws IOException{
-    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new IntegerObj( 20 ) , "hoge" , 3 );
-
+  public void T_createInt_equals_whenLoadSizeEqualsRowCount() throws IOException{
+    int value = 100;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new IntegerObj( value ) , "hoge" , 3 );
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.INTEGER );
 
-    ConstantColumnBinaryMaker maker = new ConstantColumnBinaryMaker();
-    IColumn decodeColumn = maker.toColumn( columnBinary );
-    assertEquals( decodeColumn.getColumnKeys().size() , 0 );
-    assertEquals( decodeColumn.getColumnSize() , 0 );
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.rowCount );
 
-    assertEquals( 20 , ( (PrimitiveObject)( decodeColumn.get(0).getRow() ) ).getInt() );
-    assertEquals( 20 , ( (PrimitiveObject)( decodeColumn.get(1).getRow() ) ).getInt() );
-    assertEquals( 20 , ( (PrimitiveObject)( decodeColumn.get(2).getRow() ) ).getInt() );
-    assertNull( decodeColumn.get(3).getRow() );
+    assertEquals( column.size() , 3 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getInt() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getInt() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getInt() );
+    assertNull( column.get(3).getRow() );
   }
 
-  public void T_createBinary_long_1() throws IOException{
-    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new LongObj( 20l ) , "hoge" , 3 );
+  @Test
+  public void T_createInt_equals_whenLoadSizeLessThanRowCount() throws IOException{
+    int value = 100;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new IntegerObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.INTEGER );
 
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , 2 );
+
+    assertEquals( column.size() , 2 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getInt() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getInt() );
+    assertNull( column.get(2).getRow() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createInt_equals_whenLoadSizeGreaterThanRowCount() throws IOException{
+    int value = 100;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new IntegerObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.INTEGER );
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , 4 );
+
+    assertEquals( column.size() , 4 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getInt() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getInt() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getInt() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createInt_equals_whenLastLoadIndexEqualsRowCount() throws IOException{
+    int value = 100;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new IntegerObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.INTEGER );
+    columnBinary.loadIndex = new int[]{0,0,1,2,2};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 5 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getInt() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getInt() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getInt() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getInt() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getInt() );
+    assertNull( column.get(5).getRow() );
+  }
+
+  @Test
+  public void T_createInt_equals_whenLastLoadIndexLessThanRowCount() throws IOException{
+    int value = 100;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new IntegerObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.INTEGER );
+    columnBinary.loadIndex = new int[]{0,0,1};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 3 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getInt() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getInt() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getInt() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createInt_equals_whenLastLoadIndexGeraterThanRowCount() throws IOException{
+    int value = 100;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new IntegerObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.INTEGER );
+    columnBinary.loadIndex = new int[]{0,0,1,2,2,3};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 6 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getInt() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getInt() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getInt() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getInt() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getInt() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(5).getRow() ) ).getInt() );
+    assertNull( column.get(6).getRow() );
+  }
+
+  @Test
+  public void T_createLong_equals_whenLoadSizeEqualsRowCount() throws IOException{
+    long value = 100L;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new LongObj( value ) , "hoge" , 3 );
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.LONG );
 
-    ConstantColumnBinaryMaker maker = new ConstantColumnBinaryMaker();
-    IColumn decodeColumn = maker.toColumn( columnBinary );
-    assertEquals( decodeColumn.getColumnKeys().size() , 0 );
-    assertEquals( decodeColumn.getColumnSize() , 0 );
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.rowCount );
 
-    assertEquals( 20l , ( (PrimitiveObject)( decodeColumn.get(0).getRow() ) ).getLong() );
-    assertEquals( 20l , ( (PrimitiveObject)( decodeColumn.get(1).getRow() ) ).getLong() );
-    assertEquals( 20l , ( (PrimitiveObject)( decodeColumn.get(2).getRow() ) ).getLong() );
-    assertNull( decodeColumn.get(3).getRow() );
+    assertEquals( column.size() , 3 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getLong() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getLong() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getLong() );
+    assertNull( column.get(3).getRow() );
   }
 
   @Test
-  public void T_createBinary_float_1() throws IOException{
-    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new FloatObj( (float)0.1 ) , "hoge" , 3 );
+  public void T_createLong_equals_whenLoadSizeLessThanRowCount() throws IOException{
+    long value = 100L;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new LongObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.LONG );
 
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , 2 );
+
+    assertEquals( column.size() , 2 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getLong() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getLong() );
+    assertNull( column.get(2).getRow() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createLong_equals_whenLastLoadIndexEqualsRowCount() throws IOException{
+    long value = 100L;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new LongObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.LONG );
+    columnBinary.loadIndex = new int[]{0,0,1,2,2};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 5 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getLong() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getLong() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getLong() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getLong() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getLong() );
+    assertNull( column.get(5).getRow() );
+  }
+
+  @Test
+  public void T_createLong_equals_whenLastLoadIndexLessThanRowCount() throws IOException{
+    long value = 100L;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new LongObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.LONG );
+    columnBinary.loadIndex = new int[]{0,0,1};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 3 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getLong() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getLong() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getLong() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createLong_equals_whenLastLoadIndexGeraterThanRowCount() throws IOException{
+    long value = 100L;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new LongObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.LONG );
+    columnBinary.loadIndex = new int[]{0,0,1,2,2,3};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 6 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getLong() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getLong() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getLong() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getLong() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getLong() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(5).getRow() ) ).getLong() );
+    assertNull( column.get(6).getRow() );
+  }
+
+  @Test
+  public void T_createFloat_equals_whenLoadSizeEqualsRowCount() throws IOException{
+    float value = 100f;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new FloatObj( value ) , "hoge" , 3 );
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.FLOAT );
 
-    ConstantColumnBinaryMaker maker = new ConstantColumnBinaryMaker();
-    IColumn decodeColumn = maker.toColumn( columnBinary );
-    assertEquals( decodeColumn.getColumnKeys().size() , 0 );
-    assertEquals( decodeColumn.getColumnSize() , 0 );
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.rowCount );
 
-    assertEquals( (float)0.1 , ( (PrimitiveObject)( decodeColumn.get(0).getRow() ) ).getFloat() );
-    assertEquals( (float)0.1 , ( (PrimitiveObject)( decodeColumn.get(1).getRow() ) ).getFloat() );
-    assertEquals( (float)0.1 , ( (PrimitiveObject)( decodeColumn.get(2).getRow() ) ).getFloat() );
-    assertNull( decodeColumn.get(3).getRow() );
+    assertEquals( column.size() , 3 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getFloat() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getFloat() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getFloat() );
+    assertNull( column.get(3).getRow() );
   }
 
   @Test
-  public void T_createBinary_double_1() throws IOException{
-    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new DoubleObj( (double)0.1 ) , "hoge" , 3 );
+  public void T_createFloat_equals_whenLoadSizeLessThanRowCount() throws IOException{
+    float value = 100f;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new FloatObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.FLOAT );
 
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , 2 );
+
+    assertEquals( column.size() , 2 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getFloat() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getFloat() );
+    assertNull( column.get(2).getRow() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createFloat_equals_whenLoadSizeGreaterThanRowCount() throws IOException{
+    float value = 100f;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new FloatObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.FLOAT );
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , 4 );
+
+    assertEquals( column.size() , 4 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getFloat() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getFloat() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getFloat() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createFloat_equals_whenLastLoadIndexEqualsRowCount() throws IOException{
+    float value = 100f;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new FloatObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.FLOAT );
+    columnBinary.loadIndex = new int[]{0,0,1,2,2};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 5 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getFloat() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getFloat() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getFloat() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getFloat() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getFloat() );
+    assertNull( column.get(5).getRow() );
+  }
+
+  @Test
+  public void T_createFloat_equals_whenLastLoadIndexLessThanRowCount() throws IOException{
+    float value = 100f;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new FloatObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.FLOAT );
+    columnBinary.loadIndex = new int[]{0,0,1};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 3 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getFloat() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getFloat() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getFloat() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createFloat_equals_whenLastLoadIndexGeraterThanRowCount() throws IOException{
+    float value = 100f;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new FloatObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.FLOAT );
+    columnBinary.loadIndex = new int[]{0,0,1,2,2,3};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 6 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getFloat() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getFloat() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getFloat() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getFloat() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getFloat() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(5).getRow() ) ).getFloat() );
+    assertNull( column.get(6).getRow() );
+  }
+
+  @Test
+  public void T_createDouble_equals_whenLoadSizeEqualsRowCount() throws IOException{
+    double value = 100d;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new DoubleObj( value ) , "hoge" , 3 );
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.DOUBLE );
 
-    ConstantColumnBinaryMaker maker = new ConstantColumnBinaryMaker();
-    IColumn decodeColumn = maker.toColumn( columnBinary );
-    assertEquals( decodeColumn.getColumnKeys().size() , 0 );
-    assertEquals( decodeColumn.getColumnSize() , 0 );
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.rowCount );
 
-    assertEquals( (double)0.1 , ( (PrimitiveObject)( decodeColumn.get(0).getRow() ) ).getDouble() );
-    assertEquals( (double)0.1 , ( (PrimitiveObject)( decodeColumn.get(1).getRow() ) ).getDouble() );
-    assertEquals( (double)0.1 , ( (PrimitiveObject)( decodeColumn.get(2).getRow() ) ).getDouble() );
-    assertNull( decodeColumn.get(3).getRow() );
+    assertEquals( column.size() , 3 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getDouble() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getDouble() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getDouble() );
+    assertNull( column.get(3).getRow() );
   }
 
   @Test
-  public void T_createBinary_string_1() throws IOException{
-    String str = "hogehoge";
-    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new StringObj( str ) , "hoge" , 3 )
-;
+  public void T_createDouble_equals_whenLoadSizeLessThanRowCount() throws IOException{
+    double value = 100d;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new DoubleObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.DOUBLE );
 
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , 2 );
+
+    assertEquals( column.size() , 2 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getDouble() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getDouble() );
+    assertNull( column.get(2).getRow() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createDouble_equals_whenLoadSizeGreaterThanRowCount() throws IOException{
+    double value = 100d;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new DoubleObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.DOUBLE );
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , 4 );
+
+    assertEquals( column.size() , 4 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getDouble() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getDouble() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getDouble() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createDouble_equals_whenLastLoadIndexEqualsRowCount() throws IOException{
+    double value = 100d;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new DoubleObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.DOUBLE );
+    columnBinary.loadIndex = new int[]{0,0,1,2,2};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 5 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getDouble() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getDouble() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getDouble() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getDouble() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getDouble() );
+    assertNull( column.get(5).getRow() );
+  }
+
+  @Test
+  public void T_createDouble_equals_whenLastLoadIndexLessThanRowCount() throws IOException{
+    double value = 100d;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new DoubleObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.DOUBLE );
+    columnBinary.loadIndex = new int[]{0,0,1};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 3 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getDouble() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getDouble() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getDouble() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createDouble_equals_whenLastLoadIndexGeraterThanRowCount() throws IOException{
+    double value = 100d;
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new DoubleObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.DOUBLE );
+    columnBinary.loadIndex = new int[]{0,0,1,2,2,3};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 6 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getDouble() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getDouble() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getDouble() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getDouble() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getDouble() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(5).getRow() ) ).getDouble() );
+    assertNull( column.get(6).getRow() );
+  }
+
+  @Test
+  public void T_createString_equals_whenLoadSizeEqualsRowCount() throws IOException{
+    String value = "100";
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new StringObj( value ) , "hoge" , 3 );
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.STRING );
 
-    ConstantColumnBinaryMaker maker = new ConstantColumnBinaryMaker();
-    IColumn decodeColumn = maker.toColumn( columnBinary );
-    assertEquals( decodeColumn.getColumnKeys().size() , 0 );
-    assertEquals( decodeColumn.getColumnSize() , 0 );
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.rowCount );
 
-    assertEquals( str , ( (PrimitiveObject)( decodeColumn.get(0).getRow() ) ).getString() );
-    assertEquals( str , ( (PrimitiveObject)( decodeColumn.get(1).getRow() ) ).getString() );
-    assertEquals( str , ( (PrimitiveObject)( decodeColumn.get(2).getRow() ) ).getString() );
-    assertNull( decodeColumn.get(3).getRow() );
+    assertEquals( column.size() , 3 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() );
+    assertNull( column.get(3).getRow() );
   }
 
   @Test
-  public void T_createBinary_bytes_1() throws IOException{
-    String str = "hogehoge";
-    byte[] bytes = str.getBytes( "UTF-8" );
-    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new BytesObj( bytes ) , "hoge" , 3 )
-;
+  public void T_createString_equals_whenLoadSizeLessThanRowCount() throws IOException{
+    String value = "100";
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new StringObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.STRING );
 
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , 2 );
+
+    assertEquals( column.size() , 2 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() );
+    assertNull( column.get(2).getRow() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createString_equals_whenLoadSizeGreaterThanRowCount() throws IOException{
+    String value = "100";
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new StringObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.STRING );
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , 4 );
+
+    assertEquals( column.size() , 4 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createString_equals_whenLastLoadIndexEqualsRowCount() throws IOException{
+    String value = "100";
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new StringObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.STRING );
+    columnBinary.loadIndex = new int[]{0,0,1,2,2};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 5 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() );
+    assertNull( column.get(5).getRow() );
+  }
+
+  @Test
+  public void T_createString_equals_whenLastLoadIndexLessThanRowCount() throws IOException{
+    String value = "100";
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new StringObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.STRING );
+    columnBinary.loadIndex = new int[]{0,0,1};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 3 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createString_equals_whenLastLoadIndexGeraterThanRowCount() throws IOException{
+    String value = "100";
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new StringObj( value ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.STRING );
+    columnBinary.loadIndex = new int[]{0,0,1,2,2,3};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 6 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(5).getRow() ) ).getString() );
+    assertNull( column.get(6).getRow() );
+  }
+
+  @Test
+  public void T_createBytes_equals_whenLoadSizeEqualsRowCount() throws IOException{
+    String value = "100";
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new BytesObj( value.getBytes() ) , "hoge" , 3 );
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.BYTES );
 
-    ConstantColumnBinaryMaker maker = new ConstantColumnBinaryMaker();
-    IColumn decodeColumn = maker.toColumn( columnBinary );
-    assertEquals( decodeColumn.getColumnKeys().size() , 0 );
-    assertEquals( decodeColumn.getColumnSize() , 0 );
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.rowCount );
 
-    assertEquals( str , ( (PrimitiveObject)( decodeColumn.get(0).getRow() ) ).getString() );
-    assertEquals( str , ( (PrimitiveObject)( decodeColumn.get(1).getRow() ) ).getString() );
-    assertEquals( str , ( (PrimitiveObject)( decodeColumn.get(2).getRow() ) ).getString() );
-    assertNull( decodeColumn.get(3).getRow() );
+    assertEquals( column.size() , 3 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() );
+    assertNull( column.get(3).getRow() );
   }
 
   @Test
-  public void T_getPrimitiveObjectArray_1() throws IOException{
-    String str = "hogehoge";
-    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new StringObj( str ) , "hoge" , 3 )
-;
-
+  public void T_createBytes_equals_whenLoadSizeLessThanRowCount() throws IOException{
+    String value = "100";
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new BytesObj( value.getBytes() ) , "hoge" , 3 );
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
-    assertEquals( columnBinary.columnType , ColumnType.STRING );
+    assertEquals( columnBinary.columnType , ColumnType.BYTES );
 
-    ConstantColumnBinaryMaker maker = new ConstantColumnBinaryMaker();
-    IColumn decodeColumn = maker.toColumn( columnBinary );
-    assertEquals( decodeColumn.getColumnKeys().size() , 0 );
-    assertEquals( decodeColumn.getColumnSize() , 0 );
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , 2 );
 
-    PrimitiveObject[] array = decodeColumn.getPrimitiveObjectArray( 0 , 10 );
-    assertEquals( str ,  array[0].getString() );
-    assertEquals( str ,  array[1].getString() );
-    assertEquals( str ,  array[2].getString() );
-    for( int i = 3 ; i < 10 ; i++ ){
-      assertEquals( null ,  array[i] );
-    }
+    assertEquals( column.size() , 2 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() );
+    assertNull( column.get(2).getRow() );
+    assertNull( column.get(3).getRow() );
   }
 
   @Test
-  public void T_setPrimitiveObjectArray_1() throws IOException{
-    String str = "hogehoge";
-    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new StringObj( str ) , "hoge" , 3 )
-;
-
+  public void T_createBytes_equals_whenLoadSizeGreaterThanRowCount() throws IOException{
+    String value = "100";
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new BytesObj( value.getBytes() ) , "hoge" , 3 );
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
-    assertEquals( columnBinary.columnType , ColumnType.STRING );
+    assertEquals( columnBinary.columnType , ColumnType.BYTES );
 
-    ConstantColumnBinaryMaker maker = new ConstantColumnBinaryMaker();
-    IColumn decodeColumn = maker.toColumn( columnBinary );
-    assertEquals( decodeColumn.getColumnKeys().size() , 0 );
-    assertEquals( decodeColumn.getColumnSize() , 0 );
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , 4 );
 
-    MyAllocator allocator = new MyAllocator();
-    decodeColumn.setPrimitiveObjectArray( 0 , 10 , allocator );
+    assertEquals( column.size() , 4 );
 
-    assertEquals( str ,  allocator.array[0].getString() );
-    assertEquals( str ,  allocator.array[1].getString() );
-    assertEquals( str ,  allocator.array[2].getString() );
-    for( int i = 3 ; i < 10 ; i++ ){
-      assertEquals( null ,  allocator.array[i] );
-    }
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() );
+    assertNull( column.get(3).getRow() );
   }
 
-  private class MyAllocator implements IMemoryAllocator{
+  @Test
+  public void T_createBytes_equals_whenLastLoadIndexEqualsRowCount() throws IOException{
+    String value = "100";
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new BytesObj( value.getBytes() ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.BYTES );
+    columnBinary.loadIndex = new int[]{0,0,1,2,2};
 
-    public PrimitiveObject[] array = new PrimitiveObject[10];
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
 
-    @Override
-    public void setPrimitiveObject( final int index , final PrimitiveObject value ) throws IOException{
-      array[index] = value;
-    }
+    assertEquals( column.size() , 5 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() );
+    assertNull( column.get(5).getRow() );
+  }
+
+  @Test
+  public void T_createBytes_equals_whenLastLoadIndexLessThanRowCount() throws IOException{
+    String value = "100";
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new BytesObj( value.getBytes() ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.BYTES );
+    columnBinary.loadIndex = new int[]{0,0,1};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 3 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() );
+    assertNull( column.get(3).getRow() );
+  }
+
+  @Test
+  public void T_createBytes_equals_whenLastLoadIndexGeraterThanRowCount() throws IOException{
+    String value = "100";
+    ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new BytesObj( value.getBytes() ) , "hoge" , 3 );
+    assertEquals( columnBinary.columnName , "hoge" );
+    assertEquals( columnBinary.rowCount , 3 );
+    assertEquals( columnBinary.columnType , ColumnType.BYTES );
+    columnBinary.loadIndex = new int[]{0,0,1,2,2,3};
+
+    YosegiLoaderFactory factory = new YosegiLoaderFactory();
+    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+
+    assertEquals( column.size() , 6 );
+
+    assertEquals( value , ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() );
+    assertEquals( value , ( (PrimitiveObject)( column.get(5).getRow() ) ).getString() );
+    assertNull( column.get(6).getRow() );
   }
 
 }

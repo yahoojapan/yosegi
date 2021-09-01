@@ -41,11 +41,6 @@ public class YosegiSpreadLoader implements ISpreadLoader<IColumn> {
   }
 
   @Override
-  public LoadType getLoaderType() {
-    return LoadType.SPREAD;
-  }
-
-  @Override
   public int getLoadSize() {
     return loadSize;
   }

@@ -68,7 +68,7 @@ public final class ArrowLoaderFactoryUtil {
     public ILoader<ValueVector> createLoader(
         final ColumnBinary columnBinary ,
         final int loadSize ) throws IOException {
-      switch ( getLoadType( columnBinary ) ) {
+      switch ( getLoadType( columnBinary , loadSize ) ) {
         case UNION :
           return new ArrowUnionLoader(
               createValueVector( vector , allocator , columnName , ColumnType.UNION ) ,
@@ -106,7 +106,7 @@ public final class ArrowLoaderFactoryUtil {
     public ILoader<ValueVector> createLoader(
         final ColumnBinary columnBinary ,
         final int loadSize ) throws IOException {
-      switch ( getLoadType( columnBinary ) ) {
+      switch ( getLoadType( columnBinary , loadSize ) ) {
         case ARRAY :
           return new ArrowArrayLoader(
               createValueVector( vector , allocator , columnName , ColumnType.ARRAY ) ,
@@ -148,7 +148,7 @@ public final class ArrowLoaderFactoryUtil {
     public ILoader<ValueVector> createLoader(
         final ColumnBinary columnBinary ,
         final int loadSize ) throws IOException {
-      switch ( getLoadType( columnBinary ) ) {
+      switch ( getLoadType( columnBinary , loadSize ) ) {
         case SPREAD :
           return new ArrowMapLoader(
               createValueVector( vector , allocator , columnName , ColumnType.MAP ) ,
@@ -186,7 +186,7 @@ public final class ArrowLoaderFactoryUtil {
     public ILoader<ValueVector> createLoader(
         final ColumnBinary columnBinary ,
         final int loadSize ) throws IOException {
-      switch ( getLoadType( columnBinary ) ) {
+      switch ( getLoadType( columnBinary , loadSize ) ) {
         case SPREAD :
           return new ArrowStructLoader(
               createValueVector( vector , allocator , columnName , ColumnType.SPREAD ) ,
@@ -221,7 +221,7 @@ public final class ArrowLoaderFactoryUtil {
     public ILoader<ValueVector> createLoader(
         final ColumnBinary columnBinary ,
         final int loadSize ) throws IOException {
-      switch ( getLoadType( columnBinary ) ) {
+      switch ( getLoadType( columnBinary , loadSize ) ) {
         case SEQUENTIAL :
           return new ArrowSequentialBooleanLoader(
               createValueVector( vector , allocator , columnName , ColumnType.BOOLEAN ) ,
@@ -258,7 +258,7 @@ public final class ArrowLoaderFactoryUtil {
     public ILoader<ValueVector> createLoader(
         final ColumnBinary columnBinary ,
         final int loadSize ) throws IOException {
-      switch ( getLoadType( columnBinary ) ) {
+      switch ( getLoadType( columnBinary , loadSize ) ) {
         case SEQUENTIAL :
           return new ArrowSequentialDoubleLoader(
               createValueVector( vector , allocator , columnName , ColumnType.DOUBLE ) ,
@@ -295,7 +295,7 @@ public final class ArrowLoaderFactoryUtil {
     public ILoader<ValueVector> createLoader(
         final ColumnBinary columnBinary ,
         final int loadSize ) throws IOException {
-      switch ( getLoadType( columnBinary ) ) {
+      switch ( getLoadType( columnBinary , loadSize ) ) {
         case SEQUENTIAL :
           return new ArrowSequentialFloatLoader(
               createValueVector( vector , allocator , columnName , ColumnType.FLOAT ) ,
@@ -332,7 +332,7 @@ public final class ArrowLoaderFactoryUtil {
     public ILoader<ValueVector> createLoader(
         final ColumnBinary columnBinary ,
         final int loadSize ) throws IOException {
-      switch ( getLoadType( columnBinary ) ) {
+      switch ( getLoadType( columnBinary , loadSize ) ) {
         case SEQUENTIAL :
           return new ArrowSequentialByteLoader(
               createValueVector( vector , allocator , columnName , ColumnType.BYTE ) ,
@@ -369,7 +369,7 @@ public final class ArrowLoaderFactoryUtil {
     public ILoader<ValueVector> createLoader(
         final ColumnBinary columnBinary ,
         final int loadSize ) throws IOException {
-      switch ( getLoadType( columnBinary ) ) {
+      switch ( getLoadType( columnBinary , loadSize ) ) {
         case SEQUENTIAL :
           return new ArrowSequentialShortLoader(
               createValueVector( vector , allocator , columnName , ColumnType.SHORT ) ,
@@ -406,7 +406,7 @@ public final class ArrowLoaderFactoryUtil {
     public ILoader<ValueVector> createLoader(
         final ColumnBinary columnBinary ,
         final int loadSize ) throws IOException {
-      switch ( getLoadType( columnBinary ) ) {
+      switch ( getLoadType( columnBinary , loadSize ) ) {
         case SEQUENTIAL :
           return new ArrowSequentialIntegerLoader(
               createValueVector( vector , allocator , columnName , ColumnType.INTEGER ) ,
@@ -443,7 +443,7 @@ public final class ArrowLoaderFactoryUtil {
     public ILoader<ValueVector> createLoader(
         final ColumnBinary columnBinary ,
         final int loadSize ) throws IOException {
-      switch ( getLoadType( columnBinary ) ) {
+      switch ( getLoadType( columnBinary , loadSize ) ) {
         case SEQUENTIAL :
           return new ArrowSequentialLongLoader(
               createValueVector( vector , allocator , columnName , ColumnType.LONG ) ,
@@ -480,7 +480,7 @@ public final class ArrowLoaderFactoryUtil {
     public ILoader<ValueVector> createLoader(
         final ColumnBinary columnBinary ,
         final int loadSize ) throws IOException {
-      switch ( getLoadType( columnBinary ) ) {
+      switch ( getLoadType( columnBinary , loadSize ) ) {
         case SEQUENTIAL :
           return new ArrowSequentialStringLoader(
               createValueVector( vector , allocator , columnName , ColumnType.STRING ) ,
@@ -517,7 +517,7 @@ public final class ArrowLoaderFactoryUtil {
     public ILoader<ValueVector> createLoader(
         final ColumnBinary columnBinary ,
         final int loadSize ) throws IOException {
-      switch ( getLoadType( columnBinary ) ) {
+      switch ( getLoadType( columnBinary , loadSize ) ) {
         case SEQUENTIAL :
           return new ArrowSequentialBytesLoader(
               createValueVector( vector , allocator , columnName , ColumnType.STRING ) ,

@@ -48,7 +48,7 @@ public interface IColumnBinaryMaker {
       final IMemoryAllocator allocator ) throws IOException;
 
   // remove default
-  default LoadType getLoadType( final ColumnBinary columnBinary ) {
+  default LoadType getLoadType( final ColumnBinary columnBinary , final int loadSize ) {
     return LoadType.SEQUENTIAL;
   }
 

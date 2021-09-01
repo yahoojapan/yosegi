@@ -50,11 +50,6 @@ public class ArrowArrayLoader implements IArrayLoader<ValueVector> {
   }
 
   @Override
-  public LoadType getLoaderType() {
-    return LoadType.ARRAY;
-  }
-
-  @Override
   public int getLoadSize() {
     return loadSize;
   }

@@ -27,9 +27,9 @@ import java.io.IOException;
 public interface ILoaderFactory<T> {
 
   default LoadType getLoadType(
-      final ColumnBinary columnBinary ) throws IOException {
+      final ColumnBinary columnBinary , final int loadSize ) throws IOException {
     IColumnBinaryMaker maker = FindColumnBinaryMaker.get( columnBinary.makerClassName );
-    return maker.getLoadType( columnBinary );
+    return maker.getLoadType( columnBinary , loadSize );
   }
 
   /**

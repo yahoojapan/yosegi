@@ -286,7 +286,7 @@ public class OptimizedNullArrayStringColumnBinaryMaker implements IColumnBinaryM
   }
 
   @Override
-  public LoadType getLoadType( final ColumnBinary columnBinary ) {
+  public LoadType getLoadType( final ColumnBinary columnBinary , final int loadSize ) {
     return LoadType.DICTIONARY;
   }
 

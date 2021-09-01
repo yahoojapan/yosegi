@@ -31,29 +31,18 @@ import jp.co.yahoo.yosegi.blockindex.LongRangeBlockIndex;
 import jp.co.yahoo.yosegi.blockindex.ShortRangeBlockIndex;
 import jp.co.yahoo.yosegi.blockindex.StringRangeBlockIndex;
 import jp.co.yahoo.yosegi.compressor.DefaultCompressor;
+import jp.co.yahoo.yosegi.inmemory.IConstLoader;
+import jp.co.yahoo.yosegi.inmemory.ILoader;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
-import jp.co.yahoo.yosegi.message.objects.BooleanObj;
-import jp.co.yahoo.yosegi.message.objects.ByteObj;
-import jp.co.yahoo.yosegi.message.objects.BytesObj;
-import jp.co.yahoo.yosegi.message.objects.DoubleObj;
-import jp.co.yahoo.yosegi.message.objects.FloatObj;
-import jp.co.yahoo.yosegi.message.objects.IntegerObj;
-import jp.co.yahoo.yosegi.message.objects.LongObj;
+import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
+import jp.co.yahoo.yosegi.inmemory.LoadType;
+import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
-import jp.co.yahoo.yosegi.message.objects.ShortObj;
-import jp.co.yahoo.yosegi.message.objects.StringObj;
-import jp.co.yahoo.yosegi.message.objects.Utf8BytesLinkObj;
 import jp.co.yahoo.yosegi.spread.analyzer.IColumnAnalizeResult;
-import jp.co.yahoo.yosegi.spread.column.CellMakerFactory;
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
 import jp.co.yahoo.yosegi.spread.column.ICell;
-import jp.co.yahoo.yosegi.spread.column.ICellMaker;
-import jp.co.yahoo.yosegi.spread.column.ICellManager;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
-import jp.co.yahoo.yosegi.spread.column.PrimitiveCell;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveColumn;
-import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
-import jp.co.yahoo.yosegi.spread.column.filter.INullFilter;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -78,79 +67,187 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
 
   @Override
   public IColumn toColumn( final ColumnBinary columnBinary ) throws IOException {
-    ICellManager cellManager;
+    int loadCount = columnBinary.rowCount;
+    if ( columnBinary.loadIndex != null ) {
+      loadCount = columnBinary.loadIndex.length;
+    }
+    return new YosegiLoaderFactory().create(
+        columnBinary , loadCount );
+  }
 
+  @Override
+  public LoadType getLoadType( final ColumnBinary columnBinary , final int loadSize ) {
+    int needLength = loadSize;
+    if ( columnBinary.loadIndex != null ) {
+      needLength = columnBinary.loadIndex[columnBinary.loadIndex.length - 1];
+    }
+    if ( needLength <= columnBinary.rowCount ) {
+      return LoadType.CONST;
+    } else {
+      return LoadType.SEQUENTIAL;
+    }
+  }
+
+  private void loadFromConst(
+      final ColumnBinary columnBinary , final IConstLoader loader ) throws IOException {
     ByteBuffer wrapBuffer = ByteBuffer.wrap(
         columnBinary.binary , columnBinary.binaryStart , columnBinary.binaryLength );
     switch ( columnBinary.columnType ) {
       case BOOLEAN:
-        if ( wrapBuffer.get() == 1 ) {
-          cellManager = new ConstantCellManager(
-              columnBinary.columnType , new BooleanObj( true ) , columnBinary.rowCount );
-        } else {
-          cellManager = new ConstantCellManager(
-              columnBinary.columnType , new BooleanObj( false ) , columnBinary.rowCount );
-        }
+        loader.setConstFromBoolean( wrapBuffer.get() == 1 );
         break;
       case BYTE:
-        byte byteValue = wrapBuffer.get();
-        cellManager = new ConstantCellManager(
-            columnBinary.columnType , new ByteObj( byteValue ) , columnBinary.rowCount );
+        loader.setConstFromByte( wrapBuffer.get() );
         break;
       case SHORT:
-        short shortValue = wrapBuffer.getShort();
-        cellManager = new ConstantCellManager(
-            columnBinary.columnType , new ShortObj( shortValue ) , columnBinary.rowCount );
+        loader.setConstFromShort( wrapBuffer.getShort() );
         break;
       case INTEGER:
-        int intValue = wrapBuffer.getInt();
-        cellManager = new ConstantCellManager(
-            columnBinary.columnType , new IntegerObj( intValue ) , columnBinary.rowCount );
+        loader.setConstFromInteger( wrapBuffer.getInt() );
         break;
       case LONG:
-        long longValue = wrapBuffer.getLong();
-        cellManager = new ConstantCellManager(
-            columnBinary.columnType , new LongObj( longValue ) , columnBinary.rowCount );
+        loader.setConstFromLong( wrapBuffer.getLong() );
         break;
       case FLOAT:
-        float floatValue = wrapBuffer.getFloat();
-        cellManager = new ConstantCellManager(
-            columnBinary.columnType ,
-            new FloatObj( floatValue ) ,
-            columnBinary.rowCount );
+        loader.setConstFromFloat( wrapBuffer.getFloat() );
         break;
       case DOUBLE:
-        double doubleValue = wrapBuffer.getDouble();
-        cellManager = new ConstantCellManager(
-            columnBinary.columnType ,
-            new DoubleObj( doubleValue ) ,
-            columnBinary.rowCount );
+        loader.setConstFromDouble( wrapBuffer.getDouble() );
         break;
       case STRING:
+      case BYTES:
         int stringLength = wrapBuffer.getInt();
         byte[] stringBytes = new byte[stringLength];
         wrapBuffer.get( stringBytes );
-        cellManager = new ConstantCellManager(
-            columnBinary.columnType ,
-            new Utf8BytesLinkObj( stringBytes , 0 , stringBytes.length ) ,
-            columnBinary.rowCount );
-        String string = new String( stringBytes , 0 , stringBytes.length , "UTF-8" );
-        break;
-      case BYTES:
-        int byteLength = wrapBuffer.getInt();
-        byte[] byteBytes = new byte[byteLength];
-        wrapBuffer.get( byteBytes );
-        cellManager = new ConstantCellManager(
-            columnBinary.columnType ,
-            new BytesObj( byteBytes , 0 , byteBytes.length ) ,
-            columnBinary.rowCount );
+        loader.setConstFromBytes( stringBytes , 0 , stringLength );
         break;
       default:
         throw new IOException( "Unknown primitive type." );
     }
-    IColumn result = new PrimitiveColumn( columnBinary.columnType , columnBinary.columnName );
-    result.setCellManager( cellManager );
-    return result;
+  }
+
+  abstract class SequentialLoadUtil {
+
+    abstract void setValue( final int index , final ISequentialLoader loader ) throws IOException;
+
+    public void set(
+        final int rowCount ,
+        final ISequentialLoader loader ,
+        final int[] loadIndex ) throws IOException {
+      if ( loadIndex == null ) {
+        for ( int i = 0 ; i < loader.getLoadSize() ; i++ ) {
+          if ( i < rowCount ) {
+            setValue( i , loader );
+          } else {
+            loader.setNull(i);
+          }
+        }
+      } else {
+        for ( int i : loadIndex ) {
+          if ( i < rowCount ) {
+            setValue( i , loader );
+          } else {
+            loader.setNull(i);
+          }
+        }
+      }
+    }
+  }
+
+  private void loadFromSequential(
+      final ColumnBinary columnBinary , final ISequentialLoader loader ) throws IOException {
+    ByteBuffer wrapBuffer = ByteBuffer.wrap(
+        columnBinary.binary , columnBinary.binaryStart , columnBinary.binaryLength );
+    SequentialLoadUtil util = null;
+    switch ( columnBinary.columnType ) {
+      case BOOLEAN:
+        boolean booleanValue = wrapBuffer.get() == 1;
+        util = new SequentialLoadUtil() {
+          void setValue( int index , ISequentialLoader loader ) throws IOException {
+            loader.setBoolean( index , booleanValue );
+          }
+        };
+        break;
+      case BYTE:
+        byte byteValue = wrapBuffer.get();
+        util = new SequentialLoadUtil() {
+          void setValue( int index , ISequentialLoader loader ) throws IOException {
+            loader.setByte( index , byteValue );
+          }
+        };
+        break;
+      case SHORT:
+        short shortValue = wrapBuffer.getShort();
+        util = new SequentialLoadUtil() {
+          void setValue( int index , ISequentialLoader loader ) throws IOException {
+            loader.setShort( index , shortValue );
+          }
+        };
+        break;
+      case INTEGER:
+        int intValue = wrapBuffer.getInt();
+        util = new SequentialLoadUtil() {
+          void setValue( int index , ISequentialLoader loader ) throws IOException {
+            loader.setInteger( index , intValue );
+          }
+        };
+        break;
+      case LONG:
+        long longValue = wrapBuffer.getLong();
+        util = new SequentialLoadUtil() {
+          void setValue( int index , ISequentialLoader loader ) throws IOException {
+            loader.setLong( index , longValue );
+          }
+        };
+        break;
+      case FLOAT:
+        float floatValue = wrapBuffer.getFloat();
+        util = new SequentialLoadUtil() {
+          void setValue( int index , ISequentialLoader loader ) throws IOException {
+            loader.setFloat( index , floatValue );
+          }
+        };
+        break;
+      case DOUBLE:
+        double doubleValue = wrapBuffer.getDouble();
+        util = new SequentialLoadUtil() {
+          void setValue( int index , ISequentialLoader loader ) throws IOException {
+            loader.setDouble( index , doubleValue );
+          }
+        };
+        break;
+      case STRING:
+      case BYTES:
+        int stringLength = wrapBuffer.getInt();
+        byte[] stringBytes = new byte[stringLength];
+        wrapBuffer.get( stringBytes );
+        util = new SequentialLoadUtil() {
+          void setValue( int index , ISequentialLoader loader ) throws IOException {
+            loader.setBytes( index , stringBytes , 0 , stringLength );
+          }
+        };
+        break;
+      default:
+        throw new IOException( "Unknown primitive type." );
+    }
+    util.set( columnBinary.rowCount , loader , columnBinary.loadIndex );
+  }
+
+  @Override
+  public void load(
+      final ColumnBinary columnBinary , final ILoader loader ) throws IOException {
+    if ( getLoadType( columnBinary , loader.getLoadSize() ) == LoadType.CONST ) {
+      if ( loader.getLoaderType() != LoadType.CONST ) {
+        throw new IOException( "Loader type is not CONST." );
+      }
+      loadFromConst( columnBinary , (IConstLoader)loader );
+    } else {
+      if ( loader.getLoaderType() != LoadType.SEQUENTIAL ) {
+        throw new IOException( "Loader type is not SEQUENTIAL." );
+      }
+      loadFromSequential( columnBinary , (ISequentialLoader)loader );
+    }
+    loader.finish();
   }
 
   @Override
@@ -268,87 +365,6 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
         currentNode.disable();
         break;
     }
-  }
-
-  public class ConstantCellManager implements ICellManager<ICell> {
-
-    private final ColumnType columnType;
-    private final ICell cell;
-    private final PrimitiveObject value;
-    private final int length;
-
-    /**
-     * Create a Column from a given ColumnBinary.
-     */
-    public ConstantCellManager(
-        final ColumnType columnType ,
-        final PrimitiveObject value ,
-        final int length ) throws IOException {
-      this.columnType = columnType;
-      this.value = value;
-      this.length = length;
-      ICellMaker cellMaker = CellMakerFactory.getCellMaker( columnType );
-      cell = cellMaker.create( value );
-    }
-
-    @Override
-    public void add( final ICell cell , final int index ) {
-      throw new UnsupportedOperationException( "Constant column is read only." );
-    }
-
-    @Override
-    public ICell get( final int index , final ICell defaultCell ) {
-      if ( length <= index ) {
-        return defaultCell;
-      }
-
-      return cell;
-    }
-
-    @Override
-    public int size() {
-      return length;
-    }
-
-    @Override
-    public void clear() {}
-
-    @Override
-    public PrimitiveObject[] getPrimitiveObjectArray(
-        final int start ,
-        final int length ) {
-      PrimitiveObject[] result = new PrimitiveObject[length];
-      int loopEnd = ( start + length );
-      for ( int i = start , index = 0 ; i < loopEnd ; i++ , index++ ) {
-        if ( i < this.length ) {
-          result[index] = value;
-        }
-      }
-      return result;
-    }
-
-    @Override
-    public void setPrimitiveObjectArray(
-        final int start ,
-        final int length ,
-        final IMemoryAllocator allocator ) {
-      int loopEnd = ( start + length );
-      for ( int i = start , index = 0 ; i < loopEnd ; i++ , index++ ) {
-        if ( this.length <= i ) {
-          allocator.setNull( index );
-        } else {
-          try {
-            allocator.setPrimitiveObject( index , value );
-          } catch ( IOException ex ) {
-            allocator.setNull( index );
-          }
-        }
-      }
-      for ( int i = loopEnd ; i < ( start + length ) ; i++ ) {
-        allocator.setNull( i );
-      }
-    }
-
   }
 
   /**
