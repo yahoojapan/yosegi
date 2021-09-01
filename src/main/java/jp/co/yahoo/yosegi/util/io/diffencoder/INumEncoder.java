@@ -19,7 +19,9 @@
 package jp.co.yahoo.yosegi.util.io.diffencoder;
 
 import jp.co.yahoo.yosegi.inmemory.IDictionary;
+import jp.co.yahoo.yosegi.inmemory.IDictionaryLoader;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
+import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 
 import java.io.IOException;
@@ -70,6 +72,26 @@ public interface INumEncoder {
       final boolean[] isNullArray ,
       final ByteOrder order ,
       final IMemoryAllocator allocator ,
-      final int startIndex ) throws IOException; 
+      final int startIndex ) throws IOException;
 
+  void setSequentialLoader(
+          final byte[] buffer,
+          final int start,
+          final int rows,
+          final boolean[] isNullArray,
+          final ByteOrder order,
+          final ISequentialLoader loader,
+          final int startIndex
+  ) throws IOException;
+
+  void setDictionaryLoader(
+          final byte[] buffer,
+          final int start,
+          final int rows,
+          final boolean[] isNullArray,
+          final ByteOrder order,
+          final IDictionaryLoader loader,
+          final int startIndex,
+          final int[] loadIndexArray
+  ) throws IOException;
 }

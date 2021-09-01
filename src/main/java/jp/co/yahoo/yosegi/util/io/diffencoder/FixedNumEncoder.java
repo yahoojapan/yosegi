@@ -19,7 +19,9 @@
 package jp.co.yahoo.yosegi.util.io.diffencoder;
 
 import jp.co.yahoo.yosegi.inmemory.IDictionary;
+import jp.co.yahoo.yosegi.inmemory.IDictionaryLoader;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
+import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
 import jp.co.yahoo.yosegi.message.objects.LongObj;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.util.io.IReadSupporter;
@@ -144,4 +146,99 @@ public class FixedNumEncoder implements INumEncoder {
     }
   }
 
+  @Override
+  public void setSequentialLoader(
+      final byte[] buffer,
+      final int start,
+      final int rows,
+      final boolean[] isNullArray,
+      final ByteOrder order,
+      final ISequentialLoader loader,
+      final int startIndex)
+      throws IOException {
+    IReadSupporter wrapBuffer =
+        ByteBufferSupporterFactory.createReadSupporter(buffer, start, calcBinarySize(rows), order);
+    long value = wrapBuffer.getLong();
+    int index = 0;
+    for (; index < startIndex; index++) {
+      loader.setNull(index);
+    }
+    for (int i = 0; i < isNullArray.length; i++, index++) {
+      if (isNullArray[i]) {
+        loader.setNull(index);
+      } else {
+        loader.setLong(index, value);
+      }
+    }
+    // NOTE: null padding up to load size
+    for (int i = index; i < loader.getLoadSize(); i++) {
+      loader.setNull(i);
+    }
+  }
+
+  @Override
+  public void setDictionaryLoader(
+      final byte[] buffer,
+      final int start,
+      final int rows,
+      final boolean[] isNullArray,
+      final ByteOrder order,
+      final IDictionaryLoader loader,
+      final int startIndex,
+      final int[] loadIndexArray)
+      throws IOException {
+    IReadSupporter wrapBuffer =
+        ByteBufferSupporterFactory.createReadSupporter(buffer, start, calcBinarySize(rows), order);
+    long value = wrapBuffer.getLong();
+
+    // NOTE: Calculate dictionarySize
+    int dictionarySize = 0;
+    int previousLoadIndex = -1;
+    int lastIndex = startIndex + isNullArray.length - 1;
+    for (int loadIndex : loadIndexArray) {
+      if (loadIndex < 0) {
+        throw new IOException("Index must be equal to or greater than 0.");
+      } else if (loadIndex < previousLoadIndex) {
+        throw new IOException("Index must be equal to or greater than the previous number.");
+      }
+      if (loadIndex > lastIndex) {
+        break;
+      }
+      if (loadIndex >= startIndex && !isNullArray[loadIndex - startIndex]) {
+        if (previousLoadIndex != loadIndex) {
+          dictionarySize++;
+        }
+      }
+      previousLoadIndex = loadIndex;
+    }
+    loader.createDictionary(dictionarySize);
+
+    // NOTE:
+    //   Set value to dict: dictionaryIndex, value
+    //   Set dictionaryIndex: loadIndexArrayOffset, dictionaryIndex
+    previousLoadIndex = -1; // NOTE: reset
+    int loadIndexArrayOffset = 0;
+    int dictionaryIndex = -1;
+    for (int loadIndex : loadIndexArray) {
+      if (loadIndex > lastIndex) {
+        break;
+      }
+      if (loadIndex < startIndex || isNullArray[loadIndex - startIndex]) {
+        loader.setNull(loadIndexArrayOffset);
+      } else {
+        if (previousLoadIndex != loadIndex) {
+          dictionaryIndex++;
+          loader.setLongToDic(dictionaryIndex, value);
+        }
+        loader.setDictionaryIndex(loadIndexArrayOffset, dictionaryIndex);
+      }
+      previousLoadIndex = loadIndex;
+      loadIndexArrayOffset++;
+    }
+
+    // NOTE: null padding up to load size
+    for (int i = loadIndexArrayOffset; i < loader.getLoadSize(); i++) {
+      loader.setNull(i);
+    }
+  }
 }
