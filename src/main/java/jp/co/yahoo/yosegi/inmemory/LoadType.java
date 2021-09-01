@@ -26,6 +26,7 @@ public enum LoadType {
   ARRAY,
   UNION,
 
+  CONST,
   SEQUENTIAL,
   DICTIONARY,
 

@@ -29,19 +29,23 @@ public class YosegiLoaderFactory implements ILoaderFactory<IColumn> {
   public ILoader<IColumn> createLoader(
       final ColumnBinary columnBinary ,
       final int loadSize ) throws IOException {
-    switch ( getLoadType( columnBinary ) ) {
+    switch ( getLoadType( columnBinary , loadSize ) ) {
       case NULL :
         return new YosegiNullLoader( loadSize );
+
       case ARRAY :
         return new YosegiArrayLoader( columnBinary , loadSize );
       case SPREAD :
         return new YosegiSpreadLoader( columnBinary , loadSize );
+
+      case CONST :
+        return new YosegiConstLoader( columnBinary , loadSize );
       case SEQUENTIAL :
         return new YosegiSequentialLoader( columnBinary , loadSize );
       case DICTIONARY :
         return new YosegiDictionaryLoader( columnBinary , loadSize );
       default: throw new IOException(
-          "This type is not supported : " + getLoadType( columnBinary ) );
+          "This type is not supported : " + getLoadType( columnBinary , loadSize ) );
     }
   }
 

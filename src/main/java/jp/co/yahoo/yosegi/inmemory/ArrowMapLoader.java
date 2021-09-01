@@ -50,11 +50,6 @@ public class ArrowMapLoader implements ISpreadLoader<ValueVector> {
   }
 
   @Override
-  public LoadType getLoaderType() {
-    return LoadType.SPREAD;
-  }
-
-  @Override
   public int getLoadSize() {
     return loadSize;
   }

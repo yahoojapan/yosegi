@@ -24,6 +24,11 @@ import java.io.IOException;
 
 public interface ISpreadLoader<T> extends ILoader<T> {
 
+  @Override
+  default LoadType getLoaderType() {
+    return LoadType.SPREAD;
+  }
+
   void loadChild(
       final ColumnBinary columnBinary , final int loadSize ) throws IOException;
 

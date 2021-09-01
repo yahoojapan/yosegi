@@ -101,11 +101,6 @@ public class YosegiArrayLoader implements IArrayLoader<IColumn> {
   }
 
   @Override
-  public LoadType getLoaderType() {
-    return LoadType.ARRAY;
-  }
-
-  @Override
   public int getLoadSize() {
     return loadSize;
   }
