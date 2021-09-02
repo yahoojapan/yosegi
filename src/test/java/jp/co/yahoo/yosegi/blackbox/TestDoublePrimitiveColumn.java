@@ -53,8 +53,8 @@ public class TestDoublePrimitiveColumn {
 
   public static Stream<Arguments> D_doubleColumnBinaryMaker() throws IOException {
     return Stream.of(
-            arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpDoubleColumnBinaryMaker")
-    );
+        arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDoubleColumnBinaryMaker"),
+        arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpDoubleColumnBinaryMaker"));
   }
 
   public IColumn createNotNullColumn(final String targetClassName) throws IOException {
