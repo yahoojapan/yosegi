@@ -19,10 +19,19 @@
 package jp.co.yahoo.yosegi.inmemory;
 
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
+import jp.co.yahoo.yosegi.spread.column.ColumnType;
 
 import java.io.IOException;
 
 public interface IUnionLoader<T> extends ILoader<T> {
+
+  @Override
+  default LoadType getLoaderType() {
+    return LoadType.UNION;
+  }
+
+  void setIndexAndColumnType(
+      final int index , final ColumnType columnType ) throws IOException;
 
   void loadChild(
       final ColumnBinary columnBinary , final int childLoadSize ) throws IOException;

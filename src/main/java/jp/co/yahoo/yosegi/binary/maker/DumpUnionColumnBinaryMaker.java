@@ -27,7 +27,11 @@ import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
+import jp.co.yahoo.yosegi.inmemory.ILoader;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
+import jp.co.yahoo.yosegi.inmemory.IUnionLoader;
+import jp.co.yahoo.yosegi.inmemory.LoadType;
+import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 import jp.co.yahoo.yosegi.spread.analyzer.IColumnAnalizeResult;
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
 import jp.co.yahoo.yosegi.spread.column.ColumnTypeFactory;
@@ -194,6 +198,56 @@ public class DumpUnionColumnBinaryMaker implements IColumnBinaryMaker {
         columnBinary.columnName ,
         columnBinary.columnType ,
         new UnionColumnManager( columnBinary ) );
+  }
+
+  @Override
+  public LoadType getLoadType( final ColumnBinary columnBinary , final int loadSize ) {
+    return LoadType.UNION;
+  }
+
+  @Override
+  public void load(
+      final ColumnBinary columnBinary , final ILoader loader ) throws IOException {
+    if ( loader.getLoaderType() != LoadType.UNION ) {
+      throw new IOException( "Loader type is not UNION." );
+    }
+    IUnionLoader unionLoader = (IUnionLoader)loader;
+    for ( ColumnBinary child : columnBinary.columnBinaryList ) {
+      unionLoader.loadChild( child , loader.getLoadSize() );
+    }
+
+    ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
+    byte[] cellBinary = compressor.decompress(
+        columnBinary.binary , columnBinary.binaryStart , columnBinary.binaryLength );
+    ByteBuffer wrapBuffer = ByteBuffer.wrap( cellBinary );
+
+    if ( columnBinary.loadIndex == null ) {
+      for ( int i = 0 ; i < cellBinary.length ; i++ ) {
+        ColumnType columnType = ColumnTypeFactory.getColumnTypeFromByte( wrapBuffer.get() );
+        unionLoader.setIndexAndColumnType( i , columnType );
+      }
+      for ( int i = cellBinary.length ; i < loader.getLoadSize() ; i++ ) {
+        unionLoader.setNull( i );
+      }
+    } else {
+      int currentIndex = 0;
+      for ( int index : columnBinary.loadIndex ) {
+        if ( cellBinary.length <= index ) {
+          unionLoader.setNull( currentIndex );
+        } else {
+          ColumnType columnType = ColumnTypeFactory.getColumnTypeFromByte(
+              wrapBuffer.get( index ) );
+          if ( columnType == ColumnType.NULL ) {
+            unionLoader.setNull( currentIndex );
+          } else {
+            unionLoader.setIndexAndColumnType( currentIndex , columnType );
+          }
+        }
+        currentIndex++;
+      }
+    }
+
+    unionLoader.finish();
   }
 
   @Override
