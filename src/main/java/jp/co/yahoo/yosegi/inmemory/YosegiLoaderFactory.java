@@ -33,6 +33,8 @@ public class YosegiLoaderFactory implements ILoaderFactory<IColumn> {
       case NULL :
         return new YosegiNullLoader( loadSize );
 
+      case UNION :
+        return new YosegiUnionLoader( columnBinary , loadSize );
       case ARRAY :
         return new YosegiArrayLoader( columnBinary , loadSize );
       case SPREAD :
