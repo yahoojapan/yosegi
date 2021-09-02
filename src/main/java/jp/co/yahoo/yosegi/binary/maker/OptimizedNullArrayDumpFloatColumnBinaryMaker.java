@@ -27,7 +27,11 @@ import jp.co.yahoo.yosegi.blockindex.FloatRangeBlockIndex;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
+import jp.co.yahoo.yosegi.inmemory.ILoader;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
+import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
+import jp.co.yahoo.yosegi.inmemory.LoadType;
+import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 import jp.co.yahoo.yosegi.message.objects.FloatObj;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.analyzer.FloatColumnAnalizeResult;
@@ -184,19 +188,59 @@ public class OptimizedNullArrayDumpFloatColumnBinaryMaker implements IColumnBina
   }
 
   @Override
-  public IColumn toColumn( final ColumnBinary columnBinary ) throws IOException {
-    ByteBuffer wrapBuffer = ByteBuffer.wrap(
-        columnBinary.binary , columnBinary.binaryStart , columnBinary.binaryLength );
-    Float min = Float.valueOf( wrapBuffer.getFloat() );
-    Float max = Float.valueOf( wrapBuffer.getFloat() );
+  public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
+    return new YosegiLoaderFactory().create(columnBinary, columnBinary.rowCount);
+  }
 
-    return new LazyColumn(
-      columnBinary.columnName ,
-      columnBinary.columnType ,
-      new ColumnManager(
-        columnBinary
-      )
-    );
+  @Override
+  public LoadType getLoadType(final ColumnBinary columnBinary, final int loadSize) {
+    return LoadType.SEQUENTIAL;
+  }
+
+  private void loadFromColumnBinary(final ColumnBinary columnBinary, final ISequentialLoader loader)
+      throws IOException {
+    int start = columnBinary.binaryStart + (Float.BYTES * 2);
+    int length = columnBinary.binaryLength - (Float.BYTES * 2);
+
+    ICompressor compressor = FindCompressor.get(columnBinary.compressorClassName);
+    byte[] binary = compressor.decompress(columnBinary.binary, start, length);
+
+    ByteBuffer wrapBuffer = ByteBuffer.wrap(binary, 0, binary.length);
+
+    ByteOrder order = wrapBuffer.get() == (byte) 0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+    int startIndex = wrapBuffer.getInt();
+    int nullIndexLength = wrapBuffer.getInt();
+    int valueBinaryLength = binary.length - META_LENGTH - nullIndexLength;
+
+    boolean[] isNullArray = NullBinaryEncoder.toIsNullArray(binary, META_LENGTH, nullIndexLength);
+
+    IReadSupporter valueReader =
+        ByteBufferSupporterFactory.createReadSupporter(
+            binary, META_LENGTH + nullIndexLength, valueBinaryLength, order);
+    int index = 0;
+    for (; index < startIndex; index++) {
+      loader.setNull(index);
+    }
+    for (int i = 0; i < isNullArray.length; i++, index++) {
+      if (isNullArray[i]) {
+        loader.setNull(index);
+      } else {
+        loader.setFloat(index, valueReader.getFloat());
+      }
+    }
+    // NOTE: null padding up to load size
+    for (int i = index; i < loader.getLoadSize(); i++) {
+      loader.setNull(i);
+    }
+  }
+
+  @Override
+  public void load(final ColumnBinary columnBinary, final ILoader loader) throws IOException {
+    if (loader.getLoaderType() != LoadType.SEQUENTIAL) {
+      throw new IOException("Loader type is not SEQUENTIAL");
+    }
+    loadFromColumnBinary(columnBinary, (ISequentialLoader) loader);
+    loader.finish();
   }
 
   @Override
