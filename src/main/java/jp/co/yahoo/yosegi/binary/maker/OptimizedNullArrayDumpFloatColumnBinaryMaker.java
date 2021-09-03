@@ -189,7 +189,9 @@ public class OptimizedNullArrayDumpFloatColumnBinaryMaker implements IColumnBina
 
   @Override
   public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
-    return new YosegiLoaderFactory().create(columnBinary, columnBinary.rowCount);
+    int loadCount =
+        (columnBinary.loadIndex == null) ? columnBinary.rowCount : columnBinary.loadIndex.length;
+    return new YosegiLoaderFactory().create(columnBinary, loadCount);
   }
 
   @Override
@@ -234,12 +236,74 @@ public class OptimizedNullArrayDumpFloatColumnBinaryMaker implements IColumnBina
     }
   }
 
+  private void loadFromExpandColumnBinary(
+      final ColumnBinary columnBinary, final ISequentialLoader loader) throws IOException {
+    int start = columnBinary.binaryStart + (Float.BYTES * 2);
+    int length = columnBinary.binaryLength - (Float.BYTES * 2);
+
+    ICompressor compressor = FindCompressor.get(columnBinary.compressorClassName);
+    byte[] binary = compressor.decompress(columnBinary.binary, start, length);
+
+    ByteBuffer wrapBuffer = ByteBuffer.wrap(binary, 0, binary.length);
+
+    ByteOrder order = wrapBuffer.get() == (byte) 0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+    int startIndex = wrapBuffer.getInt();
+    int nullIndexLength = wrapBuffer.getInt();
+    int valueBinaryLength = binary.length - META_LENGTH - nullIndexLength;
+
+    boolean[] isNullArray = NullBinaryEncoder.toIsNullArray(binary, META_LENGTH, nullIndexLength);
+
+    IReadSupporter valueReader =
+        ByteBufferSupporterFactory.createReadSupporter(
+            binary, META_LENGTH + nullIndexLength, valueBinaryLength, order);
+
+    // NOTE:
+    //   Set: loadIndexArrayOffset, value
+    int lastIndex = startIndex + isNullArray.length - 1;
+    int previousLoadIndex = -1;
+    int readOffset = startIndex;
+    int loadIndexArrayOffset = 0;
+    float value = 0;
+    for (int loadIndex : columnBinary.loadIndex) {
+      if (loadIndex < 0) {
+        throw new IOException("Index must be equal to or greater than 0.");
+      } else if (loadIndex < previousLoadIndex) {
+        throw new IOException("Index must be equal to or greater than the previous number.");
+      }
+      if (loadIndex > lastIndex) {
+        break;
+      }
+      // NOTE: read skip
+      for (; readOffset <= loadIndex; readOffset++) {
+        if (readOffset >= startIndex && !isNullArray[readOffset - startIndex]) {
+          value = valueReader.getFloat();
+        }
+      }
+      if (loadIndex < startIndex || isNullArray[loadIndex - startIndex]) {
+        loader.setNull(loadIndexArrayOffset);
+      } else {
+        loader.setFloat(loadIndexArrayOffset, value);
+      }
+      previousLoadIndex = loadIndex;
+      loadIndexArrayOffset++;
+    }
+
+    // NOTE: null padding up to load size
+    for (int i = loadIndexArrayOffset; i < loader.getLoadSize(); i++) {
+      loader.setNull(i);
+    }
+  }
+
   @Override
   public void load(final ColumnBinary columnBinary, final ILoader loader) throws IOException {
     if (loader.getLoaderType() != LoadType.SEQUENTIAL) {
       throw new IOException("Loader type is not SEQUENTIAL");
     }
-    loadFromColumnBinary(columnBinary, (ISequentialLoader) loader);
+    if (columnBinary.loadIndex == null) {
+      loadFromColumnBinary(columnBinary, (ISequentialLoader) loader);
+    } else {
+      loadFromExpandColumnBinary(columnBinary, (ISequentialLoader) loader);
+    }
     loader.finish();
   }
 
