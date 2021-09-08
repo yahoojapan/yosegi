@@ -28,7 +28,13 @@ import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.inmemory.IDictionary;
+import jp.co.yahoo.yosegi.inmemory.IDictionaryLoader;
+import jp.co.yahoo.yosegi.inmemory.ILoader;
 import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
+import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
+import jp.co.yahoo.yosegi.inmemory.LoadType;
+import jp.co.yahoo.yosegi.inmemory.PrimitiveObjectDictionary;
+import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 import jp.co.yahoo.yosegi.message.objects.ByteObj;
 import jp.co.yahoo.yosegi.message.objects.IntegerObj;
 import jp.co.yahoo.yosegi.message.objects.LongObj;
@@ -272,21 +278,179 @@ public class OptimizedNullArrayLongColumnBinaryMaker implements IColumnBinaryMak
   }
 
   @Override
-  public IColumn toColumn( final ColumnBinary columnBinary ) throws IOException {
-    ByteBuffer wrapBuffer = ByteBuffer.wrap(
-        columnBinary.binary , columnBinary.binaryStart , columnBinary.binaryLength );
-    Long min = Long.valueOf( wrapBuffer.getLong() );
-    Long max = Long.valueOf( wrapBuffer.getLong() );
+  public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
+    int loadCount =
+        (columnBinary.loadIndex == null) ? columnBinary.rowCount : columnBinary.loadIndex.length;
+    return new YosegiLoaderFactory().create(columnBinary, loadCount);
+  }
 
-    return new LazyColumn(
-      columnBinary.columnName ,
-      columnBinary.columnType ,
-      new ColumnManager(
-        min.longValue(),
-        max.longValue(),
-        columnBinary
-      )
-    );
+  @Override
+  public LoadType getLoadType(final ColumnBinary columnBinary, final int loadSize) {
+    if (columnBinary.loadIndex == null) {
+      return LoadType.SEQUENTIAL;
+    } else {
+      return LoadType.DICTIONARY;
+    }
+  }
+
+  private void loadFromColumnBinary(final ColumnBinary columnBinary, final ISequentialLoader loader)
+      throws IOException {
+    ByteBuffer compressWrapBuffer =
+        ByteBuffer.wrap(columnBinary.binary, columnBinary.binaryStart, columnBinary.binaryLength);
+    long min = compressWrapBuffer.getLong();
+    long max = compressWrapBuffer.getLong();
+    int start = columnBinary.binaryStart + (Long.BYTES * 2);
+    int length = columnBinary.binaryLength - (Long.BYTES * 2);
+
+    ICompressor compressor = FindCompressor.get(columnBinary.compressorClassName);
+    byte[] binary = compressor.decompress(columnBinary.binary, start, length);
+
+    ByteBuffer wrapBuffer = ByteBuffer.wrap(binary, 0, binary.length);
+
+    ByteOrder order = wrapBuffer.get() == (byte) 0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+    int startIndex = wrapBuffer.getInt();
+    final int rowCount = wrapBuffer.getInt();
+    int dicSize = wrapBuffer.getInt();
+    int nullIndexLength = wrapBuffer.getInt();
+    int indexLength = wrapBuffer.getInt();
+
+    NumberToBinaryUtils.IIntConverter indexConverter =
+        NumberToBinaryUtils.getIntConverter(0, dicSize);
+
+    boolean[] isNullArray = NullBinaryEncoder.toIsNullArray(binary, META_LENGTH, nullIndexLength);
+
+    INumEncoder dicEncoder = NumEncoderUtil.createEncoder(min, max);
+    IDictionary dic = new PrimitiveObjectDictionary(dicSize);
+    dicEncoder.setDictionary(
+        binary, META_LENGTH + nullIndexLength + indexLength, dicSize, order, dic);
+
+    IReadSupporter indexReader =
+        indexConverter.toReadSupporter(binary, META_LENGTH + nullIndexLength, indexLength);
+    int index = startIndex;
+    for (; index < startIndex; index++) {
+      loader.setNull(index);
+    }
+    for (int i = 0; i < isNullArray.length; i++, index++) {
+      if (isNullArray[i]) {
+        loader.setNull(index);
+      } else {
+        loader.setLong(index, dic.getPrimitiveObject(indexReader.getInt()).getLong());
+      }
+    }
+    // NOTE: null padding up to load size
+    for (int i = index; i < loader.getLoadSize(); i++) {
+      loader.setNull(i);
+    }
+  }
+
+  private void loadFromExpandColumnBinary(
+      final ColumnBinary columnBinary, final IDictionaryLoader loader) throws IOException {
+    ByteBuffer compressWrapBuffer =
+        ByteBuffer.wrap(columnBinary.binary, columnBinary.binaryStart, columnBinary.binaryLength);
+    long min = compressWrapBuffer.getLong();
+    long max = compressWrapBuffer.getLong();
+    int start = columnBinary.binaryStart + (Long.BYTES * 2);
+    int length = columnBinary.binaryLength - (Long.BYTES * 2);
+
+    ICompressor compressor = FindCompressor.get(columnBinary.compressorClassName);
+    byte[] binary = compressor.decompress(columnBinary.binary, start, length);
+
+    ByteBuffer wrapBuffer = ByteBuffer.wrap(binary, 0, binary.length);
+
+    ByteOrder order = wrapBuffer.get() == (byte) 0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+    int startIndex = wrapBuffer.getInt();
+    final int rowCount = wrapBuffer.getInt();
+    int dicSize = wrapBuffer.getInt();
+    int nullIndexLength = wrapBuffer.getInt();
+    int indexLength = wrapBuffer.getInt();
+
+    NumberToBinaryUtils.IIntConverter indexConverter =
+        NumberToBinaryUtils.getIntConverter(0, dicSize);
+
+    boolean[] isNullArray = NullBinaryEncoder.toIsNullArray(binary, META_LENGTH, nullIndexLength);
+
+    INumEncoder dicEncoder = NumEncoderUtil.createEncoder(min, max);
+    IDictionary dic = new PrimitiveObjectDictionary(dicSize);
+    dicEncoder.setDictionary(
+        binary, META_LENGTH + nullIndexLength + indexLength, dicSize, order, dic);
+
+    IReadSupporter indexReader =
+        indexConverter.toReadSupporter(binary, META_LENGTH + nullIndexLength, indexLength);
+
+    // NOTE: Calculate dictionarySize
+    int dictionarySize = 0;
+    int previousLoadIndex = -1;
+    int lastIndex = startIndex + isNullArray.length - 1;
+    for (int loadIndex : columnBinary.loadIndex) {
+      if (loadIndex < 0) {
+        throw new IOException("Index must be equal to or greater than 0.");
+      }
+      if (loadIndex < previousLoadIndex) {
+        throw new IOException("Index must be equal to or greater than the previous number.");
+      }
+      if (loadIndex > lastIndex) {
+        break;
+      }
+      if (loadIndex >= startIndex && !isNullArray[loadIndex - startIndex]) {
+        if (previousLoadIndex != loadIndex) {
+          dictionarySize++;
+        }
+      }
+      previousLoadIndex = loadIndex;
+    }
+    loader.createDictionary(dictionarySize);
+
+    // NOTE:
+    //   Set value to dict: dictionaryIndex, value
+    //   Set dictionaryIndex: loadIndexArrayOffset, dictionaryIndex
+    previousLoadIndex = -1; // NOTE: reset
+    int loadIndexArrayOffset = 0;
+    int dictionaryIndex = -1;
+    int readOffset = startIndex;
+    long value = 0;
+    for (int loadIndex : columnBinary.loadIndex) {
+      if (loadIndex > lastIndex) {
+        break;
+      }
+      // NOTE: read skip
+      for (; readOffset <= loadIndex; readOffset++) {
+        if (readOffset >= startIndex && !isNullArray[readOffset - startIndex]) {
+          value = dic.getPrimitiveObject(indexReader.getInt()).getLong();
+        }
+      }
+      if (loadIndex < startIndex || isNullArray[loadIndex - startIndex]) {
+        loader.setNull(loadIndexArrayOffset);
+      } else {
+        if (previousLoadIndex != loadIndex) {
+          dictionaryIndex++;
+          loader.setLongToDic(dictionaryIndex, value);
+        }
+        loader.setDictionaryIndex(loadIndexArrayOffset, dictionaryIndex);
+      }
+      previousLoadIndex = loadIndex;
+      loadIndexArrayOffset++;
+    }
+
+    // NOTE: null padding up to load size
+    for (int i = loadIndexArrayOffset; i < loader.getLoadSize(); i++) {
+      loader.setNull(i);
+    }
+  }
+
+  @Override
+  public void load(final ColumnBinary columnBinary, final ILoader loader) throws IOException {
+    if (columnBinary.loadIndex == null) {
+      if (loader.getLoaderType() != LoadType.SEQUENTIAL) {
+        throw new IOException("Loader type is not SEQUENTIAL.");
+      }
+      loadFromColumnBinary(columnBinary, (ISequentialLoader) loader);
+    } else {
+      if (loader.getLoaderType() != LoadType.DICTIONARY) {
+        throw new IOException("Loader type is not DICTIONARY.");
+      }
+      loadFromExpandColumnBinary(columnBinary, (IDictionaryLoader) loader);
+    }
+    loader.finish();
   }
 
   @Override
