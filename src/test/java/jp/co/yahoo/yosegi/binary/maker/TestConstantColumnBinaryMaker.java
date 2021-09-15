@@ -45,6 +45,12 @@ import jp.co.yahoo.yosegi.spread.column.ColumnType;
 
 public class TestConstantColumnBinaryMaker {
 
+  public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
+    int loadCount =
+        (columnBinary.loadIndex == null) ? columnBinary.rowCount : columnBinary.loadIndex.length;
+    return new YosegiLoaderFactory().create(columnBinary, loadCount);
+  }
+
   @Test
   public void T_createBoolean_equals_whenLoadSizeEqualsRowCount() throws IOException{
     ColumnBinary columnBinary = ConstantColumnBinaryMaker.createColumnBinary( new BooleanObj( true ) , "hoge" , 3 );
@@ -414,7 +420,7 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( columnBinary.columnType , ColumnType.SHORT );
 
     ConstantColumnBinaryMaker maker = new ConstantColumnBinaryMaker();
-    IColumn decodeColumn = maker.toColumn( columnBinary );
+    IColumn decodeColumn = toColumn(columnBinary);
     assertEquals( decodeColumn.getColumnKeys().size() , 0 );
     assertEquals( decodeColumn.getColumnSize() , 0 );
 

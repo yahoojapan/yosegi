@@ -141,15 +141,6 @@ public class MaxLengthBasedArrayColumnBinaryMaker implements IColumnBinaryMaker 
   }
 
   @Override
-  public IColumn toColumn( final ColumnBinary columnBinary ) throws IOException {
-    // Note: When all encoders are ready, integrate them into the load interface.
-    return new LazyColumn(
-        columnBinary.columnName ,
-        columnBinary.columnType ,
-        new ArrayColumnManager( columnBinary ) );
-  }
-
-  @Override
   public LoadType getLoadType( final ColumnBinary columnBinary , final int loadSize ) {
     return LoadType.ARRAY;
   }
@@ -349,83 +340,4 @@ public class MaxLengthBasedArrayColumnBinaryMaker implements IColumnBinaryMaker 
     }
 
   }
-
-  public class ArrayColumnManager implements IColumnManager {
-
-    private final ColumnBinary columnBinary;
-    private ArrayColumn arrayColumn;
-    private boolean isCreate;
-
-    public ArrayColumnManager( final ColumnBinary columnBinary ) throws IOException {
-      this.columnBinary = columnBinary;
-    }
-
-    private void create() throws IOException {
-      arrayColumn = new ArrayColumn( columnBinary.columnName );
-      Spread spread = new Spread( arrayColumn );
-      for ( ColumnBinary childColumnBinary : columnBinary.columnBinaryList ) {
-        IColumnBinaryMaker maker = FindColumnBinaryMaker.get( childColumnBinary.makerClassName );
-        IColumn column = maker.toColumn( childColumnBinary );
-        column.setParentsColumn( arrayColumn );
-        spread.addColumn( column );
-      }
-      spread.setRowCount( columnBinary.rowCount );
-
-      ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-      byte[] decompressBuffer = compressor.decompress(
-          columnBinary.binary , columnBinary.binaryStart , columnBinary.binaryLength );
-      int maxSize = ByteBuffer.wrap( decompressBuffer ).getInt();
-      NumberToBinaryUtils.IIntConverter encoder =
-          NumberToBinaryUtils.getIntConverter( 0 , maxSize );
-      IReadSupporter reader = encoder.toReadSupporter(
-          decompressBuffer , Integer.BYTES , decompressBuffer.length - Integer.BYTES );
-
-      int currentIndex = 0;
-      ICell[] arrayCells = new ICell[ columnBinary.rowCount ];
-      for ( int i = 0 ; i < columnBinary.rowCount ; i++ ) {
-        int arrayLength = reader.getInt();
-        if ( arrayLength != 0 ) {
-          int end = currentIndex + arrayLength;
-          arrayCells[i] = new ArrayCell( new SpreadArrayLink( spread , i , currentIndex , end ) );
-          currentIndex += arrayLength;
-        }
-      }
-
-      arrayColumn.setSpread( spread );
-      arrayColumn.setCellManager( new ArrayCellManager( arrayCells ) );
-
-      isCreate = true;
-    }
-
-    @Override
-    public IColumn get() {
-      if ( ! isCreate ) {
-        try {
-          create();
-        } catch ( IOException ex ) {
-          throw new UncheckedIOException( ex );
-        }
-      }
-      return arrayColumn;
-    }
-
-    @Override
-    public List<String> getColumnKeys() {
-      if ( isCreate ) {
-        return arrayColumn.getColumnKeys();
-      } else {
-        return new ArrayList<String>();
-      }
-    }
-
-    @Override
-    public int getColumnSize() {
-      if ( isCreate ) {
-        return arrayColumn.getColumnSize();
-      } else {
-        return 1;
-      }
-    }
-  }
-
 }

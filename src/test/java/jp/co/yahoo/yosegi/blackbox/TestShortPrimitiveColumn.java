@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -60,6 +61,12 @@ public class TestShortPrimitiveColumn {
         arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpLongColumnBinaryMaker"));
   }
 
+  public static IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
+    int loadCount =
+        (columnBinary.loadIndex == null) ? columnBinary.rowCount : columnBinary.loadIndex.length;
+    return new YosegiLoaderFactory().create(columnBinary, loadCount);
+  }
+
   public IColumn createTestColumn(final String targetClassName, final short[] valueArray)
       throws IOException {
     return createTestColumn(targetClassName, valueArray, null);
@@ -76,7 +83,7 @@ public class TestShortPrimitiveColumn {
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
     columnBinary.setLoadIndex(loadIndex);
-    return FindColumnBinaryMaker.get( columnBinary.makerClassName ).toColumn( columnBinary );
+    return toColumn(columnBinary);
   }
 
   public static IColumn createNotNullColumn(final String targetClassName) throws IOException {
@@ -118,7 +125,7 @@ public class TestShortPrimitiveColumn {
     ColumnBinary columnBinary =
         maker.toBinary(defaultConfig, null, new CompressResultNode(), column);
     columnBinary.setLoadIndex(loadIndex);
-    return FindColumnBinaryMaker.get(columnBinary.makerClassName).toColumn(columnBinary);
+    return toColumn(columnBinary);
   }
 
   public static IColumn createNullColumn(final String targetClassName) throws IOException {
@@ -133,7 +140,7 @@ public class TestShortPrimitiveColumn {
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
     columnBinary.setLoadIndex(loadIndex);
-    return  FindColumnBinaryMaker.get( columnBinary.makerClassName ).toColumn( columnBinary );
+    return toColumn(columnBinary);
   }
 
   public static IColumn createHasNullColumn(final String targetClassName) throws IOException {
@@ -169,7 +176,7 @@ public class TestShortPrimitiveColumn {
     ColumnBinary columnBinary =
         maker.toBinary(defaultConfig, null, new CompressResultNode(), column);
     columnBinary.setLoadIndex(loadIndex);
-    return FindColumnBinaryMaker.get(columnBinary.makerClassName).toColumn(columnBinary);
+    return toColumn(columnBinary);
   }
 
   public static IColumn createLastCellColumn(final String targetClassName) throws IOException {
@@ -203,7 +210,7 @@ public class TestShortPrimitiveColumn {
     ColumnBinary columnBinary =
         maker.toBinary(defaultConfig, null, new CompressResultNode(), column);
     columnBinary.setLoadIndex(loadIndex);
-    return FindColumnBinaryMaker.get(columnBinary.makerClassName).toColumn(columnBinary);
+    return toColumn(columnBinary);
   }
 
   @ParameterizedTest

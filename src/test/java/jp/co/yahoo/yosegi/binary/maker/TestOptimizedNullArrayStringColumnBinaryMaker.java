@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Stream;
 
+import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -61,6 +62,12 @@ import jp.co.yahoo.yosegi.util.io.IReadSupporter;
 import jp.co.yahoo.yosegi.util.io.NumberToBinaryUtils;
 
 public class TestOptimizedNullArrayStringColumnBinaryMaker {
+
+  public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
+    int loadCount =
+        (columnBinary.loadIndex == null) ? columnBinary.rowCount : columnBinary.loadIndex.length;
+    return new YosegiLoaderFactory().create(columnBinary, loadCount);
+  }
 
   public IColumn makeColumn( final String[] strs ) throws IOException {
     PrimitiveColumn column = new PrimitiveColumn( ColumnType.STRING , "test" );
@@ -105,7 +112,7 @@ public class TestOptimizedNullArrayStringColumnBinaryMaker {
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
 
-    IColumn newColumn = maker.toColumn( columnBinary );
+    IColumn newColumn = toColumn(columnBinary);
     check( newColumn , strs );
   }
 

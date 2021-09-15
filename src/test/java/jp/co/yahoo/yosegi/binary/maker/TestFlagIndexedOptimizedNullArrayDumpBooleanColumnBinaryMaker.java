@@ -136,38 +136,6 @@ class TestFlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker {
     assertEquals(expected, maker.calcBinarySize(analizeResult));
   }
 
-  public static Stream<Arguments> D_toColumn_1() {
-    return Stream.of(
-        // columnName, columnValues
-        arguments("TEST1", new Boolean[] {true}),
-        arguments("TEST1", new Boolean[] {false}),
-        arguments("TEST1", new Boolean[] {null, true}),
-        arguments("TEST1", new Boolean[] {null, false}),
-        arguments("TEST1", new Boolean[] {true, false}),
-        arguments("TEST1", new Boolean[] {false, true}),
-        arguments("TEST1", new Boolean[] {true, null, false}));
-  }
-
-  @ParameterizedTest
-  @MethodSource("D_toColumn_1")
-  public void T_toClumn_1(final String columnName, final Boolean[] columnValues)
-      throws IOException {
-    ColumnBinary columnBinary = makeColumnBinary(columnName, columnValues);
-    FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker maker =
-        new FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker();
-    IColumn newColumn = maker.toColumn(columnBinary);
-    assertEquals(ColumnType.BOOLEAN, newColumn.getColumnType());
-    assertEquals(columnName, newColumn.getColumnName());
-    assertEquals(columnValues.length, newColumn.size());
-    for (int i = 0; i < columnValues.length; i++) {
-      if (newColumn.get(i).getRow() == null) {
-        assertNull(newColumn.get(i).getRow());
-      } else {
-        assertEquals(columnValues[i], ((PrimitiveObject) newColumn.get(i).getRow()).getBoolean());
-      }
-    }
-  }
-
   public static Stream<Arguments> D_loadInMemoryStorage_1() {
     return Stream.of(
         // columnName, columnValues

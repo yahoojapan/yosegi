@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
+import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -134,6 +135,12 @@ public class TestMaxLengthBasedArrayColumnBinaryMaker{
     }
   }
 
+  public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
+    int loadCount =
+        (columnBinary.loadIndex == null) ? columnBinary.rowCount : columnBinary.loadIndex.length;
+    return new YosegiLoaderFactory().create(columnBinary, loadCount);
+  }
+
   @Test
   public void T_toBinary_equalsSetValue() throws IOException{
     IColumn column = new ArrayColumn( "array" );
@@ -156,7 +163,7 @@ public class TestMaxLengthBasedArrayColumnBinaryMaker{
     assertEquals( columnBinary.rowCount , 4 );
     assertEquals( columnBinary.columnType , ColumnType.ARRAY );
 
-    IColumn decodeColumn = maker.toColumn( columnBinary );
+    IColumn decodeColumn = toColumn(columnBinary);
     IColumn expandColumn = decodeColumn.getColumn(0);
     assertEquals( decodeColumn.getColumnKeys().size() , 0 );
     assertEquals( decodeColumn.getColumnSize() , 1 );

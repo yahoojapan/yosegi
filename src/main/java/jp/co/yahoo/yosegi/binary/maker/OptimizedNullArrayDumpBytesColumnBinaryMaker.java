@@ -222,13 +222,6 @@ public class OptimizedNullArrayDumpBytesColumnBinaryMaker implements IColumnBina
   }
 
   @Override
-  public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
-    int loadCount =
-        (columnBinary.loadIndex == null) ? columnBinary.rowCount : columnBinary.loadIndex.length;
-    return new YosegiLoaderFactory().create(columnBinary, loadCount);
-  }
-
-  @Override
   public LoadType getLoadType(final ColumnBinary columnBinary, final int loadSize) {
     if (columnBinary.loadIndex == null) {
       return LoadType.SEQUENTIAL;
@@ -444,86 +437,4 @@ public class OptimizedNullArrayDumpBytesColumnBinaryMaker implements IColumnBina
       final int spreadIndex ) throws IOException {
     parentNode.getChildNode( columnBinary.columnName ).disable();
   }
-
-  public class BytesColumnManager implements IColumnManager {
-
-    private final ColumnBinary columnBinary;
-    private PrimitiveColumn column;
-    private boolean isCreate;
-
-    public BytesColumnManager(
-        final ColumnBinary columnBinary ) throws IOException {
-      this.columnBinary = columnBinary;
-    }
-
-    private void create() throws IOException {
-      if ( isCreate ) {
-        return;
-      }
-      ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-      byte[] binary = compressor.decompress( columnBinary.binary ,
-          columnBinary.binaryStart ,
-          columnBinary.binaryLength );
-      ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
-      ByteOrder order =
-          wrapBuffer.get() == (byte)0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-      final int startIndex = wrapBuffer.getInt();
-      int minLength = wrapBuffer.getInt();
-      int maxLength = wrapBuffer.getInt();
-      int nullLength = wrapBuffer.getInt();
-      int lengthBinaryLength = wrapBuffer.getInt();
-
-      boolean[] isNullArray =
-          NullBinaryEncoder.toIsNullArray( binary , META_LENGTH , nullLength );
-
-      IReadSupporter lengthReader;
-      if ( minLength == maxLength ) {
-        lengthReader = NumberToBinaryUtils.getFixedIntConverter( minLength );
-      } else {
-        NumberToBinaryUtils.IIntConverter lengthConverter =
-            NumberToBinaryUtils.getIntConverter( minLength , maxLength );
-        lengthReader = lengthConverter.toReadSupporter(
-            binary ,
-            META_LENGTH + nullLength ,
-            lengthBinaryLength );
-      }
-
-      PrimitiveObject[] valueArray = new PrimitiveObject[ isNullArray.length ];
-      int currentStart = META_LENGTH + nullLength + lengthBinaryLength;
-      for ( int i = 0 ; i < isNullArray.length ; i++ ) {
-        if ( ! isNullArray[i]  ) {
-          int currentLength = lengthReader.getInt();
-          valueArray[i] = new Utf8BytesLinkObj( binary , currentStart , currentLength );
-          currentStart += currentLength;
-        }
-      }
-      column = new PrimitiveColumn( columnBinary.columnType , columnBinary.columnName );
-      column.setCellManager( new OptimizedNullArrayCellManager(
-          columnBinary.columnType , startIndex , valueArray ) );
-
-      isCreate = true;
-    }
-
-    @Override
-    public IColumn get() {
-      try {
-        create();
-      } catch ( IOException ex ) {
-        throw new UncheckedIOException( ex );
-      }
-      return column;
-    }
-
-    @Override
-    public List<String> getColumnKeys() {
-      return new ArrayList<String>();
-    }
-
-    @Override
-    public int getColumnSize() {
-      return 0;
-    }
-
-  }
-
 }

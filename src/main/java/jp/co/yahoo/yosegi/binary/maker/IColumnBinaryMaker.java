@@ -39,7 +39,10 @@ public interface IColumnBinaryMaker {
       final CompressResultNode compressResultNode ,
       final IColumn column ) throws IOException;
 
-  IColumn toColumn( final ColumnBinary columnBinary ) throws IOException;
+  @Deprecated
+  default IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
+    return null;
+  }
 
   int calcBinarySize( final IColumnAnalizeResult analizeResult );
 

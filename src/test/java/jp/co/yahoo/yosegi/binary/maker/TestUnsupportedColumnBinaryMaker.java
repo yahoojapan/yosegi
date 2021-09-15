@@ -20,6 +20,7 @@ package jp.co.yahoo.yosegi.binary.maker;
 import java.io.IOException;
 import java.util.stream.Stream;
 
+import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -37,6 +38,12 @@ import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 
 public class TestUnsupportedColumnBinaryMaker {
 
+  public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
+    int loadCount =
+        (columnBinary.loadIndex == null) ? columnBinary.rowCount : columnBinary.loadIndex.length;
+    return new YosegiLoaderFactory().create(columnBinary, loadCount);
+  }
+
   @Test
   public void T_toBinary_1() throws IOException{
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
@@ -44,7 +51,7 @@ public class TestUnsupportedColumnBinaryMaker {
 
     IColumnBinaryMaker maker = new UnsupportedColumnBinaryMaker();
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , NullColumn.getInstance() );
-    IColumn result = maker.toColumn( columnBinary );
+    IColumn result = toColumn(columnBinary);
     assertTrue( result instanceof NullColumn );
   }
 
