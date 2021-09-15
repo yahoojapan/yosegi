@@ -53,6 +53,10 @@ public class WrapReader<T> implements AutoCloseable {
     return converter.convert( raw , loadSize );
   }
 
+  public long getReadBytes() {
+    return reader.getReadBytes();
+  }
+
   @Override
   public void close() throws IOException {
     reader.close();

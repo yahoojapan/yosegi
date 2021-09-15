@@ -295,12 +295,12 @@ public class ExpandNode {
       final List<ColumnBinary> binaryList , final int[] loadIndex ) throws IOException {
     if ( binaryList != null ) {
       for ( ColumnBinary child : binaryList ) {
-        child.setLoadIndex( loadIndex );
         int[] childLoadIndex = loadIndex;
         if ( child.columnType == ColumnType.ARRAY ) {
           childLoadIndex = createArrayChildIndex( child , loadIndex ); 
         }
         setLoadIndex( child.columnBinaryList , childLoadIndex );
+        child.setLoadIndex( loadIndex );
       }
     }
   }
@@ -412,8 +412,8 @@ public class ExpandNode {
 
       ColumnBinary linkColumnBinary =
           createLinkColumnBinary( linkColumnName , arrayInnerColumnBinary );
-      linkColumnBinary.setLoadIndex( childIndexArray );
       setLoadIndex( linkColumnBinary.columnBinaryList , childIndexArray );
+      linkColumnBinary.setLoadIndex( childIndexArray );
       linkColumnList.add( linkColumnBinary );
 
       return parentIndexArray;
