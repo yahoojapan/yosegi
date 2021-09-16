@@ -324,4 +324,25 @@ public class ColumnBinary {
     this.loadIndex = loadIndex;
   }
 
+  /**
+   * Create rename column binary.
+   */
+  public ColumnBinary createRenameColumnBinary( final String newName ) {
+    ColumnBinary newColumnBinary = new ColumnBinary(
+        makerClassName,
+        compressorClassName,
+        newName,
+        columnType,
+        rowCount,
+        rawDataSize,
+        logicalDataSize,
+        cardinality,
+        binary,
+        binaryStart,
+        binaryLength,
+        columnBinaryList );
+    newColumnBinary.loadIndex = loadIndex;
+    return newColumnBinary;
+  }
+
 }

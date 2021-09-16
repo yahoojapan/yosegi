@@ -90,7 +90,7 @@ public class TestEmptyArray{
         assertEquals(unionColumn.size(), 1);
         IColumn spreadColumn = unionColumn.getColumn(0);
         assertEquals(spreadColumn.getColumnType(), ColumnType.SPREAD);
-        assertEquals(spreadColumn.size(), 2);
+        assertEquals(spreadColumn.size(), 4);
       }
     }
   }
@@ -120,11 +120,12 @@ public class TestEmptyArray{
       reader.setNewStream(fileIn, data.length, readerConfig);
       while (reader.hasNext()) {
         Spread spread = reader.next();
+        assertEquals(4, spread.size());
         IColumn spreadColumn = spread.getColumn("expand_array1");
         assertEquals(spreadColumn.getColumnType(), ColumnType.SPREAD);
         IColumn stringColumn = spreadColumn.getColumn("aa");
-        assertEquals(2, spreadColumn.size());
-        assertEquals(2, stringColumn.size());
+        assertEquals(4, spreadColumn.size());
+        assertEquals(4, stringColumn.size());
 
         assertEquals(1, ((PrimitiveObject) (stringColumn.get(0).getRow())).getInt());
       }

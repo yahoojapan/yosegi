@@ -278,7 +278,7 @@ public class TestUnionSchema{
       Spread spread = reader.next();
       IColumn arrayColumn = spread.getColumn( "other" );
       assertEquals( arrayColumn.getColumnType() , ColumnType.UNION );
-      assertEquals( 2 , arrayColumn.size() );
+      assertEquals( 8 , arrayColumn.size() );
 
       assertEquals( "a" , ( (PrimitiveObject)( arrayColumn.get(0).getRow() ) ).getString() );
       assertEquals( 2 , ( (PrimitiveObject)( arrayColumn.get(1).getRow() ) ).getLong() );

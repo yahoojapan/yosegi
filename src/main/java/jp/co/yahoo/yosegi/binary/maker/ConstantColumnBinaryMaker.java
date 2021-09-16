@@ -79,7 +79,11 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
   public LoadType getLoadType( final ColumnBinary columnBinary , final int loadSize ) {
     int needLength = loadSize;
     if ( columnBinary.loadIndex != null ) {
-      needLength = columnBinary.loadIndex[columnBinary.loadIndex.length - 1];
+      if ( columnBinary.loadIndex.length == 0 ) {
+        needLength = 0;
+      } else {
+        needLength = columnBinary.loadIndex[columnBinary.loadIndex.length - 1];
+      }
     }
     if ( needLength <= columnBinary.rowCount ) {
       return LoadType.CONST;

@@ -18,6 +18,7 @@
 
 package jp.co.yahoo.yosegi.spread.expand;
 
+import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 
 import java.io.IOException;
@@ -48,6 +49,17 @@ public class ExpandColumnLink {
   public void createLink( final ExpandSpread expandSpread ) {
     for ( LinkColumn linkColumn : linkColumnList ) {
       linkColumn.createLink( expandSpread );
+    }
+  }
+
+  /**
+   * Create column reference information.
+   */
+  public void createLinkFromColumnBinary(
+      final List<ColumnBinary> columnBinaryList ,
+      final List<ColumnBinary> linkColumnBinaryList ) throws IOException {
+    for ( LinkColumn linkColumn : linkColumnList ) {
+      linkColumn.createLinkFromColumnBinary( columnBinaryList , linkColumnBinaryList );
     }
   }
 

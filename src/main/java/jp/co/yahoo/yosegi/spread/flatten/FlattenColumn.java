@@ -19,6 +19,7 @@
 package jp.co.yahoo.yosegi.spread.flatten;
 
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
+import jp.co.yahoo.yosegi.binary.ColumnBinaryUtil;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
@@ -63,38 +64,6 @@ public class FlattenColumn {
     return currentColumn;
   }
 
-  private ColumnBinary findColumnBinary(
-      final List<ColumnBinary> binaryList , final String columnName ) {
-    ColumnBinary result = null;
-    if ( binaryList == null ) {
-      return result;
-    }
-    for ( int i = 0 ; i < binaryList.size() ; i++ ) {
-      ColumnBinary child = binaryList.get(i);
-      if ( columnName.equals( child.columnName ) ) {
-        result = child;
-        break;
-      }
-    }
-    return result;
-  }
-
-  private ColumnBinary createLinkColumnBinary( final String linkName , final ColumnBinary binary ) {
-    return new ColumnBinary(
-        binary.makerClassName,
-        binary.compressorClassName,
-        linkName,
-        binary.columnType,
-        binary.rowCount,
-        binary.rawDataSize,
-        binary.logicalDataSize,
-        binary.cardinality,
-        binary.binary,
-        binary.binaryStart,
-        binary.binaryLength,
-        binary.columnBinaryList );
-  }
-
   /**
    * Get the target column from ColumnBinaryList.
    */
@@ -103,7 +72,7 @@ public class FlattenColumn {
     List<ColumnBinary> currentColumnBinaryList = columnBinaryList;
     for ( String nodeName : targetColumnNameArray ) {
       if ( currentColumnBinary == null ) {
-        currentColumnBinary = findColumnBinary( columnBinaryList , nodeName );
+        currentColumnBinary = ColumnBinaryUtil.getFromColumnName( nodeName , columnBinaryList );
       } else {
         if ( currentColumnBinary.columnType == ColumnType.UNION ) {
           ColumnBinary newCurrent = null;
@@ -121,14 +90,15 @@ public class FlattenColumn {
         if ( currentColumnBinary.columnType != ColumnType.SPREAD ) {
           return null;
         }
-        currentColumnBinary = findColumnBinary( currentColumnBinaryList , nodeName );
+        currentColumnBinary =
+            ColumnBinaryUtil.getFromColumnName( nodeName , currentColumnBinaryList );
       }
       if ( currentColumnBinary == null ) {
         return null;
       }
       currentColumnBinaryList = currentColumnBinary.columnBinaryList;
     }
-    return createLinkColumnBinary( linkName , currentColumnBinary );
+    return currentColumnBinary.createRenameColumnBinary( linkName );
   }
 
   /**

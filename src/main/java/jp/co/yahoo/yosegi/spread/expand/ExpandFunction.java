@@ -18,6 +18,7 @@
 
 package jp.co.yahoo.yosegi.spread.expand;
 
+import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.spread.Spread;
 
@@ -65,6 +66,12 @@ public class ExpandFunction implements IExpandFunction {
     ExpandSpread expandSpread = expandNode.get( spread );
     expandColumnLink.createLink( expandSpread );
     return expandSpread;
+  }
+
+  @Override
+  public void expandFromColumnBinary(
+      final List<ColumnBinary> columnBinaryList ) throws IOException {
+    expandNode.createExpandColumnBinary( columnBinaryList , expandColumnLink );
   }
 
   @Override
