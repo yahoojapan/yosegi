@@ -56,35 +56,6 @@ public class LinkColumn {
   /**
    * Create column reference information.
    */
-  public void createLink( final ExpandSpread expandSpread ) {
-    IColumn linkTargetColumn = null;
-    for ( String nodeName : nodeNameArray ) {
-      if ( linkTargetColumn == null ) {
-        linkTargetColumn = expandSpread.getColumn( nodeName );
-      } else {
-        if ( linkTargetColumn.getColumnType() == ColumnType.UNION ) {
-          linkTargetColumn = linkTargetColumn.getColumn( ColumnType.SPREAD );
-        }
-        linkTargetColumn = linkTargetColumn.getColumn( nodeName );
-      }
-    }
-    if ( linkTargetColumn.getColumnType() != ColumnType.ARRAY ) {
-      return;
-    }
-
-    IColumn column = expandSpread.getColumn( baseColumnName );
-    if ( column instanceof ExpandColumn ) {
-      ExpandColumn expandColumn = (ExpandColumn)column;
-      int[] indexArray = expandColumn.getColumnIndexArray();
-      expandSpread.addExpandColumn( linkName , linkTargetColumn.getColumn(0) , indexArray );
-    } else {
-      expandSpread.addExpandLeafColumn( linkName , linkTargetColumn.getColumn(0) );
-    }
-  }
-
-  /**
-   * Create column reference information.
-   */
   public void createLinkFromColumnBinary(
       final List<ColumnBinary> columnBinaryList ,
       final List<ColumnBinary> linkBinaryList ) throws IOException {

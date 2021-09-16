@@ -77,28 +77,6 @@ public class FlattenFunction implements IFlattenFunction {
     }
   }
 
-  private Spread allRead( final Spread spread ) {
-    Spread newSpread = new Spread();
-    for ( FlattenColumn flattenColumn : flattenColumnList ) {
-      IColumn column = flattenColumn.getColumn( spread );
-      newSpread.addColumn( column );
-    }
-    newSpread.setRowCount( spread.size() );
-
-    return newSpread;
-  }
-
-  private Spread filterRead( final Spread spread ) {
-    Spread newSpread = new Spread();
-    for ( String linkName : filterColumnList ) {
-      IColumn column = flattenColumnMap.get( linkName ).getColumn( spread );
-      newSpread.addColumn( column );
-    }
-    newSpread.setRowCount( spread.size() );
-
-    return newSpread;
-  }
-
   private List<ColumnBinary> allReadFromColumnBinary(
       final List<ColumnBinary> columnBinaryList ) {
     List<ColumnBinary> newColumnBinaryList = new ArrayList<ColumnBinary>();
@@ -129,15 +107,6 @@ public class FlattenFunction implements IFlattenFunction {
   @Override
   public boolean isFlatten() {
     return true;
-  }
-
-  @Override
-  public Spread flatten( final Spread spread ) {
-    if ( filterColumnList.isEmpty() ) {
-      return allRead( spread );
-    } else {
-      return filterRead( spread );
-    }
   }
 
   @Override

@@ -16,31 +16,24 @@
  * limitations under the License.
  */
 
-package jp.co.yahoo.yosegi.spread.expand;
+package jp.co.yahoo.yosegi.inmemory;
 
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
-import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
+import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
+import jp.co.yahoo.yosegi.spread.column.NullColumn;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-public class NotExpandFunction implements IExpandFunction {
+public class YosegiArrayIndexLoader extends YosegiArrayLoader {
 
-  @Override
-  public void expandFromColumnBinary(
-      final List<ColumnBinary> columnBinaryList ) throws IOException {}
-
-  @Override
-  public void expandIndexNode( final BlockIndexNode rootNode ) throws IOException {}
-
-  @Override
-  public String[] getExpandLinkColumnName( final String linkName ) {
-    return new String[0];
+  public YosegiArrayIndexLoader( final ColumnBinary columnBinary , final int loadSize ) {
+    super( columnBinary , loadSize );
   }
 
   @Override
-  public List<String[]> getExpandColumnName() {
-    return new ArrayList<String[]>();
+  public void loadChild(
+      final ColumnBinary columnBinary , final int childLoadSize ) throws IOException {
+    spread.addColumn( NullColumn.getInstance() );
   }
+
 }

@@ -28,8 +28,6 @@ public interface IFlattenFunction {
 
   boolean isFlatten();
 
-  Spread flatten( final Spread spread );
-
   List<ColumnBinary> flattenFromColumnBinary( final List<ColumnBinary> columnBinaryList );
 
   String[] getFlattenColumnName( final String linkColumnName );

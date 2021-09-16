@@ -20,7 +20,6 @@ package jp.co.yahoo.yosegi.spread.expand;
 
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
-import jp.co.yahoo.yosegi.spread.Spread;
 
 import java.io.IOException;
 import java.util.List;
@@ -28,8 +27,6 @@ import java.util.List;
 public interface IExpandFunction {
 
   String[] getExpandLinkColumnName( final String linkName );
-
-  Spread expand( final Spread spread ) throws IOException;
 
   void expandFromColumnBinary( final List<ColumnBinary> columnBinaryList ) throws IOException;
 

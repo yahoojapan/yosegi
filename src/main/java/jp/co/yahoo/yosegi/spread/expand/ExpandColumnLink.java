@@ -46,15 +46,6 @@ public class ExpandColumnLink {
   /**
    * Create column reference information.
    */
-  public void createLink( final ExpandSpread expandSpread ) {
-    for ( LinkColumn linkColumn : linkColumnList ) {
-      linkColumn.createLink( expandSpread );
-    }
-  }
-
-  /**
-   * Create column reference information.
-   */
   public void createLinkFromColumnBinary(
       final List<ColumnBinary> columnBinaryList ,
       final List<ColumnBinary> linkColumnBinaryList ) throws IOException {

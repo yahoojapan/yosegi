@@ -21,7 +21,6 @@ package jp.co.yahoo.yosegi.spread.flatten;
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryUtil;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
-import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
 
@@ -43,25 +42,6 @@ public class FlattenColumn {
 
   public String[] getFilterColumnNameArray() {
     return targetColumnNameArray;
-  }
-
-  /**
-   * Get the target column from Spread.
-   */
-  public IColumn getColumn( final Spread spread ) {
-    IColumn currentColumn = null;
-    for ( String nodeName : targetColumnNameArray ) {
-      if ( currentColumn == null ) {
-        currentColumn = spread.getColumn( nodeName );
-      } else {
-        if ( currentColumn.getColumnType() == ColumnType.UNION ) {
-          currentColumn = currentColumn.getColumn( ColumnType.SPREAD );
-        }
-        currentColumn = currentColumn.getColumn( nodeName );
-      }
-    }
-    currentColumn.setColumnName( linkName );
-    return currentColumn;
   }
 
   /**
