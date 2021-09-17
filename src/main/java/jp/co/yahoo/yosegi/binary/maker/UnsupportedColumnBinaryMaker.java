@@ -72,11 +72,6 @@ public class UnsupportedColumnBinaryMaker implements IColumnBinaryMaker {
   }
 
   @Override
-  public IColumn toColumn( final ColumnBinary columnBinary ) throws IOException {
-    return NullColumn.getInstance();
-  }
-
-  @Override
   public int calcBinarySize( final IColumnAnalizeResult analizeResult ) {
     return 0;
   }

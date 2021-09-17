@@ -66,16 +66,6 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
   }
 
   @Override
-  public IColumn toColumn( final ColumnBinary columnBinary ) throws IOException {
-    int loadCount = columnBinary.rowCount;
-    if ( columnBinary.loadIndex != null ) {
-      loadCount = columnBinary.loadIndex.length;
-    }
-    return new YosegiLoaderFactory().create(
-        columnBinary , loadCount );
-  }
-
-  @Override
   public LoadType getLoadType( final ColumnBinary columnBinary , final int loadSize ) {
     int needLength = loadSize;
     if ( columnBinary.loadIndex != null ) {

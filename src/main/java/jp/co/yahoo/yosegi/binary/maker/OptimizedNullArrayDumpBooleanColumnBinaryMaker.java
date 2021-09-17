@@ -177,13 +177,6 @@ public class OptimizedNullArrayDumpBooleanColumnBinaryMaker implements IColumnBi
   }
 
   @Override
-  public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
-    int loadCount =
-        (columnBinary.loadIndex == null) ? columnBinary.rowCount : columnBinary.loadIndex.length;
-    return new YosegiLoaderFactory().create(columnBinary, loadCount);
-  }
-
-  @Override
   public LoadType getLoadType(final ColumnBinary columnBinary, final int loadSize) {
     return LoadType.SEQUENTIAL;
   }
@@ -335,75 +328,4 @@ public class OptimizedNullArrayDumpBooleanColumnBinaryMaker implements IColumnBi
       final int spreadIndex ) throws IOException {
     parentNode.getChildNode( columnBinary.columnName ).disable();
   }
-
-  public class BooleanColumnManager implements IColumnManager {
-
-    private final ColumnBinary columnBinary;
-    private PrimitiveColumn column;
-    private boolean isCreate;
-
-    public BooleanColumnManager(
-        final ColumnBinary columnBinary ) throws IOException {
-      this.columnBinary = columnBinary;
-    }
-
-    private void create() throws IOException {
-      if ( isCreate ) {
-        return;
-      }
-      ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-      byte[] binary = compressor.decompress(
-          columnBinary.binary ,
-          columnBinary.binaryStart ,
-          columnBinary.binaryLength );
-      ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
-      int startIndex = wrapBuffer.getInt();
-      int nullLength = wrapBuffer.getInt();
-      int isTrueLength = binary.length - META_LENGTH - nullLength;
-
-      boolean[] isNullArray =
-          NullBinaryEncoder.toIsNullArray( binary , META_LENGTH , nullLength );
-
-      boolean[] isTrueArray =
-          NullBinaryEncoder.toIsNullArray( binary , META_LENGTH + nullLength , isTrueLength );
-
-      PrimitiveObject[] valueArray = new PrimitiveObject[ isNullArray.length ];
-
-      int isTrueIndex = 0;
-      for ( int i = 0 ; i < isNullArray.length ; i++ ) {
-        if ( ! isNullArray[i]  ) {
-          valueArray[i] = (isTrueArray[isTrueIndex]) ? TRUE : FALSE;
-          isTrueIndex++;
-        }
-      }
-
-      column = new PrimitiveColumn( columnBinary.columnType , columnBinary.columnName );
-      column.setCellManager( new OptimizedNullArrayCellManager(
-          columnBinary.columnType , startIndex , valueArray ) );
-
-      isCreate = true;
-    }
-
-    @Override
-    public IColumn get() {
-      try {
-        create();
-      } catch ( IOException ex ) {
-        throw new UncheckedIOException( ex );
-      }
-      return column;
-    }
-
-    @Override
-    public List<String> getColumnKeys() {
-      return new ArrayList<String>();
-    }
-
-    @Override
-    public int getColumnSize() {
-      return 0;
-    }
-
-  }
-
 }

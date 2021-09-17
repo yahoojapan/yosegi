@@ -188,13 +188,6 @@ public class OptimizedNullArrayDumpFloatColumnBinaryMaker implements IColumnBina
   }
 
   @Override
-  public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
-    int loadCount =
-        (columnBinary.loadIndex == null) ? columnBinary.rowCount : columnBinary.loadIndex.length;
-    return new YosegiLoaderFactory().create(columnBinary, loadCount);
-  }
-
-  @Override
   public LoadType getLoadType(final ColumnBinary columnBinary, final int loadSize) {
     return LoadType.SEQUENTIAL;
   }
@@ -360,83 +353,4 @@ public class OptimizedNullArrayDumpFloatColumnBinaryMaker implements IColumnBina
     BlockIndexNode currentNode = parentNode.getChildNode( columnBinary.columnName );
     currentNode.setBlockIndex( new FloatRangeBlockIndex( min , max ) );
   }
-
-  public class ColumnManager implements IColumnManager {
-
-    private final ColumnBinary columnBinary;
-
-    private PrimitiveColumn column;
-    private boolean isCreate;
-
-    public ColumnManager(
-        final ColumnBinary columnBinary ) {
-      this.columnBinary = columnBinary;
-    }
-
-    private void create() throws IOException {
-      if ( isCreate ) {
-        return;
-      }
-      int start = columnBinary.binaryStart + ( Float.BYTES * 2 );
-      int length = columnBinary.binaryLength - ( Float.BYTES * 2 );
-
-      ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-      byte[] binary = compressor.decompress( columnBinary.binary , start , length );
-
-      ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
-
-      ByteOrder order = wrapBuffer.get() == (byte)0
-          ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-      int startIndex = wrapBuffer.getInt();
-      int nullIndexLength = wrapBuffer.getInt();
-      int valueBinaryLength = binary.length - META_LENGTH - nullIndexLength;
-
-      boolean[] isNullArray =
-          NullBinaryEncoder.toIsNullArray( binary , META_LENGTH , nullIndexLength );
-
-      IReadSupporter valueReader = ByteBufferSupporterFactory.createReadSupporter(
-          binary,
-          META_LENGTH + nullIndexLength,
-          valueBinaryLength,
-          order );
-
-      PrimitiveObject[] valueArray = new PrimitiveObject[isNullArray.length];
-      int index = startIndex;
-      for ( int i = 0 ; i < isNullArray.length ; i++,index++ ) {
-        if ( ! isNullArray[i]  ) {
-          valueArray[i] = new FloatObj( valueReader.getFloat() );
-        }
-      }
-
-      column = new PrimitiveColumn( columnBinary.columnType , columnBinary.columnName );
-      column.setCellManager( new OptimizedNullArrayCellManager(
-          columnBinary.columnType , startIndex , valueArray ) );
-
-      isCreate = true;
-    }
-
-    @Override
-    public IColumn get() {
-      if ( ! isCreate ) {
-        try {
-          create();
-        } catch ( IOException ex ) {
-          throw new UncheckedIOException( ex );
-        }
-      }
-      return column;
-    }
-
-    @Override
-    public List<String> getColumnKeys() {
-      return new ArrayList<String>();
-    }
-
-    @Override
-    public int getColumnSize() {
-      return 0;
-    }
-
-  }
-
 }

@@ -245,13 +245,6 @@ public class OptimizedNullArrayDumpLongColumnBinaryMaker implements IColumnBinar
   }
 
   @Override
-  public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
-    int loadCount =
-        (columnBinary.loadIndex == null) ? columnBinary.rowCount : columnBinary.loadIndex.length;
-    return new YosegiLoaderFactory().create(columnBinary, loadCount);
-  }
-
-  @Override
   public LoadType getLoadType(final ColumnBinary columnBinary, final int loadSize) {
     if (columnBinary.loadIndex == null) {
       return LoadType.SEQUENTIAL;
@@ -395,89 +388,4 @@ public class OptimizedNullArrayDumpLongColumnBinaryMaker implements IColumnBinar
     BlockIndexNode currentNode = parentNode.getChildNode( columnBinary.columnName );
     currentNode.setBlockIndex( new LongRangeBlockIndex( min , max ) );
   }
-
-  public class ColumnManager implements IColumnManager {
-
-    private final long min;
-    private final long max;
-    private final ColumnBinary columnBinary;
-
-    private PrimitiveColumn column;
-    private boolean isCreate;
-
-    /**
-     * initialize.
-     */
-    public ColumnManager(
-        final long min,
-        final long max,
-        final ColumnBinary columnBinary ) {
-      this.min = min;
-      this.max = max;
-      this.columnBinary = columnBinary;
-    }
-
-    private void create() throws IOException {
-      if ( isCreate ) {
-        return;
-      }
-      int start = columnBinary.binaryStart + ( Long.BYTES * 2 );
-      int length = columnBinary.binaryLength - ( Long.BYTES * 2 );
-
-      ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-      byte[] binary = compressor.decompress( columnBinary.binary , start , length );
-
-      ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
-
-      ByteOrder order = wrapBuffer.get() == (byte)0
-          ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-      final int startIndex = wrapBuffer.getInt();
-      int rowCount = wrapBuffer.getInt();
-      int nullIndexLength = wrapBuffer.getInt();
-      int valueBinaryLength = binary.length - META_LENGTH - nullIndexLength;
-
-      boolean[] isNullArray =
-          NullBinaryEncoder.toIsNullArray( binary , META_LENGTH , nullIndexLength );
-
-      INumEncoder valueEncoder =
-          NumEncoderUtil.createEncoder( min , max );
-
-      PrimitiveObject[] valueArray = valueEncoder.getPrimitiveArray(
-          binary,
-          META_LENGTH + nullIndexLength,
-          rowCount,
-          isNullArray,
-          order );
-
-      column = new PrimitiveColumn( columnBinary.columnType , columnBinary.columnName );
-      column.setCellManager( new OptimizedNullArrayCellManager(
-          columnBinary.columnType , startIndex , valueArray ) );
-
-      isCreate = true;
-    }
-
-    @Override
-    public IColumn get() {
-      if ( ! isCreate ) {
-        try {
-          create();
-        } catch ( IOException ex ) {
-          throw new UncheckedIOException( ex );
-        }
-      }
-      return column;
-    }
-
-    @Override
-    public List<String> getColumnKeys() {
-      return new ArrayList<String>();
-    }
-
-    @Override
-    public int getColumnSize() {
-      return 0;
-    }
-
-  }
-
 }

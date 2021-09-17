@@ -193,14 +193,6 @@ public class DumpUnionColumnBinaryMaker implements IColumnBinaryMaker {
   }
 
   @Override
-  public IColumn toColumn( final ColumnBinary columnBinary ) throws IOException {
-    return new LazyColumn(
-        columnBinary.columnName ,
-        columnBinary.columnType ,
-        new UnionColumnManager( columnBinary ) );
-  }
-
-  @Override
   public LoadType getLoadType( final ColumnBinary columnBinary , final int loadSize ) {
     return LoadType.UNION;
   }
@@ -274,67 +266,4 @@ public class DumpUnionColumnBinaryMaker implements IColumnBinaryMaker {
       final int spreadIndex ) throws IOException {
     parentNode.getChildNode( columnBinary.columnName ).disable();
   }
-
-  public class UnionColumnManager implements IColumnManager {
-
-    private final ColumnBinary columnBinary;
-    private UnionColumn unionColumn;
-    private boolean isCreate;
-
-    public UnionColumnManager( final ColumnBinary columnBinary ) {
-      this.columnBinary = columnBinary;
-    }
-
-    private void create() throws IOException {
-      if ( isCreate ) {
-        return;
-      }
-
-      Map<ColumnType,IColumn> columnContainer = new EnumMap<>( ColumnType.class );
-      unionColumn = new UnionColumn( columnBinary.columnName , columnContainer );
-
-      for ( ColumnBinary childColumnBinary : columnBinary.columnBinaryList ) {
-        IColumnBinaryMaker maker = FindColumnBinaryMaker.get( childColumnBinary.makerClassName );
-        IColumn column = maker.toColumn( childColumnBinary );
-        column.setParentsColumn( unionColumn );
-        unionColumn.setColumn( column );
-        columnContainer.put( column.getColumnType() , column );
-      }
-
-
-      ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-      byte[] cellBinary = compressor.decompress(
-          columnBinary.binary , columnBinary.binaryStart , columnBinary.binaryLength );
-      ByteBuffer wrapBuffer = ByteBuffer.wrap( cellBinary );
-      for ( int i = 0 ; i < cellBinary.length ; i++ ) {
-        ColumnType columnType = ColumnTypeFactory.getColumnTypeFromByte( wrapBuffer.get() );
-        if ( columnContainer.containsKey( columnType ) ) {
-          unionColumn.addCell( columnType , columnContainer.get( columnType ).get( i ) , i );
-        }
-      }
-
-      isCreate = true;
-    }
-
-    @Override
-    public IColumn get() {
-      try {
-        create();
-      } catch ( IOException ex ) {
-        throw new UncheckedIOException( ex );
-      }
-      return unionColumn;
-    }
-
-    @Override
-    public List<String> getColumnKeys() {
-      return new ArrayList<>();
-    }
-
-    @Override
-    public int getColumnSize() {
-      return 0;
-    }
-  }
-
 }

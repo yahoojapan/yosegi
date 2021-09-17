@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Stream;
 
+import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -45,6 +46,12 @@ import jp.co.yahoo.yosegi.spread.column.ColumnType;
 
 public class TestDumpSpreadColumnBinaryMaker {
 
+  public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
+    int loadCount =
+        (columnBinary.loadIndex == null) ? columnBinary.rowCount : columnBinary.loadIndex.length;
+    return new YosegiLoaderFactory().create(columnBinary, loadCount);
+  }
+
   @Test
   public void T_toBinary_1() throws IOException{
     IColumn column = new SpreadColumn( "SPREAD" );
@@ -64,7 +71,7 @@ public class TestDumpSpreadColumnBinaryMaker {
     assertEquals( columnBinary.rowCount , 2 );
     assertEquals( columnBinary.columnType , ColumnType.SPREAD );
 
-    IColumn decodeColumn = maker.toColumn( columnBinary );
+    IColumn decodeColumn = toColumn(columnBinary);
     assertEquals( decodeColumn.getColumnKeys().size() , 2 );
     assertEquals( decodeColumn.getColumnSize() , 2 );
 
