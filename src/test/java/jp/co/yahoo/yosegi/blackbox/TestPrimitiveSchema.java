@@ -27,6 +27,8 @@ import java.io.ByteArrayOutputStream;
 
 import java.util.stream.Stream;
 
+import jp.co.yahoo.yosegi.inmemory.SpreadRawConverter;
+import jp.co.yahoo.yosegi.reader.WrapReader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -81,12 +83,13 @@ public class TestPrimitiveSchema{
     assertEquals(s.getColumn("d").getColumnType(), ColumnType.BOOLEAN);
 
     try (YosegiReader reader = new YosegiReader()) {
+      WrapReader<Spread> spreadWrapReader = new WrapReader<>(reader, new SpreadRawConverter());
       Configuration readerConfig = new Configuration();
       byte[] data = out.toByteArray();
       InputStream fileIn = new ByteArrayInputStream(data);
       reader.setNewStream(fileIn, data.length, readerConfig);
-      while (reader.hasNext()) {
-        Spread spread = reader.next();
+      while (spreadWrapReader.hasNext()) {
+        Spread spread = spreadWrapReader.next();
         IColumn column = spread.getColumn("d");
         System.err.println(column.toString());
         assertEquals(column.getColumnType(), ColumnType.BOOLEAN);

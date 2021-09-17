@@ -25,6 +25,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.stream.Stream;
 
+import jp.co.yahoo.yosegi.inmemory.SpreadRawConverter;
+import jp.co.yahoo.yosegi.reader.WrapReader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -79,12 +81,13 @@ public class TestEmptyArray{
     assertEquals( writeSpreadColumn.size() , 2 );
 
     try(YosegiReader reader = new YosegiReader()) {
+      WrapReader<Spread> spreadWrapReader = new WrapReader<>(reader, new SpreadRawConverter());
       Configuration readerConfig = new Configuration();
       byte[] data = out.toByteArray();
       InputStream fileIn = new ByteArrayInputStream(data);
       reader.setNewStream(fileIn, data.length, readerConfig);
-      while (reader.hasNext()) {
-        Spread spread = reader.next();
+      while (spreadWrapReader.hasNext()) {
+        Spread spread = spreadWrapReader.next();
         IColumn unionColumn = spread.getColumn("array1");
         assertEquals(unionColumn.getColumnType(), ColumnType.ARRAY);
         assertEquals(unionColumn.size(), 1);
@@ -113,13 +116,14 @@ public class TestEmptyArray{
     }
 
     try(YosegiReader reader = new YosegiReader()) {
+      WrapReader<Spread> spreadWrapReader = new WrapReader<>(reader, new SpreadRawConverter());
       Configuration readerConfig = new Configuration();
       readerConfig.set("spread.reader.expand.column", "{ \"base\" : { \"node\" : \"array1\" , \"link_name\" : \"expand_array1\" } }");
       byte[] data = out.toByteArray();
       InputStream fileIn = new ByteArrayInputStream(data);
       reader.setNewStream(fileIn, data.length, readerConfig);
-      while (reader.hasNext()) {
-        Spread spread = reader.next();
+      while (spreadWrapReader.hasNext()) {
+        Spread spread = spreadWrapReader.next();
         assertEquals(4, spread.size());
         IColumn spreadColumn = spread.getColumn("expand_array1");
         assertEquals(spreadColumn.getColumnType(), ColumnType.SPREAD);

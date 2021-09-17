@@ -18,6 +18,7 @@
 package jp.co.yahoo.yosegi.spread.flatten;
 
 import jp.co.yahoo.yosegi.config.Configuration;
+import jp.co.yahoo.yosegi.inmemory.SpreadRawConverter;
 import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.message.objects.*;
 import jp.co.yahoo.yosegi.reader.*;
@@ -60,9 +61,9 @@ public class TestFlatten {
 
     ByteArrayInputStream in = new ByteArrayInputStream( data );
     YosegiReader reader = new YosegiReader();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<>(reader, new SpreadRawConverter());
     reader.setNewStream( in , data.length , readerConfig );
-    
-    return reader.next();
+    return spreadWrapReader.next();
   }
 
   @Test
