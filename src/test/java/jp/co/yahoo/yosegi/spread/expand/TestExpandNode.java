@@ -89,7 +89,7 @@ public class TestExpandNode {
         Arrays.asList( new String[]{"col3"} ) ,
         Arrays.asList( new String[]{"ex_col3"} )
         );
-    node.createExpandColumnBinary( binaryList );
+    node.createExpandColumnBinary( binaryList , new ExpandColumnLink() );
     assertTrue( ( findColumnBinaryFromColumnName( "col1" , binaryList ) != null ) );
     assertTrue( ( findColumnBinaryFromColumnName( "col2" , binaryList ) != null ) );
     assertTrue( ( findColumnBinaryFromColumnName( "ex_col3" , binaryList ) != null ) );
@@ -103,7 +103,7 @@ public class TestExpandNode {
         assertEquals( columnBinary.loadIndex[i] , expandIndex[i] );
       }
     }
-    assertNull( findColumnBinaryFromColumnName( "ex_col3" , binaryList ).loadIndex );
+    assertNotNull( findColumnBinaryFromColumnName( "ex_col3" , binaryList ).loadIndex );
   }
 
   @Test
@@ -127,7 +127,7 @@ public class TestExpandNode {
         Arrays.asList( new String[]{"col3"} ) ,
         Arrays.asList( new String[]{"ex_col3"} )
         );
-    node.createExpandColumnBinary( binaryList );
+    node.createExpandColumnBinary( binaryList , new ExpandColumnLink() );
     assertTrue( ( findColumnBinaryFromColumnName( "col1" , binaryList ) != null ) );
     assertTrue( ( findColumnBinaryFromColumnName( "col2" , binaryList ) != null ) );
     assertTrue( ( findColumnBinaryFromColumnName( "ex_col3" , binaryList ) != null ) );
@@ -141,7 +141,7 @@ public class TestExpandNode {
         assertEquals( columnBinary.loadIndex[i] , expandIndex[i] );
       }
     }
-    assertNull( findColumnBinaryFromColumnName( "ex_col3" , binaryList ).loadIndex );
+    assertNotNull( findColumnBinaryFromColumnName( "ex_col3" , binaryList ).loadIndex );
   }
 
   @Test
@@ -165,7 +165,7 @@ public class TestExpandNode {
         Arrays.asList( new String[]{"col3"} ) ,
         Arrays.asList( new String[]{"ex_col3"} )
         );
-    node.createExpandColumnBinary( binaryList );
+    node.createExpandColumnBinary( binaryList , new ExpandColumnLink() );
     assertTrue( ( findColumnBinaryFromColumnName( "col1" , binaryList ) != null ) );
     assertTrue( ( findColumnBinaryFromColumnName( "col2" , binaryList ) != null ) );
     assertTrue( ( findColumnBinaryFromColumnName( "ex_col3" , binaryList ) != null ) );
@@ -179,7 +179,7 @@ public class TestExpandNode {
         assertEquals( columnBinary.loadIndex[i] , expandIndex[i] );
       }
     }
-    assertNull( findColumnBinaryFromColumnName( "ex_col3" , binaryList ).loadIndex );
+    assertNotNull( findColumnBinaryFromColumnName( "ex_col3" , binaryList ).loadIndex );
   }
 
   @Test
@@ -203,7 +203,7 @@ public class TestExpandNode {
         Arrays.asList( new String[]{"col3"} ) ,
         Arrays.asList( new String[]{"ex_col3"} )
         );
-    node.createExpandColumnBinary( binaryList );
+    node.createExpandColumnBinary( binaryList , new ExpandColumnLink() );
     assertTrue( ( findColumnBinaryFromColumnName( "col1" , binaryList ) != null ) );
     assertTrue( ( findColumnBinaryFromColumnName( "col2" , binaryList ) != null ) );
     assertTrue( ( findColumnBinaryFromColumnName( "ex_col3" , binaryList ) != null ) );
@@ -217,7 +217,7 @@ public class TestExpandNode {
         assertEquals( columnBinary.loadIndex[i] , expandIndex[i] );
       }
     }
-    assertNull( findColumnBinaryFromColumnName( "ex_col3" , binaryList ).loadIndex );
+    assertNotNull( findColumnBinaryFromColumnName( "ex_col3" , binaryList ).loadIndex );
     assertEquals( findColumnBinaryFromColumnName( "ex_col3" , binaryList ).columnType , ColumnType.INTEGER );
   }
 
@@ -241,7 +241,7 @@ public class TestExpandNode {
         Arrays.asList( new String[]{"col3"} ) ,
         Arrays.asList( new String[]{"ex_col3"} )
         );
-    node.createExpandColumnBinary( binaryList );
+    node.createExpandColumnBinary( binaryList , new ExpandColumnLink() );
     assertNotNull( findColumnBinaryFromColumnName( "col1" , binaryList ));
     assertNotNull( findColumnBinaryFromColumnName( "col2" , binaryList ));
     assertNull( findColumnBinaryFromColumnName( "ex_col3" , binaryList ));
@@ -279,7 +279,7 @@ public class TestExpandNode {
         Arrays.asList( new String[]{"col3"} ) ,
         Arrays.asList( new String[]{"ex_col3"} )
         );
-    node.createExpandColumnBinary( binaryList );
+    node.createExpandColumnBinary( binaryList , new ExpandColumnLink() );
     assertNotNull( findColumnBinaryFromColumnName( "col1" , binaryList ));
     assertNotNull( findColumnBinaryFromColumnName( "col2" , binaryList ));
     ColumnBinary col2 = findColumnBinaryFromColumnName( "col2" , binaryList );
@@ -334,7 +334,7 @@ public class TestExpandNode {
         Arrays.asList( new String[]{"col3"} ) ,
         Arrays.asList( new String[]{"ex_col3"} )
         );
-    node.createExpandColumnBinary( binaryList );
+    node.createExpandColumnBinary( binaryList , new ExpandColumnLink() );
     assertNotNull( findColumnBinaryFromColumnName( "col1" , binaryList ));
     assertNotNull( findColumnBinaryFromColumnName( "col2" , binaryList ));
     ColumnBinary col2 = findColumnBinaryFromColumnName( "col2" , binaryList );
@@ -389,7 +389,7 @@ public class TestExpandNode {
         Arrays.asList( new String[]{"col3"} ) ,
         Arrays.asList( new String[]{"ex_col3"} )
         );
-    node.createExpandColumnBinary( binaryList );
+    node.createExpandColumnBinary( binaryList , new ExpandColumnLink() );
     assertNotNull( findColumnBinaryFromColumnName( "col1" , binaryList ));
     assertNotNull( findColumnBinaryFromColumnName( "col2" , binaryList ));
     ColumnBinary col2 = findColumnBinaryFromColumnName( "col2" , binaryList );
@@ -444,7 +444,7 @@ public class TestExpandNode {
         Arrays.asList( new String[]{"col3"} ) ,
         Arrays.asList( new String[]{"ex_col3"} )
         );
-    node.createExpandColumnBinary( binaryList );
+    node.createExpandColumnBinary( binaryList , new ExpandColumnLink() );
     assertNotNull( findColumnBinaryFromColumnName( "col1" , binaryList ));
     assertNotNull( findColumnBinaryFromColumnName( "col2" , binaryList ));
     ColumnBinary col2 = findColumnBinaryFromColumnName( "col2" , binaryList );
@@ -518,7 +518,7 @@ public class TestExpandNode {
         Arrays.asList( new String[]{"col3","col3-1","col3-1-1"} ) ,
         Arrays.asList( new String[]{null,"ex_col3-1","ex_col3-1-1"} )
         );
-    node.createExpandColumnBinary( binaryList );
+    node.createExpandColumnBinary( binaryList , new ExpandColumnLink() );
     assertEquals( binaryList.size() , 5 );
     assertNotNull( findColumnBinaryFromColumnName( "col1" , binaryList ) );
     assertNotNull( findColumnBinaryFromColumnName( "col2" , binaryList ) );
@@ -552,7 +552,7 @@ public class TestExpandNode {
     for ( int i = 0 ; i < col3_1_2_innerExpandIndex.length ; i++ ) {
       assertEquals( col3_1_2_inner.loadIndex[i] , col3_1_2_innerExpandIndex[i] );
     }
-    assertNull( findColumnBinaryFromColumnName( "ex_col3-1-1" , binaryList ).loadIndex );
+    assertNotNull( findColumnBinaryFromColumnName( "ex_col3-1-1" , binaryList ).loadIndex );
   }
 
   @Test
@@ -585,7 +585,7 @@ public class TestExpandNode {
         Arrays.asList( new String[]{"col3","col3-1","col3-1-1"} ) ,
         Arrays.asList( new String[]{null,"ex_col3-1","ex_col3-1-1"} )
         );
-    node.createExpandColumnBinary( binaryList );
+    node.createExpandColumnBinary( binaryList , new ExpandColumnLink() );
     assertEquals( binaryList.size() , 5 );
     assertNotNull( findColumnBinaryFromColumnName( "col1" , binaryList ) );
     assertNotNull( findColumnBinaryFromColumnName( "col2" , binaryList ) );
@@ -619,7 +619,7 @@ public class TestExpandNode {
     for ( int i = 0 ; i < col3_1_2_innerExpandIndex.length ; i++ ) {
       assertEquals( col3_1_2_inner.loadIndex[i] , col3_1_2_innerExpandIndex[i] );
     }
-    assertNull( findColumnBinaryFromColumnName( "ex_col3-1-1" , binaryList ).loadIndex );
+    assertNotNull( findColumnBinaryFromColumnName( "ex_col3-1-1" , binaryList ).loadIndex );
   }
 
   @Test
@@ -650,7 +650,7 @@ public class TestExpandNode {
         Arrays.asList( new String[]{"col3","col3-1","col3-1-1"} ) ,
         Arrays.asList( new String[]{null,"ex_col3-1","ex_col3-1-1"} )
         );
-    node.createExpandColumnBinary( binaryList );
+    node.createExpandColumnBinary( binaryList , new ExpandColumnLink() );
     assertEquals( binaryList.size() , 5 );
     assertNotNull( findColumnBinaryFromColumnName( "col1" , binaryList ) );
     assertNotNull( findColumnBinaryFromColumnName( "col2" , binaryList ) );
@@ -684,7 +684,7 @@ public class TestExpandNode {
     for ( int i = 0 ; i < col3_1_2_innerExpandIndex.length ; i++ ) {
       assertEquals( col3_1_2_inner.loadIndex[i] , col3_1_2_innerExpandIndex[i] );
     }
-    assertNull( findColumnBinaryFromColumnName( "ex_col3-1-1" , binaryList ).loadIndex );
+    assertNotNull( findColumnBinaryFromColumnName( "ex_col3-1-1" , binaryList ).loadIndex );
   }
 
   @Test
@@ -715,7 +715,7 @@ public class TestExpandNode {
         Arrays.asList( new String[]{"col3","col3-1","col3-1-1"} ) ,
         Arrays.asList( new String[]{null,"ex_col3-1","ex_col3-1-1"} )
         );
-    node.createExpandColumnBinary( binaryList );
+    node.createExpandColumnBinary( binaryList , new ExpandColumnLink() );
     assertEquals( binaryList.size() , 5 );
     assertNotNull( findColumnBinaryFromColumnName( "col1" , binaryList ) );
     assertNotNull( findColumnBinaryFromColumnName( "col2" , binaryList ) );
@@ -749,7 +749,7 @@ public class TestExpandNode {
     for ( int i = 0 ; i < col3_1_2_innerExpandIndex.length ; i++ ) {
       assertEquals( col3_1_2_inner.loadIndex[i] , col3_1_2_innerExpandIndex[i] );
     }
-    assertNull( findColumnBinaryFromColumnName( "ex_col3-1-1" , binaryList ).loadIndex );
+    assertNotNull( findColumnBinaryFromColumnName( "ex_col3-1-1" , binaryList ).loadIndex );
   }
 
   @Test
@@ -780,7 +780,7 @@ public class TestExpandNode {
         Arrays.asList( new String[]{"col3","col3-1","col3-1-1"} ) ,
         Arrays.asList( new String[]{null,"ex_col3-1","ex_col3-1-1"} )
         );
-    node.createExpandColumnBinary( binaryList );
+    node.createExpandColumnBinary( binaryList , new ExpandColumnLink() );
     assertEquals( binaryList.size() , 5 );
     assertNotNull( findColumnBinaryFromColumnName( "col1" , binaryList ) );
     assertNotNull( findColumnBinaryFromColumnName( "col2" , binaryList ) );
@@ -814,7 +814,7 @@ public class TestExpandNode {
     for ( int i = 0 ; i < col3_1_2_innerExpandIndex.length ; i++ ) {
       assertEquals( col3_1_2_inner.loadIndex[i] , col3_1_2_innerExpandIndex[i] );
     }
-    assertNull( findColumnBinaryFromColumnName( "ex_col3-1-1" , binaryList ).loadIndex );
+    assertNotNull( findColumnBinaryFromColumnName( "ex_col3-1-1" , binaryList ).loadIndex );
   }
 
   @Test
@@ -845,7 +845,7 @@ public class TestExpandNode {
         Arrays.asList( new String[]{"col3","col3-1","col3-1-1"} ) ,
         Arrays.asList( new String[]{null,"ex_col3-1","ex_col3-1-1"} )
         );
-    node.createExpandColumnBinary( binaryList );
+    node.createExpandColumnBinary( binaryList , new ExpandColumnLink() );
     assertEquals( binaryList.size() , 5 );
     assertNotNull( findColumnBinaryFromColumnName( "col1" , binaryList ) );
     assertNotNull( findColumnBinaryFromColumnName( "col2" , binaryList ) );
@@ -879,7 +879,7 @@ public class TestExpandNode {
     for ( int i = 0 ; i < col3_1_2_innerExpandIndex.length ; i++ ) {
       assertEquals( col3_1_2_inner.loadIndex[i] , col3_1_2_innerExpandIndex[i] );
     }
-    assertNull( findColumnBinaryFromColumnName( "ex_col3-1-1" , binaryList ).loadIndex );
+    assertNotNull( findColumnBinaryFromColumnName( "ex_col3-1-1" , binaryList ).loadIndex );
   }
 
   @Test
@@ -910,7 +910,7 @@ public class TestExpandNode {
         Arrays.asList( new String[]{"col3","col3-1","col3-1-1"} ) ,
         Arrays.asList( new String[]{null,"ex_col3-1","ex_col3-1-1"} )
         );
-    node.createExpandColumnBinary( binaryList );
+    node.createExpandColumnBinary( binaryList , new ExpandColumnLink() );
     assertEquals( binaryList.size() , 5 );
     assertNotNull( findColumnBinaryFromColumnName( "col1" , binaryList ) );
     assertNotNull( findColumnBinaryFromColumnName( "col2" , binaryList ) );
@@ -944,7 +944,7 @@ public class TestExpandNode {
     for ( int i = 0 ; i < col3_1_2_innerExpandIndex.length ; i++ ) {
       assertEquals( col3_1_2_inner.loadIndex[i] , col3_1_2_innerExpandIndex[i] );
     }
-    assertNull( findColumnBinaryFromColumnName( "ex_col3-1-1" , binaryList ).loadIndex );
+    assertNotNull( findColumnBinaryFromColumnName( "ex_col3-1-1" , binaryList ).loadIndex );
   }
 
 }

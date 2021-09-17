@@ -32,11 +32,6 @@ public class NotFlattenFunction implements IFlattenFunction {
   }
 
   @Override
-  public Spread flatten( final Spread spread ) {
-    return spread;
-  }
-
-  @Override
   public List<ColumnBinary> flattenFromColumnBinary(
       final List<ColumnBinary> columnBinaryList ) {
     return columnBinaryList;

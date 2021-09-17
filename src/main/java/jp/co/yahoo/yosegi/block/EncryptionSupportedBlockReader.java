@@ -35,6 +35,7 @@ import jp.co.yahoo.yosegi.encryptor.FindEncryptorFactory;
 import jp.co.yahoo.yosegi.encryptor.IEncryptor;
 import jp.co.yahoo.yosegi.encryptor.IEncryptorFactory;
 import jp.co.yahoo.yosegi.encryptor.Module;
+import jp.co.yahoo.yosegi.inmemory.SpreadRawConverter;
 import jp.co.yahoo.yosegi.keystore.KeyStore;
 import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.expand.ExpandFunctionFactory;
@@ -306,27 +307,25 @@ public class EncryptionSupportedBlockReader implements IBlockReader {
 
   @Override
   public Spread next() throws IOException {
-    Spread spread = new Spread();
-    int spreadSize = spreadSizeList.get( readCount ).intValue();
-    for ( ColumnBinary columnBinary : block.get( readCount ) ) {
-      if ( columnBinary != null ) {
-        IColumnBinaryMaker maker = FindColumnBinaryMaker.get( columnBinary.makerClassName );
-        spread.addColumn( maker.toColumn( columnBinary ) );
-        readSummaryStats.merge( columnBinary.toSummaryStats() );
+    SpreadRawConverter converter = new SpreadRawConverter();
+
+    List<ColumnBinary> raw = nextRaw();
+    int loadSize = getCurrentSpreadSize();
+    for ( ColumnBinary columnBinary : raw ) {
+      if ( columnBinary.loadIndex != null ) {
+        loadSize = columnBinary.loadIndex.length;
+        break;
       }
     }
-    spread.setRowCount( spreadSize );
-
-    readCount++;
-    Spread expandSpread = expandFunction.expand( spread );
-    return flattenFunction.flatten( expandSpread );
+    return converter.convert( raw , loadSize );
   }
 
   @Override
   public List<ColumnBinary> nextRaw() throws IOException {
     List<ColumnBinary> columnBinaryList = block.get( readCount );
     readCount++;
-    return columnBinaryList;
+    expandFunction.expandFromColumnBinary( columnBinaryList );
+    return flattenFunction.flattenFromColumnBinary( columnBinaryList );
   }
 
   @Override

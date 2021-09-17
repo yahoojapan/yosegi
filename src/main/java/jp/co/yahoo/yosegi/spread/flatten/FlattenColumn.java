@@ -19,8 +19,8 @@
 package jp.co.yahoo.yosegi.spread.flatten;
 
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
+import jp.co.yahoo.yosegi.binary.ColumnBinaryUtil;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
-import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
 
@@ -45,57 +45,6 @@ public class FlattenColumn {
   }
 
   /**
-   * Get the target column from Spread.
-   */
-  public IColumn getColumn( final Spread spread ) {
-    IColumn currentColumn = null;
-    for ( String nodeName : targetColumnNameArray ) {
-      if ( currentColumn == null ) {
-        currentColumn = spread.getColumn( nodeName );
-      } else {
-        if ( currentColumn.getColumnType() == ColumnType.UNION ) {
-          currentColumn = currentColumn.getColumn( ColumnType.SPREAD );
-        }
-        currentColumn = currentColumn.getColumn( nodeName );
-      }
-    }
-    currentColumn.setColumnName( linkName );
-    return currentColumn;
-  }
-
-  private ColumnBinary findColumnBinary(
-      final List<ColumnBinary> binaryList , final String columnName ) {
-    ColumnBinary result = null;
-    if ( binaryList == null ) {
-      return result;
-    }
-    for ( int i = 0 ; i < binaryList.size() ; i++ ) {
-      ColumnBinary child = binaryList.get(i);
-      if ( columnName.equals( child.columnName ) ) {
-        result = child;
-        break;
-      }
-    }
-    return result;
-  }
-
-  private ColumnBinary createLinkColumnBinary( final String linkName , final ColumnBinary binary ) {
-    return new ColumnBinary(
-        binary.makerClassName,
-        binary.compressorClassName,
-        linkName,
-        binary.columnType,
-        binary.rowCount,
-        binary.rawDataSize,
-        binary.logicalDataSize,
-        binary.cardinality,
-        binary.binary,
-        binary.binaryStart,
-        binary.binaryLength,
-        binary.columnBinaryList );
-  }
-
-  /**
    * Get the target column from ColumnBinaryList.
    */
   public ColumnBinary getColumnBinary( final List<ColumnBinary> columnBinaryList  ) {
@@ -103,7 +52,7 @@ public class FlattenColumn {
     List<ColumnBinary> currentColumnBinaryList = columnBinaryList;
     for ( String nodeName : targetColumnNameArray ) {
       if ( currentColumnBinary == null ) {
-        currentColumnBinary = findColumnBinary( columnBinaryList , nodeName );
+        currentColumnBinary = ColumnBinaryUtil.getFromColumnName( nodeName , columnBinaryList );
       } else {
         if ( currentColumnBinary.columnType == ColumnType.UNION ) {
           ColumnBinary newCurrent = null;
@@ -121,14 +70,15 @@ public class FlattenColumn {
         if ( currentColumnBinary.columnType != ColumnType.SPREAD ) {
           return null;
         }
-        currentColumnBinary = findColumnBinary( currentColumnBinaryList , nodeName );
+        currentColumnBinary =
+            ColumnBinaryUtil.getFromColumnName( nodeName , currentColumnBinaryList );
       }
       if ( currentColumnBinary == null ) {
         return null;
       }
       currentColumnBinaryList = currentColumnBinary.columnBinaryList;
     }
-    return createLinkColumnBinary( linkName , currentColumnBinary );
+    return currentColumnBinary.createRenameColumnBinary( linkName );
   }
 
   /**

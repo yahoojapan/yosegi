@@ -86,9 +86,9 @@ public class YosegiArrayLoader implements IArrayLoader<IColumn> {
   }
 
   private ICell[] arrayCells;
-  private final Spread spread;
   private final ArrayColumn arrayColumn;
   private final int loadSize;
+  protected final Spread spread;
 
   /**
    * A loader that holds elements dictionary.
