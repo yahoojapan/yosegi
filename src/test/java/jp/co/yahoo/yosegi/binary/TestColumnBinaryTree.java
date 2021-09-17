@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import jp.co.yahoo.yosegi.inmemory.SpreadRawConverter;
 import org.junit.jupiter.api.Test;
 
 import jp.co.yahoo.yosegi.config.Configuration;
@@ -52,8 +53,9 @@ public class TestColumnBinaryTree{
     InputStream fileIn = new ByteArrayInputStream( data );
     reader.setNewStream( fileIn , data.length , readerConfig );
     int line = 0;
-    while( reader.hasNext() ){
-      Spread spread = reader.next();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       line += spread.size();
     }
     assertEquals( 1 , line );
@@ -61,8 +63,9 @@ public class TestColumnBinaryTree{
     fileIn = new ByteArrayInputStream( data );
     reader.setNewStream( fileIn , data.length , readerConfig );
     line = 0;
-    while( reader.hasNext() ){
-      Spread spread = reader.next();
+    spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       line += spread.size();
     }
     assertEquals( 1 , line );

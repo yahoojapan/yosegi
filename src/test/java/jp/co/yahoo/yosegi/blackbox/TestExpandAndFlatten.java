@@ -25,6 +25,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.stream.Stream;
 
+import jp.co.yahoo.yosegi.inmemory.SpreadRawConverter;
+import jp.co.yahoo.yosegi.reader.WrapReader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -74,8 +76,9 @@ public class TestExpandAndFlatten{
       byte[] data = out.toByteArray();
       InputStream fileIn = new ByteArrayInputStream(data);
       reader.setNewStream(fileIn, data.length, readerConfig);
-      while (reader.hasNext()) {
-        Spread spread = reader.next();
+      WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+      while (spreadWrapReader.hasNext()) {
+        Spread spread = spreadWrapReader.next();
         IColumn f1Column = spread.getColumn("f1");
         IColumn f2Column = spread.getColumn("f2");
         IColumn f3Column = spread.getColumn("f3");

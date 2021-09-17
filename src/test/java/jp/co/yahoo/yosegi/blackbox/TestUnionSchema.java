@@ -29,6 +29,8 @@ import java.io.InputStreamReader;
 
 import java.util.stream.Stream;
 
+import jp.co.yahoo.yosegi.inmemory.SpreadRawConverter;
+import jp.co.yahoo.yosegi.reader.WrapReader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -74,8 +76,9 @@ public class TestUnionSchema{
     byte[] data = out.toByteArray();
     InputStream fileIn = new ByteArrayInputStream( data );
     reader.setNewStream( fileIn , data.length , readerConfig );
-    while( reader.hasNext() ){
-      Spread spread = reader.next();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       System.out.println( spread.toString() );
     }
 
@@ -102,8 +105,9 @@ public class TestUnionSchema{
     byte[] data = out.toByteArray();
     InputStream fileIn = new ByteArrayInputStream( data );
     reader.setNewStream( fileIn , data.length , readerConfig );
-    while( reader.hasNext() ){
-      Spread spread = reader.next();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       IColumn unionColumn = spread.getColumn( "union" );
       assertEquals( unionColumn.getColumnType() , ColumnType.UNION );
     }
@@ -132,8 +136,9 @@ public class TestUnionSchema{
     byte[] data = out.toByteArray();
     InputStream fileIn = new ByteArrayInputStream( data );
     reader.setNewStream( fileIn , data.length , readerConfig );
-    while( reader.hasNext() ){
-      Spread spread = reader.next();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       IColumn unionColumn = spread.getColumn( "array_from_union" );
       IColumn key1Column = unionColumn.getColumn( "key1" );
       assertEquals( unionColumn.getColumnType() , ColumnType.SPREAD );
@@ -168,8 +173,9 @@ public class TestUnionSchema{
     byte[] data = out.toByteArray();
     InputStream fileIn = new ByteArrayInputStream( data );
     reader.setNewStream( fileIn , data.length , readerConfig );
-    while( reader.hasNext() ){
-      Spread spread = reader.next();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       IColumn arrayColumn = spread.getColumn( "union_in_array" );
       assertEquals( arrayColumn.getColumnType() , ColumnType.INTEGER );
       assertEquals( 4 , arrayColumn.size() );
@@ -203,8 +209,9 @@ public class TestUnionSchema{
     byte[] data = out.toByteArray();
     InputStream fileIn = new ByteArrayInputStream( data );
     reader.setNewStream( fileIn , data.length , readerConfig );
-    while( reader.hasNext() ){
-      Spread spread = reader.next();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       IColumn arrayColumn = spread.getColumn( "parallel" );
       assertEquals( arrayColumn.getColumnType() , ColumnType.BOOLEAN );
       assertEquals( 4 , arrayColumn.size() );
@@ -239,8 +246,9 @@ public class TestUnionSchema{
     byte[] data = out.toByteArray();
     InputStream fileIn = new ByteArrayInputStream( data );
     reader.setNewStream( fileIn , data.length , readerConfig );
-    while( reader.hasNext() ){
-      Spread spread = reader.next();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       IColumn arrayColumn = spread.getColumn( "k1" );
       assertEquals( arrayColumn.getColumnType() , ColumnType.STRING );
       assertEquals( 4 , arrayColumn.size() );
@@ -274,8 +282,9 @@ public class TestUnionSchema{
     byte[] data = out.toByteArray();
     InputStream fileIn = new ByteArrayInputStream( data );
     reader.setNewStream( fileIn , data.length , readerConfig );
-    while( reader.hasNext() ){
-      Spread spread = reader.next();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       IColumn arrayColumn = spread.getColumn( "other" );
       assertEquals( arrayColumn.getColumnType() , ColumnType.UNION );
       assertEquals( 8 , arrayColumn.size() );
@@ -317,8 +326,9 @@ public class TestUnionSchema{
     byte[] data = out.toByteArray();
     InputStream fileIn = new ByteArrayInputStream( data );
     reader.setNewStream( fileIn , data.length , readerConfig );
-    while( reader.hasNext() ){
-      Spread spread = reader.next();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       IColumn arrayColumn = spread.getColumn( "other" );
 
       assertEquals( "a" , ( (PrimitiveObject)( arrayColumn.get( 0 ).getRow() ) ).getString() );
@@ -347,8 +357,9 @@ public class TestUnionSchema{
     byte[] data = out.toByteArray();
     InputStream fileIn = new ByteArrayInputStream( data );
     reader.setNewStream( fileIn , data.length , readerConfig );
-    while( reader.hasNext() ){
-      Spread spread = reader.next();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       IColumn column = spread.getColumn( "d" );
       assertEquals( column.getColumnType() , ColumnType.SHORT );
     }
@@ -378,8 +389,9 @@ public class TestUnionSchema{
     byte[] data = out.toByteArray();
     InputStream fileIn = new ByteArrayInputStream( data );
     reader.setNewStream( fileIn , data.length , readerConfig );
-    while( reader.hasNext() ){
-      Spread spread = reader.next();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       IColumn column = spread.getColumn( "d" );
       assertEquals( column.getColumnType() , ColumnType.INTEGER );
     }
@@ -411,8 +423,9 @@ public class TestUnionSchema{
     byte[] data = out.toByteArray();
     InputStream fileIn = new ByteArrayInputStream( data );
     reader.setNewStream( fileIn , data.length , readerConfig );
-    while( reader.hasNext() ){
-      Spread spread = reader.next();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       IColumn column = spread.getColumn( "d" );
       assertEquals( column.getColumnType() , ColumnType.LONG );
     }
@@ -446,8 +459,9 @@ public class TestUnionSchema{
     byte[] data = out.toByteArray();
     InputStream fileIn = new ByteArrayInputStream( data );
     reader.setNewStream( fileIn , data.length , readerConfig );
-    while( reader.hasNext() ){
-      Spread spread = reader.next();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       IColumn column = spread.getColumn( "d" );
       assertEquals( column.getColumnType() , ColumnType.UNION );
     }
@@ -481,8 +495,9 @@ public class TestUnionSchema{
     byte[] data = out.toByteArray();
     InputStream fileIn = new ByteArrayInputStream( data );
     reader.setNewStream( fileIn , data.length , readerConfig );
-    while( reader.hasNext() ){
-      Spread spread = reader.next();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       IColumn column = spread.getColumn( "d" );
       assertEquals( column.getColumnType() , ColumnType.UNION );
     }
@@ -510,8 +525,9 @@ public class TestUnionSchema{
     byte[] data = out.toByteArray();
     InputStream fileIn = new ByteArrayInputStream( data );
     reader.setNewStream( fileIn , data.length , readerConfig );
-    while( reader.hasNext() ){
-      Spread spread = reader.next();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       IColumn column = spread.getColumn( "d" );
       assertEquals( column.getColumnType() , ColumnType.DOUBLE );
     }
@@ -541,8 +557,9 @@ public class TestUnionSchema{
     byte[] data = out.toByteArray();
     InputStream fileIn = new ByteArrayInputStream( data );
     reader.setNewStream( fileIn , data.length , readerConfig );
-    while( reader.hasNext() ){
-      Spread spread = reader.next();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       IColumn column = spread.getColumn( "d" );
       assertEquals( column.getColumnType() , ColumnType.UNION );
     }
@@ -572,8 +589,9 @@ public class TestUnionSchema{
     byte[] data = out.toByteArray();
     InputStream fileIn = new ByteArrayInputStream( data );
     reader.setNewStream( fileIn , data.length , readerConfig );
-    while( reader.hasNext() ){
-      Spread spread = reader.next();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       IColumn column = spread.getColumn( "d" );
       assertEquals( column.getColumnType() , ColumnType.UNION );
     }
@@ -601,8 +619,9 @@ public class TestUnionSchema{
     byte[] data = out.toByteArray();
     InputStream fileIn = new ByteArrayInputStream( data );
     reader.setNewStream( fileIn , data.length , readerConfig );
-    while( reader.hasNext() ){
-      Spread spread = reader.next();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       IColumn column = spread.getColumn( "d" );
       assertEquals( column.getColumnType() , ColumnType.UNION );
     }

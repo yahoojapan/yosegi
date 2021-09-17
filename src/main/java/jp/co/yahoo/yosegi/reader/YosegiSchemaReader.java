@@ -19,6 +19,7 @@
 package jp.co.yahoo.yosegi.reader;
 
 import jp.co.yahoo.yosegi.config.Configuration;
+import jp.co.yahoo.yosegi.inmemory.SpreadRawConverter;
 import jp.co.yahoo.yosegi.message.parser.IParser;
 import jp.co.yahoo.yosegi.message.parser.ISettableIndexParser;
 import jp.co.yahoo.yosegi.message.parser.IStreamReader;
@@ -40,15 +41,33 @@ public class YosegiSchemaReader implements IStreamReader {
   private IExpressionNode node = new AndExpressionNode();
   private Spread currentSpread;
   private int currentIndex;
+  private WrapReader<Spread> spreadWrapReader;
 
+  /**
+   * New stream setter.
+   * @param in new input stream.
+   * @param dataSize input data size.
+   * @param config reader configuration.
+   * @throws IOException exception.
+   */
   public void setNewStream(
       final InputStream in ,
       final long dataSize,
       final Configuration config ) throws IOException {
     currentReader.setNewStream( in , dataSize , config );
+    spreadWrapReader = new WrapReader<>(currentReader, new SpreadRawConverter());
     nextReader();
   }
 
+  /**
+   * New stream setter.
+   * @param in new input stream.
+   * @param dataSize input data size.
+   * @param config reader configuration.
+   * @param start start position.
+   * @param length input length.
+   * @throws IOException exception.
+   */
   public void setNewStream(
       final InputStream in ,
       final long dataSize,
@@ -56,6 +75,7 @@ public class YosegiSchemaReader implements IStreamReader {
       final long start ,
       final long length ) throws IOException {
     currentReader.setNewStream( in , dataSize , config , start , length );
+    spreadWrapReader = new WrapReader<>(currentReader, new SpreadRawConverter());
     nextReader();
   }
 
@@ -71,12 +91,12 @@ public class YosegiSchemaReader implements IStreamReader {
   }
 
   private boolean nextReader() throws IOException {
-    if ( ! currentReader.hasNext() ) {
+    if (! spreadWrapReader.hasNext()) {
       currentSpread = null;
       currentIndex = 0;
       return false;
     }
-    currentSpread = currentReader.next();
+    currentSpread = spreadWrapReader.next();
     if ( currentSpread.size() == 0 ) {
       return nextReader();
     }
@@ -112,7 +132,7 @@ public class YosegiSchemaReader implements IStreamReader {
 
   @Override
   public void close() throws IOException {
-    currentReader.close();
+    spreadWrapReader.close();
   }
 
 }

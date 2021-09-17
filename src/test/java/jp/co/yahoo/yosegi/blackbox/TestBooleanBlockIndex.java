@@ -16,9 +16,11 @@
 package jp.co.yahoo.yosegi.blackbox;
 
 import jp.co.yahoo.yosegi.config.Configuration;
+import jp.co.yahoo.yosegi.inmemory.SpreadRawConverter;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.parser.IParser;
 import jp.co.yahoo.yosegi.message.parser.json.JacksonMessageReader;
+import jp.co.yahoo.yosegi.reader.WrapReader;
 import jp.co.yahoo.yosegi.reader.YosegiReader;
 import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
@@ -144,8 +146,9 @@ public class TestBooleanBlockIndex {
       byte[] data = getData();
       InputStream in = new ByteArrayInputStream(data);
       reader.setNewStream(in, data.length, readerConfig);
-      while (reader.hasNext()) {
-        Spread spread = reader.next();
+      WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+      while (spreadWrapReader.hasNext()) {
+        Spread spread = spreadWrapReader.next();
         for (List<Object> expected : expecteds) {
           String columnName = (String) expected.get(0);
           IColumn col = spread.getColumn(columnName);
@@ -315,8 +318,9 @@ public class TestBooleanBlockIndex {
       InputStream in = new ByteArrayInputStream(data);
       reader.setBlockSkipIndex(index);
       reader.setNewStream(in, data.length, readerConfig);
-      while (reader.hasNext()) {
-        Spread spread = reader.next();
+      WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+      while (spreadWrapReader.hasNext()) {
+        Spread spread = spreadWrapReader.next();
         for (List<Object> expected : expecteds) {
           String columnName = (String) expected.get(0);
           IColumn col = spread.getColumn(columnName);
@@ -566,8 +570,9 @@ public class TestBooleanBlockIndex {
       InputStream in = new ByteArrayInputStream(data);
       reader.setBlockSkipIndex(index);
       reader.setNewStream(in, data.length, readerConfig);
-      while (reader.hasNext()) {
-        Spread spread = reader.next();
+      WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+      while (spreadWrapReader.hasNext()) {
+        Spread spread = spreadWrapReader.next();
         for (List<Object> expected : expecteds) {
           String columnName = (String) expected.get(0);
           IColumn col = spread.getColumn(columnName);
@@ -735,8 +740,9 @@ public class TestBooleanBlockIndex {
       InputStream in = new ByteArrayInputStream(data);
       reader.setBlockSkipIndex(index);
       reader.setNewStream(in, data.length, readerConfig);
-      while (reader.hasNext()) {
-        Spread spread = reader.next();
+      WrapReader<Spread> spreadWrapReader = new WrapReader<Spread>(reader, new SpreadRawConverter());
+      while (spreadWrapReader.hasNext()) {
+        Spread spread = spreadWrapReader.next();
         for (List<Object> expected : expecteds) {
           String colName = (String) expected.get(0);
           IColumn col = spread.getColumn(colName);
