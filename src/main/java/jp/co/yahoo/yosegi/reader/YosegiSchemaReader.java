@@ -19,6 +19,7 @@
 package jp.co.yahoo.yosegi.reader;
 
 import jp.co.yahoo.yosegi.config.Configuration;
+import jp.co.yahoo.yosegi.inmemory.SpreadRawConverter;
 import jp.co.yahoo.yosegi.message.parser.IParser;
 import jp.co.yahoo.yosegi.message.parser.ISettableIndexParser;
 import jp.co.yahoo.yosegi.message.parser.IStreamReader;
@@ -35,6 +36,8 @@ public class YosegiSchemaReader implements IStreamReader {
 
   private final YosegiReader currentReader = new YosegiReader();
   private final SpreadColumn spreadColumn = new SpreadColumn( "root" );
+  private final WrapReader<Spread> spreadWrapReader =
+      new WrapReader<>(currentReader, new SpreadRawConverter());
 
   private ISettableIndexParser currentParser;
   private IExpressionNode node = new AndExpressionNode();
@@ -71,12 +74,12 @@ public class YosegiSchemaReader implements IStreamReader {
   }
 
   private boolean nextReader() throws IOException {
-    if ( ! currentReader.hasNext() ) {
+    if (! spreadWrapReader.hasNext()) {
       currentSpread = null;
       currentIndex = 0;
       return false;
     }
-    currentSpread = currentReader.next();
+    currentSpread = spreadWrapReader.next();
     if ( currentSpread.size() == 0 ) {
       return nextReader();
     }
@@ -112,7 +115,7 @@ public class YosegiSchemaReader implements IStreamReader {
 
   @Override
   public void close() throws IOException {
-    currentReader.close();
+    spreadWrapReader.close();
   }
 
 }

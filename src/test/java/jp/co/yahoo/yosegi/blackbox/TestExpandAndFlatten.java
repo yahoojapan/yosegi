@@ -25,6 +25,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.stream.Stream;
 
+import jp.co.yahoo.yosegi.inmemory.SpreadRawConverter;
+import jp.co.yahoo.yosegi.reader.WrapReader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -67,6 +69,7 @@ public class TestExpandAndFlatten{
     }
 
     try (YosegiReader reader = new YosegiReader()) {
+      WrapReader<Spread> spreadWrapReader = new WrapReader<>(reader, new SpreadRawConverter());
       Configuration readerConfig = new Configuration();
       readerConfig.set("spread.reader.expand.column", "{ \"base\" :{ \"node\" : \"col3\" ,  \"link_name\" : \"expand\" } }");
       readerConfig.set("spread.reader.flatten.column", "[ { \"link_name\" : \"f1\" , \"nodes\" : [\"expand\" , \"f1\"] } , { \"link_name\" : \"f2\" , \"nodes\" : [\"expand\" , \"f2\"] } ]");
@@ -74,8 +77,8 @@ public class TestExpandAndFlatten{
       byte[] data = out.toByteArray();
       InputStream fileIn = new ByteArrayInputStream(data);
       reader.setNewStream(fileIn, data.length, readerConfig);
-      while (reader.hasNext()) {
-        Spread spread = reader.next();
+      while (spreadWrapReader.hasNext()) {
+        Spread spread = spreadWrapReader.next();
         IColumn f1Column = spread.getColumn("f1");
         IColumn f2Column = spread.getColumn("f2");
         IColumn f3Column = spread.getColumn("f3");
