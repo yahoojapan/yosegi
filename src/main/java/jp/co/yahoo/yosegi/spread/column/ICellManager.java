@@ -18,7 +18,6 @@
 
 package jp.co.yahoo.yosegi.spread.column;
 
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
 
@@ -33,33 +32,5 @@ public interface ICellManager<T> {
   int size();
 
   void clear();
-
-  PrimitiveObject[] getPrimitiveObjectArray(
-      final int start , final int length );
-
-  void setPrimitiveObjectArray(
-      final int start ,
-      final int length ,
-      final IMemoryAllocator allocator );
-
-  default boolean isDictionary() {
-    return false;
-  }
-
-  default int getDictionarySize() {
-    throw new UnsupportedOperationException( "This method only supports dictionary columns." );
-  }
-
-  default boolean[] getDictionaryIsNullArray() {
-    throw new UnsupportedOperationException( "This method only supports dictionary columns." );
-  }
-
-  default int[] getDictionaryIndexArray() {
-    throw new UnsupportedOperationException( "This method only supports dictionary columns." );
-  }
-
-  default PrimitiveObject[] getDictionaryArray() {
-    throw new UnsupportedOperationException( "This method only supports dictionary columns." );
-  }
 
 }

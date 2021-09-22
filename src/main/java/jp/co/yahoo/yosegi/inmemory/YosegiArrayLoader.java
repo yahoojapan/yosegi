@@ -68,21 +68,6 @@ public class YosegiArrayLoader implements IArrayLoader<IColumn> {
     @Override
     public void clear() {}
 
-    @Override
-    public PrimitiveObject[] getPrimitiveObjectArray(
-        final int start ,
-        final int length ) {
-      return new PrimitiveObject[length];
-    }
-
-    @Override
-    public void setPrimitiveObjectArray(
-        final int start ,
-        final int length ,
-        final IMemoryAllocator allocator ) {
-      return;
-    }
-
   }
 
   private ICell[] arrayCells;

@@ -36,7 +36,6 @@ import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
 import jp.co.yahoo.yosegi.spread.column.PrimitiveColumn;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 
 import jp.co.yahoo.yosegi.message.objects.*;

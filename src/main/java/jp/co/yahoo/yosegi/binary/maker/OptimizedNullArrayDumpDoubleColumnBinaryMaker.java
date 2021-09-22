@@ -29,7 +29,6 @@ import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.inmemory.IDictionaryLoader;
 import jp.co.yahoo.yosegi.inmemory.ILoader;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
 import jp.co.yahoo.yosegi.inmemory.LoadType;
 import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
@@ -328,47 +327,6 @@ public class OptimizedNullArrayDumpDoubleColumnBinaryMaker implements IColumnBin
       loadFromExpandColumnBinary(columnBinary, (IDictionaryLoader) loader);
     }
     loader.finish();
-  }
-
-  @Override
-  public void loadInMemoryStorage(
-      final ColumnBinary columnBinary ,
-      final IMemoryAllocator allocator ) throws IOException {
-    int start = columnBinary.binaryStart + ( Double.BYTES * 2 );
-    int length = columnBinary.binaryLength - ( Double.BYTES * 2 );
-
-    ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-    byte[] binary = compressor.decompress( columnBinary.binary , start , length );
-
-    ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
-
-    ByteOrder order = wrapBuffer.get() == (byte)0
-        ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-    int startIndex = wrapBuffer.getInt();
-    int nullIndexLength = wrapBuffer.getInt();
-    int valueBinaryLength = binary.length - META_LENGTH - nullIndexLength;
-
-    boolean[] isNullArray =
-        NullBinaryEncoder.toIsNullArray( binary , META_LENGTH , nullIndexLength );
-
-    allocator.setValueCount( startIndex + isNullArray.length );
-
-    IReadSupporter valueReader = ByteBufferSupporterFactory.createReadSupporter(
-        binary,
-        META_LENGTH + nullIndexLength,
-        valueBinaryLength,
-        order );
-    int index = 0;
-    for ( ; index < startIndex ; index++ ) {
-      allocator.setNull( index );
-    }
-    for ( int i = 0 ; i < isNullArray.length ; i++,index++ ) {
-      if ( isNullArray[i]  ) {
-        allocator.setNull( index );
-      } else {
-        allocator.setDouble( index , valueReader.getDouble() );
-      }
-    }
   }
 
   @Override

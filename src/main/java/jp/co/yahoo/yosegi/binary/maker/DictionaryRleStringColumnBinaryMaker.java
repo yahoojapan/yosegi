@@ -30,7 +30,6 @@ import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.inmemory.IDictionary;
 import jp.co.yahoo.yosegi.inmemory.IDictionaryLoader;
 import jp.co.yahoo.yosegi.inmemory.ILoader;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
 import jp.co.yahoo.yosegi.inmemory.LoadType;
 import jp.co.yahoo.yosegi.inmemory.PrimitiveObjectDictionary;
@@ -592,102 +591,6 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
       loadFromExpandColumnBinary(columnBinary, (IDictionaryLoader) loader);
     }
     loader.finish();
-  }
-
-  @Override
-  public void loadInMemoryStorage(
-      final ColumnBinary columnBinary ,
-      final IMemoryAllocator allocator ) throws IOException {
-    ByteBuffer headerWrapBuffer = ByteBuffer.wrap(
-        columnBinary.binary ,
-        columnBinary.binaryStart ,
-        columnBinary.binaryLength );
-    int minCharLength = headerWrapBuffer.getInt();
-    headerWrapBuffer.position( headerWrapBuffer.position() + minCharLength );
-
-    int maxCharLength = headerWrapBuffer.getInt();
-    headerWrapBuffer.position( headerWrapBuffer.position() + maxCharLength );
-    int headerSize = Integer.BYTES + minCharLength + Integer.BYTES + maxCharLength;
-
-    ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-    byte[] binary = compressor.decompress(
-        columnBinary.binary ,
-        columnBinary.binaryStart + headerSize ,
-        columnBinary.binaryLength - headerSize );
-    ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
-    wrapBuffer.get();
-    int startIndex = wrapBuffer.getInt();
-    final int rowGroupCount = wrapBuffer.getInt();
-    int maxRowGroupCount = wrapBuffer.getInt();
-    int dicSize = wrapBuffer.getInt();
-    int minLength = wrapBuffer.getInt();
-    int maxLength = wrapBuffer.getInt();
-    int nullLength = wrapBuffer.getInt();
-    int rowGroupIndexLength = wrapBuffer.getInt();
-    int rowGroupBinaryLength = wrapBuffer.getInt();
-    int lengthBinaryLength = wrapBuffer.getInt();
-
-    boolean[] isNullArray =
-        NullBinaryEncoder.toIsNullArray( binary , META_LENGTH , nullLength );
-
-    allocator.setValueCount( startIndex + isNullArray.length );
-
-    NumberToBinaryUtils.IIntConverter rowGroupIndexConverter =
-        NumberToBinaryUtils.getIntConverter( 0 , dicSize );
-    IReadSupporter rowGroupIndexReader = rowGroupIndexConverter.toReadSupporter(
-        binary,
-        META_LENGTH + nullLength ,
-        rowGroupIndexLength );
-
-    NumberToBinaryUtils.IIntConverter rowGroupLengthConverter =
-        NumberToBinaryUtils.getIntConverter( 0 , maxRowGroupCount );
-    IReadSupporter rowGroupLengthReader = rowGroupLengthConverter.toReadSupporter(
-        binary,
-        META_LENGTH + nullLength + rowGroupIndexLength,
-        rowGroupBinaryLength );
-
-    IReadSupporter lengthReader;
-    if ( minLength == maxLength ) {
-      lengthReader = NumberToBinaryUtils.getFixedIntConverter( minLength );
-    } else {
-      NumberToBinaryUtils.IIntConverter lengthConverter =
-          NumberToBinaryUtils.getIntConverter( minLength , maxLength );
-      lengthReader = lengthConverter.toReadSupporter(
-          binary ,
-          META_LENGTH + nullLength + rowGroupIndexLength + rowGroupBinaryLength ,
-          lengthBinaryLength );
-    }
-    IDictionary dic = allocator.createDictionary( dicSize );
-    int currentStart = META_LENGTH 
-        + nullLength 
-        + rowGroupIndexLength
-        + rowGroupBinaryLength 
-        + lengthBinaryLength;
-    for ( int i = 0 ; i < dicSize ; i++ ) {
-      int currentLength = lengthReader.getInt();
-      dic.setBytes( i , binary , currentStart , currentLength );
-      currentStart += currentLength;
-    }
-
-    for ( int i = 0 ; i < startIndex ; i++ ) {
-      allocator.setNull( i );
-    }
-    int index = 0;
-    for ( int i = 0 ; i < rowGroupCount ; i++ ) {
-      int dicIndex = rowGroupIndexReader.getInt();
-      int rowGroupLength = rowGroupLengthReader.getInt();
-      for ( int n = 0 ; n < rowGroupLength ; index++ ) {
-        if ( isNullArray[index] ) {
-          allocator.setNull( index + startIndex );
-          continue;
-        }
-        allocator.setFromDictionary(
-            index + startIndex ,
-            dicIndex ,
-            dic );
-        n++;
-      }
-    }
   }
 
   @Override

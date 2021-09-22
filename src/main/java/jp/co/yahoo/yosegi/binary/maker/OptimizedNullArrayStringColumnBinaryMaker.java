@@ -30,7 +30,6 @@ import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.inmemory.IDictionary;
 import jp.co.yahoo.yosegi.inmemory.IDictionaryLoader;
 import jp.co.yahoo.yosegi.inmemory.ILoader;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
 import jp.co.yahoo.yosegi.inmemory.LoadType;
 import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
@@ -480,67 +479,6 @@ public class OptimizedNullArrayStringColumnBinaryMaker implements IColumnBinaryM
       loadFromExpandColumnBinary( columnBinary , (IDictionaryLoader)loader );
     }
     loader.finish();
-  }
-
-  @Override
-  public void loadInMemoryStorage(
-      final ColumnBinary columnBinary ,
-      final IMemoryAllocator allocator ) throws IOException {
-    byte[] binary = getDecompressBinary( columnBinary ); 
-
-    ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
-
-    ByteOrder order = wrapBuffer.get() == (byte)0
-        ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-    int startIndex = wrapBuffer.getInt();
-    final int rowCount = wrapBuffer.getInt();
-    int minLength = wrapBuffer.getInt();
-    int maxLength = wrapBuffer.getInt();
-    int dicSize = wrapBuffer.getInt();
-    int nullLength = wrapBuffer.getInt();
-    int indexLength = wrapBuffer.getInt();
-    int lengthBinaryLength = wrapBuffer.getInt();
-    int dicLength = binary.length - META_LENGTH - nullLength - indexLength - lengthBinaryLength;
-
-    boolean[] isNullArray =
-        NullBinaryEncoder.toIsNullArray( binary , META_LENGTH , nullLength );
-
-    IReadSupporter lengthReader;
-    if ( minLength == maxLength ) {
-      lengthReader = NumberToBinaryUtils.getFixedIntConverter( minLength );
-    } else {
-      NumberToBinaryUtils.IIntConverter lengthConverter =
-          NumberToBinaryUtils.getIntConverter( minLength , maxLength );
-      lengthReader = lengthConverter.toReadSupporter(
-          binary ,
-          META_LENGTH + nullLength + indexLength ,
-          lengthBinaryLength );
-    }
-
-    IDictionary dic = allocator.createDictionary( dicSize );
-    int currentStart = META_LENGTH + nullLength + indexLength + lengthBinaryLength;
-    for ( int i = 0 ; i < dicSize ; i++ ) {
-      int currentLength = lengthReader.getInt();
-      dic.setBytes( i , binary , currentStart , currentLength );
-      currentStart += currentLength;
-    }
-
-    allocator.setValueCount( startIndex + isNullArray.length );
-
-    NumberToBinaryUtils.IIntConverter indexConverter =
-        NumberToBinaryUtils.getIntConverter( 0 , dicSize );
-    IReadSupporter indexReader =
-        indexConverter.toReadSupporter( binary , META_LENGTH + nullLength , indexLength );
-    for ( int i = 0; i < startIndex ; i++ ) {
-      allocator.setNull( i );
-    }
-    for ( int i = 0 ; i < isNullArray.length ; i++ ) {
-      if ( isNullArray[i]  ) {
-        allocator.setNull( i + startIndex );
-      } else {
-        allocator.setFromDictionary( i + startIndex , indexReader.getInt() , dic );
-      }
-    }
   }
 
   @Override

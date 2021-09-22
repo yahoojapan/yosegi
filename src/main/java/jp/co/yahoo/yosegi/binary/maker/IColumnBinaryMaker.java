@@ -24,7 +24,6 @@ import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.inmemory.ILoader;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.inmemory.LoadType;
 import jp.co.yahoo.yosegi.spread.analyzer.IColumnAnalizeResult;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
@@ -45,10 +44,6 @@ public interface IColumnBinaryMaker {
   }
 
   int calcBinarySize( final IColumnAnalizeResult analizeResult );
-
-  void loadInMemoryStorage(
-      final ColumnBinary columnBinary ,
-      final IMemoryAllocator allocator ) throws IOException;
 
   // remove default
   default LoadType getLoadType( final ColumnBinary columnBinary , final int loadSize ) {

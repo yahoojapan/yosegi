@@ -20,7 +20,6 @@ package jp.co.yahoo.yosegi.spread.column;
 
 import static jp.co.yahoo.yosegi.constants.PrimitiveByteLength.JAVA_OBJECT_LENGTH;
 
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.design.IField;
 import jp.co.yahoo.yosegi.message.design.StructContainerField;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
@@ -173,26 +172,6 @@ public class SpreadColumn implements IColumn {
           }
         } );
     return schema;
-  }
-
-  @Override
-  public PrimitiveObject[] getPrimitiveObjectArray(
-      final int start , final int length ) {
-    PrimitiveObject[] result = new PrimitiveObject[length];
-    return result;
-  }
-
-  @Override
-  public void setPrimitiveObjectArray(
-      final int start ,
-      final int length ,
-      final IMemoryAllocator allocator ) throws IOException {
-    allocator.setValueCount( length );
-    for ( IColumn column : spread.getListColumn() ) {
-      IMemoryAllocator childAllocator =
-          allocator.getChild( column.getColumnName() , column.getColumnType() );
-      column.setPrimitiveObjectArray( start , length , childAllocator );
-    }
   }
 
   @Override

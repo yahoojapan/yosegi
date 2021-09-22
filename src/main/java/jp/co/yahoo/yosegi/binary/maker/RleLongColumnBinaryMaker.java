@@ -30,7 +30,6 @@ import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.inmemory.IDictionary;
 import jp.co.yahoo.yosegi.inmemory.IDictionaryLoader;
 import jp.co.yahoo.yosegi.inmemory.ILoader;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
 import jp.co.yahoo.yosegi.inmemory.LoadType;
 import jp.co.yahoo.yosegi.inmemory.PrimitiveObjectDictionary;
@@ -446,71 +445,6 @@ public class RleLongColumnBinaryMaker implements IColumnBinaryMaker {
       loadFromExpandColumnBinary(columnBinary, (IDictionaryLoader) loader);
     }
     loader.finish();
-  }
-
-  @Override
-  public void loadInMemoryStorage(
-      final ColumnBinary columnBinary ,
-      final IMemoryAllocator allocator ) throws IOException {
-    ByteBuffer compressWrapBuffer = ByteBuffer.wrap(
-        columnBinary.binary , columnBinary.binaryStart , columnBinary.binaryLength );
-    long min = compressWrapBuffer.getLong();
-    long max = compressWrapBuffer.getLong();
-
-    int start = columnBinary.binaryStart + ( Long.BYTES * 2 );
-    int length = columnBinary.binaryLength - ( Long.BYTES * 2 );
-
-    ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-    byte[] binary = compressor.decompress( columnBinary.binary , start , length );
-
-    ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
-
-    ByteOrder order = wrapBuffer.get() == (byte)0
-        ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-    int startIndex = wrapBuffer.getInt();
-    int rowCount = wrapBuffer.getInt();
-    int rowGroupCount = wrapBuffer.getInt();
-    int maxRowGroupCount = wrapBuffer.getInt();
-    int nullIndexLength = wrapBuffer.getInt();
-    int lengthBinarySize = wrapBuffer.getInt();
-    int valueBinaryLength = binary.length - META_LENGTH - nullIndexLength - lengthBinarySize;
-
-    boolean[] isNullArray =
-        NullBinaryEncoder.toIsNullArray( binary , META_LENGTH , nullIndexLength );
-
-    allocator.setValueCount( startIndex + isNullArray.length );
-
-    for ( int index = 0 ; index < startIndex ; index++ ) {
-      allocator.setNull( index );
-    }
-    NumberToBinaryUtils.IIntConverter lengthEncoder =
-        NumberToBinaryUtils.getIntConverter( 0 , maxRowGroupCount );
-    IReadSupporter lengthReader = lengthEncoder.toReadSupporter(
-        binary , 
-        META_LENGTH + nullIndexLength , 
-        lengthBinarySize );
-
-    INumEncoder valueEncoder =
-        NumEncoderUtil.createEncoder( min , max );
-    IDictionary dic = allocator.createDictionary( rowGroupCount );
-    valueEncoder.setDictionary(
-        binary,
-        META_LENGTH + nullIndexLength + lengthBinarySize,
-        rowGroupCount,
-        order, 
-        dic );
-    int index = 0;
-    for ( int i = 0 ; i < rowGroupCount ; i++ ) {
-      int valueLength = lengthReader.getInt();
-      for ( int n = 0 ; n < valueLength ; index++ ) {
-        if ( isNullArray[index] ) {
-          allocator.setNull( index + startIndex );
-          continue;
-        }
-        allocator.setFromDictionary( index + startIndex , i , dic );
-        n++;
-      }
-    }
   }
 
   @Override

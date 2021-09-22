@@ -16,12 +16,16 @@
  * limitations under the License.
  */
 
-package jp.co.yahoo.yosegi.inmemory;
+package jp.co.yahoo.yosegi.spread.column;
 
-public final class NullMemoryAllocator implements IMemoryAllocator {
+import java.util.List;
 
-  public static final IMemoryAllocator INSTANCE = new NullMemoryAllocator();
+public interface IColumnManager {
 
-  private NullMemoryAllocator() {}
+  IColumn get();
+
+  List<String> getColumnKeys();
+
+  int getColumnSize();
 
 }

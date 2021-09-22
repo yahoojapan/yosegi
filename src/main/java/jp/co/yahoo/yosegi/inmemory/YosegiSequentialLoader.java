@@ -74,22 +74,6 @@ public class YosegiSequentialLoader implements ISequentialLoader<IColumn> {
     @Override
     public void clear() {}
 
-    @Override
-    public PrimitiveObject[] getPrimitiveObjectArray(
-        final int start ,
-        final int length ) {
-      // Note: depricate this method.
-      return new PrimitiveObject[length];
-    }
-
-    @Override
-    public void setPrimitiveObjectArray(
-        final int start ,
-        final int length ,
-        final IMemoryAllocator allocator ) {
-      //Note: depricate this method.
-    }
-
   }
 
   private final ColumnType columnType;
