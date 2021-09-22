@@ -33,7 +33,6 @@ import jp.co.yahoo.yosegi.blockindex.StringRangeBlockIndex;
 import jp.co.yahoo.yosegi.compressor.DefaultCompressor;
 import jp.co.yahoo.yosegi.inmemory.IConstLoader;
 import jp.co.yahoo.yosegi.inmemory.ILoader;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
 import jp.co.yahoo.yosegi.inmemory.LoadType;
 import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
@@ -242,77 +241,6 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
       loadFromSequential( columnBinary , (ISequentialLoader)loader );
     }
     loader.finish();
-  }
-
-  @Override
-  public void loadInMemoryStorage(
-      final ColumnBinary columnBinary , final IMemoryAllocator allocator ) throws IOException {
-    ByteBuffer wrapBuffer = ByteBuffer.wrap(
-        columnBinary.binary , columnBinary.binaryStart , columnBinary.binaryLength );
-    switch ( columnBinary.columnType ) {
-      case BOOLEAN:
-        boolean booleanObj = wrapBuffer.get() == 1;
-        for ( int i = 0 ; i < columnBinary.rowCount ; i++ ) {
-          allocator.setBoolean( i , booleanObj );
-        }
-        break;
-      case BYTE:
-        byte byteObj = wrapBuffer.get();
-        for ( int i = 0 ; i < columnBinary.rowCount ; i++ ) {
-          allocator.setByte( i , byteObj );
-        }
-        break;
-      case SHORT:
-        short shortObj = wrapBuffer.getShort();
-        for ( int i = 0 ; i < columnBinary.rowCount ; i++ ) {
-          allocator.setShort( i , shortObj );
-        }
-        break;
-      case INTEGER:
-        int intObj = wrapBuffer.getInt();
-        for ( int i = 0 ; i < columnBinary.rowCount ; i++ ) {
-          allocator.setInteger( i , intObj );
-        }
-        break;
-      case LONG:
-        long longObj = wrapBuffer.getLong();
-        for ( int i = 0 ; i < columnBinary.rowCount ; i++ ) {
-          allocator.setLong( i , longObj );
-        }
-        break;
-      case FLOAT:
-        float floatObj = wrapBuffer.getFloat();
-        for ( int i = 0 ; i < columnBinary.rowCount ; i++ ) {
-          allocator.setFloat( i , floatObj );
-        }
-        break;
-      case DOUBLE:
-        double doubleObj = wrapBuffer.getDouble();
-        for ( int i = 0 ; i < columnBinary.rowCount ; i++ ) {
-          allocator.setDouble( i , doubleObj );
-        }
-        break;
-      case STRING:
-        int stringLength = wrapBuffer.getInt();
-        byte[] stringBytes = new byte[stringLength];
-        wrapBuffer.get( stringBytes );
-        String utf8 = new String( stringBytes , "UTF-8" );
-        for ( int i = 0 ; i < columnBinary.rowCount ; i++ ) {
-          allocator.setString( i , utf8 );
-        }
-        break;
-      case BYTES:
-        int byteLength = wrapBuffer.getInt();
-        byte[] byteBytes = new byte[byteLength];
-        wrapBuffer.get( byteBytes );
-        for ( int i = 0 ; i < columnBinary.rowCount ; i++ ) {
-          allocator.setBytes( i , byteBytes );
-        }
-        break;
-      default:
-        throw new IOException( "Unknown primitive type." );
-    }
-    allocator.setValueCount( columnBinary.rowCount );
   }
 
   @Override

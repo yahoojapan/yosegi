@@ -16,17 +16,10 @@
  * limitations under the License.
  */
 
-package jp.co.yahoo.yosegi.binary.maker;
+package jp.co.yahoo.yosegi.spread.column;
 
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.design.IField;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
-import jp.co.yahoo.yosegi.spread.column.ColumnType;
-import jp.co.yahoo.yosegi.spread.column.ICell;
-import jp.co.yahoo.yosegi.spread.column.ICellManager;
-import jp.co.yahoo.yosegi.spread.column.IColumn;
-import jp.co.yahoo.yosegi.spread.column.NullColumn;
-import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
 
 import java.io.IOException;
 import java.util.List;
@@ -150,21 +143,6 @@ public class LazyColumn implements IColumn {
   @Override
   public IField getSchema( final String schemaName ) throws IOException {
     return columnManager.get().getSchema( schemaName );
-  }
-
-  @Override
-  public PrimitiveObject[] getPrimitiveObjectArray(
-      final int start ,
-      final int length ) {
-    return columnManager.get().getPrimitiveObjectArray( start , length );
-  }
-
-  @Override
-  public void setPrimitiveObjectArray(
-      final int start ,
-      final int length ,
-      final IMemoryAllocator allocator ) throws IOException {
-    columnManager.get().setPrimitiveObjectArray( start , length , allocator );
   }
 
   @Override

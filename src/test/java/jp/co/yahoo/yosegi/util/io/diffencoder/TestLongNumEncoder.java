@@ -26,7 +26,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 
 import java.io.IOException;
@@ -38,86 +37,6 @@ public class TestLongNumEncoder {
   public void T_calcBinarySize_equals() throws IOException {
     LongNumEncoder encoder = new LongNumEncoder( Long.MIN_VALUE , Long.MAX_VALUE );
     assertEquals( encoder.calcBinarySize( 10 ) , 82 );
-  }
-
-  @Test
-  public void T_toBinaryAndtoPrimitiveArrayWithPrimitiveLong_equalsSetValue() throws IOException {
-    LongNumEncoder encoder = new LongNumEncoder( Long.MIN_VALUE , Long.MAX_VALUE );
-    byte[] buffer = new byte[encoder.calcBinarySize(10)];
-    long[] valueArray = new long[]{
-      0L,
-      (long)Long.MAX_VALUE,
-      (long)Long.MIN_VALUE,
-      1L,
-      2L,
-      3L,
-      4L,
-      5L,
-      6L,
-      7L
-    };
-    encoder.toBinary( valueArray , buffer , 0 , 10 , ByteOrder.nativeOrder() );
-    PrimitiveObject[] result = encoder.toPrimitiveArray( buffer , 0 , 10 , ByteOrder.nativeOrder() );
-    for ( int i = 0 ; i < 10 ; i++ ) {
-      assertEquals( result[i].getLong() , valueArray[i] );
-    }
-  }
-
-  @Test
-  public void T_toBinaryAndtoPrimitiveArrayWithJavaLong_equalsSetValue() throws IOException {
-    LongNumEncoder encoder = new LongNumEncoder( Long.MIN_VALUE , Long.MAX_VALUE );
-    byte[] buffer = new byte[encoder.calcBinarySize(10)];
-    Long[] valueArray = new Long[]{
-      Long.valueOf( 0L ),
-      Long.valueOf( (long)Long.MAX_VALUE ),
-      Long.valueOf( (long)Long.MIN_VALUE ),
-      Long.valueOf( 1L ),
-      Long.valueOf( 2L ),
-      Long.valueOf( 3L ),
-      Long.valueOf( 4L ),
-      Long.valueOf( 5L ),
-      Long.valueOf( 6L ),
-      Long.valueOf( 7L )
-    };
-    encoder.toBinary( valueArray , buffer , 0 , 10 , ByteOrder.nativeOrder() );
-    PrimitiveObject[] result = encoder.toPrimitiveArray( buffer , 0 , 10 , ByteOrder.nativeOrder() );
-    for ( int i = 0 ; i < 10 ; i++ ) {
-      assertEquals( result[i].getLong() , valueArray[i].longValue() );
-    }
-  }
-
-  @Test
-  public void T_getPrimitiveArray_equalsSetValue() throws IOException {
-    LongNumEncoder encoder = new LongNumEncoder( Long.MIN_VALUE , Long.MAX_VALUE );
-    byte[] buffer = new byte[encoder.calcBinarySize(5)];
-    long[] valueArray = new long[]{
-      0L,
-      2L,
-      4L,
-      6L,
-      8L,
-    };
-    boolean[] isNullArray = new boolean[]{
-      false,
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-      true
-    };
-    encoder.toBinary( valueArray , buffer , 0 , 5 , ByteOrder.nativeOrder() );
-    PrimitiveObject[] result = encoder.getPrimitiveArray( buffer , 0 , 5 , isNullArray , ByteOrder.nativeOrder() );
-    for ( int i = 0 ; i < 10 ; i++ ) {
-      if ( isNullArray[i] ) {
-        assertNull( result[i] );
-      } else {
-        assertEquals( result[i].getLong() , valueArray[i/2] );
-      }
-    }
   }
 
   @Test
@@ -142,43 +61,6 @@ public class TestLongNumEncoder {
     long[] result = dic.getLongArray();
     for ( int i = 0 ; i < 10 ; i++ ) {
       assertEquals( result[i] , valueArray[i] );
-    }
-  }
-
-  @Test
-  public void T_loadInMemoryStorage_equalsSetValue() throws IOException {
-    LongNumEncoder encoder = new LongNumEncoder( Long.MIN_VALUE , Long.MAX_VALUE );
-    byte[] buffer = new byte[encoder.calcBinarySize(5)];
-    long[] valueArray = new long[]{
-      0L,
-      2L,
-      4L,
-      6L,
-      8L,
-    };
-    boolean[] isNullArray = new boolean[]{
-      false,
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-      true,
-      false,
-      true
-    };
-    encoder.toBinary( valueArray , buffer , 0 , 5 , ByteOrder.nativeOrder() );
-    EncoderTestMemoryAllocator allocator = new EncoderTestMemoryAllocator( 10 );
-    encoder.loadInMemoryStorage( buffer , 0 , 5 , isNullArray , ByteOrder.nativeOrder() , allocator , 0 );
-    long[] result = allocator.getLongArray();
-    boolean[] nullResult = allocator.getIsNullArray();
-    for ( int i = 0 ; i < 10 ; i++ ) {
-      if ( isNullArray[i] ) {
-        assertTrue( nullResult[i] );
-      } else {
-        assertEquals( result[i] , valueArray[i/2] );
-      }
     }
   }
 

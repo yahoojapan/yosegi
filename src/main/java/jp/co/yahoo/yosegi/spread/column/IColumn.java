@@ -18,7 +18,6 @@
 
 package jp.co.yahoo.yosegi.spread.column;
 
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.design.IField;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 
@@ -66,14 +65,6 @@ public interface IColumn {
   IField getSchema() throws IOException;
 
   IField getSchema( final String schemaName ) throws IOException;
-
-  PrimitiveObject[] getPrimitiveObjectArray(
-      final int start , final int length );
-
-  void setPrimitiveObjectArray(
-      final int start ,
-      final int length ,
-      final IMemoryAllocator allocator ) throws IOException;
 
   default boolean isExpandColumn() {
     return false;

@@ -26,7 +26,6 @@ import jp.co.yahoo.yosegi.binary.FindColumnBinaryMaker;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.compressor.DefaultCompressor;
 import jp.co.yahoo.yosegi.inmemory.ILoader;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.inmemory.ISpreadLoader;
 import jp.co.yahoo.yosegi.inmemory.LoadType;
 import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
@@ -131,27 +130,6 @@ public class DumpSpreadColumnBinaryMaker implements IColumnBinaryMaker {
     }
     
     spreadLoader.finish();
-  }
-
-  @Override
-  public void loadInMemoryStorage(
-      final ColumnBinary columnBinary ,
-      final IMemoryAllocator allocator ) throws IOException {
-    int maxValueCount = 0;
-    allocator.setChildCount( columnBinary.columnBinaryList.size() );
-    for ( ColumnBinary childColumnBinary : columnBinary.columnBinaryList ) {
-      IColumnBinaryMaker maker = FindColumnBinaryMaker.get( childColumnBinary.makerClassName );
-      IMemoryAllocator childAllocator =
-          allocator.getChild( childColumnBinary.columnName , childColumnBinary.columnType );
-      if ( childAllocator.isLoadingSkipped() ) {
-        continue;
-      }
-      maker.loadInMemoryStorage( childColumnBinary , childAllocator );
-      if ( maxValueCount < childAllocator.getValueCount() ) {
-        maxValueCount = childAllocator.getValueCount();
-      }
-    }
-    allocator.setValueCount( maxValueCount );
   }
 
   @Override

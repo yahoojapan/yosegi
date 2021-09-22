@@ -19,7 +19,6 @@
 package jp.co.yahoo.yosegi.spread.column;
 
 import jp.co.yahoo.yosegi.constants.PrimitiveByteLength;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.design.IField;
 import jp.co.yahoo.yosegi.message.design.UnionField;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
@@ -190,20 +189,6 @@ public class UnionColumn implements IColumn {
   @Override
   public IField getSchema() throws IOException {
     return getSchema( getColumnName() );
-  }
-
-  @Override
-  public PrimitiveObject[] getPrimitiveObjectArray(
-      final int start , final int length ) {
-    return cellManager.getPrimitiveObjectArray( start , length );
-  }
-
-  @Override
-  public void setPrimitiveObjectArray(
-      final int start ,
-      final int length ,
-      final IMemoryAllocator allocator ) throws IOException {
-    cellManager.setPrimitiveObjectArray( start , length , allocator );
   }
 
   @Override

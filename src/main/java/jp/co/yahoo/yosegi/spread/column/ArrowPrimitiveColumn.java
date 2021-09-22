@@ -18,7 +18,6 @@
 
 package jp.co.yahoo.yosegi.spread.column;
 
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.design.IField;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
@@ -138,21 +137,6 @@ public class ArrowPrimitiveColumn implements IColumn {
   @Override
   public IField getSchema( final String schemaName ) throws IOException {
     return PrimitiveSchemaFactory.getSchema( getColumnType() , schemaName );
-  }
-
-  @Override
-  public PrimitiveObject[] getPrimitiveObjectArray(
-      final int start , final int length ) {
-    return connector.getPrimitiveObjectArray( start , length );
-  }
-
-  @Override
-  public void setPrimitiveObjectArray(
-      final int start ,
-      final int length ,
-      final IMemoryAllocator allocator ) throws IOException {
-    allocator.setValueCount( length );
-    connector.setPrimitiveObjectArray( start , length , allocator );
   }
 
   @Override

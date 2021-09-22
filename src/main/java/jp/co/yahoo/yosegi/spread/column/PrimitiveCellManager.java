@@ -18,7 +18,6 @@
 
 package jp.co.yahoo.yosegi.spread.column;
 
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.column.ICellMaker;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
@@ -67,43 +66,6 @@ public class PrimitiveCellManager implements ICellManager<PrimitiveObject> {
   @Override
   public void clear() {
     rangeBinarySearch.clear();
-  }
-
-  @Override
-  public PrimitiveObject[] getPrimitiveObjectArray(
-      final int start , final int length ) {
-    PrimitiveObject[] result = new PrimitiveObject[length];
-    for ( int i = 0,index = start ; i < length ; i++,index++ ) {
-      PrimitiveObject obj = rangeBinarySearch.get( index );
-      if ( obj != null ) {
-        result[i] = obj;
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public void setPrimitiveObjectArray(
-      final int start ,
-      final int length ,
-      final IMemoryAllocator allocator ) {
-    int arrayIndex = 0;
-    for ( int index = start ; arrayIndex < length ;
-        arrayIndex++,index++ ) {
-      PrimitiveObject obj = rangeBinarySearch.get( index );
-      try {
-        if ( obj == null ) {
-          allocator.setNull( arrayIndex );
-        } else {
-          allocator.setPrimitiveObject( arrayIndex , obj );
-        }
-      } catch ( IOException ex ) {
-        throw new RuntimeException( ex );
-      }
-    }
-    for ( ; arrayIndex < length ; arrayIndex++ ) {
-      allocator.setNull( arrayIndex );
-    }
   }
 
 }

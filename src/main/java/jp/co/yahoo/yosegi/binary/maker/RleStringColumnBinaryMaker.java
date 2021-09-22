@@ -30,7 +30,6 @@ import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.inmemory.IDictionary;
 import jp.co.yahoo.yosegi.inmemory.IDictionaryLoader;
 import jp.co.yahoo.yosegi.inmemory.ILoader;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
 import jp.co.yahoo.yosegi.inmemory.LoadType;
 import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
@@ -498,69 +497,6 @@ public class RleStringColumnBinaryMaker implements IColumnBinaryMaker {
       loadFromExpandColumnBinary( columnBinary , (IDictionaryLoader)loader );
     }
     loader.finish();
-  }
-
-  @Override
-  public void loadInMemoryStorage(
-      final ColumnBinary columnBinary ,
-      final IMemoryAllocator allocator ) throws IOException {
-    byte[] binary = getDecompressBinary( columnBinary );
-
-    ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
-    ByteOrder order = wrapBuffer.get() == (byte)0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-    int startIndex = wrapBuffer.getInt();
-    final int rowGroupCount = wrapBuffer.getInt();
-    int maxRowGroupCount = wrapBuffer.getInt();
-    int minLength = wrapBuffer.getInt();
-    int maxLength = wrapBuffer.getInt();
-    int nullLength = wrapBuffer.getInt();
-    int rowGroupBinaryLength = wrapBuffer.getInt();
-    int lengthBinaryLength = wrapBuffer.getInt();
-
-    boolean[] isNullArray =
-        NullBinaryEncoder.toIsNullArray( binary , META_LENGTH , nullLength );
-
-    allocator.setValueCount( startIndex + isNullArray.length );
-
-    NumberToBinaryUtils.IIntConverter rowGroupLengthConverter =
-        NumberToBinaryUtils.getIntConverter( 0 , maxRowGroupCount );
-    IReadSupporter rowGroupLengthReader = rowGroupLengthConverter.toReadSupporter(
-        binary,
-        META_LENGTH + nullLength ,
-        rowGroupBinaryLength );
-
-    IReadSupporter lengthReader;
-    if ( minLength == maxLength ) {
-      lengthReader = NumberToBinaryUtils.getFixedIntConverter( minLength );
-    } else {
-      NumberToBinaryUtils.IIntConverter lengthConverter =
-          NumberToBinaryUtils.getIntConverter( minLength , maxLength );
-      lengthReader = lengthConverter.toReadSupporter(
-          binary ,
-          META_LENGTH + nullLength + rowGroupBinaryLength ,
-          lengthBinaryLength );
-    }
-
-    int currentStart = META_LENGTH + nullLength + rowGroupBinaryLength + lengthBinaryLength;
-    IDictionary dic = allocator.createDictionary( rowGroupCount );
-    for ( int i = 0 ; i < startIndex ; i++ ) {
-      allocator.setNull( i );
-    }
-    int index = 0;
-    for ( int i = 0 ; i < rowGroupCount ; i++ ) {
-      int rowGroupLength = rowGroupLengthReader.getInt();
-      int binaryLength = lengthReader.getInt();
-      dic.setBytes( i , binary , currentStart , binaryLength );
-      for ( int n = 0 ; n < rowGroupLength ; index++ ) {
-        if ( isNullArray[index] ) {
-          allocator.setNull( index + startIndex );
-          continue;
-        }
-        allocator.setFromDictionary( index + startIndex , i , dic );
-        n++;
-      }
-      currentStart += binaryLength;
-    }
   }
 
   @Override

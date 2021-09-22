@@ -28,7 +28,6 @@ import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.inmemory.IDictionaryLoader;
 import jp.co.yahoo.yosegi.inmemory.ILoader;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
 import jp.co.yahoo.yosegi.inmemory.LoadType;
 import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
@@ -441,66 +440,6 @@ public class OptimizedNullArrayDumpStringColumnBinaryMaker implements IColumnBin
       loadFromExpandColumnBinary( columnBinary , (IDictionaryLoader)loader );
     }
     loader.finish();
-  }
-
-  @Override
-  public void loadInMemoryStorage(
-      final ColumnBinary columnBinary ,
-      final IMemoryAllocator allocator ) throws IOException {
-    ByteBuffer headerWrapBuffer = ByteBuffer.wrap(
-        columnBinary.binary ,
-        columnBinary.binaryStart ,
-        columnBinary.binaryLength );
-    int minCharLength = headerWrapBuffer.getInt();
-    headerWrapBuffer.position( headerWrapBuffer.position() + minCharLength );
-
-    int maxCharLength = headerWrapBuffer.getInt();
-    headerWrapBuffer.position( headerWrapBuffer.position() + maxCharLength );
-    int headerSize = Integer.BYTES + minCharLength + Integer.BYTES + maxCharLength;
-
-    ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-    byte[] binary = compressor.decompress(
-        columnBinary.binary ,
-        columnBinary.binaryStart + headerSize ,
-        columnBinary.binaryLength - headerSize );
-    ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
-    ByteOrder order = wrapBuffer.get() == (byte)0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-    int startIndex = wrapBuffer.getInt();
-    int minLength = wrapBuffer.getInt();
-    int maxLength = wrapBuffer.getInt();
-    int nullLength = wrapBuffer.getInt();
-    int lengthBinaryLength = wrapBuffer.getInt();
-
-    boolean[] isNullArray =
-        NullBinaryEncoder.toIsNullArray( binary , META_LENGTH , nullLength );
-
-    allocator.setValueCount( startIndex + isNullArray.length );
-
-    IReadSupporter lengthReader;
-    if ( minLength == maxLength ) {
-      lengthReader = NumberToBinaryUtils.getFixedIntConverter( minLength );
-    } else {
-      NumberToBinaryUtils.IIntConverter lengthConverter =
-          NumberToBinaryUtils.getIntConverter( minLength , maxLength );
-      lengthReader = lengthConverter.toReadSupporter(
-          binary ,
-          META_LENGTH + nullLength ,
-          lengthBinaryLength );
-    }
-
-    int currentStart = META_LENGTH + nullLength + lengthBinaryLength;
-    for ( int i = 0 ; i < startIndex ; i++ ) {
-      allocator.setNull( i );
-    }
-    for ( int i = 0 ; i < isNullArray.length ; i++ ) {
-      if ( isNullArray[i]  ) {
-        allocator.setNull( i + startIndex );
-      } else {
-        int currentLength = lengthReader.getInt();
-        allocator.setBytes( i + startIndex , binary , currentStart , currentLength );
-        currentStart += currentLength;
-      }
-    }
   }
 
   @Override

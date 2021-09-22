@@ -20,7 +20,6 @@ package jp.co.yahoo.yosegi.util.io.diffencoder;
 
 import jp.co.yahoo.yosegi.inmemory.IDictionary;
 import jp.co.yahoo.yosegi.inmemory.IDictionaryLoader;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
 import jp.co.yahoo.yosegi.message.objects.IntegerObj;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
@@ -74,39 +73,6 @@ public class IntegerNumEncoder implements INumEncoder {
   }
 
   @Override
-  public PrimitiveObject[] toPrimitiveArray(
-      final byte[] buffer,
-      final int start,
-      final int rows,
-      final ByteOrder order ) throws IOException {
-    PrimitiveObject[] result = new PrimitiveObject[rows];
-    IReadSupporter wrapBuffer =
-        converter.toReadSupporter( buffer , start , calcBinarySize( rows ) );
-    for ( int i = 0 ; i < rows ; i++ ) {
-      result[i] = new IntegerObj( wrapBuffer.getInt() );
-    }
-    return result;
-  }
-
-  @Override
-  public PrimitiveObject[] getPrimitiveArray(
-      final byte[] buffer ,
-      final int start ,
-      final int rows ,
-      final boolean[] isNullArray ,
-      final ByteOrder order ) throws IOException {
-    PrimitiveObject[] result = new PrimitiveObject[isNullArray.length];
-    IReadSupporter wrapBuffer =
-        converter.toReadSupporter( buffer , start , calcBinarySize( rows ) );
-    for ( int i = 0 ; i < isNullArray.length ; i++ ) {
-      if ( ! isNullArray[i] ) {
-        result[i] = new IntegerObj( wrapBuffer.getInt() );
-      }
-    }
-    return result;
-  }
-
-  @Override
   public void setDictionary(
       final byte[] buffer ,
       final int start ,
@@ -117,26 +83,6 @@ public class IntegerNumEncoder implements INumEncoder {
         converter.toReadSupporter( buffer , start , calcBinarySize( rows ) );
     for ( int i = 0 ; i < rows ; i++ ) {
       dic.setInteger( i , wrapBuffer.getInt() );
-    }
-  }
-
-  @Override
-  public void loadInMemoryStorage(
-      final byte[] buffer ,
-      final int start ,
-      final int rows ,
-      final boolean[] isNullArray ,
-      final ByteOrder order ,
-      final IMemoryAllocator allocator , 
-      final int startIndex ) throws IOException  {
-    IReadSupporter wrapBuffer =
-        converter.toReadSupporter( buffer , start , calcBinarySize( rows ) );
-    for ( int i = 0 ; i < isNullArray.length ; i++ ) {
-      if ( isNullArray[i] ) {
-        allocator.setNull( i + startIndex );
-      } else {
-        allocator.setInteger( i + startIndex , wrapBuffer.getInt() );
-      }
     }
   }
 

@@ -20,7 +20,6 @@ import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.blockindex.BooleanBlockIndex;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.BooleanObj;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.analyzer.BooleanColumnAnalizeResult;
@@ -66,24 +65,6 @@ class TestFlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker {
     ColumnBinary columnBinary =
         maker.toBinary(defaultConfig, null, new CompressResultNode(), column);
     return columnBinary;
-  }
-
-  private class TestMemorayAllocator implements IMemoryAllocator {
-    public final Map<Integer, Boolean> map;
-
-    public TestMemorayAllocator() {
-      map = new HashMap<>();
-    }
-
-    @Override
-    public void setNull(final int index) {
-      map.put(index, null);
-    }
-
-    @Override
-    public void setBoolean(final int index, final boolean value) {
-      map.put(index, value);
-    }
   }
 
   public static Stream<Arguments> D_toBinary_1() {
@@ -146,20 +127,6 @@ class TestFlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker {
         arguments("TEST1", new Boolean[] {true, false}),
         arguments("TEST1", new Boolean[] {false, true}),
         arguments("TEST1", new Boolean[] {true, null, false}));
-  }
-
-  @ParameterizedTest
-  @MethodSource("D_loadInMemoryStorage_1")
-  public void T_loadInMemoryStorage_1(final String columnName, final Boolean[] columnValues)
-      throws IOException {
-    ColumnBinary columnBinary = makeColumnBinary(columnName, columnValues);
-    FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker maker =
-        new FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker();
-    TestMemorayAllocator allocator = new TestMemorayAllocator();
-    maker.loadInMemoryStorage(columnBinary, allocator);
-    for (int i = 0; i < columnValues.length; i++) {
-      assertEquals(columnValues[i], allocator.map.get(i));
-    }
   }
 
   public static Stream<Arguments> D_setBlockIndexNode_1() {

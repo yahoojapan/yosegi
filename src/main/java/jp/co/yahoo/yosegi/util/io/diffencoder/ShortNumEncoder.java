@@ -20,7 +20,6 @@ package jp.co.yahoo.yosegi.util.io.diffencoder;
 
 import jp.co.yahoo.yosegi.inmemory.IDictionary;
 import jp.co.yahoo.yosegi.inmemory.IDictionaryLoader;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.objects.ShortObj;
@@ -67,39 +66,6 @@ public class ShortNumEncoder implements INumEncoder {
   }
 
   @Override
-  public PrimitiveObject[] toPrimitiveArray(
-      final byte[] buffer,
-      final int start,
-      final int rows,
-      final ByteOrder order ) throws IOException {
-    PrimitiveObject[] result = new PrimitiveObject[rows];
-    IReadSupporter wrapBuffer = ByteBufferSupporterFactory
-        .createReadSupporter( buffer , start , calcBinarySize( rows ) , order );
-    for ( int i = 0 ; i < rows ; i++ ) {
-      result[i] = new ShortObj( wrapBuffer.getShort() );
-    }
-    return result;
-  }
-
-  @Override
-  public PrimitiveObject[] getPrimitiveArray(
-      final byte[] buffer ,
-      final int start ,
-      final int rows ,
-      final boolean[] isNullArray ,
-      final ByteOrder order ) throws IOException {
-    PrimitiveObject[] result = new PrimitiveObject[isNullArray.length];
-    IReadSupporter wrapBuffer = ByteBufferSupporterFactory
-        .createReadSupporter( buffer , start , calcBinarySize( rows ) , order );
-    for ( int i = 0 ; i < isNullArray.length ; i++ ) {
-      if ( ! isNullArray[i] ) {
-        result[i] = new ShortObj( wrapBuffer.getShort() );
-      }
-    }
-    return result;
-  }
-
-  @Override
   public void setDictionary(
       final byte[] buffer ,
       final int start ,
@@ -110,26 +76,6 @@ public class ShortNumEncoder implements INumEncoder {
         .createReadSupporter( buffer , start , calcBinarySize( rows ) , order );
     for ( int i = 0 ; i < rows ; i++ ) {
       dic.setShort( i , wrapBuffer.getShort() );
-    }
-  }
-
-  @Override
-  public void loadInMemoryStorage(
-      final byte[] buffer ,
-      final int start ,
-      final int rows ,
-      final boolean[] isNullArray ,
-      final ByteOrder order ,
-      final IMemoryAllocator allocator ,
-      final int startIndex ) throws IOException  {
-    IReadSupporter wrapBuffer = ByteBufferSupporterFactory
-        .createReadSupporter( buffer , start , calcBinarySize( rows ) , order );
-    for ( int i = 0 ; i < isNullArray.length ; i++ ) {
-      if ( isNullArray[i] ) {
-        allocator.setNull( i + startIndex );
-      } else {
-        allocator.setShort( i + startIndex , wrapBuffer.getShort() );
-      }
     }
   }
 

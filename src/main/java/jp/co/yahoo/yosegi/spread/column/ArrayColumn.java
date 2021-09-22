@@ -19,7 +19,6 @@
 package jp.co.yahoo.yosegi.spread.column;
 
 import jp.co.yahoo.yosegi.constants.PrimitiveByteLength;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.design.ArrayContainerField;
 import jp.co.yahoo.yosegi.message.design.IField;
 import jp.co.yahoo.yosegi.message.design.NullField;
@@ -195,40 +194,6 @@ public class ArrayColumn implements IColumn {
 
   public IColumn getChildColumn() {
     return spread.getColumn(0);
-  }
-
-  @Override
-  public PrimitiveObject[] getPrimitiveObjectArray(
-      final int start , final int length ) {
-    PrimitiveObject[] result = new PrimitiveObject[length];
-    return result;
-  }
-
-  @Override
-  public void setPrimitiveObjectArray(
-      final int start ,
-      final int length ,
-      final IMemoryAllocator allocator ) throws IOException {
-    allocator.setValueCount( length );
-    List<Integer> childIndexList = new ArrayList<Integer>();
-    for ( int i = start ; i < start + length ; i++ ) {
-      ICell cell = cellManager.get( i , EmptyArrayCell.getInstance() );
-      if ( cell.getType() == ColumnType.EMPTY_ARRAY ) {
-        allocator.setNull( i );
-        continue;
-      }
-      ArrayCell arrayCell = (ArrayCell)cell;
-      for ( int ii = arrayCell.getStart() ; ii < arrayCell.getEnd() ; ii++ ) {
-        childIndexList.add( Integer.valueOf( ii ) );
-      }
-    }
-    IColumn column = spread.getColumn(0);
-    IMemoryAllocator childAllocator =
-        allocator.getArrayChild( childIndexList.size() , column.getColumnType() );
-    column.setPrimitiveObjectArray(
-        childIndexList.get(0) ,
-        childIndexList.size() ,
-        childAllocator );
   }
 
   @Override

@@ -29,7 +29,6 @@ import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.inmemory.IArrayLoader;
 import jp.co.yahoo.yosegi.inmemory.ILoader;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.inmemory.LoadType;
 import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
@@ -39,7 +38,6 @@ import jp.co.yahoo.yosegi.spread.column.ArrayCell;
 import jp.co.yahoo.yosegi.spread.column.ArrayColumn;
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
 import jp.co.yahoo.yosegi.spread.column.ICell;
-import jp.co.yahoo.yosegi.spread.column.ICellManager;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
 import jp.co.yahoo.yosegi.spread.column.SpreadArrayLink;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
@@ -234,39 +232,6 @@ public class MaxLengthBasedArrayColumnBinaryMaker implements IColumnBinaryMaker 
   }
 
   @Override
-  public void loadInMemoryStorage(
-      final ColumnBinary columnBinary ,
-      final IMemoryAllocator allocator ) throws IOException {
-    for ( ColumnBinary childColumnBinary : columnBinary.columnBinaryList ) {
-      IColumnBinaryMaker maker = FindColumnBinaryMaker.get( childColumnBinary.makerClassName );
-      IMemoryAllocator childMemoryAllocator = allocator.getArrayChild(
-          childColumnBinary.rowCount , childColumnBinary.columnType );
-      maker.loadInMemoryStorage( childColumnBinary , childMemoryAllocator );
-    }
-
-    ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-    byte[] decompressBuffer = compressor.decompress(
-        columnBinary.binary , columnBinary.binaryStart , columnBinary.binaryLength );
-    int maxSize = ByteBuffer.wrap( decompressBuffer ).getInt();
-    NumberToBinaryUtils.IIntConverter encoder = NumberToBinaryUtils.getIntConverter( 0 , maxSize );
-    IReadSupporter reader = encoder.toReadSupporter(
-        decompressBuffer , Integer.BYTES , decompressBuffer.length - Integer.BYTES );
-
-    allocator.setValueCount( columnBinary.rowCount );
-    int currentIndex = 0;
-    for ( int i = 0 ; i < columnBinary.rowCount ; i++ ) {
-      int arrayLength = reader.getInt();
-      if ( arrayLength == 0 ) {
-        allocator.setNull(i);
-      } else {
-        int start = currentIndex;
-        allocator.setArrayIndex( i , start , arrayLength );
-        currentIndex += arrayLength;
-      }
-    }
-  }
-
-  @Override
   public void setBlockIndexNode(
       final BlockIndexNode parentNode ,
       final ColumnBinary columnBinary ,
@@ -288,56 +253,4 @@ public class MaxLengthBasedArrayColumnBinaryMaker implements IColumnBinaryMaker 
     parentNode.deleteChildNode( childColumnBinary.columnName );
   }
 
-  public class ArrayCellManager implements ICellManager<ICell> {
-
-    private final ICell[] cellArray;
-
-    /**
-     * Manage it as an Array cell.
-     */
-    public ArrayCellManager( final ICell[] cellArray ) {
-      this.cellArray = cellArray;
-    }
-
-    @Override
-    public void add( final ICell cell , final int index ) {
-      throw new UnsupportedOperationException( "read only." );
-    }
-
-    @Override
-    public ICell get( final int index , final ICell defaultCell ) {
-      if ( cellArray.length <= index ) {
-        return defaultCell;
-      }
-
-      if ( cellArray[index] == null ) {
-        return defaultCell;
-      }
-      return cellArray[index];
-    }
-
-    @Override
-    public int size() {
-      return cellArray.length;
-    }
-
-    @Override
-    public void clear() {}
-
-    @Override
-    public PrimitiveObject[] getPrimitiveObjectArray(
-        final int start ,
-        final int length ) {
-      return new PrimitiveObject[length];
-    }
-
-    @Override
-    public void setPrimitiveObjectArray(
-        final int start ,
-        final int length ,
-        final IMemoryAllocator allocator ) {
-      return;
-    }
-
-  }
 }

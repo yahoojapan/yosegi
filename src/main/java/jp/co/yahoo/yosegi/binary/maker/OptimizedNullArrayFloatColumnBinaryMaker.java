@@ -28,7 +28,6 @@ import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.inmemory.ILoader;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
 import jp.co.yahoo.yosegi.inmemory.LoadType;
 import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
@@ -350,60 +349,6 @@ public class OptimizedNullArrayFloatColumnBinaryMaker implements IColumnBinaryMa
       loadFromExpandColumnBinary(columnBinary, (ISequentialLoader) loader);
     }
     loader.finish();
-  }
-
-  @Override
-  public void loadInMemoryStorage(
-      final ColumnBinary columnBinary ,
-      final IMemoryAllocator allocator ) throws IOException {
-    int start = columnBinary.binaryStart + ( Float.BYTES * 2 );
-    int length = columnBinary.binaryLength - ( Float.BYTES * 2 );
-
-    ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-    byte[] binary = compressor.decompress( columnBinary.binary , start , length );
-
-    ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
-
-    ByteOrder order = wrapBuffer.get() == (byte)0
-        ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-    int startIndex = wrapBuffer.getInt();
-    final int rowCount = wrapBuffer.getInt();
-    int nullIndexLength = wrapBuffer.getInt();
-    int indexLength = wrapBuffer.getInt();
-    int dicLength = binary.length - META_LENGTH - nullIndexLength - indexLength;
-    int dicSize = dicLength / Float.BYTES;
-
-    NumberToBinaryUtils.IIntConverter indexConverter =
-        NumberToBinaryUtils.getIntConverter( 0 , dicSize );
-
-    boolean[] isNullArray =
-        NullBinaryEncoder.toIsNullArray( binary , META_LENGTH , nullIndexLength );
-
-    IReadSupporter dicReader = ByteBufferSupporterFactory.createReadSupporter(
-        binary,
-        META_LENGTH + nullIndexLength + indexLength,
-        dicLength,
-        order );
-    float[] dicArray = new float[dicSize];
-    for ( int i = 0 ; i < dicArray.length ; i++ ) {
-      dicArray[i] = dicReader.getFloat();
-    }
-
-    allocator.setValueCount( startIndex + isNullArray.length );
-
-    IReadSupporter indexReader =
-        indexConverter.toReadSupporter( binary , META_LENGTH + nullIndexLength , indexLength );
-    int index = startIndex;
-    for ( ; index < startIndex ; index++ ) {
-      allocator.setNull( index );
-    }
-    for ( int i = 0 ; i < isNullArray.length ; i++,index++ ) {
-      if ( isNullArray[i]  ) {
-        allocator.setNull( index );
-      } else {
-        allocator.setFloat( index , dicArray[indexReader.getInt()] );
-      }
-    }
   }
 
   @Override

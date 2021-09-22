@@ -28,7 +28,6 @@ import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.inmemory.ILoader;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.inmemory.IUnionLoader;
 import jp.co.yahoo.yosegi.inmemory.LoadType;
 import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
@@ -240,23 +239,6 @@ public class DumpUnionColumnBinaryMaker implements IColumnBinaryMaker {
     }
 
     unionLoader.finish();
-  }
-
-  @Override
-  public void loadInMemoryStorage(
-      final ColumnBinary columnBinary ,
-      final IMemoryAllocator allocator ) throws IOException {
-    int maxValueCount = 0;
-    for ( ColumnBinary childColumnBinary : columnBinary.columnBinaryList ) {
-      IColumnBinaryMaker maker = FindColumnBinaryMaker.get( childColumnBinary.makerClassName );
-      IMemoryAllocator childAllocator =
-          allocator.getChild( childColumnBinary.columnName , childColumnBinary.columnType );
-      maker.loadInMemoryStorage( childColumnBinary , childAllocator );
-      if ( maxValueCount < childAllocator.getValueCount() ) {
-        maxValueCount = childAllocator.getValueCount();
-      }
-    }
-    allocator.setValueCount( maxValueCount );
   }
 
   @Override

@@ -18,7 +18,6 @@
 
 package jp.co.yahoo.yosegi.spread.column;
 
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.objects.ShortObj;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
@@ -67,36 +66,6 @@ public class ArrowShortConnector implements IArrowPrimitiveConnector {
   @Override
   public void clear() {
     vector.clear();
-  }
-
-  @Override
-  public PrimitiveObject[] getPrimitiveObjectArray(
-      final int start , final int length ) {
-    PrimitiveObject[] result = new PrimitiveObject[length];
-    for ( int i = start ; i < ( start + length ) && i < size() ; i++ ) {
-      if ( ! vector.isNull( i ) ) {
-        result[i - start] =  new ShortObj( vector.get( i ) );
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public void setPrimitiveObjectArray(
-      final int start ,
-      final int length ,
-      final IMemoryAllocator allocator ) {
-    for ( int i = start ; i < ( start + length ) && i < size() ; i++ ) {
-      if ( vector.isNull( i ) ) {
-        allocator.setNull( i - start );
-      } else {
-        try {
-          allocator.setPrimitiveObject( i - start , new ShortObj( vector.get( i ) ) );
-        } catch ( IOException ex ) {
-          throw new RuntimeException( ex );
-        }
-      }
-    }
   }
 
 }

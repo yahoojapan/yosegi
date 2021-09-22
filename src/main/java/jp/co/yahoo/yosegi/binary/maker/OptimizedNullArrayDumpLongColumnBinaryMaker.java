@@ -29,7 +29,6 @@ import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.inmemory.IDictionaryLoader;
 import jp.co.yahoo.yosegi.inmemory.ILoader;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
 import jp.co.yahoo.yosegi.inmemory.LoadType;
 import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
@@ -330,50 +329,6 @@ public class OptimizedNullArrayDumpLongColumnBinaryMaker implements IColumnBinar
       loadFromExpandColumnBinary(columnBinary, (IDictionaryLoader) loader);
     }
     loader.finish();
-  }
-
-  @Override
-  public void loadInMemoryStorage(
-      final ColumnBinary columnBinary ,
-      final IMemoryAllocator allocator ) throws IOException {
-    ByteBuffer compressWrapBuffer = ByteBuffer.wrap(
-        columnBinary.binary , columnBinary.binaryStart , columnBinary.binaryLength );
-    long min = compressWrapBuffer.getLong();
-    long max = compressWrapBuffer.getLong();
-
-    int start = columnBinary.binaryStart + ( Long.BYTES * 2 );
-    int length = columnBinary.binaryLength - ( Long.BYTES * 2 );
-
-    ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-    byte[] binary = compressor.decompress( columnBinary.binary , start , length );
-
-    ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
-
-    ByteOrder order = wrapBuffer.get() == (byte)0
-        ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-    int startIndex = wrapBuffer.getInt();
-    int rowCount = wrapBuffer.getInt();
-    int nullIndexLength = wrapBuffer.getInt();
-    int valueBinaryLength = binary.length - META_LENGTH - nullIndexLength;
-
-    boolean[] isNullArray =
-        NullBinaryEncoder.toIsNullArray( binary , META_LENGTH , nullIndexLength );
-
-    allocator.setValueCount( startIndex + isNullArray.length );
-
-    for ( int index = 0 ; index < startIndex ; index++ ) {
-      allocator.setNull( index );
-    }
-    INumEncoder valueEncoder =
-        NumEncoderUtil.createEncoder( min , max );
-    valueEncoder.loadInMemoryStorage(
-        binary,
-        META_LENGTH + nullIndexLength,
-        rowCount,
-        isNullArray,
-        order,
-        allocator,
-        startIndex );
   }
 
   @Override

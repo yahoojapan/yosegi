@@ -18,7 +18,6 @@
 
 package jp.co.yahoo.yosegi.spread.column;
 
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.design.IField;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
@@ -155,21 +154,6 @@ public class PrimitiveColumn implements IColumn {
   }
 
   @Override
-  public PrimitiveObject[] getPrimitiveObjectArray(
-      final int start , final int length ) {
-    return cellManager.getPrimitiveObjectArray( start , length );
-  }
-
-  @Override
-  public void setPrimitiveObjectArray(
-      final int start ,
-      final int length ,
-      final IMemoryAllocator allocator ) throws IOException {
-    allocator.setValueCount( length );
-    cellManager.setPrimitiveObjectArray( start , length , allocator );
-  }
-
-  @Override
   public String toString() {
     StringBuffer result = new StringBuffer();
     result.append( String.format( "Column name : %s\n" , getColumnName() ) );
@@ -181,31 +165,6 @@ public class PrimitiveColumn implements IColumn {
         } );
 
     return result.toString();
-  }
-
-  @Override
-  public boolean isDictionary() {
-    return cellManager.isDictionary();
-  }
-
-  @Override
-  public int getDictionarySize() {
-    return cellManager.getDictionarySize();
-  }
-
-  @Override
-  public boolean[] getDictionaryIsNullArray() {
-    return cellManager.getDictionaryIsNullArray();
-  }
-
-  @Override
-  public int[] getDictionaryIndexArray() {
-    return cellManager.getDictionaryIndexArray();
-  }
-
-  @Override
-  public PrimitiveObject[] getDictionaryArray() {
-    return cellManager.getDictionaryArray();
   }
 
 }

@@ -28,7 +28,6 @@ import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.inmemory.ILoader;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
 import jp.co.yahoo.yosegi.inmemory.LoadType;
 import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
@@ -283,42 +282,6 @@ public class OptimizedNullArrayDumpBooleanColumnBinaryMaker implements IColumnBi
       loadFromExpandColumnBinary(columnBinary, (ISequentialLoader) loader);
     }
     loader.finish();
-  }
-
-  @Override
-  public void loadInMemoryStorage(
-      final ColumnBinary columnBinary ,
-      final IMemoryAllocator allocator ) throws IOException {
-    ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-    byte[] binary = compressor.decompress(
-        columnBinary.binary ,
-        columnBinary.binaryStart ,
-        columnBinary.binaryLength );
-    ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
-    int startIndex = wrapBuffer.getInt();
-    int nullLength = wrapBuffer.getInt();
-    int isTrueLength = binary.length - META_LENGTH - nullLength;
-
-    boolean[] isNullArray =
-        NullBinaryEncoder.toIsNullArray( binary , META_LENGTH , nullLength );
-
-    allocator.setValueCount( startIndex + isNullArray.length );
-
-    boolean[] isTrueArray =
-        NullBinaryEncoder.toIsNullArray( binary , META_LENGTH + nullLength , isTrueLength );
-
-    for ( int i = 0 ; i < startIndex ; i++ ) {
-      allocator.setNull( i );
-    }
-    int isTrueIndex = 0;
-    for ( int i = 0 ; i < isNullArray.length ; i++ ) {
-      if ( isNullArray[i]  ) {
-        allocator.setNull( i + startIndex );
-      } else {
-        allocator.setBoolean( i + startIndex , isTrueArray[isTrueIndex] );
-        isTrueIndex++;
-      }
-    }
   }
 
   @Override

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.co.yahoo.yosegi.binary.maker;
+package jp.co.yahoo.yosegi.spread.column;
 
 import java.io.IOException;
 
@@ -30,14 +30,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-import jp.co.yahoo.yosegi.spread.column.IColumn;
-import jp.co.yahoo.yosegi.spread.column.PrimitiveCell;
-import jp.co.yahoo.yosegi.spread.column.PrimitiveColumn;
-import jp.co.yahoo.yosegi.spread.column.StringCell;
-
 import jp.co.yahoo.yosegi.message.objects.*;
-
-import jp.co.yahoo.yosegi.spread.column.ColumnType;
 
 public class TestLazyColumn {
 
