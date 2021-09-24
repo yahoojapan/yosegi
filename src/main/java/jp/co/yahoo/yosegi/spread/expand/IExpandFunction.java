@@ -28,7 +28,8 @@ public interface IExpandFunction {
 
   String[] getExpandLinkColumnName( final String linkName );
 
-  void expandFromColumnBinary( final List<ColumnBinary> columnBinaryList ) throws IOException;
+  int expandFromColumnBinary(
+      final List<ColumnBinary> columnBinaryList , final int spreadSize ) throws IOException;
 
   void expandIndexNode( final BlockIndexNode rootNode ) throws IOException;
 

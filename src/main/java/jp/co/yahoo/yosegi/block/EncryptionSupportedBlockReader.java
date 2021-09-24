@@ -311,12 +311,6 @@ public class EncryptionSupportedBlockReader implements IBlockReader {
 
     List<ColumnBinary> raw = nextRaw();
     int loadSize = getCurrentSpreadSize();
-    for ( ColumnBinary columnBinary : raw ) {
-      if ( columnBinary.loadIndex != null ) {
-        loadSize = columnBinary.loadIndex.length;
-        break;
-      }
-    }
     return converter.convert( raw , loadSize );
   }
 
@@ -324,7 +318,11 @@ public class EncryptionSupportedBlockReader implements IBlockReader {
   public List<ColumnBinary> nextRaw() throws IOException {
     List<ColumnBinary> columnBinaryList = block.get( readCount );
     readCount++;
-    expandFunction.expandFromColumnBinary( columnBinaryList );
+    int loadSize = expandFunction.expandFromColumnBinary(
+        columnBinaryList , getCurrentSpreadSize() );
+    if ( getCurrentSpreadSize() != loadSize ) {
+      spreadSizeList.set( readCount - 1 , loadSize );
+    }
     return flattenFunction.flattenFromColumnBinary( columnBinaryList );
   }
 

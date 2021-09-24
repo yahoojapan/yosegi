@@ -52,24 +52,24 @@ public class TestStringPrimitiveColumn {
 
   public static Stream<Arguments> stringColumnBinaryMaker() throws IOException{
     return Stream.of(
-      arguments( "jp.co.yahoo.yosegi.binary.maker.RleStringColumnBinaryMaker" ),
-      arguments( "jp.co.yahoo.yosegi.binary.maker.DictionaryRleStringColumnBinaryMaker" ),
-      arguments( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpStringColumnBinaryMaker" ),
+      //arguments( "jp.co.yahoo.yosegi.binary.maker.RleStringColumnBinaryMaker" ),
+      //arguments( "jp.co.yahoo.yosegi.binary.maker.DictionaryRleStringColumnBinaryMaker" ),
+      //arguments( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpStringColumnBinaryMaker" ),
       arguments( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayStringColumnBinaryMaker" )
     );
   }
 
   public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
     int loadCount =
-        (columnBinary.loadIndex == null) ? columnBinary.rowCount : columnBinary.loadIndex.length;
+        (columnBinary.isSetLoadSize) ? columnBinary.loadSize : columnBinary.rowCount;
     return new YosegiLoaderFactory().create(columnBinary, loadCount);
   }
 
   public IColumn createNotNullColumn( final String targetClassName ) throws IOException{
-    return createNotNullColumn( targetClassName , null );
+    return createNotNullColumn( targetClassName , null , 0 );
   }
 
-  public IColumn createNotNullColumn( final String targetClassName , final int[] loadIndex ) throws IOException{
+  public IColumn createNotNullColumn( final String targetClassName , final int[] repetitions , final int loadSize ) throws IOException{
     IColumn column = new PrimitiveColumn( ColumnType.STRING , "column" );
     column.add( ColumnType.STRING , new StringObj( "a" ) , 0 );
     column.add( ColumnType.STRING , new StringObj( "ab" ) , 1 );
@@ -87,30 +87,34 @@ public class TestStringPrimitiveColumn {
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
-    columnBinary.setLoadIndex( loadIndex );
+    if ( repetitions != null ) {
+      columnBinary.setRepetitions( repetitions , loadSize );
+    }
     return toColumn(columnBinary);
   }
 
   public IColumn createNullColumn( final String targetClassName ) throws IOException{
-    return createNullColumn( targetClassName , null );
+    return createNullColumn( targetClassName , null , 0 );
   }
 
-  public IColumn createNullColumn( final String targetClassName , final int[] loadIndex ) throws IOException{
+  public IColumn createNullColumn( final String targetClassName , final int[] repetitions , final int loadSize ) throws IOException{
     IColumn column = new PrimitiveColumn( ColumnType.STRING , "column" );
 
     IColumnBinaryMaker maker = FindColumnBinaryMaker.get( targetClassName );
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
-    columnBinary.setLoadIndex( loadIndex );
+    if ( repetitions != null ) {
+      columnBinary.setRepetitions( repetitions , loadSize );
+    }
     return toColumn(columnBinary);
   }
 
   public IColumn createHasNullColumn( final String targetClassName ) throws IOException{
-    return createHasNullColumn( targetClassName , null );
+    return createHasNullColumn( targetClassName , null , 0 );
   }
 
-  public IColumn createHasNullColumn( final String targetClassName , final int[] loadIndex ) throws IOException{
+  public IColumn createHasNullColumn( final String targetClassName , final int[] repetitions , final int loadSize ) throws IOException{
     IColumn column = new PrimitiveColumn( ColumnType.STRING , "column" );
     column.add( ColumnType.STRING , new StringObj( "a" ) , 0 );
     column.add( ColumnType.STRING , new StringObj( "b" ) , 4 );
@@ -120,15 +124,17 @@ public class TestStringPrimitiveColumn {
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
-    columnBinary.setLoadIndex( loadIndex );
+    if ( repetitions != null ) {
+      columnBinary.setRepetitions( repetitions , loadSize );
+    }
     return toColumn(columnBinary);
   }
 
   public IColumn createLastCellColumn( final String targetClassName ) throws IOException{
-    return createLastCellColumn( targetClassName , null );
+    return createLastCellColumn( targetClassName , null , 0 );
   }
 
-  public IColumn createLastCellColumn( final String targetClassName , final int[] loadIndex ) throws IOException{
+  public IColumn createLastCellColumn( final String targetClassName , final int[] repetitions , final int loadSize ) throws IOException{
     IColumn column = new PrimitiveColumn( ColumnType.STRING , "column" );
     column.add( ColumnType.STRING , new StringObj( "c" ) , 10 );
 
@@ -136,7 +142,9 @@ public class TestStringPrimitiveColumn {
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
-    columnBinary.setLoadIndex( loadIndex );
+    if ( repetitions != null ) {
+      columnBinary.setRepetitions( repetitions , loadSize );
+    }
     return toColumn(columnBinary);
   }
 
@@ -177,7 +185,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadFromNotNullColumn_equals_withAllValueIndex( final String targetClassName ) throws IOException{
     IColumn column = createNotNullColumn(
         targetClassName ,
-        new int[]{0,1,2,3,4,5,6,7,8,9,10} );
+        new int[]{1,1,1,1,1,1,1,1,1,1,1} , 11);
     assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "a" );
     assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "ab" );
     assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "abc" );
@@ -196,7 +204,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadFromNotNullColumn_equals_withLargeLoadIndex( final String targetClassName ) throws IOException{
     IColumn column = createNotNullColumn(
         targetClassName ,
-        new int[]{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15} );
+        new int[]{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1} , 16 );
     assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "a" );
     assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "ab" );
     assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "abc" );
@@ -218,7 +226,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadFromNotNullColumn_equals_withLoadIndexIsHead5( final String targetClassName ) throws IOException{
     IColumn column = createNotNullColumn(
         targetClassName ,
-        new int[]{0,1,2,3,4,5} );
+        new int[]{1,1,1,1,1,1,0,0,0,0,0} , 6 );
     assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "a" );
     assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "ab" );
     assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "abc" );
@@ -235,7 +243,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadFromNotNullColumn_equals_withLoadIndexTail5( final String targetClassName ) throws IOException{
     IColumn column = createNotNullColumn(
         targetClassName ,
-        new int[]{6,7,8,9,10} );
+        new int[]{0,0,0,0,0,0,1,1,1,1,1} , 5 );
     assertEquals( column.size() , 5 );
     assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "bcd" );
     assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "bcde" );
@@ -249,7 +257,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadFromNotNullColumn_equals_withOddNumberIndex( final String targetClassName ) throws IOException{
     IColumn column = createNotNullColumn(
         targetClassName ,
-        new int[]{1,3,5,7,9} );
+        new int[]{0,1,0,1,0,1,0,1,0,1,0} , 5 );
     assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "ab" );
     assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "abcd" );
     assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "bc" );
@@ -262,7 +270,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadFromNotNullColumn_equals_withAllValueIndexAndExpand( final String targetClassName ) throws IOException{
     IColumn column = createNotNullColumn(
         targetClassName ,
-        new int[]{0,0,1,2,2,3,4,4,5,6,6,7,8,8,9,10,10} );
+        new int[]{2,1,2,1,2,1,2,1,2,1,2} , 17 );
     assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "a" );
     assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "a" );
     assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "ab" );
@@ -287,7 +295,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadFromNotNullColumn_equals_withLargeLoadIndexAndExpand( final String targetClassName ) throws IOException{
     IColumn column = createNotNullColumn(
         targetClassName ,
-        new int[]{0,0,1,2,2,3,4,4,5,6,6,7,8,8,9,10,10,11,12,12,13,14,14,15} );
+        new int[]{2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1} , 24 );
     assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "a" );
     assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "a" );
     assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "ab" );
@@ -315,7 +323,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadFromNotNullColumn_equals_withLoadIndexIsHead5AndExpand( final String targetClassName ) throws IOException{
     IColumn column = createNotNullColumn(
         targetClassName ,
-        new int[]{0,0,1,2,2,3,4,4,5} );
+        new int[]{2,1,2,1,2,1,0,0,0,0,0} , 9 );
     assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "a" );
     assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "a" );
     assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "ab" );
@@ -332,7 +340,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadFromNotNullColumn_equals_withLoadIndexTail5AndExpand( final String targetClassName ) throws IOException{
     IColumn column = createNotNullColumn(
         targetClassName ,
-        new int[]{6,6,7,8,8,9,10,10} );
+        new int[]{0,0,0,0,0,0,2,1,2,1,2} , 8 );
     assertEquals( column.size() , 8 );
     assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "bcd" );
     assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "bcd" );
@@ -357,7 +365,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadNotNullColumn_equals_withAllValueIndexAndExpand( final String targetClassName ) throws IOException{
     IColumn column = createNullColumn(
         targetClassName ,
-        new int[]{0,0,1,2,2,3,4,4,5,6,6,7,8,8,9,10,10} );
+        new int[]{2,1,2,1,2,1,2,1,2,1,2} , 16 );
     for ( int i = 0 ; i < 16 ; i++ ) {
       assertNull( column.get(i).getRow() );
     }
@@ -383,7 +391,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadHasNullColumn_equals_withAllValueIndex( final String targetClassName ) throws IOException{
     IColumn column = createHasNullColumn(
         targetClassName ,
-        new int[]{0,1,2,3,4,5,6,7,8,9,10} );
+        new int[]{1,1,1,1,1,1,1,1,1,1,1} , 11 );
     assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "a" );
     assertNull( column.get(1).getRow() );
     assertNull( column.get(2).getRow() );
@@ -400,7 +408,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadHasNullColumn_equals_withLoadIndexIsHead5( final String targetClassName ) throws IOException{
     IColumn column = createHasNullColumn(
         targetClassName ,
-        new int[]{0,1,2,3,4,5} );
+        new int[]{1,1,1,1,1,1,0,0,0,0,0} , 6 );
     assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "a" );
     assertNull( column.get(1).getRow() );
     assertNull( column.get(2).getRow() );
@@ -414,7 +422,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadHasNullColumn_equals_withLoadIndexTail5( final String targetClassName ) throws IOException{
     IColumn column = createHasNullColumn(
         targetClassName ,
-        new int[]{6,7,8,9,10} );
+        new int[]{0,0,0,0,0,0,1,1,1,1,1} , 5 );
     assertEquals( column.size() , 5 );
     assertNull( column.get(0).getRow() );
     assertNull( column.get(1).getRow() );
@@ -428,7 +436,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadHasNullColumn_equals_withAllValueIndexAndExpand( final String targetClassName ) throws IOException{
     IColumn column = createHasNullColumn(
         targetClassName ,
-        new int[]{0,0,1,2,2,3,4,4,5,6,6,7,8,8,9,10,10} );
+        new int[]{2,1,2,1,2,1,2,1,2,1,2} , 17 );
     assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "a" );
     assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "a" );
     assertNull( column.get(2).getRow() );
@@ -453,7 +461,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadHasNullColumn_equals_withLoadIndexIsHead5AndExpand( final String targetClassName ) throws IOException{
     IColumn column = createHasNullColumn(
         targetClassName ,
-        new int[]{0,0,1,2,2,3,4,4,5} );
+        new int[]{2,1,2,1,2,1,0,0,0,0,0} , 9);
     assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "a" );
     assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "a" );
     assertNull( column.get(2).getRow() );
@@ -470,7 +478,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadHasNullColumn_equals_withLoadIndexTail5AndExpand( final String targetClassName ) throws IOException{
     IColumn column = createHasNullColumn(
         targetClassName ,
-        new int[]{6,6,7,8,8,9,10,10} );
+        new int[]{0,0,0,0,0,0,2,1,2,1,2} , 8 );
     assertEquals( column.size() , 8 );
     assertNull( column.get(0).getRow() );
     assertNull( column.get(1).getRow() );
@@ -497,7 +505,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadLastCellColumn_equals_withAllValueIndex( final String targetClassName ) throws IOException{
     IColumn column = createLastCellColumn(
         targetClassName ,
-        new int[]{0,1,2,3,4,5,6,7,8,9,10} );
+        new int[]{1,1,1,1,1,1,1,1,1,1,1} , 11 );
     for( int i = 0 ; i < 10 ; i++ ){
       assertNull( column.get(i).getRow() );
     }
@@ -509,7 +517,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadLastCellColumn_equals_withLoadIndexIsHead5( final String targetClassName ) throws IOException{
     IColumn column = createLastCellColumn(
         targetClassName ,
-        new int[]{0,1,2,3,4,5} );
+        new int[]{1,1,1,1,1,1,0,0,0,0,0} , 6 );
     for( int i = 0 ; i < 6 ; i++ ){
       assertNull( column.get(i).getRow() );
     }
@@ -520,7 +528,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadLastCellColumn_equals_withLoadIndexTail5( final String targetClassName ) throws IOException{
     IColumn column = createLastCellColumn(
         targetClassName ,
-        new int[]{6,7,8,9,10} );
+        new int[]{0,0,0,0,0,0,1,1,1,1,1} , 5 );
     assertEquals( column.size() , 5 );
     for( int i = 0 ; i < 4 ; i++ ){
       assertNull( column.get(i).getRow() );
@@ -533,7 +541,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadLastCellColumn_equals_withAllValueIndexAndExpand( final String targetClassName ) throws IOException{
     IColumn column = createLastCellColumn(
         targetClassName ,
-        new int[]{0,0,1,2,2,3,4,4,5,6,6,7,8,8,9,10,10} );
+        new int[]{2,1,2,1,2,1,2,1,2,1,2} , 17 );
     for( int i = 0 ; i < 15 ; i++ ){
       assertNull( column.get(i).getRow() );
     }
@@ -546,7 +554,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadLastCellColumn_equals_withLoadIndexIsHead5AndExpand( final String targetClassName ) throws IOException{
     IColumn column = createLastCellColumn(
         targetClassName ,
-        new int[]{0,0,1,2,2,3,4,4,5} );
+        new int[]{2,1,2,1,2,1,0,0,0,0,0} , 9 );
     for( int i = 0 ; i < 9 ; i++ ){
       assertNull( column.get(i).getRow() );
     }
@@ -557,7 +565,7 @@ public class TestStringPrimitiveColumn {
   public void T_loadLastCellColumn_equals_withLoadIndexTail5AndExpand( final String targetClassName ) throws IOException{
     IColumn column = createLastCellColumn(
         targetClassName ,
-        new int[]{6,6,7,8,8,9,10,10} );
+        new int[]{0,0,0,0,0,0,2,1,2,1,2} , 8 );
     assertEquals( column.size() , 8 );
     for( int i = 0 ; i < 6 ; i++ ){
       assertNull( column.get(i).getRow() );
@@ -587,19 +595,7 @@ public class TestStringPrimitiveColumn {
         () -> {
           IColumn column = createLastCellColumn(
             targetClassName ,
-            new int[]{-1,0,1,2} );
-        }
-    );
-  }
-
-  @ParameterizedTest
-  @MethodSource( "stringColumnBinaryMaker" )
-  public void T_load_exception_withGreaterThenPreviousNumber( final String targetClassName ) throws IOException{
-    assertThrows( IOException.class ,
-        () -> {
-          IColumn column = createLastCellColumn(
-            targetClassName ,
-            new int[]{0,0,1,1,2,2,1} );
+            new int[]{-1,0,1,2} , 3);
         }
     );
   }

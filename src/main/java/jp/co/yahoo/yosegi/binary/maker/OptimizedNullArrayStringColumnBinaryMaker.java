@@ -405,26 +405,24 @@ public class OptimizedNullArrayStringColumnBinaryMaker implements IColumnBinaryM
       }
     }
 
-    int currentLoadIndex = 0;
     int[] newDicIndexList = new int[meta.dicSize];
     int needDicCount = 0;
-    for ( int loadIndex : columnBinary.loadIndex ) {
-      if ( loadIndex < 0 ) {
-        throw new IOException(
-            "Index must be greater than 0." );
-      } else if ( loadIndex < currentLoadIndex ) {
-        throw new IOException( "Index must be equal to or greater than the previous number." );
-      }
-      if ( meta.startIndex + isNullArray.length <= loadIndex ) {
+    for ( int i = 0 ; i < columnBinary.repetitions.length ; i++ ) {
+      if ( meta.startIndex + isNullArray.length <= i ) {
         break;
       }
-      currentLoadIndex = loadIndex;
-      if ( loadIndex < meta.startIndex || isNullArray[loadIndex - meta.startIndex] ) {
+      if ( columnBinary.repetitions[i] < 0 ) {
+        throw new IOException(
+            "Index must be greater than 0." );
+      }
+      if ( columnBinary.repetitions[i] == 0
+          ||  i < meta.startIndex
+          || isNullArray[i - meta.startIndex] ) {
         continue;
       }
-      if ( ! isNeedDictionary[dicIndexList[loadIndex - meta.startIndex]] ) {
-        isNeedDictionary[dicIndexList[loadIndex - meta.startIndex]] = true;
-        newDicIndexList[dicIndexList[loadIndex - meta.startIndex]] = needDicCount;
+      if ( ! isNeedDictionary[dicIndexList[i - meta.startIndex]] ) {
+        isNeedDictionary[dicIndexList[i - meta.startIndex]] = true;
+        newDicIndexList[dicIndexList[i - meta.startIndex]] = needDicCount;
         needDicCount++;
       }
     }
@@ -454,16 +452,24 @@ public class OptimizedNullArrayStringColumnBinaryMaker implements IColumnBinaryM
     }
 
     int currentColumnIndex = 0;
-    for ( int loadIndex : columnBinary.loadIndex ) {
-      if ( meta.startIndex + isNullArray.length <= loadIndex
-          || loadIndex < meta.startIndex 
-          || isNullArray[loadIndex - meta.startIndex] ) {
-        loader.setNull( currentColumnIndex );
-      } else {
-        loader.setDictionaryIndex(
-            currentColumnIndex , newDicIndexList[dicIndexList[loadIndex - meta.startIndex]] );
+    for ( int i = 0 ; i < columnBinary.repetitions.length ; i++ ) {
+      if ( columnBinary.repetitions[i] == 0 ) {
+        continue;
       }
-      currentColumnIndex++;
+      if ( meta.startIndex + isNullArray.length <= i
+          || i < meta.startIndex 
+          || isNullArray[i - meta.startIndex] ) {
+        for ( int n = 0 ; n < columnBinary.repetitions[i] ; n++ ) {
+          loader.setNull( currentColumnIndex );
+          currentColumnIndex++;
+        }
+      } else {
+        for ( int n = 0 ; n < columnBinary.repetitions[i] ; n++ ) {
+          loader.setDictionaryIndex(
+              currentColumnIndex , newDicIndexList[dicIndexList[i - meta.startIndex]] );
+          currentColumnIndex++;
+        }
+      }
     }
   }
 
@@ -473,7 +479,7 @@ public class OptimizedNullArrayStringColumnBinaryMaker implements IColumnBinaryM
     if ( loader.getLoaderType() != LoadType.DICTIONARY ) {
       throw new IOException( "Loader type is not DICTIONARY." );
     }
-    if ( columnBinary.loadIndex == null ) {
+    if ( columnBinary.repetitions == null ) {
       loadFromColumnBinary( columnBinary , (IDictionaryLoader)loader );
     } else {
       loadFromExpandColumnBinary( columnBinary , (IDictionaryLoader)loader );

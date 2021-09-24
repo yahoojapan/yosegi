@@ -95,7 +95,12 @@ public class LinkColumn {
 
     if ( baseColumn.loadIndex != null ) {
       newColumnBinary.setLoadIndex( baseColumn.loadIndex );
-      ColumnBinaryUtil.setLoadIndex( newColumnBinary.columnBinaryList , baseColumn.loadIndex );
+      newColumnBinary.setRepetitions( baseColumn.repetitions , baseColumn.loadSize );
+      ColumnBinaryUtil.setLoadIndex(
+          newColumnBinary.columnBinaryList ,
+          baseColumn.loadIndex ,
+          baseColumn.repetitions ,
+          baseColumn.loadSize );
     }
     linkBinaryList.add( newColumnBinary );
   }

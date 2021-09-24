@@ -44,12 +44,6 @@ public class WrapReader<T> implements AutoCloseable {
   public T next() throws IOException {
     List<ColumnBinary> raw = reader.nextRaw();
     int loadSize = reader.getCurrentSpreadSize();
-    for ( ColumnBinary columnBinary : raw ) {
-      if ( columnBinary.loadIndex != null ) {
-        loadSize = columnBinary.loadIndex.length;
-        break;
-      }
-    }
     return converter.convert( raw , loadSize );
   }
 
