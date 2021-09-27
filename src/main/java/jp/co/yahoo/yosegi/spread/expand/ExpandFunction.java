@@ -61,9 +61,9 @@ public class ExpandFunction implements IExpandFunction {
   }
 
   @Override
-  public void expandFromColumnBinary(
-      final List<ColumnBinary> columnBinaryList ) throws IOException {
-    expandNode.createExpandColumnBinary( columnBinaryList , expandColumnLink );
+  public int expandFromColumnBinary(
+      final List<ColumnBinary> columnBinaryList , int spreadSize ) throws IOException {
+    return expandNode.createExpandColumnBinary( columnBinaryList , expandColumnLink );
   }
 
   @Override

@@ -16,33 +16,34 @@
  * limitations under the License.
  */
 
-package jp.co.yahoo.yosegi.spread.expand;
+package jp.co.yahoo.yosegi.binary;
 
-import jp.co.yahoo.yosegi.binary.ColumnBinary;
-import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
+public class RepetitionAndLoadSize {
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+  private final int[] loadIndex;
+  private final int[] repetitions;
+  private final int loadSize;
 
-public class NotExpandFunction implements IExpandFunction {
-
-  @Override
-  public int expandFromColumnBinary(
-      final List<ColumnBinary> columnBinaryList , final int spreadSize ) throws IOException {
-    return spreadSize;
+  /**
+   * Keep the number of repeated loads and the load size.
+   */
+  public RepetitionAndLoadSize(
+      final int[] loadIndex , final int[] repetitions , final int loadSize ) {
+    this.loadIndex = loadIndex;
+    this.repetitions = repetitions;
+    this.loadSize = loadSize;
   }
 
-  @Override
-  public void expandIndexNode( final BlockIndexNode rootNode ) throws IOException {}
-
-  @Override
-  public String[] getExpandLinkColumnName( final String linkName ) {
-    return new String[0];
+  public int[] getLoadIndex() {
+    return loadIndex;
   }
 
-  @Override
-  public List<String[]> getExpandColumnName() {
-    return new ArrayList<String[]>();
+  public int[] getRepetitions() {
+    return repetitions;
   }
+
+  public int getLoadSize() {
+    return loadSize;
+  }
+
 }
