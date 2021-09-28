@@ -18,6 +18,7 @@
 package jp.co.yahoo.yosegi.blackbox;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -57,19 +58,29 @@ public class TestBooleanPrimitiveColumn {
 
   public static Stream<Arguments> D_booleanColumnBinaryMaker() {
     return Stream.of(
-        arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpBooleanColumnBinaryMaker"),
-        arguments(
-            "jp.co.yahoo.yosegi.binary.maker.FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker"));
+        arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpBooleanColumnBinaryMaker"));
+        //arguments(
+        //    "jp.co.yahoo.yosegi.binary.maker.FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker"));
   }
 
   public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
-    int loadCount =
-        (columnBinary.loadIndex == null) ? columnBinary.rowCount : columnBinary.loadIndex.length;
+    int loadCount = (columnBinary.isSetLoadSize) ? columnBinary.loadSize : columnBinary.rowCount;
     return new YosegiLoaderFactory().create(columnBinary, loadCount);
   }
 
+  public int getLoadSize(final int[] repetitions) {
+    if (repetitions == null) {
+      return 0;
+    }
+    int loadSize = 0;
+    for (int size : repetitions) {
+      loadSize += size;
+    }
+    return loadSize;
+  }
+
   public IColumn createNotNullColumn(final String targetClassName) throws IOException {
-    return createNotNullColumn(targetClassName, null);
+    return createNotNullColumn(targetClassName, null, 0);
   }
 
   public Boolean notNullColumnValue(int index) {
@@ -79,7 +90,8 @@ public class TestBooleanPrimitiveColumn {
     return (index % 2) == 0;
   }
 
-  public IColumn createNotNullColumn(final String targetClassName, final int[] loadIndex)
+  public IColumn createNotNullColumn(
+      final String targetClassName, final int[] repetitions, final int loadSize)
       throws IOException {
     IColumn column = new PrimitiveColumn(ColumnType.BOOLEAN, "column");
     for (int i = 0; i <= 10; i++) {
@@ -92,29 +104,33 @@ public class TestBooleanPrimitiveColumn {
         new ColumnBinaryMakerCustomConfigNode("root", defaultConfig);
     ColumnBinary columnBinary =
         maker.toBinary(defaultConfig, null, new CompressResultNode(), column);
-    columnBinary.setLoadIndex(loadIndex);
+    if (repetitions != null) {
+      columnBinary.setRepetitions(repetitions, loadSize);
+    }
     return toColumn(columnBinary);
-    //return FindColumnBinaryMaker.get(columnBinary.makerClassName).toColumn(columnBinary);
   }
 
   public IColumn createNullColumn(final String targetClassName) throws IOException {
-    return createNullColumn(targetClassName, null);
+    return createNullColumn(targetClassName, null, 0);
   }
 
-  public IColumn createNullColumn( final String targetClassName, final int[] loadIndex ) throws IOException{
+  public IColumn createNullColumn(
+      final String targetClassName, final int[] repetitions, final int loadSize)
+      throws IOException {
     IColumn column = new PrimitiveColumn( ColumnType.BOOLEAN , "column" );
 
     IColumnBinaryMaker maker = FindColumnBinaryMaker.get( targetClassName );
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
-    columnBinary.setLoadIndex(loadIndex);
+    if (repetitions != null) {
+      columnBinary.setRepetitions(repetitions, loadSize);
+    }
     return toColumn(columnBinary);
-    //return  FindColumnBinaryMaker.get( columnBinary.makerClassName ).toColumn( columnBinary );
   }
 
   public IColumn createHasNullColumn(final String targetClassName) throws IOException {
-    return createHasNullColumn(targetClassName, null);
+    return createHasNullColumn(targetClassName, null, 0);
   }
 
   public Boolean hasNullColumnValue(int index) {
@@ -132,7 +148,8 @@ public class TestBooleanPrimitiveColumn {
     return null;
   }
 
-  public IColumn createHasNullColumn(final String targetClassName, final int[] loadIndex)
+  public IColumn createHasNullColumn(
+      final String targetClassName, final int[] repetitions, final int loadSize)
       throws IOException {
     IColumn column = new PrimitiveColumn(ColumnType.BOOLEAN, "column");
     for (int i : new int[] {0, 4, 8}) {
@@ -145,13 +162,14 @@ public class TestBooleanPrimitiveColumn {
         new ColumnBinaryMakerCustomConfigNode("root", defaultConfig);
     ColumnBinary columnBinary =
         maker.toBinary(defaultConfig, null, new CompressResultNode(), column);
-    columnBinary.setLoadIndex(loadIndex);
+    if (repetitions != null) {
+      columnBinary.setRepetitions(repetitions, loadSize);
+    }
     return toColumn(columnBinary);
-    //return FindColumnBinaryMaker.get(columnBinary.makerClassName).toColumn(columnBinary);
   }
 
   public IColumn createLastCellColumn(final String targetClassName) throws IOException {
-    return createLastCellColumn(targetClassName, null);
+    return createLastCellColumn(targetClassName, null, 0);
   }
 
   public Boolean lastCellColumnValue(int index) {
@@ -167,7 +185,8 @@ public class TestBooleanPrimitiveColumn {
     return null;
   }
 
-  public IColumn createLastCellColumn(final String targetClassName, final int[] loadIndex)
+  public IColumn createLastCellColumn(
+      final String targetClassName, final int[] repetitions, final int loadSize)
       throws IOException {
     IColumn column = new PrimitiveColumn(ColumnType.BOOLEAN, "column");
     column.add(ColumnType.BOOLEAN, new BooleanObj(lastCellColumnValue(10000)), 10000);
@@ -178,9 +197,10 @@ public class TestBooleanPrimitiveColumn {
         new ColumnBinaryMakerCustomConfigNode("root", defaultConfig);
     ColumnBinary columnBinary =
         maker.toBinary(defaultConfig, null, new CompressResultNode(), column);
-    columnBinary.setLoadIndex(loadIndex);
+    if (repetitions != null) {
+      columnBinary.setRepetitions(repetitions, loadSize);
+    }
     return toColumn(columnBinary);
-    //return FindColumnBinaryMaker.get(columnBinary.makerClassName).toColumn(columnBinary);
   }
 
   @ParameterizedTest
@@ -200,91 +220,103 @@ public class TestBooleanPrimitiveColumn {
     assertEquals( ( (PrimitiveObject)( column.get(10).getRow() ) ).getBoolean() , true );
   }
 
-  public void assertNotNullColumn(final String targetClassName, final int[] loadIndex) throws IOException {
-    IColumn column = createNotNullColumn(targetClassName, loadIndex);
-    assertEquals(loadIndex.length, column.size());
+  public void assertNotNullColumn(
+      final String targetClassName, final int[] repetitions, final int loadSize)
+      throws IOException {
+    IColumn column = createNotNullColumn(targetClassName, repetitions, loadSize);
+    assertEquals(loadSize, column.size());
     int offset = 0;
-    for (int index : loadIndex) {
-      Boolean expected = notNullColumnValue(index);
-      if (expected == null) {
-        assertEquals(ColumnType.NULL, column.get(offset).getType());
-      } else {
-        assertEquals(expected, ((PrimitiveObject) (column.get(offset).getRow())).getBoolean());
+    for (int i = 0; i < repetitions.length; i++) {
+      Boolean expected = notNullColumnValue(i);
+      for (int j = 0; j < repetitions[i]; j++) {
+        if (expected == null) {
+          assertEquals(ColumnType.NULL, column.get(offset).getType());
+        } else {
+          assertEquals(expected, ((PrimitiveObject) (column.get(offset).getRow())).getBoolean());
+        }
+        offset++;
       }
-      offset++;
     }
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
   public void T_loadFromNotNullColumn_withAllLoadIndex(final String targetClassName)
-          throws IOException {
-    int[] loadIndex = new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    assertNotNullColumn(targetClassName, loadIndex);
+      throws IOException {
+    int[] repetitions = new int[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
   public void T_loadFromNotNullColumn_withOutOfBoundsLoadIndex(final String targetClassName)
-          throws IOException {
-    int[] loadIndex = new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-    assertNotNullColumn(targetClassName, loadIndex);
+      throws IOException {
+    int[] repetitions = new int[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
-  public void T_loadFromNotNullColumn_withHead5LoadIndex(final String targetClassName) throws IOException {
-    int[] loadIndex = new int[] {0, 1, 2, 3, 4};
-    assertNotNullColumn(targetClassName, loadIndex);
+  public void T_loadFromNotNullColumn_withHead5LoadIndex(final String targetClassName)
+      throws IOException {
+    int[] repetitions = new int[] {1, 1, 1, 1, 1};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
-  public void T_loadFromNotNullColumn_withTail5LoadIndex(final String targetClassName) throws IOException {
-    int[] loadIndex = new int[] {6, 7, 8, 9, 10};
-    assertNotNullColumn(targetClassName, loadIndex);
+  public void T_loadFromNotNullColumn_withTail5LoadIndex(final String targetClassName)
+      throws IOException {
+    int[] repetitions = new int[] {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
-  public void T_loadFromNotNullColumn_withOddNumberLoadIndex(final String targetClassName) throws IOException {
-    int[] loadIndex = new int[] {1, 3, 5, 7, 9};
-    assertNotNullColumn(targetClassName, loadIndex);
+  public void T_loadFromNotNullColumn_withOddNumberLoadIndex(final String targetClassName)
+      throws IOException {
+    int[] repetitions = new int[] {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
-  public void T_loadFromNotNullColumn_withAllLoadIndexAndExpand(final String targetClassName) throws IOException {
-    int[] loadIndex = new int[] {0, 0, 1, 2, 2, 3, 3, 3, 4, 5, 6, 6, 7, 8, 9, 10, 10, 10};
-    assertNotNullColumn(targetClassName, loadIndex);
+  public void T_loadFromNotNullColumn_withAllLoadIndexAndExpand(final String targetClassName)
+      throws IOException {
+    int[] repetitions = new int[] {2, 1, 2, 3, 1, 1, 2, 1, 1, 1, 3};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
-  public void T_loadFromNotNullColumn_withOutOfBoundsLoadIndexAndExpand(final String targetClassName) throws IOException {
-    int[] loadIndex = new int[] {0, 0, 1, 2, 2, 3, 3, 3, 4, 5, 6, 6, 7, 8, 9, 10, 10, 10, 12, 12, 13, 15};
-    assertNotNullColumn(targetClassName, loadIndex);
+  public void T_loadFromNotNullColumn_withOutOfBoundsLoadIndexAndExpand(
+      final String targetClassName) throws IOException {
+    int[] repetitions = new int[] {2, 1, 2, 3, 1, 1, 2, 1, 1, 1, 3, 0, 2, 1, 0, 1};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
-  public void T_loadFromNotNullColumn_withHead5LoadIndexAndExpand(final String targetClassName) throws IOException {
-    int[] loadIndex = new int[] {0, 0, 1, 2, 2, 3, 3, 3, 4};
-    assertNotNullColumn(targetClassName, loadIndex);
+  public void T_loadFromNotNullColumn_withHead5LoadIndexAndExpand(final String targetClassName)
+      throws IOException {
+    int[] repetitions = new int[] {2, 1, 2, 3, 1};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
-  public void T_loadFromNotNullColumn_withTail5LoadIndexAndExpand(final String targetClassName) throws IOException {
-    int[] loadIndex = new int[] {6, 6, 7, 8, 9, 10, 10, 10};
-    assertNotNullColumn(targetClassName, loadIndex);
+  public void T_loadFromNotNullColumn_withTail5LoadIndexAndExpand(final String targetClassName)
+      throws IOException {
+    int[] repetitions = new int[] {0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 3};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
-  public void T_loadFromNotNullColumn_withOddNumberLoadIndexAndExpand(final String targetClassName) throws IOException {
-    int[] loadIndex = new int[] {1, 1, 3, 5, 7, 7, 9, 9, 9};
-    assertNotNullColumn(targetClassName, loadIndex);
+  public void T_loadFromNotNullColumn_withOddNumberLoadIndexAndExpand(final String targetClassName)
+      throws IOException {
+    int[] repetitions = new int[] {0, 2, 0, 1, 0, 1, 0, 2, 0, 3, 0};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
@@ -298,12 +330,16 @@ public class TestBooleanPrimitiveColumn {
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
   public void T_loadNullColumn_withAllLoadIndexAndExpand(final String targetClassName)
-          throws IOException {
-    int[] loadIndex = new int[] {0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 6, 7, 7, 7, 8, 8};
-    IColumn column = createNullColumn(targetClassName, loadIndex);
-    assertEquals(loadIndex.length, column.size());
-    for (int i = 0; i < loadIndex.length; i++) {
-      assertEquals(ColumnType.NULL, column.get(i).getType());
+      throws IOException {
+    int[] repetitions = new int[] {2, 1, 3, 1, 1, 1, 2, 3, 2};
+    IColumn column = createNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
+    assertEquals(getLoadSize(repetitions), column.size());
+    int offset = 0;
+    for (int repetition : repetitions) {
+      for (int j = 0; j < repetition; j++) {
+        assertEquals(ColumnType.NULL, column.get(offset).getType());
+        offset++;
+      }
     }
   }
 
@@ -322,101 +358,108 @@ public class TestBooleanPrimitiveColumn {
     assertEquals( ( (PrimitiveObject)( column.get(8).getRow() ) ).getBoolean() , true );
   }
 
-  public void assertHasNullColumn(final String targetClassName, final int[] loadIndex) throws IOException {
-    IColumn column = createHasNullColumn(targetClassName, loadIndex);
-    assertEquals(loadIndex.length, column.size());
+  public void assertHasNullColumn(
+      final String targetClassName, final int[] repetitions, final int loadSize)
+      throws IOException {
+    IColumn column = createHasNullColumn(targetClassName, repetitions, loadSize);
+    assertEquals(loadSize, column.size());
     int offset = 0;
-    for (int index : loadIndex) {
-      Boolean expected = hasNullColumnValue(index);
-      if (expected == null) {
-        assertEquals(ColumnType.NULL, column.get(offset).getType());
-      } else {
-        assertEquals(expected, ((PrimitiveObject) (column.get(offset).getRow())).getBoolean());
+    for (int i = 0; i < repetitions.length; i++) {
+      Boolean expected = hasNullColumnValue(i);
+      for (int j = 0; j < repetitions[i]; j++) {
+        if (expected == null) {
+          assertEquals(ColumnType.NULL, column.get(offset).getType());
+        } else {
+          assertEquals(expected, ((PrimitiveObject) (column.get(offset).getRow())).getBoolean());
+        }
+        offset++;
       }
-      offset++;
     }
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
   public void T_loadHasNullColumn_withAllLoadIndex(final String targetClassName)
-          throws IOException {
-    int[] loadIndex = new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8};
-    assertHasNullColumn(targetClassName, loadIndex);
+      throws IOException {
+    int[] repetitions = new int[] {1, 1, 1, 1, 1, 1, 1, 1, 1};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
   public void T_loadHasNullColumn_withOutOfBoundsLoadIndex(final String targetClassName)
-          throws IOException {
-    int[] loadIndex = new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-    assertHasNullColumn(targetClassName, loadIndex);
+      throws IOException {
+    int[] repetitions = new int[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
   public void T_loadHasNullColumn_withHead5LoadIndex(final String targetClassName)
-          throws IOException {
-    int[] loadIndex = new int[] {0, 1, 2, 3, 4};
-    assertHasNullColumn(targetClassName, loadIndex);
+      throws IOException {
+    int[] repetitions = new int[] {1, 1, 1, 1, 1};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
   public void T_loadHasNullColumn_withTail5LoadIndex(final String targetClassName)
-          throws IOException {
-    int[] loadIndex = new int[] {4, 5, 6, 7, 8};
-    assertHasNullColumn(targetClassName, loadIndex);
+      throws IOException {
+    int[] repetitions = new int[] {0, 0, 0, 0, 1, 1, 1, 1, 1};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
-  public void T_loadHasNullColumn_withOddNumberLoadIndex(final String targetClassName) throws IOException {
-    int[] loadIndex = new int[] {1, 3, 5, 7};
-    assertHasNullColumn(targetClassName, loadIndex);
+  public void T_loadHasNullColumn_withOddNumberLoadIndex(final String targetClassName)
+      throws IOException {
+    int[] repetitions = new int[] {0, 1, 0, 1, 0, 1, 0, 1, 0};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
   public void T_loadHasNullColumn_withAllLoadIndexAndExpand(final String targetClassName)
-          throws IOException {
-    int[] loadIndex = new int[] {0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 6, 7, 8, 8, 8};
-    assertHasNullColumn(targetClassName, loadIndex);
+      throws IOException {
+    int[] repetitions = new int[] {2, 1, 3, 1, 1, 1, 2, 1, 3};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
-  public void T_loadHasNullColumn_withOutOfBoundsLoadIndexAndExpand(final String targetClassName) throws IOException {
-    int[] loadIndex = new int[] {0, 0, 1, 2, 2, 3, 3, 3, 4, 5, 6, 6, 7, 8, 9, 10, 10, 10, 12, 12, 13, 15};
-    assertHasNullColumn(targetClassName, loadIndex);
+  public void T_loadHasNullColumn_withOutOfBoundsLoadIndexAndExpand(final String targetClassName)
+      throws IOException {
+    int[] repetitions = new int[] {2, 1, 2, 3, 1, 1, 2, 1, 1, 1, 3, 0, 2, 1, 0, 1};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
   public void T_loadHasNullColumn_withHead5LoadIndexAndExpand(final String targetClassName)
-          throws IOException {
-    int[] loadIndex = new int[] {0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4};
-    assertHasNullColumn(targetClassName, loadIndex);
+      throws IOException {
+    int[] repetitions = new int[] {2, 1, 3, 1, 4};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
   public void T_loadHasNullColumn_withTail5LoadIndexAndExpand(final String targetClassName)
-          throws IOException {
-    int[] loadIndex = new int[] {4, 4, 5, 6, 6, 6, 7, 8};
-    assertHasNullColumn(targetClassName, loadIndex);
+      throws IOException {
+    int[] repetitions = new int[] {0, 0, 0, 0, 2, 1, 3, 1, 1};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
-  public void T_loadHasNullColumn_withOddNumberLoadIndexAndExpand(final String targetClassName) throws IOException {
-    int[] loadIndex = new int[] {1, 1, 3, 5, 7, 7, 7};
-    assertHasNullColumn(targetClassName, loadIndex);
+  public void T_loadHasNullColumn_withOddNumberLoadIndexAndExpand(final String targetClassName)
+      throws IOException {
+    int[] repetitions = new int[] {0, 2, 0, 1, 0, 1, 0, 3, 0};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
-  @MethodSource( "data1" )
-  public void T_lastCell_1( final String targetClassName ) throws IOException{
+  @MethodSource("data1")
+  public void T_lastCell_1(final String targetClassName) throws IOException {
     IColumn column = createLastCellColumn( targetClassName );
     for( int i = 0 ; i < 10000 ; i++ ){
       assertNull( column.get(i).getRow() );
@@ -424,174 +467,153 @@ public class TestBooleanPrimitiveColumn {
     assertEquals( ( (PrimitiveObject)( column.get(10000).getRow() ) ).getBoolean() , false );
   }
 
-  public void assertLastCellColumn(final String targetClassName, final int[] loadIndex) throws IOException {
-    IColumn column = createLastCellColumn(targetClassName, loadIndex);
-    assertEquals(loadIndex.length, column.size());
+  public void assertLastCellColumn(
+      final String targetClassName, final int[] repetitions, final int loadSize)
+      throws IOException {
+    IColumn column = createLastCellColumn(targetClassName, repetitions, loadSize);
+    assertEquals(loadSize, column.size());
     int offset = 0;
-    for (int index : loadIndex) {
-      Boolean expected = lastCellColumnValue(index);
-      if (expected == null) {
-        assertEquals(ColumnType.NULL, column.get(offset).getType());
-      } else {
-        assertEquals(expected, ((PrimitiveObject) (column.get(offset).getRow())).getBoolean());
+    for (int i = 0; i < repetitions.length; i++) {
+      Boolean expected = lastCellColumnValue(i);
+      for (int j = 0; j < repetitions[i]; j++) {
+        if (expected == null) {
+          assertEquals(ColumnType.NULL, column.get(offset).getType());
+        } else {
+          assertEquals(expected, ((PrimitiveObject) (column.get(offset).getRow())).getBoolean());
+        }
+        offset++;
       }
-      offset++;
     }
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
   public void T_loadLastCellColumn_withAllLoadIndex(final String targetClassName)
-          throws IOException {
+      throws IOException {
     int lastIndex = 10000;
-    int[] loadIndex = new int[lastIndex + 1];
-    for (int i = 0; i < loadIndex.length; i++) {
-      loadIndex[i] = i;
-    }
-    assertLastCellColumn(targetClassName, loadIndex);
+    int[] repetitions = new int[lastIndex + 1];
+    Arrays.fill(repetitions, 1);
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
   public void T_loadLastCellColumn_withOutOfBoundsLoadIndex(final String targetClassName)
-          throws IOException {
+      throws IOException {
     int lastIndex = 10001;
-    int[] loadIndex = new int[lastIndex + 1];
-    for (int i = 0; i < loadIndex.length; i++) {
-      loadIndex[i] = i;
-    }
-    assertLastCellColumn(targetClassName, loadIndex);
+    int[] repetitions = new int[lastIndex + 1];
+    Arrays.fill(repetitions, 1);
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
   public void T_loadLastCellColumn_withHead5LoadIndex(final String targetClassName)
-          throws IOException {
-    int[] loadIndex = new int[] {0, 1, 2, 3, 4};
-    assertLastCellColumn(targetClassName, loadIndex);
+      throws IOException {
+    int[] repetitions = new int[] {1, 1, 1, 1, 1};
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
   public void T_loadLastCellColumn_withTail5LoadIndex(final String targetClassName)
-          throws IOException {
-    int[] loadIndex = new int[] {9996, 9997, 9998, 9999, 10000};
-    assertLastCellColumn(targetClassName, loadIndex);
+      throws IOException {
+    int lastIndex = 10000;
+    int[] repetitions = new int[lastIndex + 1];
+    for (int i = 0; i < repetitions.length; i++) {
+      repetitions[i] = ((lastIndex - i) < 5) ? 1 : 0;
+    }
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
-  public void T_loadLastCellColumn_withOddNumberLoadIndex(final String targetClassName) throws IOException {
-    List<Integer> loadIndexList = new ArrayList<>();
+  public void T_loadLastCellColumn_withOddNumberLoadIndex(final String targetClassName)
+      throws IOException {
     int lastIndex = 10000;
-    for (int i = 0; i <= lastIndex; i++) {
-      int odd = i % 2;
-      if (odd == 1) {
-        loadIndexList.add(i);
-      }
+    int[] repetitions = new int[lastIndex + 1];
+    for (int i = 0; i < repetitions.length; i++) {
+      repetitions[i] = i % 2;
     }
-    int[] loadIndex = new int[loadIndexList.size()];
-    for (int i = 0; i < loadIndexList.size(); i++) {
-      loadIndex[i] = loadIndexList.get(i);
-    }
-    assertHasNullColumn(targetClassName, loadIndex);
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
   public void T_loadLastCellColumn_withAllLoadIndexAndExpand(final String targetClassName)
-          throws IOException {
-    List<Integer> loadIndexList = new ArrayList<>();
+      throws IOException {
     int lastIndex = 10000;
-    for (int i = 0; i <= lastIndex; i++) {
-      int num = 3 - (i % 3);
-      for (int j = 0; j < num; j++) {
-        loadIndexList.add(i);
-      }
+    int[] repetitions = new int[lastIndex + 1];
+    for (int i = 0; i < repetitions.length; i++) {
+      repetitions[i] = 3 - (i % 3);
     }
-    int[] loadIndex = new int[loadIndexList.size()];
-    for (int i = 0; i < loadIndexList.size(); i++) {
-      loadIndex[i] = loadIndexList.get(i);
-    }
-    assertLastCellColumn(targetClassName, loadIndex);
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
   public void T_loadLastCellColumn_withOutOfBoundsLoadIndexAndExpand(final String targetClassName)
-          throws IOException {
-    List<Integer> loadIndexList = new ArrayList<>();
+      throws IOException {
     int lastIndex = 10003;
-    for (int i = 0; i <= lastIndex; i++) {
-      int num = 3 - (i % 3);
-      for (int j = 0; j < num; j++) {
-        loadIndexList.add(i);
-      }
+    int[] repetitions = new int[lastIndex + 1];
+    for (int i = 0; i < repetitions.length; i++) {
+      repetitions[i] = 3 - (i % 3);
     }
-    int[] loadIndex = new int[loadIndexList.size()];
-    for (int i = 0; i < loadIndexList.size(); i++) {
-      loadIndex[i] = loadIndexList.get(i);
-    }
-    assertLastCellColumn(targetClassName, loadIndex);
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
   public void T_loadLastCellColumn_withHead5LoadIndexAndExpand(final String targetClassName)
-          throws IOException {
-    int[] loadIndex = new int[] {0, 0, 1, 2, 3, 3, 4, 4, 4};
-    assertLastCellColumn(targetClassName, loadIndex);
+      throws IOException {
+    int[] repetitions = new int[] {2, 1, 1, 2, 3};
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
   public void T_loadLastCellColumn_withTail5LoadIndexAndExpand(final String targetClassName)
-          throws IOException {
-    int[] loadIndex = new int[] {9996, 9996, 9997, 9998, 9999, 9999, 10000, 10000, 10000};
-    assertLastCellColumn(targetClassName, loadIndex);
+      throws IOException {
+    final Map<Integer, Integer> values =
+        new HashMap<Integer, Integer>() {
+          {
+            put(9996, 2);
+            put(9997, 1);
+            put(9998, 1);
+            put(9999, 2);
+            put(10000, 3);
+          }
+        };
+    int lastIndex = 10000;
+    int[] repetitions = new int[lastIndex + 1];
+    for (int i = 0; i < repetitions.length; i++) {
+      repetitions[i] = values.getOrDefault(i, 0);
+    }
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
-  public void T_loadLastCellColumn_withOddNumberLoadIndexAndExpand(final String targetClassName) throws IOException {
-    List<Integer> loadIndexList = new ArrayList<>();
+  public void T_loadLastCellColumn_withOddNumberLoadIndexAndExpand(final String targetClassName)
+      throws IOException {
     int lastIndex = 10000;
-    for (int i = 0; i <= lastIndex; i++) {
+    int[] repetitions = new int[lastIndex + 1];
+    for (int i = 0; i < repetitions.length; i++) {
       int odd = i % 2;
-      if (odd == 1) {
-        int num = 3 - (i % 3);
-        for (int j = 0; j < num; j++) {
-          loadIndexList.add(i);
-        }
-      }
+      repetitions[i] = (odd == 1) ? 3 - (i % 3) : 0;
     }
-    int[] loadIndex = new int[loadIndexList.size()];
-    for (int i = 0; i < loadIndexList.size(); i++) {
-      loadIndex[i] = loadIndexList.get(i);
-    }
-    assertHasNullColumn(targetClassName, loadIndex);
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_booleanColumnBinaryMaker")
   public void T_load_exception_withLessThan0LoadIndex(final String targetClassName) {
-    int[] loadIndex = new int[] {-1, 0, 1, 2};
+    int[] repetitions = new int[] {-1, 0, 1, 2};
     assertThrows(
-            IOException.class,
-            () -> {
-              IColumn column = createNotNullColumn(targetClassName, loadIndex);
-            });
+        IOException.class,
+        () -> {
+          IColumn column =
+              createNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
+        });
   }
-
-  @ParameterizedTest
-  @MethodSource("D_booleanColumnBinaryMaker")
-  public void T_load_exception_withLessThanPreviousLoadIndex(final String targetClassName) {
-    int[] loadIndex = new int[] {0, 1, 2, 1};
-    assertThrows(
-            IOException.class,
-            () -> {
-              IColumn column = createNotNullColumn(targetClassName, loadIndex);
-            });
-  }
-
 }
