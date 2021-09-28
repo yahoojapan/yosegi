@@ -250,39 +250,32 @@ public class OptimizedNullArrayDumpFloatColumnBinaryMaker implements IColumnBina
             binary, META_LENGTH + nullIndexLength, valueBinaryLength, order);
 
     // NOTE:
-    //   Set: loadIndexArrayOffset, value
+    //   Set: currentIndex, value
     int lastIndex = startIndex + isNullArray.length - 1;
-    int previousLoadIndex = -1;
-    int readOffset = startIndex;
-    int loadIndexArrayOffset = 0;
-    float value = 0;
-    for (int loadIndex : columnBinary.loadIndex) {
-      if (loadIndex < 0) {
-        throw new IOException("Index must be equal to or greater than 0.");
-      } else if (loadIndex < previousLoadIndex) {
-        throw new IOException("Index must be equal to or greater than the previous number.");
+    int currentIndex = 0;
+    for (int i = 0; i < columnBinary.repetitions.length; i++) {
+      if (columnBinary.repetitions[i] < 0) {
+        throw new IOException("Repetition must be equal to or greater than 0.");
       }
-      if (loadIndex > lastIndex) {
-        break;
+      if (columnBinary.repetitions[i] == 0) {
+        if (i >= startIndex && i <= lastIndex && !isNullArray[i - startIndex]) {
+          // NOTE: read skip
+          valueReader.getFloat();
+        }
+        continue;
       }
-      // NOTE: read skip
-      for (; readOffset <= loadIndex; readOffset++) {
-        if (readOffset >= startIndex && !isNullArray[readOffset - startIndex]) {
-          value = valueReader.getFloat();
+      if (i > lastIndex || i < startIndex || isNullArray[i - startIndex]) {
+        for (int j = 0; j < columnBinary.repetitions[i]; j++) {
+          loader.setNull(currentIndex);
+          currentIndex++;
+        }
+      } else {
+        float value = valueReader.getFloat();
+        for (int j = 0; j < columnBinary.repetitions[i]; j++) {
+          loader.setFloat(currentIndex, value);
+          currentIndex++;
         }
       }
-      if (loadIndex < startIndex || isNullArray[loadIndex - startIndex]) {
-        loader.setNull(loadIndexArrayOffset);
-      } else {
-        loader.setFloat(loadIndexArrayOffset, value);
-      }
-      previousLoadIndex = loadIndex;
-      loadIndexArrayOffset++;
-    }
-
-    // NOTE: null padding up to load size
-    for (int i = loadIndexArrayOffset; i < loader.getLoadSize(); i++) {
-      loader.setNull(i);
     }
   }
 
@@ -291,10 +284,10 @@ public class OptimizedNullArrayDumpFloatColumnBinaryMaker implements IColumnBina
     if (loader.getLoaderType() != LoadType.SEQUENTIAL) {
       throw new IOException("Loader type is not SEQUENTIAL");
     }
-    if (columnBinary.loadIndex == null) {
-      loadFromColumnBinary(columnBinary, (ISequentialLoader) loader);
-    } else {
+    if (columnBinary.isSetLoadSize) {
       loadFromExpandColumnBinary(columnBinary, (ISequentialLoader) loader);
+    } else {
+      loadFromColumnBinary(columnBinary, (ISequentialLoader) loader);
     }
     loader.finish();
   }
