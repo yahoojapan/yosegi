@@ -58,9 +58,9 @@ public class TestBooleanPrimitiveColumn {
 
   public static Stream<Arguments> D_booleanColumnBinaryMaker() {
     return Stream.of(
-        arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpBooleanColumnBinaryMaker"));
-        //arguments(
-        //    "jp.co.yahoo.yosegi.binary.maker.FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker"));
+        arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpBooleanColumnBinaryMaker"),
+        arguments(
+            "jp.co.yahoo.yosegi.binary.maker.FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker"));
   }
 
   public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {

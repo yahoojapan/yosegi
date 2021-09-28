@@ -242,42 +242,34 @@ public class FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker
         NullBinaryEncoder.toIsNullArray(binary, META_LENGTH + nullLength, isTrueLength);
 
     // NOTE:
-    //   Set: loadIndexArrayOffset, value
+    //   Set: currentIndex, value
     int lastIndex = startIndex + isNullArray.length - 1;
-    int previousLoadIndex = -1;
-    int readOffset = startIndex;
-    int loadIndexArrayOffset = 0;
+    int currentIndex = 0;
     int isTrueIndex = 0;
-    boolean value = true;
-    for (int loadIndex : columnBinary.loadIndex) {
-      if (loadIndex < 0) {
-        throw new IOException("Index must be equal to or greater than 0.");
+    for (int i = 0; i < columnBinary.repetitions.length; i++) {
+      if (columnBinary.repetitions[i] < 0) {
+        throw new IOException("Repetition must be equal to or greater than 0.");
       }
-      if (loadIndex < previousLoadIndex) {
-        throw new IOException("Index must be equal to or greater than the previous number.");
-      }
-      if (loadIndex > lastIndex) {
-        break;
-      }
-      // NOTE: read skip
-      for (; readOffset <= loadIndex; readOffset++) {
-        if (readOffset >= startIndex && !isNullArray[readOffset - startIndex]) {
-          value = isTrueArray[isTrueIndex];
+      if (columnBinary.repetitions[i] == 0) {
+        if (i >= startIndex && i <= lastIndex && !isNullArray[i - startIndex]) {
+          // NOTE: read skip
           isTrueIndex++;
         }
+        continue;
       }
-      if (loadIndex < startIndex || isNullArray[loadIndex - startIndex]) {
-        loader.setNull(loadIndexArrayOffset);
+      if (i > lastIndex || i < startIndex || isNullArray[i - startIndex]) {
+        for (int j = 0; j < columnBinary.repetitions[i]; j++) {
+          loader.setNull(currentIndex);
+          currentIndex++;
+        }
       } else {
-        loader.setBoolean(loadIndexArrayOffset, value);
+        boolean value = isTrueArray[isTrueIndex];
+        for (int j = 0; j < columnBinary.repetitions[i]; j++) {
+          loader.setBoolean(currentIndex, value);
+          currentIndex++;
+        }
+        isTrueIndex++;
       }
-      previousLoadIndex = loadIndex;
-      loadIndexArrayOffset++;
-    }
-
-    // NOTE: null padding up to load size
-    for (int i = loadIndexArrayOffset; i < loader.getLoadSize(); i++) {
-      loader.setNull(i);
     }
   }
 
@@ -286,10 +278,10 @@ public class FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker
     if (loader.getLoaderType() != LoadType.SEQUENTIAL) {
       throw new IOException("Loader type is not SEQUENTIAL.");
     }
-    if (columnBinary.loadIndex == null) {
-      loadFromColumnBinary(columnBinary, (ISequentialLoader) loader);
-    } else {
+    if (columnBinary.isSetLoadSize) {
       loadFromExpandColumnBinary(columnBinary, (ISequentialLoader) loader);
+    } else {
+      loadFromColumnBinary(columnBinary, (ISequentialLoader) loader);
     }
     loader.finish();
   }
