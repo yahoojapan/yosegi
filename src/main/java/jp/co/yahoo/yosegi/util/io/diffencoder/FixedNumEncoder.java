@@ -184,4 +184,54 @@ public class FixedNumEncoder implements INumEncoder {
       loader.setNull(i);
     }
   }
+
+  @Override
+  public void setDictionaryLoader(
+      final byte[] buffer,
+      final int start,
+      final int rows,
+      final boolean[] isNullArray,
+      final ByteOrder order,
+      final IDictionaryLoader loader,
+      final int startIndex,
+      final int[] repetitions,
+      final int loadSize)
+      throws IOException {
+    IReadSupporter wrapBuffer =
+        ByteBufferSupporterFactory.createReadSupporter(buffer, start, calcBinarySize(rows), order);
+
+    // NOTE: Calculate dictionarySize
+    int dictionarySize = 1;
+    loader.createDictionary(dictionarySize);
+
+    // NOTE:
+    //   Set value to dict: dictionaryIndex, value
+    int dictionaryIndex = 0;
+    long value = wrapBuffer.getLong();
+    loader.setLongToDic(dictionaryIndex, value);
+
+    // NOTE:
+    //   Set dictionaryIndex: currentIndex, dictionaryIndex
+    int currentIndex = 0;
+    int lastIndex = startIndex + isNullArray.length - 1;
+    for (int i = 0; i < repetitions.length; i++) {
+      if (repetitions[i] < 0) {
+        throw new IOException("Repetition must be equal to or greater than 0.");
+      }
+      if (repetitions[i] == 0) {
+        continue;
+      }
+      if (i > lastIndex || i < startIndex || isNullArray[i - startIndex]) {
+        for (int j = 0; j < repetitions[i]; j++) {
+          loader.setNull(currentIndex);
+          currentIndex++;
+        }
+      } else {
+        for (int j = 0; j < repetitions[i]; j++) {
+          loader.setDictionaryIndex(currentIndex, dictionaryIndex);
+          currentIndex++;
+        }
+      }
+    }
+  }
 }

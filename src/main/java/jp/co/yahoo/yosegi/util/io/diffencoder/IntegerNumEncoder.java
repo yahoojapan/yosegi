@@ -185,4 +185,64 @@ public class IntegerNumEncoder implements INumEncoder {
       loader.setNull(i);
     }
   }
+
+  @Override
+  public void setDictionaryLoader(
+      final byte[] buffer,
+      final int start,
+      final int rows,
+      final boolean[] isNullArray,
+      final ByteOrder order,
+      final IDictionaryLoader loader,
+      final int startIndex,
+      final int[] repetitions,
+      final int loadSize)
+      throws IOException {
+    IReadSupporter wrapBuffer = converter.toReadSupporter(buffer, start, calcBinarySize(rows));
+
+    // NOTE: Calculate dictionarySize
+    int dictionarySize = 0;
+    int lastIndex = startIndex + isNullArray.length - 1;
+    for (int i = 0; i < repetitions.length; i++) {
+      if (i > lastIndex) {
+        break;
+      }
+      if (repetitions[i] < 0) {
+        throw new IOException("Repetition must be equal to or greater than 0.");
+      }
+      if (repetitions[i] == 0 || i < startIndex || isNullArray[i - startIndex]) {
+        continue;
+      }
+      dictionarySize++;
+    }
+    loader.createDictionary(dictionarySize);
+
+    // NOTE:
+    //   Set value to dict: dictionaryIndex, value
+    //   Set dictionaryIndex: currentIndex, dictionaryIndex
+    int currentIndex = 0;
+    int dictionaryIndex = 0;
+    for (int i = 0; i < repetitions.length; i++) {
+      if (repetitions[i] == 0) {
+        if (i >= startIndex && i <= lastIndex && !isNullArray[i - startIndex]) {
+          // NOTE: read skip
+          wrapBuffer.getInt();
+        }
+        continue;
+      }
+      if (i > lastIndex || i < startIndex || isNullArray[i - startIndex]) {
+        for (int j = 0; j < repetitions[i]; j++) {
+          loader.setNull(currentIndex);
+          currentIndex++;
+        }
+      } else {
+        loader.setIntegerToDic(dictionaryIndex, wrapBuffer.getInt());
+        for (int j = 0; j < repetitions[i]; j++) {
+          loader.setDictionaryIndex(currentIndex, dictionaryIndex);
+          currentIndex++;
+        }
+        dictionaryIndex++;
+      }
+    }
+  }
 }

@@ -61,6 +61,7 @@ public interface INumEncoder {
           final int startIndex
   ) throws IOException;
 
+  @Deprecated
   void setDictionaryLoader(
           final byte[] buffer,
           final int start,
@@ -71,4 +72,16 @@ public interface INumEncoder {
           final int startIndex,
           final int[] loadIndexArray
   ) throws IOException;
+
+  default void setDictionaryLoader(
+          final byte[] buffer,
+          final int start,
+          final int rows,
+          final boolean[] isNullArray,
+          final ByteOrder order,
+          final IDictionaryLoader loader,
+          final int startIndex,
+          final int[] repetitions,
+          final int loadSize
+  ) throws IOException {}
 }

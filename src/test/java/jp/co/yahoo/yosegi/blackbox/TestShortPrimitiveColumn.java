@@ -57,8 +57,8 @@ public class TestShortPrimitiveColumn {
   public static Stream<Arguments> D_shortColumnBinaryMaker() {
     return Stream.of(
         arguments("jp.co.yahoo.yosegi.binary.maker.RleLongColumnBinaryMaker"),
-        arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayLongColumnBinaryMaker"),
-        arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpLongColumnBinaryMaker"));
+        arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayLongColumnBinaryMaker"));
+        //arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpLongColumnBinaryMaker"));
   }
 
   public static IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
