@@ -53,9 +53,9 @@ public class TestDoublePrimitiveColumn {
     );
   }
 
-  public static Stream<Arguments> D_doubleColumnBinaryMaker() throws IOException {
+  public static Stream<Arguments> D_doubleColumnBinaryMaker() {
     return Stream.of(
-        //arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDoubleColumnBinaryMaker"),
+        arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDoubleColumnBinaryMaker"),
         arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpDoubleColumnBinaryMaker"));
   }
 
