@@ -703,8 +703,6 @@ public class TestLongPrimitiveColumn {
     assertTestColumn(targetClassName, longArray);
   }
 
-  // FIXME: fix after changing ConstantColumnBinaryMaker.
-  /*
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadTestColumn_withAllLoadIndexAndExpand_bit0(final String targetClassName)
@@ -713,7 +711,6 @@ public class TestLongPrimitiveColumn {
     final int[] repetitions = testColumnRepetitions(longArray);
     assertTestColumn(targetClassName, longArray, repetitions, getLoadSize(repetitions));
   }
-   */
 
   public long[] int1() {
     long[] longArray = new long[] {0L, 0L, 1L, 1L, 0L, 0L, 1L, 1L, 0L, 0L};

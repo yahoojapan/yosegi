@@ -703,8 +703,6 @@ public class TestIntegerPrimitiveColumn {
     assertTestColumn(targetClassName, intArray);
   }
 
-  // FIXME: fix after changing ConstantColumnBinaryMaker.
-  /*
   @ParameterizedTest
   @MethodSource("D_integerColumnBinaryMaker")
   public void T_loadTestColumn_withAllLoadIndexAndExpand_bit0(final String targetClassName)
@@ -713,8 +711,6 @@ public class TestIntegerPrimitiveColumn {
     final int[] repetitions = testColumnRepetitions(intArray);
     assertTestColumn(targetClassName, intArray, repetitions, getLoadSize(repetitions));
   }
-
-   */
 
   public int[] int1() {
     int[] intArray = new int[] {0, 0, 1, 1, 0, 0, 1, 1, 0, 0};
