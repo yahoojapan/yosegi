@@ -56,7 +56,7 @@ public class TestFloatPrimitiveColumn {
 
   public static Stream<Arguments> D_floatColumnBinaryMaker() throws IOException {
     return Stream.of(
-        //arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayFloatColumnBinaryMaker"),
+        arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayFloatColumnBinaryMaker"),
         arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpFloatColumnBinaryMaker"));
   }
 
