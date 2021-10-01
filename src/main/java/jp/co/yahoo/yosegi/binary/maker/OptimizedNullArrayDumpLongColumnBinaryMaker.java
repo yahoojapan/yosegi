@@ -245,11 +245,10 @@ public class OptimizedNullArrayDumpLongColumnBinaryMaker implements IColumnBinar
 
   @Override
   public LoadType getLoadType(final ColumnBinary columnBinary, final int loadSize) {
-    if (columnBinary.loadIndex == null) {
-      return LoadType.SEQUENTIAL;
-    } else {
+    if (columnBinary.isSetLoadSize) {
       return LoadType.DICTIONARY;
     }
+    return LoadType.SEQUENTIAL;
   }
 
   private void loadFromColumnBinary(final ColumnBinary columnBinary, final ISequentialLoader loader)
@@ -312,21 +311,22 @@ public class OptimizedNullArrayDumpLongColumnBinaryMaker implements IColumnBinar
         order,
         loader,
         startIndex,
-        columnBinary.loadIndex);
+        columnBinary.repetitions,
+        columnBinary.loadSize);
   }
 
   @Override
   public void load(final ColumnBinary columnBinary, final ILoader loader) throws IOException {
-    if (columnBinary.loadIndex == null) {
-      if (loader.getLoaderType() != LoadType.SEQUENTIAL) {
-        throw new IOException("Loader type is not SEQUENTIAL.");
-      }
-      loadFromColumnBinary(columnBinary, (ISequentialLoader) loader);
-    } else {
+    if (columnBinary.isSetLoadSize) {
       if (loader.getLoaderType() != LoadType.DICTIONARY) {
         throw new IOException("Loader type is not DICTIONARY.");
       }
       loadFromExpandColumnBinary(columnBinary, (IDictionaryLoader) loader);
+    } else {
+      if (loader.getLoaderType() != LoadType.SEQUENTIAL) {
+        throw new IOException("Loader type is not SEQUENTIAL.");
+      }
+      loadFromColumnBinary(columnBinary, (ISequentialLoader) loader);
     }
     loader.finish();
   }

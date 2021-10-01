@@ -20,6 +20,7 @@ package jp.co.yahoo.yosegi.blackbox;
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,22 +57,37 @@ public class TestLongPrimitiveColumn {
 
   public static Stream<Arguments> D_longColumnBinaryMaker() {
     return Stream.of(
-        arguments("jp.co.yahoo.yosegi.binary.maker.RleLongColumnBinaryMaker"),
-        arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayLongColumnBinaryMaker"),
+        //arguments("jp.co.yahoo.yosegi.binary.maker.RleLongColumnBinaryMaker"),
+        //arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayLongColumnBinaryMaker"),
         arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpLongColumnBinaryMaker"));
   }
 
   public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
-    int loadCount =
-        (columnBinary.loadIndex == null) ? columnBinary.rowCount : columnBinary.loadIndex.length;
+    int loadCount = columnBinary.isSetLoadSize ? columnBinary.loadSize : columnBinary.rowCount;
     return new YosegiLoaderFactory().create(columnBinary, loadCount);
   }
 
-  public IColumn createTestColumn(final String targetClassName, final long[] longArray) throws IOException {
-    return createTestColumn(targetClassName, longArray, null);
+  public int getLoadSize(final int[] repetitions) {
+    if (repetitions == null) {
+      return 0;
+    }
+    int loadSize = 0;
+    for (int size : repetitions) {
+      loadSize += size;
+    }
+    return loadSize;
   }
 
-  public IColumn createTestColumn( final String targetClassName , final long[] longArray, final int[] loadIndex ) throws IOException {
+  public IColumn createTestColumn(final String targetClassName, final long[] longArray) throws IOException {
+    return createTestColumn(targetClassName, longArray, null, 0);
+  }
+
+  public IColumn createTestColumn(
+      final String targetClassName,
+      final long[] longArray,
+      final int[] repetitions,
+      final int loadSize)
+      throws IOException {
     IColumn column = new PrimitiveColumn( ColumnType.LONG , "column" );
     for ( int i = 0 ; i < longArray.length ; i++ ) {
       column.add( ColumnType.LONG , new LongObj( longArray[i] ) , i );
@@ -81,12 +97,14 @@ public class TestLongPrimitiveColumn {
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
-    columnBinary.setLoadIndex(loadIndex);
+    if (repetitions != null) {
+      columnBinary.setRepetitions(repetitions, loadSize);
+    }
     return toColumn(columnBinary);
   }
 
   public IColumn createNotNullColumn(final String targetClassName) throws IOException {
-    return createNotNullColumn(targetClassName, null);
+    return createNotNullColumn(targetClassName, null, 0);
   }
 
   public Long notNullColumnValue(int index) {
@@ -110,7 +128,8 @@ public class TestLongPrimitiveColumn {
     return null;
   }
 
-  public IColumn createNotNullColumn(final String targetClassName, final int[] loadIndex)
+  public IColumn createNotNullColumn(
+      final String targetClassName, final int[] repetitions, final int loadSize)
       throws IOException {
     IColumn column = new PrimitiveColumn(ColumnType.LONG, "column");
     for (int i = 0; i <= 10; i++) {
@@ -123,15 +142,18 @@ public class TestLongPrimitiveColumn {
         new ColumnBinaryMakerCustomConfigNode("root", defaultConfig);
     ColumnBinary columnBinary =
         maker.toBinary(defaultConfig, null, new CompressResultNode(), column);
-    columnBinary.setLoadIndex(loadIndex);
+    if (repetitions != null) {
+      columnBinary.setRepetitions(repetitions, loadSize);
+    }
     return toColumn(columnBinary);
   }
 
   public IColumn createNullColumn(final String targetClassName) throws IOException {
-    return createNullColumn(targetClassName, null);
+    return createNullColumn(targetClassName, null, 0);
   }
 
-  public IColumn createNullColumn(final String targetClassName, final int[] loadIndex)
+  public IColumn createNullColumn(
+      final String targetClassName, final int[] repetitions, final int loadSize)
       throws IOException {
     IColumn column = new PrimitiveColumn(ColumnType.LONG, "column");
 
@@ -141,12 +163,14 @@ public class TestLongPrimitiveColumn {
         new ColumnBinaryMakerCustomConfigNode("root", defaultConfig);
     ColumnBinary columnBinary =
         maker.toBinary(defaultConfig, null, new CompressResultNode(), column);
-    columnBinary.setLoadIndex(loadIndex);
+    if (repetitions != null) {
+      columnBinary.setRepetitions(repetitions, loadSize);
+    }
     return toColumn(columnBinary);
   }
 
   public IColumn createHasNullColumn(final String targetClassName) throws IOException {
-    return createHasNullColumn(targetClassName, null);
+    return createHasNullColumn(targetClassName, null, 0);
   }
 
   public Long hasNullColumnValue(int index) {
@@ -164,7 +188,8 @@ public class TestLongPrimitiveColumn {
     return null;
   }
 
-  public IColumn createHasNullColumn(final String targetClassName, final int[] loadIndex)
+  public IColumn createHasNullColumn(
+      final String targetClassName, final int[] repetitions, final int loadSize)
       throws IOException {
     IColumn column = new PrimitiveColumn(ColumnType.LONG, "column");
     for (int i : new int[] {0, 4, 8}) {
@@ -177,12 +202,14 @@ public class TestLongPrimitiveColumn {
         new ColumnBinaryMakerCustomConfigNode("root", defaultConfig);
     ColumnBinary columnBinary =
         maker.toBinary(defaultConfig, null, new CompressResultNode(), column);
-    columnBinary.setLoadIndex(loadIndex);
+    if (repetitions != null) {
+      columnBinary.setRepetitions(repetitions, loadSize);
+    }
     return toColumn(columnBinary);
   }
 
   public IColumn createLastCellColumn(final String targetClassName) throws IOException {
-    return createLastCellColumn(targetClassName, null);
+    return createLastCellColumn(targetClassName, null, 0);
   }
 
   public Long lastCellColumnValue(int index) {
@@ -198,7 +225,8 @@ public class TestLongPrimitiveColumn {
     return null;
   }
 
-  public IColumn createLastCellColumn(final String targetClassName, final int[] loadIndex)
+  public IColumn createLastCellColumn(
+      final String targetClassName, final int[] repetitions, final int loadSize)
       throws IOException {
     IColumn column = new PrimitiveColumn(ColumnType.LONG, "column");
     column.add(ColumnType.LONG, new LongObj(lastCellColumnValue(10000)), 10000);
@@ -209,7 +237,9 @@ public class TestLongPrimitiveColumn {
         new ColumnBinaryMakerCustomConfigNode("root", defaultConfig);
     ColumnBinary columnBinary =
         maker.toBinary(defaultConfig, null, new CompressResultNode(), column);
-    columnBinary.setLoadIndex(loadIndex);
+    if (repetitions != null) {
+      columnBinary.setRepetitions(repetitions, loadSize);
+    }
     return toColumn(columnBinary);
   }
 
@@ -230,92 +260,103 @@ public class TestLongPrimitiveColumn {
     assertEquals( ( (PrimitiveObject)( column.get(10).getRow() ) ).getLong() , (long)0 );
   }
 
-  public void assertNotNullColumn(final String targetClassName, final int[] loadIndex)
+  public void assertNotNullColumn(
+      final String targetClassName, final int[] repetitions, final int loadSize)
       throws IOException {
-    IColumn column = createNotNullColumn(targetClassName, loadIndex);
-    assertEquals(loadIndex.length, column.size());
+    IColumn column = createNotNullColumn(targetClassName, repetitions, loadSize);
+    assertEquals(loadSize, column.size());
     int offset = 0;
-    for (int index : loadIndex) {
-      Long expected = notNullColumnValue(index);
-      if (expected == null) {
-        assertEquals(ColumnType.NULL, column.get(offset).getType());
-      } else {
-        assertEquals(expected, ((PrimitiveObject) (column.get(offset).getRow())).getLong());
+    for (int i = 0; i < repetitions.length; i++) {
+      Long expected = notNullColumnValue(i);
+      for (int j = 0; j < repetitions[i]; j++) {
+        if (expected == null) {
+          assertEquals(ColumnType.NULL, column.get(offset).getType());
+        } else {
+          assertEquals(expected, ((PrimitiveObject) (column.get(offset).getRow())).getLong());
+        }
+        offset++;
       }
-      offset++;
     }
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadNotNullColumn_withAllLoadIndex(final String targetClassName)
-          throws IOException {
-    int[] loadIndex = new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    assertNotNullColumn(targetClassName, loadIndex);
+      throws IOException {
+    int[] repetitions = new int[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadNotNullColumn_withOutOfBoundsLoadIndex(final String targetClassName)
-          throws IOException {
-    int[] loadIndex = new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-    assertNotNullColumn(targetClassName, loadIndex);
+      throws IOException {
+    int[] repetitions = new int[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadNotNullColumn_withHead5LoadIndex(final String targetClassName) throws IOException {
-    int[] loadIndex = new int[] {0, 1, 2, 3, 4};
-    assertNotNullColumn(targetClassName, loadIndex);
+  public void T_loadNotNullColumn_withHead5LoadIndex(final String targetClassName)
+      throws IOException {
+    int[] repetitions = new int[] {1, 1, 1, 1, 1};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadNotNullColumn_withTail5LoadIndex(final String targetClassName) throws IOException {
-    int[] loadIndex = new int[] {6, 7, 8, 9, 10};
-    assertNotNullColumn(targetClassName, loadIndex);
+  public void T_loadNotNullColumn_withTail5LoadIndex(final String targetClassName)
+      throws IOException {
+    int[] repetitions = new int[] {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadNotNullColumn_withOddNumberLoadIndex(final String targetClassName) throws IOException {
-    int[] loadIndex = new int[] {1, 3, 5, 7, 9};
-    assertNotNullColumn(targetClassName, loadIndex);
+  public void T_loadNotNullColumn_withOddNumberLoadIndex(final String targetClassName)
+      throws IOException {
+    int[] repetitions = new int[] {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadNotNullColumn_withAllLoadIndexAndExpand(final String targetClassName) throws IOException {
-    int[] loadIndex = new int[] {0, 0, 1, 2, 2, 3, 3, 3, 4, 5, 6, 6, 7, 8, 9, 10, 10, 10};
-    assertNotNullColumn(targetClassName, loadIndex);
+  public void T_loadNotNullColumn_withAllLoadIndexAndExpand(final String targetClassName)
+      throws IOException {
+    int[] repetitions = new int[] {2, 1, 2, 3, 1, 1, 2, 1, 1, 1, 3};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadNotNullColumn_withOutOfBoundsLoadIndexAndExpand(final String targetClassName) throws IOException {
-    int[] loadIndex = new int[] {0, 0, 1, 2, 2, 3, 3, 3, 4, 5, 6, 6, 7, 8, 9, 10, 10, 10, 12, 12, 13, 15};
-    assertNotNullColumn(targetClassName, loadIndex);
+  public void T_loadNotNullColumn_withOutOfBoundsLoadIndexAndExpand(final String targetClassName)
+      throws IOException {
+    int[] repetitions = new int[] {2, 1, 2, 3, 1, 1, 2, 1, 1, 1, 3, 0, 2, 1, 0, 1};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadNotNullColumn_withHead5LoadIndexAndExpand(final String targetClassName) throws IOException {
-    int[] loadIndex = new int[] {0, 0, 1, 2, 2, 3, 3, 3, 4};
-    assertNotNullColumn(targetClassName, loadIndex);
+  public void T_loadNotNullColumn_withHead5LoadIndexAndExpand(final String targetClassName)
+      throws IOException {
+    int[] repetitions = new int[] {2, 1, 2, 3, 1};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadNotNullColumn_withTail5LoadIndexAndExpand(final String targetClassName) throws IOException {
-    int[] loadIndex = new int[] {6, 6, 7, 8, 9, 10, 10, 10};
-    assertNotNullColumn(targetClassName, loadIndex);
+  public void T_loadNotNullColumn_withTail5LoadIndexAndExpand(final String targetClassName)
+      throws IOException {
+    int[] repetitions = new int[] {0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 3};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadNotNullColumn_withOddNumberLoadIndexAndExpand(final String targetClassName) throws IOException {
-    int[] loadIndex = new int[] {1, 1, 3, 5, 7, 7, 9, 9, 9};
-    assertNotNullColumn(targetClassName, loadIndex);
+  public void T_loadNotNullColumn_withOddNumberLoadIndexAndExpand(final String targetClassName)
+      throws IOException {
+    int[] repetitions = new int[] {0, 2, 0, 1, 0, 1, 0, 2, 0, 3, 0};
+    assertNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
@@ -329,17 +370,21 @@ public class TestLongPrimitiveColumn {
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadNullColumn_withAllLoadIndexAndExpand(final String targetClassName)
-          throws IOException {
-    int[] loadIndex = new int[] {0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 6, 7, 7, 7, 8, 8};
-    IColumn column = createNullColumn(targetClassName, loadIndex);
+      throws IOException {
+    int[] repetitions = new int[] {2, 1, 3, 1, 1, 1, 2, 3, 2};
+    IColumn column = createNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
     // TODO: NullColumn returns 0.
     if (column.getColumnType() == ColumnType.NULL) {
       assertEquals(0, column.size());
     } else {
-      assertEquals(loadIndex.length, column.size());
+      assertEquals(getLoadSize(repetitions), column.size());
     }
-    for (int i = 0; i < loadIndex.length; i++) {
-      assertEquals(ColumnType.NULL, column.get(i).getType());
+    int offset = 0;
+    for (int repetition : repetitions) {
+      for (int j = 0; j < repetition; j++) {
+        assertEquals(ColumnType.NULL, column.get(offset).getType());
+        offset++;
+      }
     }
   }
 
@@ -358,19 +403,22 @@ public class TestLongPrimitiveColumn {
     assertEquals( ( (PrimitiveObject)( column.get(8).getRow() ) ).getLong() , (long)8 );
   }
 
-  public void assertHasNullColumn(final String targetClassName, final int[] loadIndex)
+  public void assertHasNullColumn(
+      final String targetClassName, final int[] repetitions, final int loadSize)
       throws IOException {
-    IColumn column = createHasNullColumn(targetClassName, loadIndex);
-    assertEquals(loadIndex.length, column.size());
+    IColumn column = createHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
+    assertEquals(loadSize, column.size());
     int offset = 0;
-    for (int index : loadIndex) {
-      Long expected = hasNullColumnValue(index);
-      if (expected == null) {
-        assertEquals(ColumnType.NULL, column.get(offset).getType());
-      } else {
-        assertEquals(expected, ((PrimitiveObject) (column.get(offset).getRow())).getLong());
+    for (int i = 0; i < repetitions.length; i++) {
+      Long expected = hasNullColumnValue(i);
+      for (int j = 0; j < repetitions[i]; j++) {
+        if (expected == null) {
+          assertEquals(ColumnType.NULL, column.get(offset).getType());
+        } else {
+          assertEquals(expected, ((PrimitiveObject) (column.get(offset).getRow())).getLong());
+        }
+        offset++;
       }
-      offset++;
     }
   }
 
@@ -378,81 +426,80 @@ public class TestLongPrimitiveColumn {
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadHasNullColumn_withAllLoadIndex(final String targetClassName)
       throws IOException {
-    int[] loadIndex = new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8};
-    assertHasNullColumn(targetClassName, loadIndex);
+    int[] repetitions = new int[] {1, 1, 1, 1, 1, 1, 1, 1, 1};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadHasNullColumn_withOutOfBoundsLoadIndex(final String targetClassName)
       throws IOException {
-    int[] loadIndex = new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-    assertHasNullColumn(targetClassName, loadIndex);
+    int[] repetitions = new int[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadHasNullColumn_withHead5LoadIndex(final String targetClassName)
       throws IOException {
-    int[] loadIndex = new int[] {0, 1, 2, 3, 4};
-    assertHasNullColumn(targetClassName, loadIndex);
+    int[] repetitions = new int[] {1, 1, 1, 1, 1};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadHasNullColumn_withTail5LoadIndex(final String targetClassName)
       throws IOException {
-    int[] loadIndex = new int[] {4, 5, 6, 7, 8};
-    assertHasNullColumn(targetClassName, loadIndex);
+    int[] repetitions = new int[] {0, 0, 0, 0, 1, 1, 1, 1, 1};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadHasNullColumn_withOddNumberLoadIndex(final String targetClassName)
       throws IOException {
-    int[] loadIndex = new int[] {1, 3, 5, 7};
-    assertHasNullColumn(targetClassName, loadIndex);
+    int[] repetitions = new int[] {0, 1, 0, 1, 0, 1, 0, 1, 0};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadHasNullColumn_withAllLoadIndexAndExpand(final String targetClassName)
       throws IOException {
-    int[] loadIndex = new int[] {0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 6, 7, 8, 8, 8};
-    assertHasNullColumn(targetClassName, loadIndex);
+    int[] repetitions = new int[] {2, 1, 3, 1, 1, 1, 2, 1, 3};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadHasNullColumn_withOutOfBoundsLoadIndexAndExpand(final String targetClassName)
       throws IOException {
-    int[] loadIndex =
-        new int[] {0, 0, 1, 2, 2, 3, 3, 3, 4, 5, 6, 6, 7, 8, 9, 10, 10, 10, 12, 12, 13, 15};
-    assertHasNullColumn(targetClassName, loadIndex);
+    int[] repetitions = new int[] {2, 1, 2, 3, 1, 1, 2, 1, 1, 1, 3, 0, 2, 1, 0, 1};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadHasNullColumn_withHead5LoadIndexAndExpand(final String targetClassName)
       throws IOException {
-    int[] loadIndex = new int[] {0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4};
-    assertHasNullColumn(targetClassName, loadIndex);
+    int[] repetitions = new int[] {2, 1, 3, 1, 4};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadHasNullColumn_withTail5LoadIndexAndExpand(final String targetClassName)
       throws IOException {
-    int[] loadIndex = new int[] {4, 4, 5, 6, 6, 6, 7, 8};
-    assertHasNullColumn(targetClassName, loadIndex);
+    int[] repetitions = new int[] {0, 0, 0, 0, 2, 1, 3, 1, 1};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadHasNullColumn_withOddNumberLoadIndexAndExpand(final String targetClassName)
       throws IOException {
-    int[] loadIndex = new int[] {1, 1, 3, 5, 7, 7, 7};
-    assertHasNullColumn(targetClassName, loadIndex);
+    int[] repetitions = new int[] {0, 2, 0, 1, 0, 1, 0, 3, 0};
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
@@ -465,19 +512,22 @@ public class TestLongPrimitiveColumn {
     assertEquals( ( (PrimitiveObject)( column.get(10000).getRow() ) ).getLong() , Long.MAX_VALUE );
   }
 
-  public void assertLastCellColumn(final String targetClassName, final int[] loadIndex)
+  public void assertLastCellColumn(
+      final String targetClassName, final int[] repetitions, final int loadSize)
       throws IOException {
-    IColumn column = createLastCellColumn(targetClassName, loadIndex);
-    assertEquals(loadIndex.length, column.size());
+    IColumn column = createLastCellColumn(targetClassName, repetitions, loadSize);
+    assertEquals(loadSize, column.size());
     int offset = 0;
-    for (int index : loadIndex) {
-      Long expected = lastCellColumnValue(index);
-      if (expected == null) {
-        assertEquals(ColumnType.NULL, column.get(offset).getType());
-      } else {
-        assertEquals(expected, ((PrimitiveObject) (column.get(offset).getRow())).getLong());
+    for (int i = 0; i < repetitions.length; i++) {
+      Long expected = lastCellColumnValue(i);
+      for (int j = 0; j < repetitions[i]; j++) {
+        if (expected == null) {
+          assertEquals(ColumnType.NULL, column.get(offset).getType());
+        } else {
+          assertEquals(expected, ((PrimitiveObject) (column.get(offset).getRow())).getLong());
+        }
+        offset++;
       }
-      offset++;
     }
   }
 
@@ -486,11 +536,9 @@ public class TestLongPrimitiveColumn {
   public void T_loadLastCellColumn_withAllLoadIndex(final String targetClassName)
       throws IOException {
     int lastIndex = 10000;
-    int[] loadIndex = new int[lastIndex + 1];
-    for (int i = 0; i < loadIndex.length; i++) {
-      loadIndex[i] = i;
-    }
-    assertLastCellColumn(targetClassName, loadIndex);
+    int[] repetitions = new int[lastIndex + 1];
+    Arrays.fill(repetitions, 1);
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
@@ -498,151 +546,145 @@ public class TestLongPrimitiveColumn {
   public void T_loadLastCellColumn_withOutOfBoundsLoadIndex(final String targetClassName)
       throws IOException {
     int lastIndex = 10001;
-    int[] loadIndex = new int[lastIndex + 1];
-    for (int i = 0; i < loadIndex.length; i++) {
-      loadIndex[i] = i;
-    }
-    assertLastCellColumn(targetClassName, loadIndex);
+    int[] repetitions = new int[lastIndex + 1];
+    Arrays.fill(repetitions, 1);
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadLastCellColumn_withHead5LoadIndex(final String targetClassName)
       throws IOException {
-    int[] loadIndex = new int[] {0, 1, 2, 3, 4};
-    assertLastCellColumn(targetClassName, loadIndex);
+    int[] repetitions = new int[] {1, 1, 1, 1, 1};
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadLastCellColumn_withTail5LoadIndex(final String targetClassName)
       throws IOException {
-    int[] loadIndex = new int[] {9996, 9997, 9998, 9999, 10000};
-    assertLastCellColumn(targetClassName, loadIndex);
+    int lastIndex = 10000;
+    int[] repetitions = new int[lastIndex + 1];
+    for (int i = 0; i < repetitions.length; i++) {
+      repetitions[i] = ((lastIndex - i) < 5) ? 1 : 0;
+    }
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadLastCellColumn_withOddNumberLoadIndex(final String targetClassName)
       throws IOException {
-    List<Integer> loadIndexList = new ArrayList<>();
     int lastIndex = 10000;
-    for (int i = 0; i <= lastIndex; i++) {
-      int odd = i % 2;
-      if (odd == 1) {
-        loadIndexList.add(i);
-      }
+    int[] repetitions = new int[lastIndex + 1];
+    for (int i = 0; i < repetitions.length; i++) {
+      repetitions[i] = i % 2;
     }
-    int[] loadIndex = new int[loadIndexList.size()];
-    for (int i = 0; i < loadIndexList.size(); i++) {
-      loadIndex[i] = loadIndexList.get(i);
-    }
-    assertHasNullColumn(targetClassName, loadIndex);
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadLastCellColumn_withAllLoadIndexAndExpand(final String targetClassName)
       throws IOException {
-    List<Integer> loadIndexList = new ArrayList<>();
     int lastIndex = 10000;
-    for (int i = 0; i <= lastIndex; i++) {
-      int num = 3 - (i % 3);
-      for (int j = 0; j < num; j++) {
-        loadIndexList.add(i);
-      }
+    int[] repetitions = new int[lastIndex + 1];
+    for (int i = 0; i < repetitions.length; i++) {
+      repetitions[i] = 3 - (i % 3);
     }
-    int[] loadIndex = new int[loadIndexList.size()];
-    for (int i = 0; i < loadIndexList.size(); i++) {
-      loadIndex[i] = loadIndexList.get(i);
-    }
-    assertLastCellColumn(targetClassName, loadIndex);
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadLastCellColumn_withOutOfBoundsLoadIndexAndExpand(final String targetClassName)
       throws IOException {
-    List<Integer> loadIndexList = new ArrayList<>();
     int lastIndex = 10003;
-    for (int i = 0; i <= lastIndex; i++) {
-      int num = 3 - (i % 3);
-      for (int j = 0; j < num; j++) {
-        loadIndexList.add(i);
-      }
+    int[] repetitions = new int[lastIndex + 1];
+    for (int i = 0; i < repetitions.length; i++) {
+      repetitions[i] = 3 - (i % 3);
     }
-    int[] loadIndex = new int[loadIndexList.size()];
-    for (int i = 0; i < loadIndexList.size(); i++) {
-      loadIndex[i] = loadIndexList.get(i);
-    }
-    assertLastCellColumn(targetClassName, loadIndex);
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadLastCellColumn_withHead5LoadIndexAndExpand(final String targetClassName)
       throws IOException {
-    int[] loadIndex = new int[] {0, 0, 1, 2, 3, 3, 4, 4, 4};
-    assertLastCellColumn(targetClassName, loadIndex);
+    int[] repetitions = new int[] {2, 1, 1, 2, 3};
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadLastCellColumn_withTail5LoadIndexAndExpand(final String targetClassName)
       throws IOException {
-    int[] loadIndex = new int[] {9996, 9996, 9997, 9998, 9999, 9999, 10000, 10000, 10000};
-    assertLastCellColumn(targetClassName, loadIndex);
+    final Map<Integer, Integer> values =
+        new HashMap<Integer, Integer>() {
+          {
+            put(9996, 2);
+            put(9997, 1);
+            put(9998, 1);
+            put(9999, 2);
+            put(10000, 3);
+          }
+        };
+    int lastIndex = 10000;
+    int[] repetitions = new int[lastIndex + 1];
+    for (int i = 0; i < repetitions.length; i++) {
+      repetitions[i] = values.getOrDefault(i, 0);
+    }
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_loadLastCellColumn_withOddNumberLoadIndexAndExpand(final String targetClassName)
       throws IOException {
-    List<Integer> loadIndexList = new ArrayList<>();
     int lastIndex = 10000;
-    for (int i = 0; i <= lastIndex; i++) {
+    int[] repetitions = new int[lastIndex + 1];
+    for (int i = 0; i < repetitions.length; i++) {
       int odd = i % 2;
-      if (odd == 1) {
-        int num = 3 - (i % 3);
-        for (int j = 0; j < num; j++) {
-          loadIndexList.add(i);
-        }
-      }
+      repetitions[i] = (odd == 1) ? 3 - (i % 3) : 0;
     }
-    int[] loadIndex = new int[loadIndexList.size()];
-    for (int i = 0; i < loadIndexList.size(); i++) {
-      loadIndex[i] = loadIndexList.get(i);
-    }
-    assertHasNullColumn(targetClassName, loadIndex);
+    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
-  public void assertTestColumn(final String targetClassName, final long[] longArray, final int[] loadIndexArray) throws IOException {
-    IColumn column = createTestColumn(targetClassName, longArray, loadIndexArray);
-    if (loadIndexArray == null) {
-      assertEquals(column.size(), longArray.length);
+  public void assertTestColumn(final String targetClassName, final long[] longArray)
+      throws IOException {
+    assertTestColumn(targetClassName, longArray, null, 0);
+  }
+
+  public void assertTestColumn(
+      final String targetClassName,
+      final long[] longArray,
+      final int[] repetitions,
+      final int loadSize)
+      throws IOException {
+    IColumn column = createTestColumn(targetClassName, longArray, repetitions, loadSize);
+    if (repetitions == null) {
+      assertEquals(longArray.length, column.size());
       for (int i = 0; i < longArray.length; i++) {
         assertEquals(longArray[i], ((PrimitiveObject) column.get(i).getRow()).getLong());
       }
     } else {
-      assertEquals(column.size(), loadIndexArray.length);
+      assertEquals(loadSize, column.size());
       int offset = 0;
-      for (int loadIndex : loadIndexArray) {
-        assertEquals(longArray[loadIndex], ((PrimitiveObject) column.get(offset).getRow()).getLong());
-        offset++;
+      for (int i = 0; i < repetitions.length; i++) {
+        for (int j = 0; j < repetitions[i]; j++) {
+          assertEquals(longArray[i], ((PrimitiveObject) column.get(offset).getRow()).getLong());
+          offset++;
+        }
       }
     }
   }
 
-  public int[] testColumnLoadIndex(final long[] longArray) {
-    final int[] loadIndex = new int[longArray.length * 2];
-    int index = 0;
+  public int[] testColumnRepetitions(final long[] longArray) {
+    final int[] repetitions = new int[longArray.length];
     for (int i = 0; i < longArray.length; i++) {
-      for (int j = 0; j < 2; j++) {
-        loadIndex[index] = i;
-        index++;
-      }
+      repetitions[i] = 2;
     }
-    return loadIndex;
+    return repetitions;
   }
 
   public long[] bit0() {
@@ -654,19 +696,24 @@ public class TestLongPrimitiveColumn {
   }
 
   @ParameterizedTest
-  @MethodSource( "data1" )
-  public void T_encodeAndDecode_equalsSetValue_withIntBit0( final String targetClassName ) throws IOException{
+  @MethodSource("data1")
+  public void T_encodeAndDecode_equalsSetValue_withIntBit0(final String targetClassName)
+      throws IOException {
     long[] longArray = bit0();
-    assertTestColumn(targetClassName, longArray, null);
+    assertTestColumn(targetClassName, longArray);
   }
 
+  // FIXME: fix after changing ConstantColumnBinaryMaker.
+  /*
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadTestColumn_withAllLoadIndexAndExpand_bit0(final String targetClassName) throws IOException {
+  public void T_loadTestColumn_withAllLoadIndexAndExpand_bit0(final String targetClassName)
+      throws IOException {
     final long[] longArray = bit0();
-    final int[] loadIndex = testColumnLoadIndex(longArray);
-    assertTestColumn(targetClassName, longArray, loadIndex);
+    final int[] repetitions = testColumnRepetitions(longArray);
+    assertTestColumn(targetClassName, longArray, repetitions, getLoadSize(repetitions));
   }
+   */
 
   public long[] int1() {
     long[] longArray = new long[] {0L, 0L, 1L, 1L, 0L, 0L, 1L, 1L, 0L, 0L};
@@ -674,18 +721,20 @@ public class TestLongPrimitiveColumn {
   }
 
   @ParameterizedTest
-  @MethodSource( "data1" )
-  public void T_encodeAndDecode_equalsSetValue_withInt1( final String targetClassName ) throws IOException{
+  @MethodSource("data1")
+  public void T_encodeAndDecode_equalsSetValue_withInt1(final String targetClassName)
+      throws IOException {
     long[] longArray = int1();
-    assertTestColumn(targetClassName, longArray, null);
+    assertTestColumn(targetClassName, longArray);
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadTestColumn_withAllLoadIndexAndExpand_int1(final String targetClassName) throws IOException {
+  public void T_loadTestColumn_withAllLoadIndexAndExpand_int1(final String targetClassName)
+      throws IOException {
     final long[] longArray = int1();
-    final int[] loadIndex = testColumnLoadIndex(longArray);
-    assertTestColumn(targetClassName, longArray, loadIndex);
+    final int[] repetitions = testColumnRepetitions(longArray);
+    assertTestColumn(targetClassName, longArray, repetitions, getLoadSize(repetitions));
   }
 
   public long[] int2() {
@@ -694,18 +743,20 @@ public class TestLongPrimitiveColumn {
   }
 
   @ParameterizedTest
-  @MethodSource( "data1" )
-  public void T_encodeAndDecode_equalsSetValue_withInt2( final String targetClassName ) throws IOException{
+  @MethodSource("data1")
+  public void T_encodeAndDecode_equalsSetValue_withInt2(final String targetClassName)
+      throws IOException {
     long[] longArray = int2();
-    assertTestColumn(targetClassName, longArray, null);
+    assertTestColumn(targetClassName, longArray);
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadTestColumn_withAllLoadIndexAndExpand_int2(final String targetClassName) throws IOException {
+  public void T_loadTestColumn_withAllLoadIndexAndExpand_int2(final String targetClassName)
+      throws IOException {
     final long[] longArray = int2();
-    final int[] loadIndex = testColumnLoadIndex(longArray);
-    assertTestColumn(targetClassName, longArray, loadIndex);
+    final int[] repetitions = testColumnRepetitions(longArray);
+    assertTestColumn(targetClassName, longArray, repetitions, getLoadSize(repetitions));
   }
 
   public long[] int4() {
@@ -714,18 +765,20 @@ public class TestLongPrimitiveColumn {
   }
 
   @ParameterizedTest
-  @MethodSource( "data1" )
-  public void T_encodeAndDecode_equalsSetValue_withInt4( final String targetClassName ) throws IOException{
+  @MethodSource("data1")
+  public void T_encodeAndDecode_equalsSetValue_withInt4(final String targetClassName)
+      throws IOException {
     long[] longArray = int4();
-    assertTestColumn(targetClassName, longArray, null);
+    assertTestColumn(targetClassName, longArray);
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadTestColumn_withAllLoadIndexAndExpand_int4(final String targetClassName) throws IOException {
+  public void T_loadTestColumn_withAllLoadIndexAndExpand_int4(final String targetClassName)
+      throws IOException {
     final long[] longArray = int4();
-    final int[] loadIndex = testColumnLoadIndex(longArray);
-    assertTestColumn(targetClassName, longArray, loadIndex);
+    final int[] repetitions = testColumnRepetitions(longArray);
+    assertTestColumn(targetClassName, longArray, repetitions, getLoadSize(repetitions));
   }
 
   public long[] int8() {
@@ -740,15 +793,16 @@ public class TestLongPrimitiveColumn {
   @MethodSource( "data1" )
   public void T_encodeAndDecode_equalsSetValue_withInt8( final String targetClassName ) throws IOException{
     long[] longArray = int8();
-    assertTestColumn(targetClassName, longArray, null);
+    assertTestColumn(targetClassName, longArray);
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadTestColumn_withAllLoadIndexAndExpand_int8(final String targetClassName) throws IOException {
+  public void T_loadTestColumn_withAllLoadIndexAndExpand_int8(final String targetClassName)
+      throws IOException {
     final long[] longArray = int8();
-    final int[] loadIndex = testColumnLoadIndex(longArray);
-    assertTestColumn(targetClassName, longArray, loadIndex);
+    final int[] repetitions = testColumnRepetitions(longArray);
+    assertTestColumn(targetClassName, longArray, repetitions, getLoadSize(repetitions));
   }
 
   public long[] int16() {
@@ -769,18 +823,20 @@ public class TestLongPrimitiveColumn {
   }
 
   @ParameterizedTest
-  @MethodSource( "data1" )
-  public void T_encodeAndDecode_equalsSetValue_withInt16( final String targetClassName ) throws IOException{
+  @MethodSource("data1")
+  public void T_encodeAndDecode_equalsSetValue_withInt16(final String targetClassName)
+      throws IOException {
     long[] longArray = int16();
-    assertTestColumn(targetClassName, longArray, null);
+    assertTestColumn(targetClassName, longArray);
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadTestColumn_withAllLoadIndexAndExpand_int16(final String targetClassName) throws IOException {
+  public void T_loadTestColumn_withAllLoadIndexAndExpand_int16(final String targetClassName)
+      throws IOException {
     final long[] longArray = int16();
-    final int[] loadIndex = testColumnLoadIndex(longArray);
-    assertTestColumn(targetClassName, longArray, loadIndex);
+    final int[] repetitions = testColumnRepetitions(longArray);
+    assertTestColumn(targetClassName, longArray, repetitions, getLoadSize(repetitions));
   }
 
   public long[] int24() {
@@ -802,18 +858,20 @@ public class TestLongPrimitiveColumn {
   }
 
   @ParameterizedTest
-  @MethodSource( "data1" )
-  public void T_encodeAndDecode_equalsSetValue_withInt24( final String targetClassName ) throws IOException{
+  @MethodSource("data1")
+  public void T_encodeAndDecode_equalsSetValue_withInt24(final String targetClassName)
+      throws IOException {
     long[] longArray = int24();
-    assertTestColumn(targetClassName, longArray, null);
+    assertTestColumn(targetClassName, longArray);
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadTestColumn_withAllLoadIndexAndExpand_int24(final String targetClassName) throws IOException {
+  public void T_loadTestColumn_withAllLoadIndexAndExpand_int24(final String targetClassName)
+      throws IOException {
     final long[] longArray = int24();
-    final int[] loadIndex = testColumnLoadIndex(longArray);
-    assertTestColumn(targetClassName, longArray, loadIndex);
+    final int[] repetitions = testColumnRepetitions(longArray);
+    assertTestColumn(targetClassName, longArray, repetitions, getLoadSize(repetitions));
   }
 
   public long[] int32() {
@@ -834,18 +892,20 @@ public class TestLongPrimitiveColumn {
   }
 
   @ParameterizedTest
-  @MethodSource( "data1" )
-  public void T_encodeAndDecode_equalsSetValue_withInt32( final String targetClassName ) throws IOException{
+  @MethodSource("data1")
+  public void T_encodeAndDecode_equalsSetValue_withInt32(final String targetClassName)
+      throws IOException {
     long[] longArray = int32();
-    assertTestColumn(targetClassName, longArray, null);
+    assertTestColumn(targetClassName, longArray);
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadTestColumn_withAllLoadIndexAndExpand_int32(final String targetClassName) throws IOException {
+  public void T_loadTestColumn_withAllLoadIndexAndExpand_int32(final String targetClassName)
+      throws IOException {
     final long[] longArray = int32();
-    final int[] loadIndex = testColumnLoadIndex(longArray);
-    assertTestColumn(targetClassName, longArray, loadIndex);
+    final int[] repetitions = testColumnRepetitions(longArray);
+    assertTestColumn(targetClassName, longArray, repetitions, getLoadSize(repetitions));
   }
 
   public long[] int40() {
@@ -867,18 +927,20 @@ public class TestLongPrimitiveColumn {
   }
 
   @ParameterizedTest
-  @MethodSource( "data1" )
-  public void T_encodeAndDecode_equalsSetValue_withInt40( final String targetClassName ) throws IOException{
+  @MethodSource("data1")
+  public void T_encodeAndDecode_equalsSetValue_withInt40(final String targetClassName)
+      throws IOException {
     long[] longArray = int40();
-    assertTestColumn(targetClassName, longArray, null);
+    assertTestColumn(targetClassName, longArray);
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadTestColumn_withAllLoadIndexAndExpand_int40(final String targetClassName) throws IOException {
+  public void T_loadTestColumn_withAllLoadIndexAndExpand_int40(final String targetClassName)
+      throws IOException {
     final long[] longArray = int40();
-    final int[] loadIndex = testColumnLoadIndex(longArray);
-    assertTestColumn(targetClassName, longArray, loadIndex);
+    final int[] repetitions = testColumnRepetitions(longArray);
+    assertTestColumn(targetClassName, longArray, repetitions, getLoadSize(repetitions));
   }
 
   public long[] int48() {
@@ -900,18 +962,20 @@ public class TestLongPrimitiveColumn {
   }
 
   @ParameterizedTest
-  @MethodSource( "data1" )
-  public void T_encodeAndDecode_equalsSetValue_withInt48( final String targetClassName ) throws IOException{
+  @MethodSource("data1")
+  public void T_encodeAndDecode_equalsSetValue_withInt48(final String targetClassName)
+      throws IOException {
     long[] longArray = int48();
-    assertTestColumn(targetClassName, longArray, null);
+    assertTestColumn(targetClassName, longArray);
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadTestColumn_withAllLoadIndexAndExpand_int48(final String targetClassName) throws IOException {
+  public void T_loadTestColumn_withAllLoadIndexAndExpand_int48(final String targetClassName)
+      throws IOException {
     final long[] longArray = int48();
-    final int[] loadIndex = testColumnLoadIndex(longArray);
-    assertTestColumn(targetClassName, longArray, loadIndex);
+    final int[] repetitions = testColumnRepetitions(longArray);
+    assertTestColumn(targetClassName, longArray, repetitions, getLoadSize(repetitions));
   }
 
   public long[] int56() {
@@ -933,18 +997,20 @@ public class TestLongPrimitiveColumn {
   }
 
   @ParameterizedTest
-  @MethodSource( "data1" )
-  public void T_encodeAndDecode_equalsSetValue_withInt56( final String targetClassName ) throws IOException{
+  @MethodSource("data1")
+  public void T_encodeAndDecode_equalsSetValue_withInt56(final String targetClassName)
+      throws IOException {
     long[] longArray = int56();
-    assertTestColumn(targetClassName, longArray, null);
+    assertTestColumn(targetClassName, longArray);
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadTestColumn_withAllLoadIndexAndExpand_int56(final String targetClassName) throws IOException {
+  public void T_loadTestColumn_withAllLoadIndexAndExpand_int56(final String targetClassName)
+      throws IOException {
     final long[] longArray = int56();
-    final int[] loadIndex = testColumnLoadIndex(longArray);
-    assertTestColumn(targetClassName, longArray, loadIndex);
+    final int[] repetitions = testColumnRepetitions(longArray);
+    assertTestColumn(targetClassName, longArray, repetitions, getLoadSize(repetitions));
   }
 
   public long[] int64() {
@@ -965,39 +1031,31 @@ public class TestLongPrimitiveColumn {
   }
 
   @ParameterizedTest
-  @MethodSource( "data1" )
-  public void T_encodeAndDecode_equalsSetValue_withInt64( final String targetClassName ) throws IOException{
+  @MethodSource("data1")
+  public void T_encodeAndDecode_equalsSetValue_withInt64(final String targetClassName)
+      throws IOException {
     long[] longArray = int64();
-    assertTestColumn(targetClassName, longArray, null);
+    assertTestColumn(targetClassName, longArray);
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
-  public void T_loadTestColumn_withAllLoadIndexAndExpand_int64(final String targetClassName) throws IOException {
+  public void T_loadTestColumn_withAllLoadIndexAndExpand_int64(final String targetClassName)
+      throws IOException {
     final long[] longArray = int64();
-    final int[] loadIndex = testColumnLoadIndex(longArray);
-    assertTestColumn(targetClassName, longArray, loadIndex);
+    final int[] repetitions = testColumnRepetitions(longArray);
+    assertTestColumn(targetClassName, longArray, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
   @MethodSource("D_longColumnBinaryMaker")
   public void T_load_exception_withLessThan0LoadIndex(final String targetClassName) {
-    int[] loadIndex = new int[] {-1, 0, 1, 2};
+    int[] repetitions = new int[] {-1, 0, 1, 2};
     assertThrows(
         IOException.class,
         () -> {
-          IColumn column = createNotNullColumn(targetClassName, loadIndex);
-        });
-  }
-
-  @ParameterizedTest
-  @MethodSource("D_longColumnBinaryMaker")
-  public void T_load_exception_withLessThanPreviousLoadIndex(final String targetClassName) {
-    int[] loadIndex = new int[] {0, 1, 2, 1};
-    assertThrows(
-        IOException.class,
-        () -> {
-          IColumn column = createNotNullColumn(targetClassName, loadIndex);
+          IColumn column =
+              createNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
         });
   }
 }
