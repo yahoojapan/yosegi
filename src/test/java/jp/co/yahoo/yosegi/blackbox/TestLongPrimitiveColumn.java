@@ -57,7 +57,7 @@ public class TestLongPrimitiveColumn {
 
   public static Stream<Arguments> D_longColumnBinaryMaker() {
     return Stream.of(
-        //arguments("jp.co.yahoo.yosegi.binary.maker.RleLongColumnBinaryMaker"),
+        arguments("jp.co.yahoo.yosegi.binary.maker.RleLongColumnBinaryMaker"),
         arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayLongColumnBinaryMaker"),
         arguments("jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpLongColumnBinaryMaker"));
   }
@@ -406,7 +406,7 @@ public class TestLongPrimitiveColumn {
   public void assertHasNullColumn(
       final String targetClassName, final int[] repetitions, final int loadSize)
       throws IOException {
-    IColumn column = createHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
+    IColumn column = createHasNullColumn(targetClassName, repetitions, loadSize);
     assertEquals(loadSize, column.size());
     int offset = 0;
     for (int i = 0; i < repetitions.length; i++) {
@@ -580,7 +580,7 @@ public class TestLongPrimitiveColumn {
     for (int i = 0; i < repetitions.length; i++) {
       repetitions[i] = i % 2;
     }
-    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
@@ -647,7 +647,7 @@ public class TestLongPrimitiveColumn {
       int odd = i % 2;
       repetitions[i] = (odd == 1) ? 3 - (i % 3) : 0;
     }
-    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   public void assertTestColumn(final String targetClassName, final long[] longArray)
