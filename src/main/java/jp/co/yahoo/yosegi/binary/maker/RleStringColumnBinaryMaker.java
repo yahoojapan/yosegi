@@ -434,22 +434,18 @@ public class RleStringColumnBinaryMaker implements IColumnBinaryMaker {
       }
     }
 
-    int currentLoadIndex = 0;
     boolean[] isNeedDictionary = new boolean[rowGroupCount];
     int[] newDicIndexList = new int[rowGroupCount];
     int needDicCount = 0;
-    for ( int loadIndex : columnBinary.loadIndex ) {
-      if ( loadIndex < 0 ) {
-        throw new IOException(
-            "Index must be greater than 0." );
-      } else if ( loadIndex < currentLoadIndex ) {
-        throw new IOException( "Index must be equal to or greater than the previous number." );
-      }
+    for ( int loadIndex = 0; loadIndex < columnBinary.repetitions.length; loadIndex++ ) {
       if ( startIndex + isNullArray.length <= loadIndex ) {
         break;
       }
-      currentLoadIndex = loadIndex;
-      if ( loadIndex < startIndex || isNullArray[loadIndex - startIndex] ) {
+      if ( columnBinary.repetitions[loadIndex] < 0 ) {
+        throw new IOException("Repetition must be equal to or greater than 0.");
+      }
+      if ( loadIndex < startIndex || isNullArray[loadIndex - startIndex]
+              || columnBinary.repetitions[loadIndex] == 0 ) {
         continue;
       }
       if ( ! isNeedDictionary[rowGroupDicIndexArray[loadIndex - startIndex]] ) {
@@ -472,16 +468,24 @@ public class RleStringColumnBinaryMaker implements IColumnBinaryMaker {
     }
 
     int currentColumnIndex = 0;
-    for ( int loadIndex : columnBinary.loadIndex ) {
-      if ( startIndex + isNullArray.length <= loadIndex
-          || loadIndex < startIndex
-          || isNullArray[loadIndex - startIndex] ) {
-        loader.setNull( currentColumnIndex );
-      } else {
-        loader.setDictionaryIndex(
-            currentColumnIndex , newDicIndexList[rowGroupDicIndexArray[loadIndex - startIndex]] );
+    for ( int loadIndex = 0; loadIndex < columnBinary.repetitions.length; loadIndex++ ) {
+      if (columnBinary.repetitions[loadIndex] == 0) {
+        continue;
       }
-      currentColumnIndex++;
+      if ( startIndex + isNullArray.length <= loadIndex
+              || loadIndex < startIndex
+              || isNullArray[loadIndex - startIndex] ) {
+        for (int i = 0; i < columnBinary.repetitions[loadIndex]; i++) {
+          loader.setNull( currentColumnIndex );
+          currentColumnIndex++;
+        }
+      } else {
+        for (int i = 0; i < columnBinary.repetitions[loadIndex]; i++) {
+          loader.setDictionaryIndex(
+              currentColumnIndex , newDicIndexList[rowGroupDicIndexArray[loadIndex - startIndex]] );
+          currentColumnIndex++;
+        }
+      }
     }
   }
 
@@ -491,10 +495,10 @@ public class RleStringColumnBinaryMaker implements IColumnBinaryMaker {
     if ( loader.getLoaderType() != LoadType.DICTIONARY ) {
       throw new IOException( "Loader type is not DICTIONARY." );
     }
-    if ( columnBinary.loadIndex == null ) {
-      loadFromColumnBinary( columnBinary , (IDictionaryLoader)loader );
-    } else {
+    if ( columnBinary.isSetLoadSize ) {
       loadFromExpandColumnBinary( columnBinary , (IDictionaryLoader)loader );
+    } else {
+      loadFromColumnBinary( columnBinary , (IDictionaryLoader)loader );
     }
     loader.finish();
   }
