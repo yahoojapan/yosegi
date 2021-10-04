@@ -545,7 +545,7 @@ public class TestDoublePrimitiveColumn {
     for (int i = 0; i < repetitions.length; i++) {
       repetitions[i] = i % 2;
     }
-    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
@@ -612,7 +612,7 @@ public class TestDoublePrimitiveColumn {
       int odd = i % 2;
       repetitions[i] = (odd == 1) ? 3 - (i % 3) : 0;
     }
-    assertHasNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
+    assertLastCellColumn(targetClassName, repetitions, getLoadSize(repetitions));
   }
 
   @ParameterizedTest
