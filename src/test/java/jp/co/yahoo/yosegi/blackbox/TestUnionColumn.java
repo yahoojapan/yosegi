@@ -49,7 +49,7 @@ public class TestUnionColumn {
   }
 
   private IColumn createSpreadColumnFromJsonString(
-        final String targetClassName , final int[] loadIndex ) throws IOException {
+        final String targetClassName , final int[] repetitions, final int loadSize ) throws IOException {
     IColumn firstColumn = new PrimitiveColumn( ColumnType.STRING , "UNION" );
     firstColumn.add( ColumnType.STRING , new StringObj( "a" ) , 0 );
 
@@ -63,9 +63,13 @@ public class TestUnionColumn {
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
-    columnBinary.loadIndex = loadIndex;
+    if (repetitions != null) {
+      columnBinary.setRepetitions(repetitions, loadSize);
+    }
     for ( ColumnBinary child : columnBinary.columnBinaryList ) {
-      child.loadIndex = loadIndex;
+      if (repetitions != null) {
+        child.setRepetitions(repetitions, loadSize);
+      }
     }
     try {
     return new YosegiLoaderFactory().create(
@@ -79,7 +83,7 @@ public class TestUnionColumn {
   @ParameterizedTest
   @MethodSource( "data1" )
   public void T_load_childColumnEqualsJsonString( final String targetClassName ) throws IOException{
-    IColumn column = createSpreadColumnFromJsonString( targetClassName , null );
+    IColumn column = createSpreadColumnFromJsonString( targetClassName , null, 0 );
     assertEquals( column.getColumnType() , ColumnType.UNION );
     assertEquals( column.size() , 5 );
 
@@ -108,7 +112,7 @@ public class TestUnionColumn {
   @ParameterizedTest
   @MethodSource( "data1" )
   public void T_load_childColumnEqualsJsonString_withLoadIndex( final String targetClassName ) throws IOException{
-    IColumn column = createSpreadColumnFromJsonString( targetClassName , new int[]{2,3,4,5,6} );
+    IColumn column = createSpreadColumnFromJsonString( targetClassName , new int[]{0,0,1,1,1,1,1}, 5 );
     assertEquals( column.getColumnType() , ColumnType.UNION );
     assertEquals( column.size() , 5 );
 
