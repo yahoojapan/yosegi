@@ -337,11 +337,10 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
 
   @Override
   public LoadType getLoadType(final ColumnBinary columnBinary, final int loadSize) {
-    if (columnBinary.loadIndex == null) {
-      return LoadType.SEQUENTIAL;
-    } else {
+    if (columnBinary.isSetLoadSize) {
       return LoadType.DICTIONARY;
     }
+    return LoadType.SEQUENTIAL;
   }
 
   private void loadFromColumnBinary(final ColumnBinary columnBinary, ISequentialLoader loader)
@@ -498,97 +497,93 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
 
     // NOTE: Calculate dictionarySize
     int dictionarySize = 0;
-    int previousLoadIndex = -1;
     int lastIndex = startIndex + isNullArray.length - 1;
-    for (int loadIndex : columnBinary.loadIndex) {
-      if (loadIndex < 0) {
-        throw new IOException("Index must be equal to or greater than 0.");
-      }
-      if (loadIndex < previousLoadIndex) {
-        throw new IOException("Index must be equal to or greater than the previous number.");
-      }
-      if (loadIndex > lastIndex) {
+    for (int i = 0; i < columnBinary.repetitions.length; i++) {
+      if (i > lastIndex) {
         break;
       }
-      if (loadIndex >= startIndex && !isNullArray[loadIndex - startIndex]) {
-        if (previousLoadIndex != loadIndex) {
-          dictionarySize++;
-        }
+      if (columnBinary.repetitions[i] < 0) {
+        throw new IOException("Repetition must be equal to or greater than 0.");
       }
-      previousLoadIndex = loadIndex;
+      if (columnBinary.repetitions[i] == 0 || i < startIndex || isNullArray[i - startIndex]) {
+        continue;
+      }
+      dictionarySize++;
     }
     loader.createDictionary(dictionarySize);
 
     // NOTE:
-    //   Set value to dict: dictionaryIndex, value
-    //   Set dictionaryIndex: loadIndexArrayOffset, dictionaryIndex
-    previousLoadIndex = -1; // NOTE: reset
-    int loadIndexArrayOffset = 0;
-    int lastLoadIndexArrayOffset = loader.getLoadSize() - 1;
-    int dictionaryIndex = -1; // NOTE: loader dictionary index
-    int readOffset = startIndex;
-    int loadIndex = columnBinary.loadIndex[loadIndexArrayOffset];
-    while (loadIndex < startIndex) {
-      loader.setNull(loadIndexArrayOffset);
-      previousLoadIndex = loadIndex;
-      loadIndexArrayOffset++;
-      if (loadIndexArrayOffset > lastLoadIndexArrayOffset) {
+    //   Set null before startIndex
+    int currentIndex = 0;
+    int offset = 0;
+    for (offset = 0; offset < startIndex; offset++) {
+      if (offset >= columnBinary.repetitions.length) {
         break;
       }
-      loadIndex = columnBinary.loadIndex[loadIndexArrayOffset];
+      if (columnBinary.repetitions[offset] == 0) {
+        continue;
+      }
+      for (int i = 0; i < columnBinary.repetitions[offset]; i++) {
+        loader.setNull(currentIndex);
+        currentIndex++;
+      }
     }
-    if (loadIndex <= lastIndex) {
-      LOOP_ROWGROUP:
-      for (int i = 0; i < rowGroupCount; i++) {
-        int rowGroupIndex = rowGroupIndexReader.getInt(); // NOTE: binary dictionary index
-        int rowGroupLength = rowGroupLengthReader.getInt();
-        for (int j = 0; j < rowGroupLength; readOffset++) {
-          while (loadIndex == readOffset) {
-            if (isNullArray[readOffset - startIndex]) {
-              loader.setNull(loadIndexArrayOffset);
-            } else {
-              if (loadIndex != previousLoadIndex) {
-                dictionaryIndex++;
-                loader.setStringToDic(
-                    dictionaryIndex, dic.getPrimitiveObject(rowGroupIndex).getString());
-              }
-              loader.setDictionaryIndex(loadIndexArrayOffset, dictionaryIndex);
-            }
-            previousLoadIndex = loadIndex;
-            loadIndexArrayOffset++;
-            if (loadIndexArrayOffset > lastLoadIndexArrayOffset) {
-              break LOOP_ROWGROUP;
-            }
-            loadIndex = columnBinary.loadIndex[loadIndexArrayOffset];
-            if (loadIndex > lastIndex) {
-              break LOOP_ROWGROUP;
-            }
+
+    // NOTE:
+    //   Set value to dict: dictionaryIndex, value
+    //   Set dictionaryIndex: currentIndex, dictionaryIndex
+    int dictionaryIndex = 0;
+    LOOP_ROWGROUP:
+    for (int i = 0; i < rowGroupCount; i++) {
+      int rowGroupIndex = rowGroupIndexReader.getInt(); // NOTE: binary dictionary index
+      int rowGroupLength = rowGroupLengthReader.getInt();
+      for (int j = 0; j < rowGroupLength; offset++) {
+        if (offset >= columnBinary.repetitions.length) {
+          break LOOP_ROWGROUP;
+        }
+        if (!isNullArray[offset - startIndex]) {
+          j++;
+        }
+        if (columnBinary.repetitions[offset] == 0) {
+          continue;
+        }
+        if (isNullArray[offset - startIndex]) {
+          for (int k = 0; k < columnBinary.repetitions[offset]; k++) {
+            loader.setNull(currentIndex);
+            currentIndex++;
           }
-          if (!isNullArray[readOffset - startIndex]) {
-            j++;
+        } else {
+          loader.setStringToDic(dictionaryIndex, dic.getPrimitiveObject(rowGroupIndex).getString());
+          for (int k = 0; k < columnBinary.repetitions[offset]; k++) {
+            loader.setDictionaryIndex(currentIndex, dictionaryIndex);
+            currentIndex++;
           }
+          dictionaryIndex++;
         }
       }
     }
 
-    // NOTE: null padding up to load size
-    for (int i = loadIndexArrayOffset; i < loader.getLoadSize(); i++) {
-      loader.setNull(i);
+    // NOTE: null padding up to repetitions
+    for (int i = offset; i < columnBinary.repetitions.length; i++) {
+      for (int j = 0; j < columnBinary.repetitions[i]; j++) {
+        loader.setNull(currentIndex);
+        currentIndex++;
+      }
     }
   }
 
   @Override
   public void load(final ColumnBinary columnBinary, final ILoader loader) throws IOException {
-    if (columnBinary.loadIndex == null) {
-      if (loader.getLoaderType() != LoadType.SEQUENTIAL) {
-        throw new IOException("Loader type is not SEQUENTIAL.");
-      }
-      loadFromColumnBinary(columnBinary, (ISequentialLoader) loader);
-    } else {
+    if (columnBinary.isSetLoadSize) {
       if (loader.getLoaderType() != LoadType.DICTIONARY) {
         throw new IOException("Loader type is not DICTIONARY.");
       }
       loadFromExpandColumnBinary(columnBinary, (IDictionaryLoader) loader);
+    } else {
+      if (loader.getLoaderType() != LoadType.SEQUENTIAL) {
+        throw new IOException("Loader type is not SEQUENTIAL.");
+      }
+      loadFromColumnBinary(columnBinary, (ISequentialLoader) loader);
     }
     loader.finish();
   }
