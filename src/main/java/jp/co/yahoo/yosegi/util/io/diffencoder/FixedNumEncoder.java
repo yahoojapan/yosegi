@@ -200,6 +200,15 @@ public class FixedNumEncoder implements INumEncoder {
     IReadSupporter wrapBuffer =
         ByteBufferSupporterFactory.createReadSupporter(buffer, start, calcBinarySize(rows), order);
 
+    // NOTE: repetitions check
+    //   LoadSize is less than real size if repetitions include negative number.
+    //   It is possible to be thrown ArrayIndexOutOfBoundsException.
+    for (int i = 0; i < repetitions.length; i ++) {
+      if (repetitions[i] < 0) {
+        throw new IOException("Repetition must be equal to or greater than 0.");
+      }
+    }
+
     // NOTE: Calculate dictionarySize
     int dictionarySize = 1;
     loader.createDictionary(dictionarySize);

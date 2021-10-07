@@ -438,14 +438,13 @@ public class RleStringColumnBinaryMaker implements IColumnBinaryMaker {
     int[] newDicIndexList = new int[rowGroupCount];
     int needDicCount = 0;
     for ( int loadIndex = 0; loadIndex < columnBinary.repetitions.length; loadIndex++ ) {
-      if ( startIndex + isNullArray.length <= loadIndex ) {
-        break;
-      }
       if ( columnBinary.repetitions[loadIndex] < 0 ) {
         throw new IOException("Repetition must be equal to or greater than 0.");
       }
-      if ( loadIndex < startIndex || isNullArray[loadIndex - startIndex]
-              || columnBinary.repetitions[loadIndex] == 0 ) {
+      if (startIndex + isNullArray.length <= loadIndex
+          || loadIndex < startIndex
+          || isNullArray[loadIndex - startIndex]
+          || columnBinary.repetitions[loadIndex] == 0) {
         continue;
       }
       if ( ! isNeedDictionary[rowGroupDicIndexArray[loadIndex - startIndex]] ) {

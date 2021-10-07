@@ -130,6 +130,15 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
           }
         }
       } else {
+        // NOTE: repetitions check
+        //   LoadSize is less than real size if repetitions include negative number.
+        //   It is possible to be thrown ArrayIndexOutOfBoundsException.
+        for (int i = 0; i < repetitions.length; i ++) {
+          if (repetitions[i] < 0) {
+            throw new IOException("Repetition must be equal to or greater than 0.");
+          }
+        }
+
         int offset = 0;
         for (int i = 0; i < repetitions.length; i++) {
           if (i < rowCount) {

@@ -615,4 +615,17 @@ public class TestBytesPrimitiveColumn {
               createNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
         });
   }
+
+  @ParameterizedTest
+  @MethodSource("D_bytesColumnBinaryMaker")
+  public void T_load_exception_withLessThan0LoadIndex_withOutOfBoundsLoadIndexAndExpand(
+      final String targetClassName) {
+    int[] repetitions = new int[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1};
+    assertThrows(
+        IOException.class,
+        () -> {
+          IColumn column =
+              createNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
+        });
+  }
 }

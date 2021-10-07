@@ -200,13 +200,10 @@ public class ShortNumEncoder implements INumEncoder {
     int dictionarySize = 0;
     int lastIndex = startIndex + isNullArray.length - 1;
     for (int i = 0; i < repetitions.length; i++) {
-      if (i > lastIndex) {
-        break;
-      }
       if (repetitions[i] < 0) {
         throw new IOException("Repetition must be equal to or greater than 0.");
       }
-      if (repetitions[i] == 0 || i < startIndex || isNullArray[i - startIndex]) {
+      if (i > lastIndex || repetitions[i] == 0 || i < startIndex || isNullArray[i - startIndex]) {
         continue;
       }
       dictionarySize++;

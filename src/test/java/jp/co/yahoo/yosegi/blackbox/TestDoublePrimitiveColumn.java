@@ -626,4 +626,17 @@ public class TestDoublePrimitiveColumn {
               createNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
         });
   }
+
+  @ParameterizedTest
+  @MethodSource("D_doubleColumnBinaryMaker")
+  public void T_load_exception_withLessThan0Repetitions_withOutOfBoundsLoadIndexAndExpand(
+      final String targetClassName) {
+    int[] repetitions = new int[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1};
+    assertThrows(
+        IOException.class,
+        () -> {
+          IColumn column =
+              createNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
+        });
+  }
 }
