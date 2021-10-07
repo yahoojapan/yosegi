@@ -54,7 +54,7 @@ public class TestStringPrimitiveColumn {
     return Stream.of(
       arguments( "jp.co.yahoo.yosegi.binary.maker.RleStringColumnBinaryMaker" ),
       arguments( "jp.co.yahoo.yosegi.binary.maker.DictionaryRleStringColumnBinaryMaker" ),
-      //arguments( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpStringColumnBinaryMaker" ),
+      arguments( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayDumpStringColumnBinaryMaker" ),
       arguments( "jp.co.yahoo.yosegi.binary.maker.OptimizedNullArrayStringColumnBinaryMaker" )
     );
   }
