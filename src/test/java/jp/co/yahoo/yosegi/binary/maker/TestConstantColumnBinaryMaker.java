@@ -19,23 +19,12 @@ package jp.co.yahoo.yosegi.binary.maker;
 
 import java.io.IOException;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.Arguments;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
-import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
-import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
-import jp.co.yahoo.yosegi.spread.column.PrimitiveColumn;
 import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 
 import jp.co.yahoo.yosegi.message.objects.*;
@@ -44,10 +33,29 @@ import jp.co.yahoo.yosegi.spread.column.ColumnType;
 
 public class TestConstantColumnBinaryMaker {
 
+  public IColumn toColumn(
+      final ColumnBinary columnBinary, final int[] repetitions, final int loadSize)
+      throws IOException {
+    if (repetitions != null) {
+      columnBinary.setRepetitions(repetitions, loadSize);
+    }
+    return toColumn(columnBinary);
+  }
+
   public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
-    int loadCount =
-        (columnBinary.loadIndex == null) ? columnBinary.rowCount : columnBinary.loadIndex.length;
+    int loadCount = columnBinary.isSetLoadSize ? columnBinary.loadSize : columnBinary.rowCount;
     return new YosegiLoaderFactory().create(columnBinary, loadCount);
+  }
+
+  public int getLoadSize(final int[] repetitions) {
+    if (repetitions == null) {
+      return 0;
+    }
+    int loadSize = 0;
+    for (int size : repetitions) {
+      loadSize += size;
+    }
+    return loadSize;
   }
 
   @Test
@@ -110,10 +118,10 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.BOOLEAN );
-    columnBinary.loadIndex = new int[]{0,0,1,2,2};
 
-    YosegiLoaderFactory factory = new YosegiLoaderFactory();
-    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+    int[] repetitions = new int[] {2, 1, 2};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column = toColumn(columnBinary, repetitions, loadSize);
 
     assertEquals( column.size() , 5 );
 
@@ -150,10 +158,10 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.BOOLEAN );
-    columnBinary.loadIndex = new int[]{0,0,1,2,2,3};
 
-    YosegiLoaderFactory factory = new YosegiLoaderFactory();
-    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+    int[] repetitions = new int[] {2, 1, 2, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column = toColumn(columnBinary, repetitions, loadSize);
 
     assertEquals( column.size() , 6 );
 
@@ -162,7 +170,7 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( true , ( (PrimitiveObject)( column.get(2).getRow() ) ).getBoolean() );
     assertEquals( true , ( (PrimitiveObject)( column.get(3).getRow() ) ).getBoolean() );
     assertEquals( true , ( (PrimitiveObject)( column.get(4).getRow() ) ).getBoolean() );
-    assertEquals( true , ( (PrimitiveObject)( column.get(5).getRow() ) ).getBoolean() );
+    assertNull( column.get(5).getRow() );
     assertNull( column.get(6).getRow() );
   }
 
@@ -230,10 +238,10 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.BYTE );
-    columnBinary.loadIndex = new int[]{0,0,1,2,2};
 
-    YosegiLoaderFactory factory = new YosegiLoaderFactory();
-    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+    int[] repetitions = new int[] {2, 1, 2};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column = toColumn(columnBinary, repetitions, loadSize);
 
     assertEquals( column.size() , 5 );
 
@@ -272,10 +280,10 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.BYTE );
-    columnBinary.loadIndex = new int[]{0,0,1,2,2,3};
 
-    YosegiLoaderFactory factory = new YosegiLoaderFactory();
-    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+    int[] repetitions = new int[] {2, 1, 2, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column = toColumn(columnBinary, repetitions, loadSize);
 
     assertEquals( column.size() , 6 );
 
@@ -284,7 +292,7 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getByte() );
     assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getByte() );
     assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getByte() );
-    assertEquals( value , ( (PrimitiveObject)( column.get(5).getRow() ) ).getByte() );
+    assertNull( column.get(5).getRow() );
     assertNull( column.get(6).getRow() );
   }
 
@@ -352,10 +360,10 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.SHORT );
-    columnBinary.loadIndex = new int[]{0,0,1,2,2};
 
-    YosegiLoaderFactory factory = new YosegiLoaderFactory();
-    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+    int[] repetitions = new int[] {2, 1, 2};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column = toColumn(columnBinary, repetitions, loadSize);
 
     assertEquals( column.size() , 5 );
 
@@ -394,10 +402,10 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.SHORT );
-    columnBinary.loadIndex = new int[]{0,0,1,2,2,3};
 
-    YosegiLoaderFactory factory = new YosegiLoaderFactory();
-    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+    int[] repetitions = new int[] {2, 1, 2, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column = toColumn(columnBinary, repetitions, loadSize);
 
     assertEquals( column.size() , 6 );
 
@@ -406,7 +414,7 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getShort() );
     assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getShort() );
     assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getShort() );
-    assertEquals( value , ( (PrimitiveObject)( column.get(5).getRow() ) ).getShort() );
+    assertNull( column.get(5).getRow() );
     assertNull( column.get(6).getRow() );
   }
 
@@ -493,10 +501,10 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.INTEGER );
-    columnBinary.loadIndex = new int[]{0,0,1,2,2};
 
-    YosegiLoaderFactory factory = new YosegiLoaderFactory();
-    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+    int[] repetitions = new int[] {2, 1, 2};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column = toColumn(columnBinary, repetitions, loadSize);
 
     assertEquals( column.size() , 5 );
 
@@ -535,10 +543,10 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.INTEGER );
-    columnBinary.loadIndex = new int[]{0,0,1,2,2,3};
 
-    YosegiLoaderFactory factory = new YosegiLoaderFactory();
-    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+    int[] repetitions = new int[] {2, 1, 2, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column = toColumn(columnBinary, repetitions, loadSize);
 
     assertEquals( column.size() , 6 );
 
@@ -547,7 +555,7 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getInt() );
     assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getInt() );
     assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getInt() );
-    assertEquals( value , ( (PrimitiveObject)( column.get(5).getRow() ) ).getInt() );
+    assertNull( column.get(5).getRow() );
     assertNull( column.get(6).getRow() );
   }
 
@@ -596,10 +604,10 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.LONG );
-    columnBinary.loadIndex = new int[]{0,0,1,2,2};
 
-    YosegiLoaderFactory factory = new YosegiLoaderFactory();
-    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+    int[] repetitions = new int[] {2, 1, 2};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column = toColumn(columnBinary, repetitions, loadSize);
 
     assertEquals( column.size() , 5 );
 
@@ -638,10 +646,10 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.LONG );
-    columnBinary.loadIndex = new int[]{0,0,1,2,2,3};
 
-    YosegiLoaderFactory factory = new YosegiLoaderFactory();
-    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+    int[] repetitions = new int[] {2, 1, 2, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column = toColumn(columnBinary, repetitions, loadSize);
 
     assertEquals( column.size() , 6 );
 
@@ -650,7 +658,8 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getLong() );
     assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getLong() );
     assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getLong() );
-    assertEquals( value , ( (PrimitiveObject)( column.get(5).getRow() ) ).getLong() );
+    //assertEquals( value , ( (PrimitiveObject)( column.get(5).getRow() ) ).getLong() );
+    assertNull( column.get(5).getRow() );
     assertNull( column.get(6).getRow() );
   }
 
@@ -718,10 +727,10 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.FLOAT );
-    columnBinary.loadIndex = new int[]{0,0,1,2,2};
 
-    YosegiLoaderFactory factory = new YosegiLoaderFactory();
-    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+    int[] repetitions = new int[] {2, 1, 2};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column = toColumn(columnBinary, repetitions, loadSize);
 
     assertEquals( column.size() , 5 );
 
@@ -760,10 +769,10 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.FLOAT );
-    columnBinary.loadIndex = new int[]{0,0,1,2,2,3};
 
-    YosegiLoaderFactory factory = new YosegiLoaderFactory();
-    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+    int[] repetitions = new int[] {2, 1, 2, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column = toColumn(columnBinary, repetitions, loadSize);
 
     assertEquals( column.size() , 6 );
 
@@ -772,7 +781,7 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getFloat() );
     assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getFloat() );
     assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getFloat() );
-    assertEquals( value , ( (PrimitiveObject)( column.get(5).getRow() ) ).getFloat() );
+    assertNull( column.get(5).getRow() );
     assertNull( column.get(6).getRow() );
   }
 
@@ -840,10 +849,10 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.DOUBLE );
-    columnBinary.loadIndex = new int[]{0,0,1,2,2};
 
-    YosegiLoaderFactory factory = new YosegiLoaderFactory();
-    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+    int[] repetitions = new int[] {2, 1, 2};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column = toColumn(columnBinary, repetitions, loadSize);
 
     assertEquals( column.size() , 5 );
 
@@ -882,10 +891,10 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.DOUBLE );
-    columnBinary.loadIndex = new int[]{0,0,1,2,2,3};
 
-    YosegiLoaderFactory factory = new YosegiLoaderFactory();
-    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+    int[] repetitions = new int[] {2, 1, 2, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column = toColumn(columnBinary, repetitions, loadSize);
 
     assertEquals( column.size() , 6 );
 
@@ -894,7 +903,7 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getDouble() );
     assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getDouble() );
     assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getDouble() );
-    assertEquals( value , ( (PrimitiveObject)( column.get(5).getRow() ) ).getDouble() );
+    assertNull( column.get(5).getRow() );
     assertNull( column.get(6).getRow() );
   }
 
@@ -962,10 +971,10 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.STRING );
-    columnBinary.loadIndex = new int[]{0,0,1,2,2};
 
-    YosegiLoaderFactory factory = new YosegiLoaderFactory();
-    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+    int[] repetitions = new int[] {2, 1, 2};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column = toColumn(columnBinary, repetitions, loadSize);
 
     assertEquals( column.size() , 5 );
 
@@ -1004,10 +1013,10 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.STRING );
-    columnBinary.loadIndex = new int[]{0,0,1,2,2,3};
 
-    YosegiLoaderFactory factory = new YosegiLoaderFactory();
-    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+    int[] repetitions = new int[] {2, 1, 2, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column = toColumn(columnBinary, repetitions, loadSize);
 
     assertEquals( column.size() , 6 );
 
@@ -1016,7 +1025,7 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() );
     assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getString() );
     assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() );
-    assertEquals( value , ( (PrimitiveObject)( column.get(5).getRow() ) ).getString() );
+    assertNull( column.get(5).getRow() );
     assertNull( column.get(6).getRow() );
   }
 
@@ -1084,10 +1093,10 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.BYTES );
-    columnBinary.loadIndex = new int[]{0,0,1,2,2};
 
-    YosegiLoaderFactory factory = new YosegiLoaderFactory();
-    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+    int[] repetitions = new int[] {2, 1, 2};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column = toColumn(columnBinary, repetitions, loadSize);
 
     assertEquals( column.size() , 5 );
 
@@ -1126,10 +1135,10 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( columnBinary.columnName , "hoge" );
     assertEquals( columnBinary.rowCount , 3 );
     assertEquals( columnBinary.columnType , ColumnType.BYTES );
-    columnBinary.loadIndex = new int[]{0,0,1,2,2,3};
 
-    YosegiLoaderFactory factory = new YosegiLoaderFactory();
-    IColumn column = factory.create( columnBinary , columnBinary.loadIndex.length );
+    int[] repetitions = new int[] {2, 1, 2, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column = toColumn(columnBinary, repetitions, loadSize);
 
     assertEquals( column.size() , 6 );
 
@@ -1138,7 +1147,7 @@ public class TestConstantColumnBinaryMaker {
     assertEquals( value , ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() );
     assertEquals( value , ( (PrimitiveObject)( column.get(3).getRow() ) ).getString() );
     assertEquals( value , ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() );
-    assertEquals( value , ( (PrimitiveObject)( column.get(5).getRow() ) ).getString() );
+    assertNull( column.get(5).getRow() );
     assertNull( column.get(6).getRow() );
   }
 

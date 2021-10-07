@@ -704,8 +704,6 @@ public class TestShortPrimitiveColumn {
     assertTestColumn(targetClassName, valueArray);
   }
 
-  // FIXME: fix after changing ConstantColumnBinaryMaker.
-  /*
   @ParameterizedTest
   @MethodSource("D_shortColumnBinaryMaker")
   public void T_loadTestColumn_withAllLoadIndexAndExpand_bit0(final String targetClassName)
@@ -714,8 +712,6 @@ public class TestShortPrimitiveColumn {
     final int[] repetitions = testColumnRepetitions(valueArray);
     assertTestColumn(targetClassName, valueArray, repetitions, getLoadSize(repetitions));
   }
-
-   */
 
   public short[] int1() {
     short[] valueArray =

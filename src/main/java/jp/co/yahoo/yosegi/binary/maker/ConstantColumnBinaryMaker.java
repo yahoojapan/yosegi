@@ -66,14 +66,7 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
 
   @Override
   public LoadType getLoadType( final ColumnBinary columnBinary , final int loadSize ) {
-    int needLength = loadSize;
-    if ( columnBinary.loadIndex != null ) {
-      if ( columnBinary.loadIndex.length == 0 ) {
-        needLength = 0;
-      } else {
-        needLength = columnBinary.loadIndex[columnBinary.loadIndex.length - 1];
-      }
-    }
+    int needLength = columnBinary.isSetLoadSize ? columnBinary.repetitions.length : loadSize;
     if ( needLength <= columnBinary.rowCount ) {
       return LoadType.CONST;
     } else {
@@ -124,23 +117,31 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
     abstract void setValue( final int index , final ISequentialLoader loader ) throws IOException;
 
     public void set(
-        final int rowCount ,
-        final ISequentialLoader loader ,
-        final int[] loadIndex ) throws IOException {
-      if ( loadIndex == null ) {
-        for ( int i = 0 ; i < loader.getLoadSize() ; i++ ) {
-          if ( i < rowCount ) {
-            setValue( i , loader );
+        final int rowCount,
+        final ISequentialLoader loader,
+        final int[] repetitions)
+        throws IOException {
+      if (repetitions == null) {
+        for (int i = 0; i < loader.getLoadSize(); i++) {
+          if (i < rowCount) {
+            setValue(i, loader);
           } else {
             loader.setNull(i);
           }
         }
       } else {
-        for ( int i : loadIndex ) {
-          if ( i < rowCount ) {
-            setValue( i , loader );
+        int offset = 0;
+        for (int i = 0; i < repetitions.length; i++) {
+          if (i < rowCount) {
+            for (int j = 0; j < repetitions[i]; j++) {
+              setValue(offset, loader);
+              offset++;
+            }
           } else {
-            loader.setNull(i);
+            for (int j = 0; j < repetitions[i]; j++) {
+              loader.setNull(offset);
+              offset++;
+            }
           }
         }
       }
@@ -223,7 +224,7 @@ public class ConstantColumnBinaryMaker implements IColumnBinaryMaker {
       default:
         throw new IOException( "Unknown primitive type." );
     }
-    util.set( columnBinary.rowCount , loader , columnBinary.loadIndex );
+    util.set(columnBinary.rowCount, loader, columnBinary.repetitions);
   }
 
   @Override
