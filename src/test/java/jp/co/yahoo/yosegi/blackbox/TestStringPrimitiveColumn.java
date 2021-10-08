@@ -600,4 +600,16 @@ public class TestStringPrimitiveColumn {
     );
   }
 
+  @ParameterizedTest
+  @MethodSource("stringColumnBinaryMaker")
+  public void T_load_exception_withLessThan0_withOutOfBoundsLoadIndexAndExpand(
+      final String targetClassName) {
+    assertThrows(
+        IOException.class,
+        () -> {
+          IColumn column =
+              createLastCellColumn(
+                  targetClassName, new int[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1}, 3);
+        });
+  }
 }

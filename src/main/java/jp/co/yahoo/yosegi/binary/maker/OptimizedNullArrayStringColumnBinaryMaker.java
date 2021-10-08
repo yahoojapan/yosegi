@@ -408,14 +408,12 @@ public class OptimizedNullArrayStringColumnBinaryMaker implements IColumnBinaryM
     int[] newDicIndexList = new int[meta.dicSize];
     int needDicCount = 0;
     for ( int i = 0 ; i < columnBinary.repetitions.length ; i++ ) {
-      if ( meta.startIndex + isNullArray.length <= i ) {
-        break;
-      }
       if ( columnBinary.repetitions[i] < 0 ) {
         throw new IOException(
             "Index must be greater than 0." );
       }
-      if ( columnBinary.repetitions[i] == 0
+      if ( meta.startIndex + isNullArray.length <= i
+          || columnBinary.repetitions[i] == 0
           ||  i < meta.startIndex
           || isNullArray[i - meta.startIndex] ) {
         continue;
@@ -479,10 +477,10 @@ public class OptimizedNullArrayStringColumnBinaryMaker implements IColumnBinaryM
     if ( loader.getLoaderType() != LoadType.DICTIONARY ) {
       throw new IOException( "Loader type is not DICTIONARY." );
     }
-    if ( columnBinary.repetitions == null ) {
-      loadFromColumnBinary( columnBinary , (IDictionaryLoader)loader );
-    } else {
+    if ( columnBinary.isSetLoadSize ) {
       loadFromExpandColumnBinary( columnBinary , (IDictionaryLoader)loader );
+    } else {
+      loadFromColumnBinary( columnBinary , (IDictionaryLoader)loader );
     }
     loader.finish();
   }

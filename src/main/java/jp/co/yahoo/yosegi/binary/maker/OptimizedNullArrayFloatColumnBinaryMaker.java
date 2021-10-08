@@ -301,14 +301,20 @@ public class OptimizedNullArrayFloatColumnBinaryMaker implements IColumnBinaryMa
     IReadSupporter indexReader =
         indexConverter.toReadSupporter(binary, META_LENGTH + nullIndexLength, indexLength);
 
+    // NOTE: repetitions check
+    //   LoadSize is less than real size if repetitions include negative number.
+    //   It is possible to be thrown ArrayIndexOutOfBoundsException.
+    for (int i = 0; i < columnBinary.repetitions.length; i ++) {
+      if (columnBinary.repetitions[i] < 0) {
+        throw new IOException("Repetition must be equal to or greater than 0.");
+      }
+    }
+
     // NOTE:
     //   Set: currentIndex, value
     int lastIndex = startIndex + isNullArray.length - 1;
     int currentIndex = 0;
     for (int i = 0; i < columnBinary.repetitions.length; i++) {
-      if (columnBinary.repetitions[i] < 0) {
-        throw new IOException("Repetition must be equal to or greater than 0.");
-      }
       if (columnBinary.repetitions[i] == 0) {
         if (i >= startIndex && i <= lastIndex && !isNullArray[i - startIndex]) {
           // NOTE: read skip

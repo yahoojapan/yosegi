@@ -243,6 +243,47 @@ public class TestBytePrimitiveColumn {
     return toColumn(columnBinary);
   }
 
+  public Byte fixedColumnValue(int index) {
+    final Byte[] values =
+        new Byte[] {
+            Byte.MAX_VALUE,
+            Byte.MAX_VALUE,
+            Byte.MAX_VALUE,
+            Byte.MAX_VALUE,
+            Byte.MAX_VALUE,
+            Byte.MAX_VALUE,
+            Byte.MAX_VALUE,
+            Byte.MAX_VALUE,
+            Byte.MAX_VALUE,
+            Byte.MAX_VALUE,
+            Byte.MAX_VALUE
+        };
+    if (index < values.length) {
+      return values[index];
+    }
+    return null;
+  }
+
+  public IColumn createFixedColumn(
+      final String targetClassName, final int[] repetitions, final int loadSize)
+      throws IOException {
+    IColumn column = new PrimitiveColumn(ColumnType.BYTE, "column");
+    for (int i = 0; i <= 10; i++) {
+      column.add(ColumnType.BYTE, new ByteObj(fixedColumnValue(i)), i);
+    }
+
+    IColumnBinaryMaker maker = FindColumnBinaryMaker.get(targetClassName);
+    ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
+    ColumnBinaryMakerCustomConfigNode configNode =
+        new ColumnBinaryMakerCustomConfigNode("root", defaultConfig);
+    ColumnBinary columnBinary =
+        maker.toBinary(defaultConfig, null, new CompressResultNode(), column);
+    if (repetitions != null) {
+      columnBinary.setRepetitions(repetitions, loadSize);
+    }
+    return toColumn(columnBinary);
+  }
+
   @ParameterizedTest
   @MethodSource( "data1" )
   public void T_notNull_1( final String targetClassName ) throws IOException{
@@ -832,6 +873,32 @@ public class TestBytePrimitiveColumn {
         () -> {
           IColumn column =
               createNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
+        });
+  }
+
+  @ParameterizedTest
+  @MethodSource("D_byteColumnBinaryMaker")
+  public void T_load_exception_withLessThan0LoadIndex_withOutOfBoundsLoadIndexAndExpand(
+      final String targetClassName) {
+    int[] repetitions = new int[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1};
+    assertThrows(
+        IOException.class,
+        () -> {
+          IColumn column =
+              createNotNullColumn(targetClassName, repetitions, getLoadSize(repetitions));
+        });
+  }
+
+  @ParameterizedTest
+  @MethodSource("D_byteColumnBinaryMaker")
+  public void T_loadFixedColumn_exception_withLessThan0LoadIndex(
+      final String targetClassName) {
+    int[] repetitions = new int[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1};
+    assertThrows(
+        IOException.class,
+        () -> {
+          IColumn column =
+              createFixedColumn(targetClassName, repetitions, getLoadSize(repetitions));
         });
   }
 }

@@ -372,13 +372,13 @@ public class OptimizedNullArrayDumpStringColumnBinaryMaker implements IColumnBin
     int dictionarySize = 0;
     int lastIndex = startIndex + isNullArray.length - 1;
     for (int i = 0; i < columnBinary.repetitions.length; i++) {
-      if (i > lastIndex) {
-        break;
-      }
       if (columnBinary.repetitions[i] < 0) {
         throw new IOException("Repetition must be equal to or greater than 0.");
       }
-      if (columnBinary.repetitions[i] == 0 || i < startIndex || isNullArray[i - startIndex]) {
+      if (i > lastIndex
+          || columnBinary.repetitions[i] == 0
+          || i < startIndex
+          || isNullArray[i - startIndex]) {
         continue;
       }
       dictionarySize++;
