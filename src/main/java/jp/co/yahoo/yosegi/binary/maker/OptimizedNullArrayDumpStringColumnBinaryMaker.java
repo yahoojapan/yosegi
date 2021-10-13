@@ -23,6 +23,7 @@ import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
+import jp.co.yahoo.yosegi.blockindex.StringRangeBlockIndex;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
@@ -459,6 +460,7 @@ public class OptimizedNullArrayDumpStringColumnBinaryMaker implements IColumnBin
     String max = new String( maxCharArray );
 
     BlockIndexNode currentNode = parentNode.getChildNode( columnBinary.columnName );
+    currentNode.setBlockIndex( new StringRangeBlockIndex( min , max ) );
   }
 
 }
