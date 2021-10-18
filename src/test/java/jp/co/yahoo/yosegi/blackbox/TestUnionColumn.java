@@ -20,7 +20,6 @@ package jp.co.yahoo.yosegi.blackbox;
 import java.io.IOException;
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.Arguments;
@@ -28,14 +27,9 @@ import org.junit.jupiter.params.provider.Arguments;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-import jp.co.yahoo.yosegi.config.Configuration;
-
-import jp.co.yahoo.yosegi.message.parser.json.JacksonMessageReader;
 import jp.co.yahoo.yosegi.message.objects.*;
 
 import jp.co.yahoo.yosegi.inmemory.*;
-import jp.co.yahoo.yosegi.spread.expression.*;
-import jp.co.yahoo.yosegi.spread.column.filter.*;
 import jp.co.yahoo.yosegi.spread.column.*;
 import jp.co.yahoo.yosegi.binary.*;
 import jp.co.yahoo.yosegi.binary.maker.*;
@@ -72,8 +66,8 @@ public class TestUnionColumn {
       }
     }
     try {
-    return new YosegiLoaderFactory().create(
-        columnBinary , 5 );
+      return new YosegiLoaderFactory()
+          .create(columnBinary, (loadSize > 0) ? loadSize : column.size());
     } catch ( Exception ex ) {
       ex.printStackTrace();
       throw ex;
@@ -111,7 +105,7 @@ public class TestUnionColumn {
 
   @ParameterizedTest
   @MethodSource( "data1" )
-  public void T_load_childColumnEqualsJsonString_withLoadIndex( final String targetClassName ) throws IOException{
+  public void T_load_childColumnEqualsJsonString_withRepetitions( final String targetClassName ) throws IOException{
     IColumn column = createSpreadColumnFromJsonString( targetClassName , new int[]{0,0,1,1,1,1,1}, 5 );
     assertEquals( column.getColumnType() , ColumnType.UNION );
     assertEquals( column.size() , 5 );
@@ -132,4 +126,29 @@ public class TestUnionColumn {
     assertNull( ( (PrimitiveObject)( column.get(4).getRow() ) ) );
   }
 
+  @ParameterizedTest
+  @MethodSource("data1")
+  public void T_load_childColumnEqualsJsonString_withRepetitionsAndExpand(
+      final String targetClassName) throws IOException {
+    IColumn column =
+        createSpreadColumnFromJsonString(targetClassName, new int[] {0, 0, 1, 2, 1, 1, 1}, 6);
+    assertEquals(column.getColumnType(), ColumnType.UNION);
+    assertEquals(column.size(), 6);
+
+    IColumn column1 = column.getColumn(ColumnType.STRING);
+    IColumn column2 = column.getColumn(ColumnType.DOUBLE);
+
+    assertEquals(column1.getColumnType(), ColumnType.STRING);
+    assertEquals(column2.getColumnType(), ColumnType.DOUBLE);
+
+    assertEquals(column1.size(), 6);
+    assertEquals(column2.size(), 6);
+
+    assertEquals(((PrimitiveObject) (column.get(0).getRow())).getString(), "c");
+    assertEquals(((PrimitiveObject) (column.get(1).getRow())).getDouble(), 1.0);
+    assertEquals(((PrimitiveObject) (column.get(2).getRow())).getDouble(), 1.0);
+    assertEquals(((PrimitiveObject) (column.get(3).getRow())).getString(), "eee");
+    assertNull(((PrimitiveObject) (column.get(4).getRow())));
+    assertNull(((PrimitiveObject) (column.get(5).getRow())));
+  }
 }
