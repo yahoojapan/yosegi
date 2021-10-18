@@ -173,10 +173,26 @@ public class MaxLengthBasedArrayColumnBinaryMaker implements IColumnBinaryMaker 
 
   private void loadFromExpandColumnBinary(
       final ColumnBinary columnBinary , final IArrayLoader loader ) throws IOException {
-    if ( columnBinary.loadIndex.length == 0
-        || columnBinary.rowCount <= columnBinary.loadIndex[0] ) {
-      for ( int i = 0 ; i < loader.getLoadSize() ; i++ ) {
-        loader.setNull(i);
+    // NOTE: repetitions check
+    //   LoadSize is less than real size if repetitions include negative number.
+    //   It is possible to be thrown ArrayIndexOutOfBoundsException.
+    int minIndex = Integer.MAX_VALUE;
+    for (int i = 0; i < columnBinary.repetitions.length; i++) {
+      if (columnBinary.repetitions[i] < 0) {
+        throw new IOException("Repetition must be equal to or greater than 0.");
+      }
+      if (columnBinary.repetitions[i] > 0 && minIndex > i) {
+        minIndex = i;
+      }
+    }
+    // NOTE: all null case.
+    int nullOffset = 0;
+    if (minIndex >= columnBinary.rowCount) {
+      for (int i = minIndex; i < columnBinary.repetitions.length; i++) {
+        for (int j = 0; j < columnBinary.repetitions[i]; j++) {
+          loader.setNull(nullOffset);
+          nullOffset++;
+        }
       }
       return;
     }
@@ -204,16 +220,45 @@ public class MaxLengthBasedArrayColumnBinaryMaker implements IColumnBinaryMaker 
       }
     }
 
-    for ( int loadIndex : columnBinary.loadIndex ) {
-      if ( columnBinary.rowCount <= loadIndex || isNullArray[loadIndex] ) {
-        loader.setNull(loadIndex);
+    int loadOffset = 0;
+    int childLength = 0;
+    List<Integer> childRepetitions = new ArrayList<>();
+    for (int i = 0; i < columnBinary.repetitions.length; i++) {
+      if (columnBinary.repetitions[i] == 0) {
+        if (i >= columnBinary.rowCount || isNullArray[i]) {
+          childRepetitions.add(0);
+        } else {
+          for (int j = 0; j < lengthArray[i]; j++) {
+            childRepetitions.add(0);
+          }
+        }
+        continue;
+      }
+      if (i >= columnBinary.rowCount || isNullArray[i]) {
+        for (int j = 0; j < columnBinary.repetitions[i]; j++) {
+          loader.setNull(loadOffset);
+          loadOffset++;
+        }
+        // NOTE: child does not inherit parent's repetitions.
+        childLength++;
+        childRepetitions.add(1);
       } else {
-        loader.setArrayIndex( loadIndex , startArray[loadIndex] , lengthArray[loadIndex] );
+        for (int j = 0; j < columnBinary.repetitions[i]; j++) {
+          loader.setArrayIndex(loadOffset, startArray[i], lengthArray[i]);
+          loadOffset++;
+        }
+        // NOTE: child does not inherit parent's repetitions.
+        childLength += lengthArray[i];
+        for (int j = 0; j < lengthArray[i]; j++) {
+          childRepetitions.add(1);
+        }
       }
     }
 
     ColumnBinary child = columnBinary.columnBinaryList.get(0);
-    loader.loadChild( child , child.loadIndex.length );
+    child.setRepetitions(
+        childRepetitions.stream().mapToInt(Integer::intValue).toArray(), childLength);
+    loader.loadChild(child, childLength);
   }
 
   @Override
@@ -223,10 +268,10 @@ public class MaxLengthBasedArrayColumnBinaryMaker implements IColumnBinaryMaker 
       throw new IOException( "Loader type is not ARRAY." );
     }
 
-    if ( columnBinary.loadIndex == null ) {
-      loadFromColumnBinary( columnBinary , (IArrayLoader)loader );
+    if (columnBinary.isSetLoadSize) {
+      loadFromExpandColumnBinary(columnBinary, (IArrayLoader) loader);
     } else {
-      loadFromExpandColumnBinary( columnBinary , (IArrayLoader)loader );
+      loadFromColumnBinary(columnBinary, (IArrayLoader) loader);
     }
     loader.finish();
   }
