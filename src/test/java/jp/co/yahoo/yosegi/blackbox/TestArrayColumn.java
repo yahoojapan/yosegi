@@ -18,6 +18,8 @@
 package jp.co.yahoo.yosegi.blackbox;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -48,8 +50,28 @@ public class TestArrayColumn {
     );
   }
 
+  private int getLoadSize(final int[] repetitions) {
+    if (repetitions == null) {
+      return 0;
+    }
+    int loadSize = 0;
+    for (int size : repetitions) {
+      loadSize += size;
+    }
+    return loadSize;
+  }
+
   private IColumn createArrayColumnFromJsonString(
-        final String targetClassName , final String[] jsonStrings ) throws IOException {
+      final String targetClassName, final String[] jsonStrings) throws IOException {
+        return createArrayColumnFromJsonString(targetClassName, jsonStrings, null, 0);
+  }
+
+  private IColumn createArrayColumnFromJsonString(
+      final String targetClassName,
+      final String[] jsonStrings,
+      final int[] repetitions,
+      final int loadSize)
+      throws IOException {
     JacksonMessageReader jsonReader = new JacksonMessageReader();
     ArrayColumn arrayColumn = new ArrayColumn( "test" );
     int addCount = 0;
@@ -62,9 +84,71 @@ public class TestArrayColumn {
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , arrayColumn );
+    if (repetitions != null) {
+      columnBinary.setRepetitions(repetitions, loadSize);
+    }
 
-    return new YosegiLoaderFactory().create(
-        columnBinary , addCount );
+    int loaderSize = (loadSize > 0) ? loadSize : addCount;
+    return new YosegiLoaderFactory().create(columnBinary, loaderSize);
+  }
+
+  private String[] getJsonStrings() {
+    return new String[] {
+      "[\"a\",\"b\",\"c\"]",
+      "[\"aa\",\"bb\",\"cc\",\"dd\"]",
+      "[\"bb\",\"cc\",\"dd\"]",
+      "[\"cc\",\"dd\"]",
+      "[\"dd\"]"
+    };
+  }
+
+  private String[] getExpectedValues(final int[] repetitions) {
+    String[][] values = {
+      {"a", "b", "c"},
+      {"aa", "bb", "cc", "dd"},
+      {"bb", "cc", "dd"},
+      {"cc", "dd"},
+      {"dd"}
+    };
+    List<String> expectedValues = new ArrayList<>();
+    for (int i = 0; i < repetitions.length; i++) {
+      if (repetitions[i] == 0) {
+        continue;
+      }
+      if (i < values.length) {
+        for (int j = 0; j < values[i].length; j++) {
+          expectedValues.add(values[i][j]);
+        }
+      } else {
+        expectedValues.add(null);
+      }
+    }
+    return expectedValues.toArray(new String[expectedValues.size()]);
+  }
+
+  private int getChildLength(final int[] repetitions) {
+    String[][] values = {
+        {"a", "b", "c"},
+        {"aa", "bb", "cc", "dd"},
+        {"bb", "cc", "dd"},
+        {"cc", "dd"},
+        {"dd"}
+    };
+    boolean isNull = true;
+    int childLength = 0;
+    for (int i = 0; i < repetitions.length; i++) {
+      if (repetitions[i] == 0) {
+        continue;
+      }
+      if (i < values.length) {
+        childLength += values[i].length;
+        isNull = false;
+      } else {
+        childLength++;
+      }
+    }
+    // NOTE: If all are null, child.size() is 0 be.
+    return isNull ? 0 : childLength;
   }
 
   @ParameterizedTest
@@ -103,4 +187,356 @@ public class TestArrayColumn {
 
   }
 
+  @ParameterizedTest
+  @MethodSource("data1")
+  public void T_load_withAllIndex(final String targetClassName) throws IOException {
+    int[] repetitions = new int[] {1, 1, 1, 1, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column =
+        createArrayColumnFromJsonString(targetClassName, getJsonStrings(), repetitions, loadSize);
+    IColumn child = column.getColumn(0);
+
+    assertEquals(ColumnType.ARRAY, column.getColumnType());
+    // loadSize: 5
+    assertEquals(loadSize, column.size());
+
+    assertEquals(ColumnType.STRING, child.getColumnType());
+    // childLength: 13
+    assertEquals(getChildLength(repetitions), child.size());
+    // expected: ["a","b","c","aa","bb","cc","dd","bb","cc","dd","cc","dd","dd"]
+    String[] expectedValues = getExpectedValues(repetitions);
+    int index = 0;
+    for (String expected : expectedValues) {
+      if (expected == null) {
+        assertEquals(ColumnType.NULL, child.get(index).getType());
+      } else {
+        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
+      }
+      index++;
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource("data1")
+  public void T_load_withHead2Index(final String targetClassName) throws IOException {
+    int[] repetitions = new int[] {1, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column =
+        createArrayColumnFromJsonString(targetClassName, getJsonStrings(), repetitions, loadSize);
+    IColumn child = column.getColumn(0);
+
+    assertEquals(ColumnType.ARRAY, column.getColumnType());
+    // loadSize: 2
+    assertEquals(loadSize, column.size());
+
+    assertEquals(ColumnType.STRING, child.getColumnType());
+    // childLength: 7
+    assertEquals(getChildLength(repetitions), child.size());
+    // expected: ["a","b","c","aa","bb","cc","dd"]
+    String[] expectedValues = getExpectedValues(repetitions);
+    int index = 0;
+    for (String expected : expectedValues) {
+      if (expected == null) {
+        assertEquals(ColumnType.NULL, child.get(index).getType());
+      } else {
+        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
+      }
+      index++;
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource("data1")
+  public void T_load_withLast2Index(final String targetClassName) throws IOException {
+    int[] repetitions = new int[] {0, 0, 0, 1, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column =
+        createArrayColumnFromJsonString(targetClassName, getJsonStrings(), repetitions, loadSize);
+    IColumn child = column.getColumn(0);
+
+    assertEquals(ColumnType.ARRAY, column.getColumnType());
+    // loadSize: 2
+    assertEquals(loadSize, column.size());
+
+    assertEquals(ColumnType.STRING, child.getColumnType());
+    // childLength: 3
+    assertEquals(getChildLength(repetitions), child.size());
+    // expected: ["cc","dd","dd"]
+    String[] expectedValues = getExpectedValues(repetitions);
+    int index = 0;
+    for (String expected : expectedValues) {
+      if (expected == null) {
+        assertEquals(ColumnType.NULL, child.get(index).getType());
+      } else {
+        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
+      }
+      index++;
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource("data1")
+  public void T_load_withOutOfBoundsIndex(final String targetClassName) throws IOException {
+    int[] repetitions = new int[] {1, 1, 1, 1, 1, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column =
+        createArrayColumnFromJsonString(targetClassName, getJsonStrings(), repetitions, loadSize);
+    IColumn child = column.getColumn(0);
+
+    assertEquals(ColumnType.ARRAY, column.getColumnType());
+    // loadSize: 6
+    assertEquals(loadSize, column.size());
+
+    assertEquals(ColumnType.STRING, child.getColumnType());
+    // childLength: 14
+    assertEquals(getChildLength(repetitions), child.size());
+    // expected: ["a","b","c","aa","bb","cc","dd","bb","cc","dd","cc","dd","dd",null]
+    String[] expectedValues = getExpectedValues(repetitions);
+    int index = 0;
+    for (String expected : expectedValues) {
+      if (expected == null) {
+        assertEquals(ColumnType.NULL, child.get(index).getType());
+      } else {
+        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
+      }
+      index++;
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource("data1")
+  public void T_load_withOddNumberIndex(final String targetClassName) throws IOException {
+    int[] repetitions = new int[] {0, 1, 0, 1, 0};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column =
+        createArrayColumnFromJsonString(targetClassName, getJsonStrings(), repetitions, loadSize);
+    IColumn child = column.getColumn(0);
+
+    assertEquals(ColumnType.ARRAY, column.getColumnType());
+    // loadSize: 2
+    assertEquals(loadSize, column.size());
+
+    assertEquals(ColumnType.STRING, child.getColumnType());
+    // childLength: 6
+    assertEquals(getChildLength(repetitions), child.size());
+    // expected: ["aa","bb","cc","dd","cc","dd"]
+    String[] expectedValues = getExpectedValues(repetitions);
+    int index = 0;
+    for (String expected : expectedValues) {
+      if (expected == null) {
+        assertEquals(ColumnType.NULL, child.get(index).getType());
+      } else {
+        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
+      }
+      index++;
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource("data1")
+  public void T_load_withAllNullIndex(final String targetClassName) throws IOException {
+    int[] repetitions = new int[] {0, 0, 0, 0, 0, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column =
+        createArrayColumnFromJsonString(targetClassName, getJsonStrings(), repetitions, loadSize);
+    IColumn child = column.getColumn(0);
+
+    assertEquals(ColumnType.ARRAY, column.getColumnType());
+    // loadSize: 1
+    assertEquals(loadSize, column.size());
+
+    assertEquals(ColumnType.NULL, child.getColumnType());
+    // NOTE: If all are null, child.size() is 0 be.
+    // childLength: 0
+    assertEquals(getChildLength(repetitions), child.size());
+    // expected: [null]
+    String[] expectedValues = getExpectedValues(repetitions);
+    int index = 0;
+    for (String expected : expectedValues) {
+      if (expected == null) {
+        assertEquals(ColumnType.NULL, child.get(index).getType());
+      } else {
+        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
+      }
+      index++;
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource("data1")
+  public void T_load_withAllIndexAndExpand(final String targetClassName) throws IOException {
+    int[] repetitions = new int[] {2, 1, 2, 3, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column =
+        createArrayColumnFromJsonString(targetClassName, getJsonStrings(), repetitions, loadSize);
+    IColumn child = column.getColumn(0);
+
+    assertEquals(ColumnType.ARRAY, column.getColumnType());
+    // loadSize: 9
+    assertEquals(loadSize, column.size());
+
+    assertEquals(ColumnType.STRING, child.getColumnType());
+    // childLength: 13
+    assertEquals(getChildLength(repetitions), child.size());
+    // NOTE: child does not inherit parent's repetitions.
+    // expected: ["a","b","c","aa","bb","cc","dd","bb","cc","dd","cc","dd","dd"]
+    String[] expectedValues = getExpectedValues(repetitions);
+    int index = 0;
+    for (String expected : expectedValues) {
+      if (expected == null) {
+        assertEquals(ColumnType.NULL, child.get(index).getType());
+      } else {
+        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
+      }
+      index++;
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource("data1")
+  public void T_load_withHead2IndexAndExpand(final String targetClassName) throws IOException {
+    int[] repetitions = new int[] {2, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column =
+        createArrayColumnFromJsonString(targetClassName, getJsonStrings(), repetitions, loadSize);
+    IColumn child = column.getColumn(0);
+
+    assertEquals(ColumnType.ARRAY, column.getColumnType());
+    // loadSize: 3
+    assertEquals(loadSize, column.size());
+
+    assertEquals(ColumnType.STRING, child.getColumnType());
+    // childLength: 7
+    assertEquals(getChildLength(repetitions), child.size());
+    // NOTE: child does not inherit parent's repetitions.
+    // expected: ["a","b","c","aa","bb","cc","dd"]
+    String[] expectedValues = getExpectedValues(repetitions);
+    int index = 0;
+    for (String expected : expectedValues) {
+      if (expected == null) {
+        assertEquals(ColumnType.NULL, child.get(index).getType());
+      } else {
+        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
+      }
+      index++;
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource("data1")
+  public void T_load_withLast2IndexAndExpand(final String targetClassName) throws IOException {
+    int[] repetitions = new int[] {0, 0, 0, 3, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column =
+        createArrayColumnFromJsonString(targetClassName, getJsonStrings(), repetitions, loadSize);
+    IColumn child = column.getColumn(0);
+
+    assertEquals(ColumnType.ARRAY, column.getColumnType());
+    // loadSize: 4
+    assertEquals(loadSize, column.size());
+
+    assertEquals(ColumnType.STRING, child.getColumnType());
+    // childLength: 3
+    assertEquals(getChildLength(repetitions), child.size());
+    // NOTE: child does not inherit parent's repetitions.
+    // expected: ["cc","dd","dd"]
+    String[] expectedValues = getExpectedValues(repetitions);
+    int index = 0;
+    for (String expected : expectedValues) {
+      if (expected == null) {
+        assertEquals(ColumnType.NULL, child.get(index).getType());
+      } else {
+        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
+      }
+      index++;
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource("data1")
+  public void T_load_withOutOfBoundsIndexAndExpand(final String targetClassName) throws IOException {
+    int[] repetitions = new int[] {2, 1, 2, 3, 1, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column =
+        createArrayColumnFromJsonString(targetClassName, getJsonStrings(), repetitions, loadSize);
+    IColumn child = column.getColumn(0);
+
+    assertEquals(ColumnType.ARRAY, column.getColumnType());
+    // loadSize: 10
+    assertEquals(loadSize, column.size());
+
+    assertEquals(ColumnType.STRING, child.getColumnType());
+    // childLength: 14
+    assertEquals(getChildLength(repetitions), child.size());
+    // expected: ["a","b","c","aa","bb","cc","dd","bb","cc","dd","cc","dd","dd",null]
+    String[] expectedValues = getExpectedValues(repetitions);
+    int index = 0;
+    for (String expected : expectedValues) {
+      if (expected == null) {
+        assertEquals(ColumnType.NULL, child.get(index).getType());
+      } else {
+        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
+      }
+      index++;
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource("data1")
+  public void T_load_withOddNumberIndexAndExpand(final String targetClassName) throws IOException {
+    int[] repetitions = new int[] {0, 1, 0, 3, 0};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column =
+        createArrayColumnFromJsonString(targetClassName, getJsonStrings(), repetitions, loadSize);
+    IColumn child = column.getColumn(0);
+
+    assertEquals(ColumnType.ARRAY, column.getColumnType());
+    // loadSize: 4
+    assertEquals(loadSize, column.size());
+
+    assertEquals(ColumnType.STRING, child.getColumnType());
+    // childLength: 6
+    assertEquals(getChildLength(repetitions), child.size());
+    // expected: ["aa","bb","cc","dd","cc","dd"]
+    String[] expectedValues = getExpectedValues(repetitions);
+    int index = 0;
+    for (String expected : expectedValues) {
+      if (expected == null) {
+        assertEquals(ColumnType.NULL, child.get(index).getType());
+      } else {
+        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
+      }
+      index++;
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource("data1")
+  public void T_load_withAllNullIndexAndExpand(final String targetClassName) throws IOException {
+    int[] repetitions = new int[] {0, 0, 0, 0, 0, 2, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column =
+        createArrayColumnFromJsonString(targetClassName, getJsonStrings(), repetitions, loadSize);
+    IColumn child = column.getColumn(0);
+
+    assertEquals(ColumnType.ARRAY, column.getColumnType());
+    // loadSize: 3
+    assertEquals(loadSize, column.size());
+
+    assertEquals(ColumnType.NULL, child.getColumnType());
+    // NOTE: If all are null, child.size() is 0 be.
+    // childLength: 0
+    assertEquals(getChildLength(repetitions), child.size());
+    // expected: [null,null]
+    String[] expectedValues = getExpectedValues(repetitions);
+    int index = 0;
+    for (String expected : expectedValues) {
+      if (expected == null) {
+        assertEquals(ColumnType.NULL, child.get(index).getType());
+      } else {
+        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
+      }
+      index++;
+    }
+  }
 }
