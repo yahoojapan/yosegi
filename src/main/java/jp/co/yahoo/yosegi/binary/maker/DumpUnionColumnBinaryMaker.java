@@ -212,29 +212,40 @@ public class DumpUnionColumnBinaryMaker implements IColumnBinaryMaker {
         columnBinary.binary , columnBinary.binaryStart , columnBinary.binaryLength );
     ByteBuffer wrapBuffer = ByteBuffer.wrap( cellBinary );
 
-    if ( columnBinary.loadIndex == null ) {
-      for ( int i = 0 ; i < cellBinary.length ; i++ ) {
-        ColumnType columnType = ColumnTypeFactory.getColumnTypeFromByte( wrapBuffer.get() );
-        unionLoader.setIndexAndColumnType( i , columnType );
-      }
-      for ( int i = cellBinary.length ; i < loader.getLoadSize() ; i++ ) {
-        unionLoader.setNull( i );
-      }
-    } else {
+    if (columnBinary.isSetLoadSize) {
+      // NOTE: needless to check invalid repetitions number.
       int currentIndex = 0;
-      for ( int index : columnBinary.loadIndex ) {
-        if ( cellBinary.length <= index ) {
-          unionLoader.setNull( currentIndex );
-        } else {
-          ColumnType columnType = ColumnTypeFactory.getColumnTypeFromByte(
-              wrapBuffer.get( index ) );
-          if ( columnType == ColumnType.NULL ) {
-            unionLoader.setNull( currentIndex );
+      for (int i = 0; i < columnBinary.repetitions.length; i++) {
+        if (columnBinary.repetitions[i] == 0) {
+          continue;
+        }
+        if (i < cellBinary.length) {
+          ColumnType columnType = ColumnTypeFactory.getColumnTypeFromByte(wrapBuffer.get(i));
+          if (columnType == ColumnType.NULL) {
+            for (int j = 0; j < columnBinary.repetitions[i]; j++) {
+              unionLoader.setNull(currentIndex);
+              currentIndex++;
+            }
           } else {
-            unionLoader.setIndexAndColumnType( currentIndex , columnType );
+            for (int j = 0; j < columnBinary.repetitions[i]; j++) {
+              unionLoader.setIndexAndColumnType(currentIndex, columnType);
+              currentIndex++;
+            }
+          }
+        } else {
+          for (int j = 0; j < columnBinary.repetitions[i]; j++) {
+            unionLoader.setNull(currentIndex);
+            currentIndex++;
           }
         }
-        currentIndex++;
+      }
+    } else {
+      for (int i = 0; i < cellBinary.length; i++) {
+        ColumnType columnType = ColumnTypeFactory.getColumnTypeFromByte(wrapBuffer.get());
+        unionLoader.setIndexAndColumnType(i, columnType);
+      }
+      for (int i = cellBinary.length; i < loader.getLoadSize(); i++) {
+        unionLoader.setNull(i);
       }
     }
 
