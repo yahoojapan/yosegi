@@ -40,7 +40,7 @@ public class TestUnsupportedColumnBinaryMaker {
 
   public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
     int loadCount =
-        (columnBinary.loadIndex == null) ? columnBinary.rowCount : columnBinary.loadIndex.length;
+        (columnBinary.isSetLoadSize) ? columnBinary.loadSize : columnBinary.rowCount;
     return new YosegiLoaderFactory().create(columnBinary, loadCount);
   }
 

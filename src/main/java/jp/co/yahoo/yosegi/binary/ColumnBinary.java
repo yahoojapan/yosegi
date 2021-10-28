@@ -85,8 +85,6 @@ public class ColumnBinary {
 
   public List<ColumnBinary> columnBinaryList;
 
-  public int[] loadIndex;
-
   public int[] repetitions;
   public int loadSize;
   public boolean isSetLoadSize;
@@ -320,15 +318,6 @@ public class ColumnBinary {
   }
 
   /**
-   * Sets the index of the element to be copied at load time.
-   * This index is only used for loading, not when writing to a file.
-   * The load index must be greater than 0 and equal to or greater than the previous number.
-   */
-  public void setLoadIndex( final int[] loadIndex ) {
-    this.loadIndex = loadIndex;
-  }
-
-  /**
    * Sets the repetition of the element.
    */
   public void setRepetitions( final int[] repetitions , final int loadSize ) {
@@ -354,7 +343,6 @@ public class ColumnBinary {
         binaryStart,
         binaryLength,
         columnBinaryList );
-    newColumnBinary.setLoadIndex( loadIndex );
     if ( isSetLoadSize ) {
       newColumnBinary.setRepetitions( repetitions , loadSize );
     }

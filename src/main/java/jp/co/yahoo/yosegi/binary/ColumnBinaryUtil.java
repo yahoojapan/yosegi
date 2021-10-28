@@ -103,28 +103,14 @@ public final class ColumnBinaryUtil {
    */
   public static RepetitionAndLoadSize createArrayChildIndex(
       final ColumnBinary arrayColumn ,
-      final int[] arrayLoadIndex ,
       final int[] arrayRepetitions ,
       final int loadSize ) throws IOException {
     if ( loadSize == 0 ) {
-      return new RepetitionAndLoadSize( new int[0] , new int[0] , 0 );
+      return new RepetitionAndLoadSize( new int[0] , 0 );
     }
     IColumn arrayColumnTarget = createArrayIndexColumn( arrayColumn );
-    int childLoadIndexLength = 0;
     int childRepetitionsLength = 0;
     int currentIndex = -1;
-    for ( int i = 0; i < arrayLoadIndex.length ; i++ ) {
-      if ( currentIndex == arrayLoadIndex[i] ) {
-        continue;
-      }
-      currentIndex = arrayLoadIndex[i];
-      ICell cell = arrayColumnTarget.get( arrayLoadIndex[i] );
-      if ( cell.getType() != ColumnType.ARRAY ) {
-        continue;
-      }
-      ArrayCell arrayCell = (ArrayCell)( cell );
-      childLoadIndexLength += arrayCell.getEnd() - arrayCell.getStart();
-    }
     for ( int i = 0 ; i < arrayColumnTarget.size() && i < arrayRepetitions.length ; i++ ) {
       ICell cell = arrayColumnTarget.get( i );
       if ( cell.getType() != ColumnType.ARRAY ) {
@@ -133,26 +119,7 @@ public final class ColumnBinaryUtil {
       ArrayCell arrayCell = (ArrayCell)( cell );
       childRepetitionsLength += arrayCell.getEnd() - arrayCell.getStart();
     }
-    int[] childLoadIndex = new int[childLoadIndexLength];
     int[] childRepetitions = new int[childRepetitionsLength];
-    int currentArrayIndex = 0;
-    currentIndex = -1;
-    for ( int i = 0; i < arrayLoadIndex.length ; i++ ) {
-      if ( currentIndex == arrayLoadIndex[i] ) {
-        continue;
-      }
-      currentIndex = arrayLoadIndex[i];
-      ICell cell = arrayColumnTarget.get( arrayLoadIndex[i] );
-      if ( cell.getType() != ColumnType.ARRAY ) {
-        continue;
-      }
-      ArrayCell arrayCell = (ArrayCell)( cell );
-      for ( int childIndex = arrayCell.getStart()
-          ; childIndex < arrayCell.getEnd() ; childIndex++ ) {
-        childLoadIndex[currentArrayIndex] = childIndex;
-        currentArrayIndex++;
-      }
-    }
     int currentRepetitionIndex = 0;
     for ( int i = 0 ; i < arrayColumnTarget.size() && i < arrayRepetitions.length ; i++ ) {
       ICell cell = arrayColumnTarget.get( i );
@@ -169,31 +136,27 @@ public final class ColumnBinaryUtil {
         currentRepetitionIndex += arrayCell.getEnd() - arrayCell.getStart();
       }
     }
-    return new RepetitionAndLoadSize( childLoadIndex , childRepetitions , childLoadIndexLength );
+    return new RepetitionAndLoadSize( childRepetitions , childRepetitionsLength );
   }
 
   /**
    * Set load index to column binary list.
    */
-  public static void setLoadIndex(
+  public static void setRepetitions(
       final List<ColumnBinary> binaryList ,
-      final int[] loadIndex ,
       final int[] repetitions ,
       final int loadSize ) throws IOException {
     if ( binaryList != null ) {
       for ( ColumnBinary child : binaryList ) {
-        int[] childLoadIndex = loadIndex;
         int[] childRepetitions = repetitions;
         int childLoadSize = loadSize;
         if ( child.columnType == ColumnType.ARRAY ) {
           RepetitionAndLoadSize childRepetitionAndLoadSize =
-              createArrayChildIndex( child , loadIndex , repetitions , loadSize );
-          childLoadIndex = childRepetitionAndLoadSize.getLoadIndex();
+              createArrayChildIndex( child , repetitions , loadSize );
           childRepetitions = childRepetitionAndLoadSize.getRepetitions();
           childLoadSize = childRepetitionAndLoadSize.getLoadSize();
         }
-        setLoadIndex( child.columnBinaryList , childLoadIndex , childRepetitions , childLoadSize );
-        child.setLoadIndex( loadIndex );
+        setRepetitions( child.columnBinaryList , childRepetitions , childLoadSize );
         child.setRepetitions( repetitions , loadSize );
       }
     }

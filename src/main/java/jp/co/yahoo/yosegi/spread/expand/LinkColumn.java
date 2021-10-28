@@ -93,12 +93,10 @@ public class LinkColumn {
     ColumnBinaryUtil.removeFromColumnName(
         nodeNameArray[nodeNameArray.length - 1] , currentBinaryList );
 
-    if ( baseColumn.loadIndex != null ) {
-      newColumnBinary.setLoadIndex( baseColumn.loadIndex );
+    if ( baseColumn.repetitions != null ) {
       newColumnBinary.setRepetitions( baseColumn.repetitions , baseColumn.loadSize );
-      ColumnBinaryUtil.setLoadIndex(
+      ColumnBinaryUtil.setRepetitions(
           newColumnBinary.columnBinaryList ,
-          baseColumn.loadIndex ,
           baseColumn.repetitions ,
           baseColumn.loadSize );
     }
