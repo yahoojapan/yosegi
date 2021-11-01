@@ -20,22 +20,15 @@ package jp.co.yahoo.yosegi.binary;
 
 public class RepetitionAndLoadSize {
 
-  private final int[] loadIndex;
   private final int[] repetitions;
   private final int loadSize;
 
   /**
    * Keep the number of repeated loads and the load size.
    */
-  public RepetitionAndLoadSize(
-      final int[] loadIndex , final int[] repetitions , final int loadSize ) {
-    this.loadIndex = loadIndex;
+  public RepetitionAndLoadSize( final int[] repetitions , final int loadSize ) {
     this.repetitions = repetitions;
     this.loadSize = loadSize;
-  }
-
-  public int[] getLoadIndex() {
-    return loadIndex;
   }
 
   public int[] getRepetitions() {
