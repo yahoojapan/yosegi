@@ -60,16 +60,21 @@ public class TestStringPrimitiveColumn {
   }
 
   public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
-    int loadCount =
-        (columnBinary.isSetLoadSize) ? columnBinary.loadSize : columnBinary.rowCount;
+    return toColumn(columnBinary, null);
+  }
+
+  public IColumn toColumn(final ColumnBinary columnBinary, Integer loadCount) throws IOException {
+    if (loadCount == null) {
+      loadCount = (columnBinary.isSetLoadSize) ? columnBinary.loadSize : columnBinary.rowCount;
+    }
     return new YosegiLoaderFactory().create(columnBinary, loadCount);
   }
 
   public IColumn createNotNullColumn( final String targetClassName ) throws IOException{
-    return createNotNullColumn( targetClassName , null , 0 );
+    return createNotNullColumn( targetClassName , null , null );
   }
 
-  public IColumn createNotNullColumn( final String targetClassName , final int[] repetitions , final int loadSize ) throws IOException{
+  public IColumn createNotNullColumn( final String targetClassName , final int[] repetitions , final Integer loadSize ) throws IOException{
     IColumn column = new PrimitiveColumn( ColumnType.STRING , "column" );
     column.add( ColumnType.STRING , new StringObj( "a" ) , 0 );
     column.add( ColumnType.STRING , new StringObj( "ab" ) , 1 );
@@ -87,34 +92,38 @@ public class TestStringPrimitiveColumn {
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
-    if ( repetitions != null ) {
+    if ( repetitions == null ) {
+      return toColumn(columnBinary, loadSize);
+    } else {
       columnBinary.setRepetitions( repetitions , loadSize );
+      return toColumn(columnBinary);
     }
-    return toColumn(columnBinary);
   }
 
   public IColumn createNullColumn( final String targetClassName ) throws IOException{
-    return createNullColumn( targetClassName , null , 0 );
+    return createNullColumn( targetClassName , null , null );
   }
 
-  public IColumn createNullColumn( final String targetClassName , final int[] repetitions , final int loadSize ) throws IOException{
+  public IColumn createNullColumn( final String targetClassName , final int[] repetitions , final Integer loadSize ) throws IOException{
     IColumn column = new PrimitiveColumn( ColumnType.STRING , "column" );
 
     IColumnBinaryMaker maker = FindColumnBinaryMaker.get( targetClassName );
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
-    if ( repetitions != null ) {
+    if ( repetitions == null ) {
+      return toColumn(columnBinary, loadSize);
+    } else {
       columnBinary.setRepetitions( repetitions , loadSize );
+      return toColumn(columnBinary);
     }
-    return toColumn(columnBinary);
   }
 
   public IColumn createHasNullColumn( final String targetClassName ) throws IOException{
-    return createHasNullColumn( targetClassName , null , 0 );
+    return createHasNullColumn( targetClassName , null , null );
   }
 
-  public IColumn createHasNullColumn( final String targetClassName , final int[] repetitions , final int loadSize ) throws IOException{
+  public IColumn createHasNullColumn( final String targetClassName , final int[] repetitions , final Integer loadSize ) throws IOException{
     IColumn column = new PrimitiveColumn( ColumnType.STRING , "column" );
     column.add( ColumnType.STRING , new StringObj( "a" ) , 0 );
     column.add( ColumnType.STRING , new StringObj( "b" ) , 4 );
@@ -124,17 +133,19 @@ public class TestStringPrimitiveColumn {
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
-    if ( repetitions != null ) {
+    if ( repetitions == null ) {
+      return toColumn(columnBinary, loadSize);
+    } else {
       columnBinary.setRepetitions( repetitions , loadSize );
+      return toColumn(columnBinary);
     }
-    return toColumn(columnBinary);
   }
 
   public IColumn createLastCellColumn( final String targetClassName ) throws IOException{
-    return createLastCellColumn( targetClassName , null , 0 );
+    return createLastCellColumn( targetClassName , null , null );
   }
 
-  public IColumn createLastCellColumn( final String targetClassName , final int[] repetitions , final int loadSize ) throws IOException{
+  public IColumn createLastCellColumn( final String targetClassName , final int[] repetitions , final Integer loadSize ) throws IOException{
     IColumn column = new PrimitiveColumn( ColumnType.STRING , "column" );
     column.add( ColumnType.STRING , new StringObj( "c" ) , 10 );
 
@@ -142,10 +153,12 @@ public class TestStringPrimitiveColumn {
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
-    if ( repetitions != null ) {
+    if ( repetitions == null ) {
+      return toColumn(columnBinary, loadSize);
+    } else {
       columnBinary.setRepetitions( repetitions , loadSize );
+      return toColumn(columnBinary);
     }
-    return toColumn(columnBinary);
   }
 
   public IColumn createNullExistsContinuouslyColumn( final String targetClassName ) throws IOException {
