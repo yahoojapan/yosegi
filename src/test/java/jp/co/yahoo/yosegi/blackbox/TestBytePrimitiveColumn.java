@@ -62,7 +62,13 @@ public class TestBytePrimitiveColumn {
   }
 
   public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
-    int loadCount = columnBinary.isSetLoadSize ? columnBinary.loadSize : columnBinary.rowCount;
+    return toColumn(columnBinary, null);
+  }
+
+  public IColumn toColumn(final ColumnBinary columnBinary, Integer loadCount) throws IOException {
+    if (loadCount == null) {
+      loadCount = (columnBinary.isSetLoadSize) ? columnBinary.loadSize : columnBinary.rowCount;
+    }
     return new YosegiLoaderFactory().create(columnBinary, loadCount);
   }
 
@@ -79,14 +85,14 @@ public class TestBytePrimitiveColumn {
 
   public IColumn createTestColumn(final String targetClassName, final byte[] valueArray)
       throws IOException {
-    return createTestColumn(targetClassName, valueArray, null, 0);
+    return createTestColumn(targetClassName, valueArray, null, null);
   }
 
   public IColumn createTestColumn(
       final String targetClassName,
       final byte[] valueArray,
       final int[] repetitions,
-      final int loadSize)
+      final Integer loadSize)
       throws IOException {
     IColumn column = new PrimitiveColumn( ColumnType.BYTE , "column" );
     for ( int i = 0 ; i < valueArray.length ; i++ ) {
@@ -97,14 +103,16 @@ public class TestBytePrimitiveColumn {
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
-    if (repetitions != null) {
+    if (repetitions == null) {
+      return toColumn(columnBinary, loadSize);
+    } else {
       columnBinary.setRepetitions(repetitions, loadSize);
+      return toColumn(columnBinary);
     }
-    return toColumn(columnBinary);
   }
 
   public IColumn createNotNullColumn(final String targetClassName) throws IOException {
-    return createNotNullColumn(targetClassName, null, 0);
+    return createNotNullColumn(targetClassName, null, null);
   }
 
   public Byte notNullColumnValue(int index) {
@@ -129,7 +137,7 @@ public class TestBytePrimitiveColumn {
   }
 
   public IColumn createNotNullColumn(
-      final String targetClassName, final int[] repetitions, final int loadSize)
+      final String targetClassName, final int[] repetitions, final Integer loadSize)
       throws IOException {
     IColumn column = new PrimitiveColumn(ColumnType.BYTE, "column");
     for (int i = 0; i <= 10; i++) {
@@ -142,18 +150,20 @@ public class TestBytePrimitiveColumn {
         new ColumnBinaryMakerCustomConfigNode("root", defaultConfig);
     ColumnBinary columnBinary =
         maker.toBinary(defaultConfig, null, new CompressResultNode(), column);
-    if (repetitions != null) {
+    if (repetitions == null) {
+      return toColumn(columnBinary, loadSize);
+    } else {
       columnBinary.setRepetitions(repetitions, loadSize);
+      return toColumn(columnBinary);
     }
-    return toColumn(columnBinary);
   }
 
   public IColumn createNullColumn(final String targetClassName) throws IOException {
-    return createNullColumn(targetClassName, null, 0);
+    return createNullColumn(targetClassName, null, null);
   }
 
   public IColumn createNullColumn(
-      final String targetClassName, final int[] repetitions, final int loadSize)
+      final String targetClassName, final int[] repetitions, final Integer loadSize)
       throws IOException {
     IColumn column = new PrimitiveColumn( ColumnType.BYTE , "column" );
 
@@ -161,14 +171,16 @@ public class TestBytePrimitiveColumn {
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
     ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
     ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
-    if (repetitions != null) {
+    if (repetitions == null) {
+      return toColumn(columnBinary, loadSize);
+    } else {
       columnBinary.setRepetitions(repetitions, loadSize);
+      return toColumn(columnBinary);
     }
-    return toColumn(columnBinary);
   }
 
   public IColumn createHasNullColumn(final String targetClassName) throws IOException {
-    return createHasNullColumn(targetClassName, null, 0);
+    return createHasNullColumn(targetClassName, null, null);
   }
 
   public Byte hasNullColumnValue(int index) {
@@ -187,7 +199,7 @@ public class TestBytePrimitiveColumn {
   }
 
   public IColumn createHasNullColumn(
-      final String targetClassName, final int[] repetitions, final int loadSize)
+      final String targetClassName, final int[] repetitions, final Integer loadSize)
       throws IOException {
     IColumn column = new PrimitiveColumn(ColumnType.BYTE, "column");
     for (int i : new int[] {0, 4, 8}) {
@@ -200,14 +212,16 @@ public class TestBytePrimitiveColumn {
         new ColumnBinaryMakerCustomConfigNode("root", defaultConfig);
     ColumnBinary columnBinary =
         maker.toBinary(defaultConfig, null, new CompressResultNode(), column);
-    if (repetitions != null) {
+    if (repetitions == null) {
+      return toColumn(columnBinary, loadSize);
+    } else {
       columnBinary.setRepetitions(repetitions, loadSize);
+      return toColumn(columnBinary);
     }
-    return toColumn(columnBinary);
   }
 
   public IColumn createLastCellColumn(final String targetClassName) throws IOException {
-    return createLastCellColumn(targetClassName, null, 0);
+    return createLastCellColumn(targetClassName, null, null);
   }
 
   public Byte lastCellColumnValue(int index) {
@@ -224,7 +238,7 @@ public class TestBytePrimitiveColumn {
   }
 
   public IColumn createLastCellColumn(
-      final String targetClassName, final int[] repetitions, final int loadSize)
+      final String targetClassName, final int[] repetitions, final Integer loadSize)
       throws IOException {
     IColumn column = new PrimitiveColumn(ColumnType.BYTE, "column");
     for (int i : new int[] {10000}) {
@@ -237,10 +251,12 @@ public class TestBytePrimitiveColumn {
         new ColumnBinaryMakerCustomConfigNode("root", defaultConfig);
     ColumnBinary columnBinary =
         maker.toBinary(defaultConfig, null, new CompressResultNode(), column);
-    if (repetitions != null) {
+    if (repetitions == null) {
+      return toColumn(columnBinary, loadSize);
+    } else {
       columnBinary.setRepetitions(repetitions, loadSize);
+      return toColumn(columnBinary);
     }
-    return toColumn(columnBinary);
   }
 
   public Byte fixedColumnValue(int index) {
@@ -265,7 +281,7 @@ public class TestBytePrimitiveColumn {
   }
 
   public IColumn createFixedColumn(
-      final String targetClassName, final int[] repetitions, final int loadSize)
+      final String targetClassName, final int[] repetitions, final Integer loadSize)
       throws IOException {
     IColumn column = new PrimitiveColumn(ColumnType.BYTE, "column");
     for (int i = 0; i <= 10; i++) {
@@ -278,10 +294,12 @@ public class TestBytePrimitiveColumn {
         new ColumnBinaryMakerCustomConfigNode("root", defaultConfig);
     ColumnBinary columnBinary =
         maker.toBinary(defaultConfig, null, new CompressResultNode(), column);
-    if (repetitions != null) {
+    if (repetitions == null) {
+      return toColumn(columnBinary, loadSize);
+    } else {
       columnBinary.setRepetitions(repetitions, loadSize);
+      return toColumn(columnBinary);
     }
-    return toColumn(columnBinary);
   }
 
   @ParameterizedTest
@@ -313,7 +331,7 @@ public class TestBytePrimitiveColumn {
         if (expected == null) {
           assertEquals(ColumnType.NULL, column.get(offset).getType());
         } else {
-          assertEquals(expected, ((PrimitiveObject) (column.get(offset).getRow())).getByte());
+          assertEquals(expected.byteValue(), ((PrimitiveObject) (column.get(offset).getRow())).getByte());
         }
         offset++;
       }
@@ -456,7 +474,7 @@ public class TestBytePrimitiveColumn {
         if (expected == null) {
           assertEquals(ColumnType.NULL, column.get(offset).getType());
         } else {
-          assertEquals(expected, ((PrimitiveObject) (column.get(offset).getRow())).getByte());
+          assertEquals(expected.byteValue(), ((PrimitiveObject) (column.get(offset).getRow())).getByte());
         }
         offset++;
       }
@@ -565,7 +583,7 @@ public class TestBytePrimitiveColumn {
         if (expected == null) {
           assertEquals(ColumnType.NULL, column.get(offset).getType());
         } else {
-          assertEquals(expected, ((PrimitiveObject) (column.get(offset).getRow())).getByte());
+          assertEquals(expected.byteValue(), ((PrimitiveObject) (column.get(offset).getRow())).getByte());
         }
         offset++;
       }
@@ -693,14 +711,14 @@ public class TestBytePrimitiveColumn {
 
   public void assertTestColumn(final String targetClassName, final byte[] valueArray)
       throws IOException {
-    assertTestColumn(targetClassName, valueArray, null, 0);
+    assertTestColumn(targetClassName, valueArray, null, null);
   }
 
   public void assertTestColumn(
       final String targetClassName,
       final byte[] valueArray,
       final int[] repetitions,
-      final int loadSize)
+      final Integer loadSize)
       throws IOException {
     IColumn column = createTestColumn(targetClassName, valueArray, repetitions, loadSize);
     if (repetitions == null) {
@@ -709,7 +727,7 @@ public class TestBytePrimitiveColumn {
         assertEquals(valueArray[i], ((PrimitiveObject) column.get(i).getRow()).getByte());
       }
     } else {
-      assertEquals(loadSize, column.size());
+      assertEquals(loadSize.intValue(), column.size());
       int offset = 0;
       for (int i = 0; i < repetitions.length; i++) {
         for (int j = 0; j < repetitions[i]; j++) {
