@@ -157,6 +157,7 @@ public class MaxLengthBasedArrayColumnBinaryMaker implements IColumnBinaryMaker 
     for ( int i = 0 ; i < loader.getLoadSize() ; i++ ) {
       if ( columnBinary.rowCount <= i ) {
         loader.setNull( i );
+        continue;
       }
       int arrayLength = reader.getInt();
       if ( arrayLength == 0 ) {
