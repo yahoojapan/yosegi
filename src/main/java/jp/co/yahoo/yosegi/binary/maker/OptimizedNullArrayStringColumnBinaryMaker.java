@@ -420,7 +420,6 @@ public class OptimizedNullArrayStringColumnBinaryMaker implements IColumnBinaryM
       }
       if ( ! isNeedDictionary[dicIndexList[i - meta.startIndex]] ) {
         isNeedDictionary[dicIndexList[i - meta.startIndex]] = true;
-        newDicIndexList[dicIndexList[i - meta.startIndex]] = needDicCount;
         needDicCount++;
       }
     }
@@ -444,6 +443,7 @@ public class OptimizedNullArrayStringColumnBinaryMaker implements IColumnBinaryM
       int currentLength = lengthReader.getInt();
       if ( isNeedDictionary[i] ) {
         loader.setBytesToDic( addDicCount , binary , currentStart , currentLength );
+        newDicIndexList[i] = addDicCount;
         addDicCount++;
       }
       currentStart += currentLength;

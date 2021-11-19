@@ -83,7 +83,7 @@ public class TestStringPrimitiveColumn {
     column.add( ColumnType.STRING , new StringObj( "b" ) , 4 );
     column.add( ColumnType.STRING , new StringObj( "bc" ) , 5 );
     column.add( ColumnType.STRING , new StringObj( "bcd" ) , 6 );
-    column.add( ColumnType.STRING , new StringObj( "bcde" ) , 7 );
+    column.add( ColumnType.STRING , new StringObj( "abcd" ) , 7 );
     column.add( ColumnType.STRING , new StringObj( "c" ) , 8 );
     column.add( ColumnType.STRING , new StringObj( "cd" ) , 9 );
     column.add( ColumnType.STRING , new StringObj( "" ) , 10 );
@@ -106,6 +106,32 @@ public class TestStringPrimitiveColumn {
 
   public IColumn createNullColumn( final String targetClassName , final int[] repetitions , final Integer loadSize ) throws IOException{
     IColumn column = new PrimitiveColumn( ColumnType.STRING , "column" );
+
+    IColumnBinaryMaker maker = FindColumnBinaryMaker.get( targetClassName );
+    ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
+    ColumnBinaryMakerCustomConfigNode configNode = new ColumnBinaryMakerCustomConfigNode( "root" , defaultConfig );
+    ColumnBinary columnBinary = maker.toBinary( defaultConfig , null , new CompressResultNode() , column );
+    if ( repetitions == null ) {
+      return toColumn(columnBinary, loadSize);
+    } else {
+      columnBinary.setRepetitions( repetitions , loadSize );
+      return toColumn(columnBinary);
+    }
+  }
+
+  public IColumn createHeadNullColumn( final String targetClassName , final int[] repetitions , final Integer loadSize ) throws IOException{
+    IColumn column = new PrimitiveColumn( ColumnType.STRING , "column" );
+    column.add( ColumnType.STRING , new StringObj( "a" ) , 10 );
+    column.add( ColumnType.STRING , new StringObj( "ab" ) , 11 );
+    column.add( ColumnType.STRING , new StringObj( "abc" ) , 12 );
+    column.add( ColumnType.STRING , new StringObj( "abcd" ) , 13 );
+    column.add( ColumnType.STRING , new StringObj( "b" ) , 14 );
+    column.add( ColumnType.STRING , new StringObj( "bc" ) , 15 );
+    column.add( ColumnType.STRING , new StringObj( "bcd" ) , 16 );
+    column.add( ColumnType.STRING , new StringObj( "abcd" ) , 17 );
+    column.add( ColumnType.STRING , new StringObj( "c" ) , 18 );
+    column.add( ColumnType.STRING , new StringObj( "cd" ) , 19 );
+    column.add( ColumnType.STRING , new StringObj( "" ) , 20 );
 
     IColumnBinaryMaker maker = FindColumnBinaryMaker.get( targetClassName );
     ColumnBinaryMakerConfig defaultConfig = new ColumnBinaryMakerConfig();
@@ -187,7 +213,7 @@ public class TestStringPrimitiveColumn {
     assertEquals( ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() , "b" );
     assertEquals( ( (PrimitiveObject)( column.get(5).getRow() ) ).getString() , "bc" );
     assertEquals( ( (PrimitiveObject)( column.get(6).getRow() ) ).getString() , "bcd" );
-    assertEquals( ( (PrimitiveObject)( column.get(7).getRow() ) ).getString() , "bcde" );
+    assertEquals( ( (PrimitiveObject)( column.get(7).getRow() ) ).getString() , "abcd" );
     assertEquals( ( (PrimitiveObject)( column.get(8).getRow() ) ).getString() , "c" );
     assertEquals( ( (PrimitiveObject)( column.get(9).getRow() ) ).getString() , "cd" );
     assertEquals( ( (PrimitiveObject)( column.get(10).getRow() ) ).getString() , "" );
@@ -206,7 +232,26 @@ public class TestStringPrimitiveColumn {
     assertEquals( ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() , "b" );
     assertEquals( ( (PrimitiveObject)( column.get(5).getRow() ) ).getString() , "bc" );
     assertEquals( ( (PrimitiveObject)( column.get(6).getRow() ) ).getString() , "bcd" );
-    assertEquals( ( (PrimitiveObject)( column.get(7).getRow() ) ).getString() , "bcde" );
+    assertEquals( ( (PrimitiveObject)( column.get(7).getRow() ) ).getString() , "abcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(8).getRow() ) ).getString() , "c" );
+    assertEquals( ( (PrimitiveObject)( column.get(9).getRow() ) ).getString() , "cd" );
+    assertEquals( ( (PrimitiveObject)( column.get(10).getRow() ) ).getString() , "" );
+  }
+
+  @ParameterizedTest
+  @MethodSource( "stringColumnBinaryMaker" )
+  public void T_loadFromHeadNullColumn_equals_withAllValueIndex( final String targetClassName ) throws IOException{
+    IColumn column = createHeadNullColumn(
+        targetClassName ,
+        new int[]{0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1} , 11);
+    assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "a" );
+    assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "ab" );
+    assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "abc" );
+    assertEquals( ( (PrimitiveObject)( column.get(3).getRow() ) ).getString() , "abcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() , "b" );
+    assertEquals( ( (PrimitiveObject)( column.get(5).getRow() ) ).getString() , "bc" );
+    assertEquals( ( (PrimitiveObject)( column.get(6).getRow() ) ).getString() , "bcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(7).getRow() ) ).getString() , "abcd" );
     assertEquals( ( (PrimitiveObject)( column.get(8).getRow() ) ).getString() , "c" );
     assertEquals( ( (PrimitiveObject)( column.get(9).getRow() ) ).getString() , "cd" );
     assertEquals( ( (PrimitiveObject)( column.get(10).getRow() ) ).getString() , "" );
@@ -225,7 +270,29 @@ public class TestStringPrimitiveColumn {
     assertEquals( ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() , "b" );
     assertEquals( ( (PrimitiveObject)( column.get(5).getRow() ) ).getString() , "bc" );
     assertEquals( ( (PrimitiveObject)( column.get(6).getRow() ) ).getString() , "bcd" );
-    assertEquals( ( (PrimitiveObject)( column.get(7).getRow() ) ).getString() , "bcde" );
+    assertEquals( ( (PrimitiveObject)( column.get(7).getRow() ) ).getString() , "abcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(8).getRow() ) ).getString() , "c" );
+    assertEquals( ( (PrimitiveObject)( column.get(9).getRow() ) ).getString() , "cd" );
+    assertEquals( ( (PrimitiveObject)( column.get(10).getRow() ) ).getString() , "" );
+    for ( int i = 11 ; i < 16 ; i++ ) {
+      assertNull( column.get(i).getRow() );
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource( "stringColumnBinaryMaker" )
+  public void T_loadFromHeadNullColumn_equals_withLargeLoadIndex( final String targetClassName ) throws IOException{
+    IColumn column = createHeadNullColumn(
+        targetClassName ,
+        new int[]{0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1} , 16 );
+    assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "a" );
+    assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "ab" );
+    assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "abc" );
+    assertEquals( ( (PrimitiveObject)( column.get(3).getRow() ) ).getString() , "abcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() , "b" );
+    assertEquals( ( (PrimitiveObject)( column.get(5).getRow() ) ).getString() , "bc" );
+    assertEquals( ( (PrimitiveObject)( column.get(6).getRow() ) ).getString() , "bcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(7).getRow() ) ).getString() , "abcd" );
     assertEquals( ( (PrimitiveObject)( column.get(8).getRow() ) ).getString() , "c" );
     assertEquals( ( (PrimitiveObject)( column.get(9).getRow() ) ).getString() , "cd" );
     assertEquals( ( (PrimitiveObject)( column.get(10).getRow() ) ).getString() , "" );
@@ -253,13 +320,44 @@ public class TestStringPrimitiveColumn {
 
   @ParameterizedTest
   @MethodSource( "stringColumnBinaryMaker" )
+  public void T_loadFromHeadNullColumn_equals_withLoadIndexIsHead5( final String targetClassName ) throws IOException{
+    IColumn column = createHeadNullColumn(
+        targetClassName ,
+        new int[]{0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0} , 6 );
+    assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "a" );
+    assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "ab" );
+    assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "abc" );
+    assertEquals( ( (PrimitiveObject)( column.get(3).getRow() ) ).getString() , "abcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() , "b" );
+    assertEquals( ( (PrimitiveObject)( column.get(5).getRow() ) ).getString() , "bc" );
+    for ( int i = 6 ; i < 11 ; i++ ) {
+      assertNull( column.get(i).getRow() );
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource( "stringColumnBinaryMaker" )
   public void T_loadFromNotNullColumn_equals_withLoadIndexTail5( final String targetClassName ) throws IOException{
     IColumn column = createNotNullColumn(
         targetClassName ,
         new int[]{0,0,0,0,0,0,1,1,1,1,1} , 5 );
     assertEquals( column.size() , 5 );
     assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "bcd" );
-    assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "bcde" );
+    assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "abcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "c" );
+    assertEquals( ( (PrimitiveObject)( column.get(3).getRow() ) ).getString() , "cd" );
+    assertEquals( ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() , "" );
+  }
+
+  @ParameterizedTest
+  @MethodSource( "stringColumnBinaryMaker" )
+  public void T_loadFromHeadNullColumn_equals_withLoadIndexTail5( final String targetClassName ) throws IOException{
+    IColumn column = createHeadNullColumn(
+        targetClassName ,
+        new int[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1} , 5 );
+    assertEquals( column.size() , 5 );
+    assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "bcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "abcd" );
     assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "c" );
     assertEquals( ( (PrimitiveObject)( column.get(3).getRow() ) ).getString() , "cd" );
     assertEquals( ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() , "" );
@@ -274,7 +372,20 @@ public class TestStringPrimitiveColumn {
     assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "ab" );
     assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "abcd" );
     assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "bc" );
-    assertEquals( ( (PrimitiveObject)( column.get(3).getRow() ) ).getString() , "bcde" );
+    assertEquals( ( (PrimitiveObject)( column.get(3).getRow() ) ).getString() , "abcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() , "cd" );
+  }
+
+  @ParameterizedTest
+  @MethodSource( "stringColumnBinaryMaker" )
+  public void T_loadFromHeadNullColumn_equals_withOddNumberIndex( final String targetClassName ) throws IOException{
+    IColumn column = createHeadNullColumn(
+        targetClassName ,
+        new int[]{0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0} , 5 );
+    assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "ab" );
+    assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "abcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "bc" );
+    assertEquals( ( (PrimitiveObject)( column.get(3).getRow() ) ).getString() , "abcd" );
     assertEquals( ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() , "cd" );
   }
 
@@ -295,7 +406,32 @@ public class TestStringPrimitiveColumn {
     assertEquals( ( (PrimitiveObject)( column.get(8).getRow() ) ).getString() , "bc" );
     assertEquals( ( (PrimitiveObject)( column.get(9).getRow() ) ).getString() , "bcd" );
     assertEquals( ( (PrimitiveObject)( column.get(10).getRow() ) ).getString() , "bcd" );
-    assertEquals( ( (PrimitiveObject)( column.get(11).getRow() ) ).getString() , "bcde" );
+    assertEquals( ( (PrimitiveObject)( column.get(11).getRow() ) ).getString() , "abcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(12).getRow() ) ).getString() , "c" );
+    assertEquals( ( (PrimitiveObject)( column.get(13).getRow() ) ).getString() , "c" );
+    assertEquals( ( (PrimitiveObject)( column.get(14).getRow() ) ).getString() , "cd" );
+    assertEquals( ( (PrimitiveObject)( column.get(15).getRow() ) ).getString() , "" );
+    assertEquals( ( (PrimitiveObject)( column.get(16).getRow() ) ).getString() , "" );
+  }
+
+  @ParameterizedTest
+  @MethodSource( "stringColumnBinaryMaker" )
+  public void T_loadFromHeadNullColumn_equals_withAllValueIndexAndExpand( final String targetClassName ) throws IOException{
+    IColumn column = createHeadNullColumn(
+        targetClassName ,
+        new int[]{0,0,0,0,0,0,0,0,0,0,2,1,2,1,2,1,2,1,2,1,2} , 17 );
+    assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "a" );
+    assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "a" );
+    assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "ab" );
+    assertEquals( ( (PrimitiveObject)( column.get(3).getRow() ) ).getString() , "abc" );
+    assertEquals( ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() , "abc" );
+    assertEquals( ( (PrimitiveObject)( column.get(5).getRow() ) ).getString() , "abcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(6).getRow() ) ).getString() , "b" );
+    assertEquals( ( (PrimitiveObject)( column.get(7).getRow() ) ).getString() , "b" );
+    assertEquals( ( (PrimitiveObject)( column.get(8).getRow() ) ).getString() , "bc" );
+    assertEquals( ( (PrimitiveObject)( column.get(9).getRow() ) ).getString() , "bcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(10).getRow() ) ).getString() , "bcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(11).getRow() ) ).getString() , "abcd" );
     assertEquals( ( (PrimitiveObject)( column.get(12).getRow() ) ).getString() , "c" );
     assertEquals( ( (PrimitiveObject)( column.get(13).getRow() ) ).getString() , "c" );
     assertEquals( ( (PrimitiveObject)( column.get(14).getRow() ) ).getString() , "cd" );
@@ -320,7 +456,35 @@ public class TestStringPrimitiveColumn {
     assertEquals( ( (PrimitiveObject)( column.get(8).getRow() ) ).getString() , "bc" );
     assertEquals( ( (PrimitiveObject)( column.get(9).getRow() ) ).getString() , "bcd" );
     assertEquals( ( (PrimitiveObject)( column.get(10).getRow() ) ).getString() , "bcd" );
-    assertEquals( ( (PrimitiveObject)( column.get(11).getRow() ) ).getString() , "bcde" );
+    assertEquals( ( (PrimitiveObject)( column.get(11).getRow() ) ).getString() , "abcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(12).getRow() ) ).getString() , "c" );
+    assertEquals( ( (PrimitiveObject)( column.get(13).getRow() ) ).getString() , "c" );
+    assertEquals( ( (PrimitiveObject)( column.get(14).getRow() ) ).getString() , "cd" );
+    assertEquals( ( (PrimitiveObject)( column.get(15).getRow() ) ).getString() , "" );
+    assertEquals( ( (PrimitiveObject)( column.get(16).getRow() ) ).getString() , "" );
+    for ( int i = 17 ; i < 24 ; i++ ) {
+      assertNull( column.get(i).getRow() );
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource( "stringColumnBinaryMaker" )
+  public void T_loadFromHeadNullColumn_equals_withLargeLoadIndexAndExpand( final String targetClassName ) throws IOException{
+    IColumn column = createHeadNullColumn(
+        targetClassName ,
+        new int[]{0,0,0,0,0,0,0,0,0,0,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1} , 24 );
+    assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "a" );
+    assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "a" );
+    assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "ab" );
+    assertEquals( ( (PrimitiveObject)( column.get(3).getRow() ) ).getString() , "abc" );
+    assertEquals( ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() , "abc" );
+    assertEquals( ( (PrimitiveObject)( column.get(5).getRow() ) ).getString() , "abcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(6).getRow() ) ).getString() , "b" );
+    assertEquals( ( (PrimitiveObject)( column.get(7).getRow() ) ).getString() , "b" );
+    assertEquals( ( (PrimitiveObject)( column.get(8).getRow() ) ).getString() , "bc" );
+    assertEquals( ( (PrimitiveObject)( column.get(9).getRow() ) ).getString() , "bcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(10).getRow() ) ).getString() , "bcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(11).getRow() ) ).getString() , "abcd" );
     assertEquals( ( (PrimitiveObject)( column.get(12).getRow() ) ).getString() , "c" );
     assertEquals( ( (PrimitiveObject)( column.get(13).getRow() ) ).getString() , "c" );
     assertEquals( ( (PrimitiveObject)( column.get(14).getRow() ) ).getString() , "cd" );
@@ -350,6 +514,23 @@ public class TestStringPrimitiveColumn {
 
   @ParameterizedTest
   @MethodSource( "stringColumnBinaryMaker" )
+  public void T_loadFromHeadNullColumn_equals_withLoadIndexIsHead5AndExpand( final String targetClassName ) throws IOException{
+    IColumn column = createHeadNullColumn(
+        targetClassName ,
+        new int[]{0,0,0,0,0,0,0,0,0,0,2,1,2,1,2,1,0,0,0,0,0} , 9 );
+    assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "a" );
+    assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "a" );
+    assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "ab" );
+    assertEquals( ( (PrimitiveObject)( column.get(3).getRow() ) ).getString() , "abc" );
+    assertEquals( ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() , "abc" );
+    assertEquals( ( (PrimitiveObject)( column.get(5).getRow() ) ).getString() , "abcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(6).getRow() ) ).getString() , "b" );
+    assertEquals( ( (PrimitiveObject)( column.get(7).getRow() ) ).getString() , "b" );
+    assertEquals( ( (PrimitiveObject)( column.get(8).getRow() ) ).getString() , "bc" );
+  }
+
+  @ParameterizedTest
+  @MethodSource( "stringColumnBinaryMaker" )
   public void T_loadFromNotNullColumn_equals_withLoadIndexTail5AndExpand( final String targetClassName ) throws IOException{
     IColumn column = createNotNullColumn(
         targetClassName ,
@@ -357,7 +538,24 @@ public class TestStringPrimitiveColumn {
     assertEquals( column.size() , 8 );
     assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "bcd" );
     assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "bcd" );
-    assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "bcde" );
+    assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "abcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(3).getRow() ) ).getString() , "c" );
+    assertEquals( ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() , "c" );
+    assertEquals( ( (PrimitiveObject)( column.get(5).getRow() ) ).getString() , "cd" );
+    assertEquals( ( (PrimitiveObject)( column.get(6).getRow() ) ).getString() , "" );
+    assertEquals( ( (PrimitiveObject)( column.get(7).getRow() ) ).getString() , "" );
+  }
+
+  @ParameterizedTest
+  @MethodSource( "stringColumnBinaryMaker" )
+  public void T_loadFromHeadNullColumn_equals_withLoadIndexTail5AndExpand( final String targetClassName ) throws IOException{
+    IColumn column = createHeadNullColumn(
+        targetClassName ,
+        new int[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,2,1,2} , 8 );
+    assertEquals( column.size() , 8 );
+    assertEquals( ( (PrimitiveObject)( column.get(0).getRow() ) ).getString() , "bcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(1).getRow() ) ).getString() , "bcd" );
+    assertEquals( ( (PrimitiveObject)( column.get(2).getRow() ) ).getString() , "abcd" );
     assertEquals( ( (PrimitiveObject)( column.get(3).getRow() ) ).getString() , "c" );
     assertEquals( ( (PrimitiveObject)( column.get(4).getRow() ) ).getString() , "c" );
     assertEquals( ( (PrimitiveObject)( column.get(5).getRow() ) ).getString() , "cd" );
