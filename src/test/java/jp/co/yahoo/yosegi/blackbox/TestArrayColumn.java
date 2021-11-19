@@ -189,6 +189,38 @@ public class TestArrayColumn {
 
   @ParameterizedTest
   @MethodSource("data1")
+  public void T_load_childColumnEqualsJsonString_withOutOfBoundsLoadSize(
+      final String targetClassName) throws IOException {
+    int loadSize = 30;
+    IColumn column =
+        createArrayColumnFromJsonString(
+            targetClassName,
+            new String[] {
+              "[\"a\",\"b\",\"c\"]",
+              "[\"aa\",\"bb\",\"cc\",\"dd\"]",
+              "[\"bb\",\"cc\",\"dd\"]",
+              "[\"cc\",\"dd\"]",
+              "[\"dd\"]"
+            },
+            null,
+            loadSize);
+    assertEquals(ColumnType.ARRAY, column.getColumnType());
+    assertEquals(loadSize, column.size());
+
+    IColumn child = column.getColumn(0);
+    assertEquals(ColumnType.STRING, child.getColumnType());
+    assertEquals(13, child.size());
+
+    String[] expecteds =
+        new String[] {"a", "b", "c", "aa", "bb", "cc", "dd", "bb", "cc", "dd", "cc", "dd", "dd"};
+    for (int i = 0; i < expecteds.length; i++) {
+      String expected = expecteds[i];
+      assertEquals(expected, ((PrimitiveObject) child.get(i).getRow()).getString());
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource("data1")
   public void T_load_withAllIndex(final String targetClassName) throws IOException {
     int[] repetitions = new int[] {1, 1, 1, 1, 1};
     int loadSize = getLoadSize(repetitions);
