@@ -34,6 +34,7 @@ import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
 import jp.co.yahoo.yosegi.inmemory.LoadType;
 import jp.co.yahoo.yosegi.inmemory.PrimitiveObjectDictionary;
 import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
+import jp.co.yahoo.yosegi.message.objects.BytesObj;
 import jp.co.yahoo.yosegi.message.objects.Utf8BytesLinkObj;
 import jp.co.yahoo.yosegi.spread.analyzer.IColumnAnalizeResult;
 import jp.co.yahoo.yosegi.spread.analyzer.StringColumnAnalizeResult;
@@ -337,13 +338,10 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
 
   @Override
   public LoadType getLoadType(final ColumnBinary columnBinary, final int loadSize) {
-    if (columnBinary.isSetLoadSize) {
-      return LoadType.DICTIONARY;
-    }
-    return LoadType.SEQUENTIAL;
+    return LoadType.DICTIONARY;
   }
 
-  private void loadFromColumnBinary(final ColumnBinary columnBinary, ISequentialLoader loader)
+  private void loadFromColumnBinary(final ColumnBinary columnBinary, IDictionaryLoader loader)
       throws IOException {
     ByteBuffer headerWrapBuffer =
         ByteBuffer.wrap(columnBinary.binary, columnBinary.binaryStart, columnBinary.binaryLength);
@@ -362,7 +360,7 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
             columnBinary.binaryLength - headerSize);
     ByteBuffer wrapBuffer = ByteBuffer.wrap(binary, 0, binary.length);
     wrapBuffer.get();
-    int startIndex = wrapBuffer.getInt();
+    final int startIndex = wrapBuffer.getInt();
     final int rowGroupCount = wrapBuffer.getInt();
     int maxRowGroupCount = wrapBuffer.getInt();
     int dicSize = wrapBuffer.getInt();
@@ -399,12 +397,13 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
               META_LENGTH + nullLength + rowGroupIndexLength + rowGroupBinaryLength,
               lengthBinaryLength);
     }
-    IDictionary dic = new PrimitiveObjectDictionary(dicSize);
+
+    loader.createDictionary(dicSize);
     int currentStart =
         META_LENGTH + nullLength + rowGroupIndexLength + rowGroupBinaryLength + lengthBinaryLength;
     for (int i = 0; i < dicSize; i++) {
       int currentLength = lengthReader.getInt();
-      dic.setBytes(i, binary, currentStart, currentLength);
+      loader.setBytesToDic(i, binary, currentStart, currentLength);
       currentStart += currentLength;
     }
 
@@ -420,7 +419,7 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
           loader.setNull(index + startIndex);
           continue;
         }
-        loader.setString(index + startIndex, dic.getPrimitiveObject(dicIndex).getString());
+        loader.setDictionaryIndex(index + startIndex, dicIndex);
         n++;
       }
     }
@@ -486,12 +485,12 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
               META_LENGTH + nullLength + rowGroupIndexLength + rowGroupBinaryLength,
               lengthBinaryLength);
     }
-    IDictionary dic = new PrimitiveObjectDictionary(dicSize);
+    BytesObj[] dic = new BytesObj[dicSize];
     int currentStart =
         META_LENGTH + nullLength + rowGroupIndexLength + rowGroupBinaryLength + lengthBinaryLength;
     for (int i = 0; i < dicSize; i++) {
       int currentLength = lengthReader.getInt();
-      dic.setBytes(i, binary, currentStart, currentLength);
+      dic[i] = new BytesObj(binary, currentStart, currentLength);
       currentStart += currentLength;
     }
 
@@ -553,7 +552,7 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
             currentIndex++;
           }
         } else {
-          loader.setStringToDic(dictionaryIndex, dic.getPrimitiveObject(rowGroupIndex).getString());
+          loader.setBytesToDic(dictionaryIndex, dic[rowGroupIndex].getBytes());
           for (int k = 0; k < columnBinary.repetitions[offset]; k++) {
             loader.setDictionaryIndex(currentIndex, dictionaryIndex);
             currentIndex++;
@@ -574,16 +573,13 @@ public class DictionaryRleStringColumnBinaryMaker implements IColumnBinaryMaker 
 
   @Override
   public void load(final ColumnBinary columnBinary, final ILoader loader) throws IOException {
+    if (loader.getLoaderType() != LoadType.DICTIONARY) {
+      throw new IOException("Loader type is not DICTIONARY.");
+    }
     if (columnBinary.isSetLoadSize) {
-      if (loader.getLoaderType() != LoadType.DICTIONARY) {
-        throw new IOException("Loader type is not DICTIONARY.");
-      }
       loadFromExpandColumnBinary(columnBinary, (IDictionaryLoader) loader);
     } else {
-      if (loader.getLoaderType() != LoadType.SEQUENTIAL) {
-        throw new IOException("Loader type is not SEQUENTIAL.");
-      }
-      loadFromColumnBinary(columnBinary, (ISequentialLoader) loader);
+      loadFromColumnBinary(columnBinary, (IDictionaryLoader) loader);
     }
     loader.finish();
   }
