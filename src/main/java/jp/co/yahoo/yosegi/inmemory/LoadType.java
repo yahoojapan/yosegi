@@ -23,7 +23,10 @@ public enum LoadType {
   NULL,
 
   SPREAD,
+
   ARRAY,
+  RLE_ARRAY,
+
   UNION,
 
   CONST,

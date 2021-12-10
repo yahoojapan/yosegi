@@ -50,15 +50,15 @@ public interface IDictionaryLoader<T> extends ILoader<T> {
   }
 
   default void setLongToDic( final int index , final long value ) throws IOException {
-    setNull( index );
+    setNullToDic( index );
   }
 
   default void setFloatToDic( final int index , final float value ) throws IOException {
-    setNull( index );
+    setNullToDic( index );
   }
 
   default void setDoubleToDic( final int index , final double value ) throws IOException {
-    setNull( index );
+    setNullToDic( index );
   }
 
   default void setBytesToDic( final int index , final byte[] value ) throws IOException {
