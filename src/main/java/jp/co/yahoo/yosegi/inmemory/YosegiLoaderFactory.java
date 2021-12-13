@@ -35,6 +35,8 @@ public class YosegiLoaderFactory implements ILoaderFactory<IColumn> {
 
       case UNION :
         return new YosegiUnionLoader( columnBinary , loadSize );
+      case RLE_ARRAY :
+        return new YosegiRunLengthEncodingArrayLoader( columnBinary , loadSize );
       case ARRAY :
         return new YosegiArrayLoader( columnBinary , loadSize );
       case SPREAD :

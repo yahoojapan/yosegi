@@ -29,6 +29,7 @@ import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.inmemory.IArrayLoader;
 import jp.co.yahoo.yosegi.inmemory.ILoader;
+import jp.co.yahoo.yosegi.inmemory.IRunLengthEncodingArrayLoader;
 import jp.co.yahoo.yosegi.inmemory.LoadType;
 import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
@@ -140,7 +141,11 @@ public class MaxLengthBasedArrayColumnBinaryMaker implements IColumnBinaryMaker 
 
   @Override
   public LoadType getLoadType( final ColumnBinary columnBinary , final int loadSize ) {
-    return LoadType.ARRAY;
+    if (columnBinary.isSetLoadSize) {
+      return LoadType.RLE_ARRAY;
+    } else {
+      return LoadType.ARRAY;
+    }
   }
 
   private void loadFromColumnBinary(
@@ -173,26 +178,35 @@ public class MaxLengthBasedArrayColumnBinaryMaker implements IColumnBinaryMaker 
   }
 
   private void loadFromExpandColumnBinary(
-      final ColumnBinary columnBinary , final IArrayLoader loader ) throws IOException {
+      final ColumnBinary columnBinary ,
+      final IRunLengthEncodingArrayLoader loader ) throws IOException {
     // NOTE: repetitions check
     //   LoadSize is less than real size if repetitions include negative number.
     //   It is possible to be thrown ArrayIndexOutOfBoundsException.
     int minIndex = Integer.MAX_VALUE;
+    int rowGroupCount = 0;
     for (int i = 0; i < columnBinary.repetitions.length; i++) {
       if (columnBinary.repetitions[i] < 0) {
         throw new IOException("Repetition must be equal to or greater than 0.");
       }
-      if (columnBinary.repetitions[i] > 0 && minIndex > i) {
-        minIndex = i;
+      if (columnBinary.repetitions[i] > 0) {
+        if ( minIndex > i) {
+          minIndex = i;
+        }
+        rowGroupCount++;
       }
     }
+    loader.setRowGroupCount( rowGroupCount );
+
     // NOTE: all null case.
     int nullOffset = 0;
     if (minIndex >= columnBinary.rowCount) {
+      int rowGroupIndex = 0;
       for (int i = minIndex; i < columnBinary.repetitions.length; i++) {
-        for (int j = 0; j < columnBinary.repetitions[i]; j++) {
-          loader.setNull(nullOffset);
-          nullOffset++;
+        if (columnBinary.repetitions[i] > 0) {
+          loader.setNullAndRepetitions(nullOffset, columnBinary.repetitions[i], rowGroupIndex);
+          rowGroupIndex++;
+          nullOffset += columnBinary.repetitions[i];
         }
       }
       return;
@@ -223,6 +237,7 @@ public class MaxLengthBasedArrayColumnBinaryMaker implements IColumnBinaryMaker 
 
     int loadOffset = 0;
     int childLength = 0;
+    int rowGourpCount = 0;
     List<Integer> childRepetitions = new ArrayList<>();
     for (int i = 0; i < columnBinary.repetitions.length; i++) {
       if (columnBinary.repetitions[i] == 0) {
@@ -236,24 +251,21 @@ public class MaxLengthBasedArrayColumnBinaryMaker implements IColumnBinaryMaker 
         continue;
       }
       if (i >= columnBinary.rowCount || isNullArray[i]) {
-        for (int j = 0; j < columnBinary.repetitions[i]; j++) {
-          loader.setNull(loadOffset);
-          loadOffset++;
-        }
+        loader.setNullAndRepetitions(loadOffset, columnBinary.repetitions[i], rowGourpCount);
         // NOTE: child does not inherit parent's repetitions.
         childLength++;
         childRepetitions.add(1);
       } else {
-        for (int j = 0; j < columnBinary.repetitions[i]; j++) {
-          loader.setArrayIndex(loadOffset, startArray[i], lengthArray[i]);
-          loadOffset++;
-        }
+        loader.setRowGourpIndexAndRepetitions(
+            loadOffset, columnBinary.repetitions[i], rowGourpCount, startArray[i], lengthArray[i]);
         // NOTE: child does not inherit parent's repetitions.
         childLength += lengthArray[i];
         for (int j = 0; j < lengthArray[i]; j++) {
           childRepetitions.add(1);
         }
       }
+      loadOffset += columnBinary.repetitions[i];
+      rowGourpCount++;
     }
 
     ColumnBinary child = columnBinary.columnBinaryList.get(0);
@@ -265,13 +277,15 @@ public class MaxLengthBasedArrayColumnBinaryMaker implements IColumnBinaryMaker 
   @Override
   public void load(
       final ColumnBinary columnBinary , final ILoader loader ) throws IOException {
-    if ( loader.getLoaderType() != LoadType.ARRAY ) {
-      throw new IOException( "Loader type is not ARRAY." );
-    }
-
     if (columnBinary.isSetLoadSize) {
-      loadFromExpandColumnBinary(columnBinary, (IArrayLoader) loader);
+      if ( loader.getLoaderType() != LoadType.RLE_ARRAY ) {
+        throw new IOException( "Loader type is not RLE ARRAY." );
+      }
+      loadFromExpandColumnBinary(columnBinary, (IRunLengthEncodingArrayLoader) loader);
     } else {
+      if ( loader.getLoaderType() != LoadType.ARRAY ) {
+        throw new IOException( "Loader type is not ARRAY." );
+      }
       loadFromColumnBinary(columnBinary, (IArrayLoader) loader);
     }
     loader.finish();
