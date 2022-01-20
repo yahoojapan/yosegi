@@ -64,11 +64,11 @@ custom_filters:
   master_only: &master_only
     filters:
       branches:
-        only: master
+        only: "2.0"
   master_ignore: &master_ignore
     filters:
       branches:
-        ignore: master
+        ignore: "2.0"
 
 workflows:
   build-and-test:
