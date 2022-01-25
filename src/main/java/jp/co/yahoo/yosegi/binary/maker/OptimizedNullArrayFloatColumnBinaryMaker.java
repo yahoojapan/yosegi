@@ -250,7 +250,7 @@ public class OptimizedNullArrayFloatColumnBinaryMaker implements IColumnBinaryMa
 
     IReadSupporter indexReader =
         indexConverter.toReadSupporter(binary, META_LENGTH + nullIndexLength, indexLength);
-    int index = startIndex;
+    int index = 0;
     for (; index < startIndex; index++) {
       loader.setNull(index);
     }
