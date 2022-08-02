@@ -18,14 +18,17 @@
 
 package jp.co.yahoo.yosegi.spread.flatten;
 
+import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.spread.Spread;
+
+import java.util.List;
 
 public interface IFlattenFunction {
 
   boolean isFlatten();
 
-  Spread flatten( final Spread spread );
+  List<ColumnBinary> flattenFromColumnBinary( final List<ColumnBinary> columnBinaryList );
 
   String[] getFlattenColumnName( final String linkColumnName );
 

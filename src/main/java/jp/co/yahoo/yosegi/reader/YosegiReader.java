@@ -19,8 +19,11 @@
 package jp.co.yahoo.yosegi.reader;
 
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
+import jp.co.yahoo.yosegi.binary.FindColumnBinaryMaker;
+import jp.co.yahoo.yosegi.binary.maker.IColumnBinaryMaker;
 import jp.co.yahoo.yosegi.block.BlockReaderNameShortCut;
 import jp.co.yahoo.yosegi.block.IBlockReader;
+import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.config.Configuration;
 import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.expression.IExpressionNode;
@@ -182,12 +185,29 @@ public class YosegiReader implements AutoCloseable {
 
   /**
    * Get the next Spread as a Spread.
+   * @deprecated Data conversion is integrated into WrapReader.
    */
   public Spread next() throws IOException {
     if ( ! setNextBlock() ) {
       return new Spread();
     }
     return currentBlockReader.next();
+  }
+
+  private List<ColumnBinary> localSpredPushdown(
+      final List<ColumnBinary> columnBinaryList ) throws IOException {
+    if ( blockSkipIndex != null ) {
+      BlockIndexNode blockIndexNode = new BlockIndexNode();
+      for ( ColumnBinary columnBinary : columnBinaryList ) {
+        IColumnBinaryMaker maker = FindColumnBinaryMaker.get( columnBinary.makerClassName );
+        maker.setBlockIndexNode( blockIndexNode , columnBinary , 0 );
+      }
+      List<Integer> blockIndexList = blockSkipIndex.getBlockSpreadIndex( blockIndexNode );
+      if ( blockIndexList != null && blockIndexList.isEmpty() ) {
+        return new ArrayList<ColumnBinary>();
+      }
+    }
+    return columnBinaryList;
   }
 
   /**
@@ -197,7 +217,7 @@ public class YosegiReader implements AutoCloseable {
     if ( ! setNextBlock() ) {
       return new ArrayList<ColumnBinary>();
     }
-    return currentBlockReader.nextRaw();
+    return localSpredPushdown( currentBlockReader.nextRaw() );
   }
 
   public int getBlockReadCount() {

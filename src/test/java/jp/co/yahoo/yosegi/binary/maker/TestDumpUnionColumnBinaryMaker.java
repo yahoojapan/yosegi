@@ -20,6 +20,7 @@ package jp.co.yahoo.yosegi.binary.maker;
 import java.io.IOException;
 import java.util.stream.Stream;
 
+import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -46,6 +47,12 @@ import jp.co.yahoo.yosegi.message.objects.*;
 
 public class TestDumpUnionColumnBinaryMaker {
 
+  public IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
+    int loadCount =
+        (columnBinary.isSetLoadSize) ? columnBinary.loadSize : columnBinary.rowCount;
+    return new YosegiLoaderFactory().create(columnBinary, loadCount);
+  }
+
   @Test
   public void T_toBinary_1() throws IOException{
     IColumn firstColumn = new PrimitiveColumn( ColumnType.STRING , "UNION" );
@@ -64,7 +71,7 @@ public class TestDumpUnionColumnBinaryMaker {
     assertEquals( columnBinary.rowCount , 2 );
     assertEquals( columnBinary.columnType , ColumnType.UNION );
 
-    IColumn decodeColumn = maker.toColumn( columnBinary );
+    IColumn decodeColumn = toColumn(columnBinary);
     assertEquals( decodeColumn.getColumnKeys().size() , 0 );
     assertEquals( decodeColumn.getColumnSize() , 0 );
 

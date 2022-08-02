@@ -18,12 +18,9 @@
 
 package jp.co.yahoo.yosegi.spread.column;
 
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.DoubleObj;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
-import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 import org.apache.arrow.vector.Float8Vector;
 
 import java.io.IOException;
@@ -69,47 +66,6 @@ public class ArrowDoubleConnector implements IArrowPrimitiveConnector {
   @Override
   public void clear() {
     vector.clear();
-  }
-
-  @Override
-  public void setIndex( final ICellIndex index ) {
-    throw new UnsupportedOperationException( "This column is read only." );
-  }
-
-  @Override
-  public boolean[] filter( final IFilter filter , final boolean[] filterArray ) throws IOException {
-    throw new UnsupportedOperationException( "This column is read only." );
-  }
-
-  @Override
-  public PrimitiveObject[] getPrimitiveObjectArray(
-      final IExpressionIndex indexList , final int start , final int length ) {
-    PrimitiveObject[] result = new PrimitiveObject[length];
-    for ( int i = start ; i < ( start + length ) && i < size() ; i++ ) {
-      if ( ! vector.isNull( i ) ) {
-        result[i - start] =  new DoubleObj( vector.get( i ) );
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public void setPrimitiveObjectArray(
-      final IExpressionIndex indexList ,
-      final int start ,
-      final int length ,
-      final IMemoryAllocator allocator ) {
-    for ( int i = start ; i < ( start + length ) && i < size() ; i++ ) {
-      if ( vector.isNull( i ) ) {
-        allocator.setNull( i - start );
-      } else {
-        try {
-          allocator.setPrimitiveObject( i - start , new DoubleObj( vector.get( i ) ) );
-        } catch ( IOException ex ) {
-          throw new RuntimeException( ex );
-        }
-      }
-    }
   }
 
 }

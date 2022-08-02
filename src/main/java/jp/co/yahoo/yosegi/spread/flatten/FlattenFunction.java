@@ -18,6 +18,7 @@
 
 package jp.co.yahoo.yosegi.spread.flatten;
 
+import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
@@ -76,26 +77,31 @@ public class FlattenFunction implements IFlattenFunction {
     }
   }
 
-  private Spread allRead( final Spread spread ) {
-    Spread newSpread = new Spread();
+  private List<ColumnBinary> allReadFromColumnBinary(
+      final List<ColumnBinary> columnBinaryList ) {
+    List<ColumnBinary> newColumnBinaryList = new ArrayList<ColumnBinary>();
     for ( FlattenColumn flattenColumn : flattenColumnList ) {
-      IColumn column = flattenColumn.getColumn( spread );
-      newSpread.addColumn( column );
+      ColumnBinary columnBinary = flattenColumn.getColumnBinary( columnBinaryList );
+      if ( columnBinary != null ) {
+        newColumnBinaryList.add( columnBinary );
+      }
     }
-    newSpread.setRowCount( spread.size() );
 
-    return newSpread;
+    return newColumnBinaryList;
   }
 
-  private Spread filterRead( final Spread spread ) {
-    Spread newSpread = new Spread();
+  private List<ColumnBinary> filterReadFromColumnBinary(
+      final List<ColumnBinary> columnBinaryList ) {
+    List<ColumnBinary> newColumnBinaryList = new ArrayList<ColumnBinary>();
     for ( String linkName : filterColumnList ) {
-      IColumn column = flattenColumnMap.get( linkName ).getColumn( spread );
-      newSpread.addColumn( column );
+      ColumnBinary columnBinary =
+          flattenColumnMap.get( linkName ).getColumnBinary( columnBinaryList );
+      if ( columnBinary != null ) {
+        newColumnBinaryList.add( columnBinary );
+      }
     }
-    newSpread.setRowCount( spread.size() );
 
-    return newSpread;
+    return newColumnBinaryList;
   }
 
   @Override
@@ -104,11 +110,12 @@ public class FlattenFunction implements IFlattenFunction {
   }
 
   @Override
-  public Spread flatten( final Spread spread ) {
+  public List<ColumnBinary> flattenFromColumnBinary(
+      final List<ColumnBinary> columnBinaryList ) {
     if ( filterColumnList.isEmpty() ) {
-      return allRead( spread );
+      return allReadFromColumnBinary( columnBinaryList );
     } else {
-      return filterRead( spread );
+      return filterReadFromColumnBinary( columnBinaryList );
     }
   }
 

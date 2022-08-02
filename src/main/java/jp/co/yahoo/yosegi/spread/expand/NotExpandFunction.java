@@ -18,8 +18,8 @@
 
 package jp.co.yahoo.yosegi.spread.expand;
 
+import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
-import jp.co.yahoo.yosegi.spread.Spread;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,13 +28,13 @@ import java.util.List;
 public class NotExpandFunction implements IExpandFunction {
 
   @Override
-  public Spread expand( final Spread spread ) throws IOException {
-    return spread;
+  public int expandFromColumnBinary(
+      final List<ColumnBinary> columnBinaryList , final int spreadSize ) throws IOException {
+    return spreadSize;
   }
 
   @Override
-  public void expandIndexNode( final BlockIndexNode rootNode ) throws IOException {
-  }
+  public void expandIndexNode( final BlockIndexNode rootNode ) throws IOException {}
 
   @Override
   public String[] getExpandLinkColumnName( final String linkName ) {

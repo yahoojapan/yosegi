@@ -22,13 +22,15 @@ import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
-import jp.co.yahoo.yosegi.binary.maker.index.RangeFloatIndex;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.blockindex.FloatRangeBlockIndex;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
+import jp.co.yahoo.yosegi.inmemory.ILoader;
+import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
+import jp.co.yahoo.yosegi.inmemory.LoadType;
+import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 import jp.co.yahoo.yosegi.message.objects.FloatObj;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.analyzer.FloatColumnAnalizeResult;
@@ -211,36 +213,21 @@ public class OptimizedNullArrayFloatColumnBinaryMaker implements IColumnBinaryMa
   }
 
   @Override
-  public IColumn toColumn( final ColumnBinary columnBinary ) throws IOException {
-    ByteBuffer wrapBuffer = ByteBuffer.wrap(
-        columnBinary.binary , columnBinary.binaryStart , columnBinary.binaryLength );
-    Float min = Float.valueOf( wrapBuffer.getFloat() );
-    Float max = Float.valueOf( wrapBuffer.getFloat() );
-
-    return new HeaderIndexLazyColumn(
-      columnBinary.columnName ,
-      columnBinary.columnType ,
-      new ColumnManager(
-        columnBinary
-      ) ,
-      new RangeFloatIndex( min , max )
-    );
+  public LoadType getLoadType(final ColumnBinary columnBinary, final int loadSize) {
+    return LoadType.SEQUENTIAL;
   }
 
-  @Override
-  public void loadInMemoryStorage(
-      final ColumnBinary columnBinary ,
-      final IMemoryAllocator allocator ) throws IOException {
-    int start = columnBinary.binaryStart + ( Float.BYTES * 2 );
-    int length = columnBinary.binaryLength - ( Float.BYTES * 2 );
+  private void loadFromColumnBinary(final ColumnBinary columnBinary, final ISequentialLoader loader)
+      throws IOException {
+    int start = columnBinary.binaryStart + (Float.BYTES * 2);
+    int length = columnBinary.binaryLength - (Float.BYTES * 2);
 
-    ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-    byte[] binary = compressor.decompress( columnBinary.binary , start , length );
+    ICompressor compressor = FindCompressor.get(columnBinary.compressorClassName);
+    byte[] binary = compressor.decompress(columnBinary.binary, start, length);
 
-    ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
+    ByteBuffer wrapBuffer = ByteBuffer.wrap(binary, 0, binary.length);
 
-    ByteOrder order = wrapBuffer.get() == (byte)0
-        ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+    ByteOrder order = wrapBuffer.get() == (byte) 0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
     int startIndex = wrapBuffer.getInt();
     final int rowCount = wrapBuffer.getInt();
     int nullIndexLength = wrapBuffer.getInt();
@@ -249,36 +236,118 @@ public class OptimizedNullArrayFloatColumnBinaryMaker implements IColumnBinaryMa
     int dicSize = dicLength / Float.BYTES;
 
     NumberToBinaryUtils.IIntConverter indexConverter =
-        NumberToBinaryUtils.getIntConverter( 0 , dicSize );
+        NumberToBinaryUtils.getIntConverter(0, dicSize);
 
-    boolean[] isNullArray =
-        NullBinaryEncoder.toIsNullArray( binary , META_LENGTH , nullIndexLength );
+    boolean[] isNullArray = NullBinaryEncoder.toIsNullArray(binary, META_LENGTH, nullIndexLength);
 
-    IReadSupporter dicReader = ByteBufferSupporterFactory.createReadSupporter(
-        binary,
-        META_LENGTH + nullIndexLength + indexLength,
-        dicLength,
-        order );
+    IReadSupporter dicReader =
+        ByteBufferSupporterFactory.createReadSupporter(
+            binary, META_LENGTH + nullIndexLength + indexLength, dicLength, order);
     float[] dicArray = new float[dicSize];
-    for ( int i = 0 ; i < dicArray.length ; i++ ) {
+    for (int i = 0; i < dicArray.length; i++) {
       dicArray[i] = dicReader.getFloat();
     }
 
-    allocator.setValueCount( startIndex + isNullArray.length );
-
     IReadSupporter indexReader =
-        indexConverter.toReadSupporter( binary , META_LENGTH + nullIndexLength , indexLength );
-    int index = startIndex;
-    for ( ; index < startIndex ; index++ ) {
-      allocator.setNull( index );
+        indexConverter.toReadSupporter(binary, META_LENGTH + nullIndexLength, indexLength);
+    int index = 0;
+    for (; index < startIndex; index++) {
+      loader.setNull(index);
     }
-    for ( int i = 0 ; i < isNullArray.length ; i++,index++ ) {
-      if ( isNullArray[i]  ) {
-        allocator.setNull( index );
+    for (int i = 0; i < isNullArray.length; i++, index++) {
+      if (isNullArray[i]) {
+        loader.setNull(index);
       } else {
-        allocator.setFloat( index , dicArray[indexReader.getInt()] );
+        loader.setFloat(index, dicArray[indexReader.getInt()]);
       }
     }
+    // NOTE: null padding up to load size
+    for (int i = index; i < loader.getLoadSize(); i++) {
+      loader.setNull(i);
+    }
+  }
+
+  private void loadFromExpandColumnBinary(
+      final ColumnBinary columnBinary, final ISequentialLoader loader) throws IOException {
+    int start = columnBinary.binaryStart + (Float.BYTES * 2);
+    int length = columnBinary.binaryLength - (Float.BYTES * 2);
+
+    ICompressor compressor = FindCompressor.get(columnBinary.compressorClassName);
+    byte[] binary = compressor.decompress(columnBinary.binary, start, length);
+
+    ByteBuffer wrapBuffer = ByteBuffer.wrap(binary, 0, binary.length);
+
+    ByteOrder order = wrapBuffer.get() == (byte) 0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+    int startIndex = wrapBuffer.getInt();
+    final int rowCount = wrapBuffer.getInt();
+    int nullIndexLength = wrapBuffer.getInt();
+    int indexLength = wrapBuffer.getInt();
+    int dicLength = binary.length - META_LENGTH - nullIndexLength - indexLength;
+    int dicSize = dicLength / Float.BYTES;
+
+    NumberToBinaryUtils.IIntConverter indexConverter =
+        NumberToBinaryUtils.getIntConverter(0, dicSize);
+
+    boolean[] isNullArray = NullBinaryEncoder.toIsNullArray(binary, META_LENGTH, nullIndexLength);
+
+    IReadSupporter dicReader =
+        ByteBufferSupporterFactory.createReadSupporter(
+            binary, META_LENGTH + nullIndexLength + indexLength, dicLength, order);
+    float[] dicArray = new float[dicSize];
+    for (int i = 0; i < dicArray.length; i++) {
+      dicArray[i] = dicReader.getFloat();
+    }
+
+    IReadSupporter indexReader =
+        indexConverter.toReadSupporter(binary, META_LENGTH + nullIndexLength, indexLength);
+
+    // NOTE: repetitions check
+    //   LoadSize is less than real size if repetitions include negative number.
+    //   It is possible to be thrown ArrayIndexOutOfBoundsException.
+    for (int i = 0; i < columnBinary.repetitions.length; i ++) {
+      if (columnBinary.repetitions[i] < 0) {
+        throw new IOException("Repetition must be equal to or greater than 0.");
+      }
+    }
+
+    // NOTE:
+    //   Set: currentIndex, value
+    int lastIndex = startIndex + isNullArray.length - 1;
+    int currentIndex = 0;
+    for (int i = 0; i < columnBinary.repetitions.length; i++) {
+      if (columnBinary.repetitions[i] == 0) {
+        if (i >= startIndex && i <= lastIndex && !isNullArray[i - startIndex]) {
+          // NOTE: read skip
+          indexReader.getInt();
+        }
+        continue;
+      }
+      if (i > lastIndex || i < startIndex || isNullArray[i - startIndex]) {
+        for (int j = 0; j < columnBinary.repetitions[i]; j++) {
+          loader.setNull(currentIndex);
+          currentIndex++;
+        }
+      } else {
+        float value = dicArray[indexReader.getInt()];
+        for (int j = 0; j < columnBinary.repetitions[i]; j++) {
+          loader.setFloat(currentIndex, value);
+          currentIndex++;
+        }
+      }
+    }
+  }
+
+  @Override
+  public void load(final ColumnBinary columnBinary, final ILoader loader) throws IOException {
+    if (loader.getLoaderType() != LoadType.SEQUENTIAL) {
+      throw new IOException("Loader type is not SEQUENTIAL");
+    }
+    if (columnBinary.isSetLoadSize) {
+      loadFromExpandColumnBinary(columnBinary, (ISequentialLoader) loader);
+    } else {
+      loadFromColumnBinary(columnBinary, (ISequentialLoader) loader);
+    }
+    loader.finish();
   }
 
   @Override
@@ -293,94 +362,4 @@ public class OptimizedNullArrayFloatColumnBinaryMaker implements IColumnBinaryMa
     BlockIndexNode currentNode = parentNode.getChildNode( columnBinary.columnName );
     currentNode.setBlockIndex( new FloatRangeBlockIndex( min , max ) );
   }
-
-  public class ColumnManager implements IColumnManager {
-
-    private final ColumnBinary columnBinary;
-
-    private PrimitiveColumn column;
-    private boolean isCreate;
-
-    public ColumnManager(
-        final ColumnBinary columnBinary ) {
-      this.columnBinary = columnBinary;
-    }
-
-    private void create() throws IOException {
-      if ( isCreate ) {
-        return;
-      }
-      int start = columnBinary.binaryStart + ( Float.BYTES * 2 );
-      int length = columnBinary.binaryLength - ( Float.BYTES * 2 );
-
-      ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-      byte[] binary = compressor.decompress( columnBinary.binary , start , length );
-
-      ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
-
-      ByteOrder order = wrapBuffer.get() == (byte)0
-          ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-      final int startIndex = wrapBuffer.getInt();
-      int rowCount = wrapBuffer.getInt();
-      int nullIndexLength = wrapBuffer.getInt();
-      int indexLength = wrapBuffer.getInt();
-      int dicLength = binary.length - META_LENGTH - nullIndexLength - indexLength;
-      int dicSize = dicLength / Float.BYTES;
-
-      NumberToBinaryUtils.IIntConverter indexConverter =
-          NumberToBinaryUtils.getIntConverter( 0 , dicSize );
-
-      boolean[] isNullArray =
-          NullBinaryEncoder.toIsNullArray( binary , META_LENGTH , nullIndexLength ); 
-
-      IReadSupporter indexReader =
-          indexConverter.toReadSupporter( binary , META_LENGTH + nullIndexLength , indexLength );
-      int[] indexArray = new int[isNullArray.length];
-      for ( int i = 0 ; i < indexArray.length ; i++ ) {
-        if ( ! isNullArray[i] ) {
-          indexArray[i] = indexReader.getInt();
-        }
-      }
-
-      IReadSupporter dicReader = ByteBufferSupporterFactory.createReadSupporter(
-          binary,
-          META_LENGTH + nullIndexLength + indexLength,
-          dicLength,
-          order );
-      PrimitiveObject[] dicArray = new PrimitiveObject[dicSize];
-      for ( int i = 0 ; i < dicArray.length ; i++ ) {
-        dicArray[i] = new FloatObj( dicReader.getFloat() );
-      }
-
-      column = new PrimitiveColumn( columnBinary.columnType , columnBinary.columnName );
-      column.setCellManager( new OptimizedNullArrayDicCellManager(
-          columnBinary.columnType , startIndex , isNullArray , indexArray , dicArray ) );
-
-      isCreate = true;
-    }
-
-    @Override
-    public IColumn get() {
-      if ( ! isCreate ) {
-        try {
-          create();
-        } catch ( IOException ex ) {
-          throw new UncheckedIOException( ex );
-        }
-      }
-      return column;
-    }
-
-    @Override
-    public List<String> getColumnKeys() {
-      return new ArrayList<String>();
-    }
-
-    @Override
-    public int getColumnSize() {
-      return 0;
-    }
-
-  }
-
 }

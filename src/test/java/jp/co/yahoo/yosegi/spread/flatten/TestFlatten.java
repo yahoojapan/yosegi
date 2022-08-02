@@ -18,8 +18,11 @@
 package jp.co.yahoo.yosegi.spread.flatten;
 
 import jp.co.yahoo.yosegi.config.Configuration;
+import jp.co.yahoo.yosegi.inmemory.SpreadRawConverter;
 import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.message.objects.*;
+import jp.co.yahoo.yosegi.reader.*;
+import jp.co.yahoo.yosegi.writer.*;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -30,12 +33,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.Map;
 import java.util.HashMap;
 
 public class TestFlatten {
 
-  private Spread createNewSpread() throws IOException {
+  private Spread createNewSpread( final Configuration readerConfig ) throws IOException {
     Spread spread = new Spread();
     Map<String,Object> root = new HashMap<String,Object>();
     root.put( "C1" , new StringObj( "a" ) );
@@ -47,7 +52,18 @@ public class TestFlatten {
     child.put( "C3" , new StringObj( "cc" ) );
     root.put( "c4" , child );
     spread.addRow( root );
-    return spread;
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    YosegiWriter writer = new YosegiWriter( out , new Configuration() );
+    writer.append( spread );
+    writer.close();
+    byte[] data = out.toByteArray();
+
+    ByteArrayInputStream in = new ByteArrayInputStream( data );
+    YosegiReader reader = new YosegiReader();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<>(reader, new SpreadRawConverter());
+    reader.setNewStream( in , data.length , readerConfig );
+    return spreadWrapReader.next();
   }
 
   @Test
@@ -62,9 +78,7 @@ public class TestFlatten {
     json += "]";
     Configuration config = new Configuration();
     config.set( "spread.reader.flatten.column" , json );
-    IFlattenFunction flattenFunction = FlattenFunctionFactory.get( config );
-    assertTrue( ( flattenFunction instanceof FlattenFunction ) );
-    Spread flattenSpread = flattenFunction.flatten( createNewSpread() );
+    Spread flattenSpread = createNewSpread( config );
     assertEquals( "a" , ( (PrimitiveObject)( flattenSpread.getColumn( "root_c1" ).get(0).getRow() ) ).getString() );
     assertEquals( "b" , ( (PrimitiveObject)( flattenSpread.getColumn( "root_c2" ).get(0).getRow() ) ).getString() );
     assertEquals( "c" , ( (PrimitiveObject)( flattenSpread.getColumn( "root_c3" ).get(0).getRow() ) ).getString() );
@@ -84,9 +98,7 @@ public class TestFlatten {
     json += "]}";
     Configuration config = new Configuration();
     config.set( "spread.reader.flatten.column" , json );
-    IFlattenFunction flattenFunction = FlattenFunctionFactory.get( config );
-    assertTrue( ( flattenFunction instanceof FlattenFunction ) );
-    Spread flattenSpread = flattenFunction.flatten( createNewSpread() );
+    Spread flattenSpread = createNewSpread( config );
     assertEquals( "a" , ( (PrimitiveObject)( flattenSpread.getColumn( "root_c1" ).get(0).getRow() ) ).getString() );
     assertEquals( "b" , ( (PrimitiveObject)( flattenSpread.getColumn( "root_c2" ).get(0).getRow() ) ).getString() );
     assertEquals( "c" , ( (PrimitiveObject)( flattenSpread.getColumn( "root_c3" ).get(0).getRow() ) ).getString() );
@@ -111,9 +123,7 @@ public class TestFlatten {
     Configuration config = new Configuration();
     config.set( "spread.reader.flatten.column.v1" , jsonV1 );
     config.set( "spread.reader.flatten.column.v2" , jsonV2 );
-    IFlattenFunction flattenFunction = FlattenFunctionFactory.get( config );
-    assertTrue( ( flattenFunction instanceof FlattenFunction ) );
-    Spread flattenSpread = flattenFunction.flatten( createNewSpread() );
+    Spread flattenSpread = createNewSpread( config );
     assertEquals( "a" , ( (PrimitiveObject)( flattenSpread.getColumn( "root_c1" ).get(0).getRow() ) ).getString() );
     assertEquals( "b" , ( (PrimitiveObject)( flattenSpread.getColumn( "root_c2" ).get(0).getRow() ) ).getString() );
     assertEquals( "c" , ( (PrimitiveObject)( flattenSpread.getColumn( "root_c3" ).get(0).getRow() ) ).getString() );
@@ -134,9 +144,7 @@ public class TestFlatten {
     json += "]";
     Configuration config = new Configuration();
     config.set( "spread.reader.flatten.column" , json );
-    IFlattenFunction flattenFunction = FlattenFunctionFactory.get( config );
-    assertTrue( ( flattenFunction instanceof FlattenFunction ) );
-    Spread flattenSpread = flattenFunction.flatten( createNewSpread() );
+    Spread flattenSpread = createNewSpread( config );
     assertEquals( "a" , ( (PrimitiveObject)( flattenSpread.getColumn( "c" ).get(0).getRow() ) ).getString() );
     assertEquals( "b" , ( (PrimitiveObject)( flattenSpread.getColumn( "c_0" ).get(0).getRow() ) ).getString() );
     assertEquals( "c" , ( (PrimitiveObject)( flattenSpread.getColumn( "c_1" ).get(0).getRow() ) ).getString() );
@@ -157,9 +165,7 @@ public class TestFlatten {
     json += "]";
     Configuration config = new Configuration();
     config.set( "spread.reader.flatten.column" , json );
-    IFlattenFunction flattenFunction = FlattenFunctionFactory.get( config );
-    assertTrue( ( flattenFunction instanceof FlattenFunction ) );
-    Spread flattenSpread = flattenFunction.flatten( createNewSpread() );
+    Spread flattenSpread = createNewSpread( config );
     assertEquals( "a" , ( (PrimitiveObject)( flattenSpread.getColumn( "c" ).get(0).getRow() ) ).getString() );
     assertEquals( "b" , ( (PrimitiveObject)( flattenSpread.getColumn( "c_0" ).get(0).getRow() ) ).getString() );
     assertEquals( "c" , ( (PrimitiveObject)( flattenSpread.getColumn( "c_1" ).get(0).getRow() ) ).getString() );

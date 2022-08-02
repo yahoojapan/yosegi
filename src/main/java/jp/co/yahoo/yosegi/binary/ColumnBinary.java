@@ -85,6 +85,10 @@ public class ColumnBinary {
 
   public List<ColumnBinary> columnBinaryList;
 
+  public int[] repetitions;
+  public int loadSize;
+  public boolean isSetLoadSize;
+
   /**
    * Create an object initialized with argument values.
    * There is a risk that the value set at initialization is rewritten
@@ -311,6 +315,38 @@ public class ColumnBinary {
     }
 
     return columnStats;
+  }
+
+  /**
+   * Sets the repetition of the element.
+   */
+  public void setRepetitions( final int[] repetitions , final int loadSize ) {
+    this.repetitions = repetitions;
+    this.loadSize = loadSize;
+    isSetLoadSize = true;
+  }
+
+  /**
+   * Create rename column binary.
+   */
+  public ColumnBinary createRenameColumnBinary( final String newName ) {
+    ColumnBinary newColumnBinary = new ColumnBinary(
+        makerClassName,
+        compressorClassName,
+        newName,
+        columnType,
+        rowCount,
+        rawDataSize,
+        logicalDataSize,
+        cardinality,
+        binary,
+        binaryStart,
+        binaryLength,
+        columnBinaryList );
+    if ( isSetLoadSize ) {
+      newColumnBinary.setRepetitions( repetitions , loadSize );
+    }
+    return newColumnBinary;
   }
 
 }

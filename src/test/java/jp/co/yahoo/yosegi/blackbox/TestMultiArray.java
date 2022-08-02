@@ -26,6 +26,8 @@ import java.io.InputStreamReader;
 
 import java.util.stream.Stream;
 
+import jp.co.yahoo.yosegi.inmemory.SpreadRawConverter;
+import jp.co.yahoo.yosegi.reader.WrapReader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -70,12 +72,13 @@ public class TestMultiArray{
   @Test
   public void T_1() throws IOException{
     try(YosegiReader reader = new YosegiReader()) {
+      WrapReader<Spread> spreadWrapReader = new WrapReader<>(reader, new SpreadRawConverter());
       Configuration readerConfig = new Configuration();
       byte[] data = out.toByteArray();
       InputStream fileIn = new ByteArrayInputStream(data);
       reader.setNewStream(fileIn, data.length, readerConfig);
-      while (reader.hasNext()) {
-        Spread spread = reader.next();
+      while (spreadWrapReader.hasNext()) {
+        Spread spread = spreadWrapReader.next();
         IColumn unionColumn = spread.getColumn("array1");
         assertEquals(unionColumn.getColumnType(), ColumnType.ARRAY);
       }
@@ -85,13 +88,14 @@ public class TestMultiArray{
   @Test
   public void T_2() throws IOException{
     YosegiReader reader = new YosegiReader();
+    WrapReader<Spread> spreadWrapReader = new WrapReader<>(reader, new SpreadRawConverter());
     Configuration readerConfig = new Configuration();
     readerConfig.set("spread.reader.expand.column", "{ \"base\" : { \"node\" : \"array1\" , \"link_name\" : \"expand_array1\", \"child_node\" : { \"node\" : \"array2\"  , \"link_name\" : \"expand_array2\"  } } }");
     byte[] data = out.toByteArray();
     InputStream fileIn = new ByteArrayInputStream(data);
     reader.setNewStream(fileIn, data.length, readerConfig);
-    while (reader.hasNext()) {
-      Spread spread = reader.next();
+    while (spreadWrapReader.hasNext()) {
+      Spread spread = spreadWrapReader.next();
       IColumn spreadColumn = spread.getColumn("expand_array2");
       assertEquals(spreadColumn.getColumnType(), ColumnType.SPREAD);
       IColumn stringColumn = spreadColumn.getColumn("array2-string");
@@ -107,14 +111,15 @@ public class TestMultiArray{
   @Test
   public void T_3() throws IOException{
     try(YosegiReader reader = new YosegiReader()) {
+      WrapReader<Spread> spreadWrapReader = new WrapReader<>(reader, new SpreadRawConverter());
       Configuration readerConfig = new Configuration();
       readerConfig.set("spread.reader.expand.column", "{ \"base\" : { \"node\" : \"array1\" , \"link_name\" : \"expand_array1\", \"child_node\" : { \"node\" : \"array2\"  , \"link_name\" : \"expand_array2\"  } } }");
       readerConfig.set("spread.reader.flatten.column", "[ { \"link_name\" : \"string\" , \"nodes\" : [\"expand_array2\" , \"array2-string\"] } , { \"link_name\" : \"integer\" , \"nodes\" : [\"expand_array2\" , \"array2-integer\"] } ]");
       byte[] data = out.toByteArray();
       InputStream fileIn = new ByteArrayInputStream(data);
       reader.setNewStream(fileIn, data.length, readerConfig);
-      while (reader.hasNext()) {
-        Spread spread = reader.next();
+      while (spreadWrapReader.hasNext()) {
+        Spread spread = spreadWrapReader.next();
         IColumn stringColumn = spread.getColumn("string");
         assertEquals(3, stringColumn.size());
         IColumn integerColumn = spread.getColumn("integer");
@@ -135,13 +140,14 @@ public class TestMultiArray{
   @Test
   public void T_6() throws IOException{
     try(YosegiReader reader = new YosegiReader()) {
+      WrapReader<Spread> spreadWrapReader = new WrapReader<>(reader, new SpreadRawConverter());
       Configuration readerConfig = new Configuration();
       readerConfig.set("spread.reader.expand.column", "{ \"base\" : { \"node\" : \"array1\" , \"link_name\" : \"expand_array1\", \"child_node\" : { \"node\" : \"spread\"  , \"child_node\" : { \"node\" : \"array2\"  ,  \"link_name\" : \"expand_array2\" , \"child_node\" : { \"node\" : \"array3\"  ,  \"link_name\" : \"expand_array3\" }  }  } } }");
       byte[] data = out.toByteArray();
       InputStream fileIn = new ByteArrayInputStream(data);
       reader.setNewStream(fileIn, data.length, readerConfig);
-      while (reader.hasNext()) {
-        Spread spread = reader.next();
+      while (spreadWrapReader.hasNext()) {
+        Spread spread = spreadWrapReader.next();
         IColumn stringColumn = spread.getColumn("expand_array3");
         assertEquals(3, stringColumn.size());
 

@@ -55,53 +55,16 @@ public class TestYosegiSchemaSpreadReader{
     data.put( "col3" , new StringObj( "b" ) );
     spread.addRow( data );
 
-    IExpressionNode node = new AndExpressionNode();
-    node.addChildNode( new ExecuterNode( new StringExtractNode( "col3" ) , new BackwardMatchStringFilter( "a" ) ) );
-    YosegiSchemaSpreadReader reader = new YosegiSchemaSpreadReader( spread , node );
-    IParser parser = reader.next();
-    PrimitiveObject a = parser.get( "col3" );
-    assertEquals( "a" , a.getString() );
-    parser = reader.next();
-    a = parser.get( "col3" );
-    assertEquals( "b" , a.getString() );
-    reader.close();
-  }
-
-  @Test
-  public void T_parser_2() throws IOException{
-    Spread spread = new Spread();
-    Map<String,Object> data = new HashMap<String,Object>();
-    data.put( "col3" , new StringObj( "a" ) );
-    spread.addRow( data );
-    data.put( "col3" , new StringObj( "b" ) );
-    spread.addRow( data );
-
-    YosegiSchemaSpreadReader reader = new YosegiSchemaSpreadReader( spread , null );
-    IParser parser = reader.next();
-    PrimitiveObject a = parser.get( "col3" );
-    assertEquals( "a" , a.getString() );
-    parser = reader.next();
-    a = parser.get( "col3" );
-    assertEquals( "b" , a.getString() );
-    reader.close();
-  }
-
-  @Test
-  public void T_parser_3() throws IOException{
-    Spread spread = new Spread();
-    Map<String,Object> data = new HashMap<String,Object>();
-    data.put( "col3" , new StringObj( "a" ) );
-    spread.addRow( data );
-    data.put( "col3" , new StringObj( "b" ) );
-    spread.addRow( data );
-
     YosegiSchemaSpreadReader reader = new YosegiSchemaSpreadReader( spread );
+    assertTrue(reader.hasNext());
     IParser parser = reader.next();
     PrimitiveObject a = parser.get( "col3" );
     assertEquals( "a" , a.getString() );
+    assertTrue(reader.hasNext());
     parser = reader.next();
     a = parser.get( "col3" );
     assertEquals( "b" , a.getString() );
+    assertFalse(reader.hasNext());
     reader.close();
   }
 

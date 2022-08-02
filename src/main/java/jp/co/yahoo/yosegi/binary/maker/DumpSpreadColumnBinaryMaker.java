@@ -25,7 +25,10 @@ import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.binary.FindColumnBinaryMaker;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.compressor.DefaultCompressor;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
+import jp.co.yahoo.yosegi.inmemory.ILoader;
+import jp.co.yahoo.yosegi.inmemory.ISpreadLoader;
+import jp.co.yahoo.yosegi.inmemory.LoadType;
+import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.analyzer.IColumnAnalizeResult;
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
@@ -111,32 +114,22 @@ public class DumpSpreadColumnBinaryMaker implements IColumnBinaryMaker {
   }
 
   @Override
-  public IColumn toColumn( final ColumnBinary columnBinary ) throws IOException {
-    return new LazyColumn(
-        columnBinary.columnName ,
-        columnBinary.columnType ,
-        new SpreadColumnManager( columnBinary ) );
+  public LoadType getLoadType( final ColumnBinary columnBinary , final int loadSize ) {
+    return LoadType.SPREAD;
   }
 
   @Override
-  public void loadInMemoryStorage(
-      final ColumnBinary columnBinary ,
-      final IMemoryAllocator allocator ) throws IOException {
-    int maxValueCount = 0;
-    allocator.setChildCount( columnBinary.columnBinaryList.size() );
-    for ( ColumnBinary childColumnBinary : columnBinary.columnBinaryList ) {
-      IColumnBinaryMaker maker = FindColumnBinaryMaker.get( childColumnBinary.makerClassName );
-      IMemoryAllocator childAllocator =
-          allocator.getChild( childColumnBinary.columnName , childColumnBinary.columnType );
-      if ( childAllocator.isLoadingSkipped() ) {
-        continue;
-      }
-      maker.loadInMemoryStorage( childColumnBinary , childAllocator );
-      if ( maxValueCount < childAllocator.getValueCount() ) {
-        maxValueCount = childAllocator.getValueCount();
-      }
+  public void load(
+      final ColumnBinary columnBinary , final ILoader loader ) throws IOException {
+    if ( loader.getLoaderType() != LoadType.SPREAD ) {
+      throw new IOException( "Loader type is not SPREAD." );
     }
-    allocator.setValueCount( maxValueCount );
+    ISpreadLoader spreadLoader = (ISpreadLoader)loader;
+    for ( ColumnBinary child : columnBinary.columnBinaryList ) {
+      spreadLoader.loadChild( child , loader.getLoadSize() );
+    }
+    
+    spreadLoader.finish();
   }
 
   @Override
@@ -150,73 +143,4 @@ public class DumpSpreadColumnBinaryMaker implements IColumnBinaryMaker {
       maker.setBlockIndexNode( currentNode , childColumnBinary , spreadIndex );
     }
   }
-
-  public class SpreadColumnManager implements IColumnManager {
-
-    private final List<String> keyList;
-    private final ColumnBinary columnBinary;
-    private SpreadColumn spreadColumn;
-    private boolean isCreate;
-
-    /**
-     * Create a SpreadColumn from ColumnBinary.
-     */
-    public SpreadColumnManager( final ColumnBinary columnBinary ) throws IOException {
-      this.columnBinary = columnBinary;
-      keyList = new ArrayList<String>();
-      for ( ColumnBinary childColumnBinary : columnBinary.columnBinaryList ) {
-        keyList.add( childColumnBinary.columnName );
-      }
-    }
-
-    private void create() throws IOException {
-      if ( isCreate ) {
-        return;
-      }
-
-      spreadColumn = new SpreadColumn( columnBinary.columnName );
-      Spread spread = new Spread();
-      for ( ColumnBinary childColumnBinary : columnBinary.columnBinaryList ) {
-        IColumnBinaryMaker maker =
-            FindColumnBinaryMaker.get( childColumnBinary.makerClassName );
-        IColumn column = maker.toColumn( childColumnBinary );
-        column.setParentsColumn( spreadColumn );
-        spread.addColumn( column );
-      }
-      spread.setRowCount( columnBinary.rowCount );
-
-      spreadColumn.setSpread( spread );
-
-      isCreate = true;
-    }
-
-    @Override
-    public IColumn get() {
-      try {
-        create();
-      } catch ( IOException ex ) {
-        throw new UncheckedIOException( ex );
-      }
-      return spreadColumn;
-    }
-
-    @Override
-    public List<String> getColumnKeys() {
-      if ( isCreate ) {
-        return spreadColumn.getColumnKeys();
-      } else {
-        return keyList;
-      }
-    }
-
-    @Override
-    public int getColumnSize() {
-      if ( isCreate ) {
-        return spreadColumn.getColumnSize();
-      } else {
-        return keyList.size();
-      }
-    }
-  }
-
 }

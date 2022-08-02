@@ -18,12 +18,9 @@
 
 package jp.co.yahoo.yosegi.spread.column;
 
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.design.IField;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
-import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -138,30 +135,6 @@ public final class NullColumn implements IColumn {
   @Override
   public IField getSchema( final String schemaName ) throws IOException {
     return null;
-  }
-
-  @Override
-  public void setIndex( final ICellIndex index ) {}
-
-  @Override
-  public boolean[] filter( final IFilter filter , final boolean[] filterArray ) throws IOException {
-    return null;
-  }
-
-  @Override
-  public PrimitiveObject[] getPrimitiveObjectArray(
-      final IExpressionIndex indexList , final int start , final int length ) {
-    PrimitiveObject[] result = new PrimitiveObject[length];
-    return result;
-  }
-
-  @Override
-  public void setPrimitiveObjectArray(
-      final IExpressionIndex indexList ,
-      final int start ,
-      final int length ,
-      final IMemoryAllocator allocator ) throws IOException {
-    return;
   }
 
   @Override

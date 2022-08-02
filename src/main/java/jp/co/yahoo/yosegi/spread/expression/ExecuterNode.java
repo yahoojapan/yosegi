@@ -51,12 +51,6 @@ public class ExecuterNode implements IExpressionNode {
   }
 
   @Override
-  public boolean[] exec( final Spread spread ) throws IOException {
-    IColumn column = columnExtractNode.get( spread );
-    return column.filter( filter , new boolean[spread.size()] );
-  }
-
-  @Override
   public List<Integer> getBlockSpreadIndex( final BlockIndexNode indexNode ) throws IOException {
     BlockIndexNode currentNode = columnExtractNode.get( indexNode );
     return currentNode.getBlockIndex().getBlockSpreadIndex( filter );

@@ -38,32 +38,6 @@ public class AndExpressionNode implements IExpressionNode {
   }
 
   @Override
-  public boolean[] exec( final Spread spread ) throws IOException {
-    boolean[] intersection = null;
-    for ( IExpressionNode node : childNode ) {
-      boolean[] result = node.exec( spread );
-      if ( result != null ) {
-        if ( intersection == null ) {
-          intersection = result;
-        } else {
-          boolean isEmpty = true;
-          for ( int i = 0 ; i < intersection.length ; i++ ) {
-            intersection[i] = intersection[i] && result[i];
-            if ( intersection[i] ) {
-              isEmpty = false;
-            }
-          }
-          if ( isEmpty ) {
-            return intersection;
-          }
-        }
-      }
-    }
-
-    return intersection;
-  }
-
-  @Override
   public List<Integer> getBlockSpreadIndex( final BlockIndexNode indexNode ) throws IOException {
     if ( childNode.isEmpty() ) {
       return null;

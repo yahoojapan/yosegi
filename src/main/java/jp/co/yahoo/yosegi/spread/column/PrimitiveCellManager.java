@@ -18,13 +18,9 @@
 
 package jp.co.yahoo.yosegi.spread.column;
 
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.column.ICellMaker;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
-import jp.co.yahoo.yosegi.spread.column.index.DefaultCellIndex;
-import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 import jp.co.yahoo.yosegi.util.IndexAndObject;
 import jp.co.yahoo.yosegi.util.RangeBinarySearch;
 
@@ -37,7 +33,6 @@ public class PrimitiveCellManager implements ICellManager<PrimitiveObject> {
   private final ICellMaker cellMaker;
   private final RangeBinarySearch<PrimitiveObject> rangeBinarySearch =
       new RangeBinarySearch<PrimitiveObject>();
-  private ICellIndex index = new DefaultCellIndex();
 
   /**
    * Create new instance.
@@ -71,67 +66,6 @@ public class PrimitiveCellManager implements ICellManager<PrimitiveObject> {
   @Override
   public void clear() {
     rangeBinarySearch.clear();
-  }
-
-  @Override
-  public void setIndex( final ICellIndex index ) {
-    this.index = index;
-  }
-
-  @Override
-  public boolean[] filter( final IFilter filter , final boolean[] filterArray ) throws IOException {
-    switch ( filter.getFilterType() ) {
-      case NOT_NULL:
-        for ( IndexAndObject index : rangeBinarySearch.getIndexAndObjectList() ) {
-          int startIndex = index.getStartIndex();
-          for ( int i = startIndex ; i < ( startIndex + index.size() ) ; i++ ) {
-            filterArray[i] = true;
-          }
-        }
-        return filterArray;
-      case NULL:
-        return null;
-      default:
-        return index.filter( filter , filterArray );
-    }
-  }
-
-  @Override
-  public PrimitiveObject[] getPrimitiveObjectArray(
-      final IExpressionIndex indexList , final int start , final int length ) {
-    PrimitiveObject[] result = new PrimitiveObject[length];
-    for ( int i = 0,index = start ; i < length && index < indexList.size() ; i++,index++ ) {
-      PrimitiveObject obj = rangeBinarySearch.get( indexList.get( index ) );
-      if ( obj != null ) {
-        result[i] = obj;
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public void setPrimitiveObjectArray(
-      final IExpressionIndex indexList ,
-      final int start ,
-      final int length ,
-      final IMemoryAllocator allocator ) {
-    int arrayIndex = 0;
-    for ( int index = start ; arrayIndex < length && index < indexList.size() ;
-        arrayIndex++,index++ ) {
-      PrimitiveObject obj = rangeBinarySearch.get( indexList.get( index ) );
-      try {
-        if ( obj == null ) {
-          allocator.setNull( arrayIndex );
-        } else {
-          allocator.setPrimitiveObject( arrayIndex , obj );
-        }
-      } catch ( IOException ex ) {
-        throw new RuntimeException( ex );
-      }
-    }
-    for ( ; arrayIndex < length ; arrayIndex++ ) {
-      allocator.setNull( arrayIndex );
-    }
   }
 
 }

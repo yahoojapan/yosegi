@@ -22,13 +22,16 @@ import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
-import jp.co.yahoo.yosegi.binary.maker.index.RangeLongIndex;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.blockindex.LongRangeBlockIndex;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
+import jp.co.yahoo.yosegi.inmemory.IDictionaryLoader;
+import jp.co.yahoo.yosegi.inmemory.ILoader;
+import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
+import jp.co.yahoo.yosegi.inmemory.LoadType;
+import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 import jp.co.yahoo.yosegi.message.objects.ByteObj;
 import jp.co.yahoo.yosegi.message.objects.IntegerObj;
 import jp.co.yahoo.yosegi.message.objects.LongObj;
@@ -241,66 +244,91 @@ public class OptimizedNullArrayDumpLongColumnBinaryMaker implements IColumnBinar
   }
 
   @Override
-  public IColumn toColumn( final ColumnBinary columnBinary ) throws IOException {
-    ByteBuffer wrapBuffer = ByteBuffer.wrap(
-        columnBinary.binary , columnBinary.binaryStart , columnBinary.binaryLength );
-    Long min = Long.valueOf( wrapBuffer.getLong() );
-    Long max = Long.valueOf( wrapBuffer.getLong() );
-
-    return new HeaderIndexLazyColumn(
-      columnBinary.columnName ,
-      columnBinary.columnType ,
-      new ColumnManager(
-        min.longValue(),
-        max.longValue(),
-        columnBinary
-      ) ,
-      new RangeLongIndex( min , max )
-    );
+  public LoadType getLoadType(final ColumnBinary columnBinary, final int loadSize) {
+    if (columnBinary.isSetLoadSize) {
+      return LoadType.DICTIONARY;
+    }
+    return LoadType.SEQUENTIAL;
   }
 
-  @Override
-  public void loadInMemoryStorage(
-      final ColumnBinary columnBinary ,
-      final IMemoryAllocator allocator ) throws IOException {
-    ByteBuffer compressWrapBuffer = ByteBuffer.wrap(
-        columnBinary.binary , columnBinary.binaryStart , columnBinary.binaryLength );
+  private void loadFromColumnBinary(final ColumnBinary columnBinary, final ISequentialLoader loader)
+      throws IOException {
+    ByteBuffer compressWrapBuffer =
+        ByteBuffer.wrap(columnBinary.binary, columnBinary.binaryStart, columnBinary.binaryLength);
     long min = compressWrapBuffer.getLong();
     long max = compressWrapBuffer.getLong();
 
-    int start = columnBinary.binaryStart + ( Long.BYTES * 2 );
-    int length = columnBinary.binaryLength - ( Long.BYTES * 2 );
+    int start = columnBinary.binaryStart + (Long.BYTES * 2);
+    int length = columnBinary.binaryLength - (Long.BYTES * 2);
 
-    ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-    byte[] binary = compressor.decompress( columnBinary.binary , start , length );
+    ICompressor compressor = FindCompressor.get(columnBinary.compressorClassName);
+    byte[] binary = compressor.decompress(columnBinary.binary, start, length);
 
-    ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
+    ByteBuffer wrapBuffer = ByteBuffer.wrap(binary, 0, binary.length);
 
-    ByteOrder order = wrapBuffer.get() == (byte)0
-        ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+    ByteOrder order = wrapBuffer.get() == (byte) 0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
     int startIndex = wrapBuffer.getInt();
     int rowCount = wrapBuffer.getInt();
     int nullIndexLength = wrapBuffer.getInt();
     int valueBinaryLength = binary.length - META_LENGTH - nullIndexLength;
 
-    boolean[] isNullArray =
-        NullBinaryEncoder.toIsNullArray( binary , META_LENGTH , nullIndexLength );
+    boolean[] isNullArray = NullBinaryEncoder.toIsNullArray(binary, META_LENGTH, nullIndexLength);
 
-    allocator.setValueCount( startIndex + isNullArray.length );
+    INumEncoder valueEncoder = NumEncoderUtil.createEncoder(min, max);
+    valueEncoder.setSequentialLoader(
+        binary, META_LENGTH + nullIndexLength, rowCount, isNullArray, order, loader, startIndex);
+  }
 
-    for ( int index = 0 ; index < startIndex ; index++ ) {
-      allocator.setNull( index );
-    }
-    INumEncoder valueEncoder =
-        NumEncoderUtil.createEncoder( min , max );
-    valueEncoder.loadInMemoryStorage(
+  private void loadFromExpandColumnBinary(
+      final ColumnBinary columnBinary, final IDictionaryLoader loader) throws IOException {
+    ByteBuffer compressWrapBuffer =
+        ByteBuffer.wrap(columnBinary.binary, columnBinary.binaryStart, columnBinary.binaryLength);
+    long min = compressWrapBuffer.getLong();
+    long max = compressWrapBuffer.getLong();
+
+    int start = columnBinary.binaryStart + (Long.BYTES * 2);
+    int length = columnBinary.binaryLength - (Long.BYTES * 2);
+
+    ICompressor compressor = FindCompressor.get(columnBinary.compressorClassName);
+    byte[] binary = compressor.decompress(columnBinary.binary, start, length);
+
+    ByteBuffer wrapBuffer = ByteBuffer.wrap(binary, 0, binary.length);
+
+    ByteOrder order = wrapBuffer.get() == (byte) 0 ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+    int startIndex = wrapBuffer.getInt();
+    int rowCount = wrapBuffer.getInt();
+    int nullIndexLength = wrapBuffer.getInt();
+    int valueBinaryLength = binary.length - META_LENGTH - nullIndexLength;
+
+    boolean[] isNullArray = NullBinaryEncoder.toIsNullArray(binary, META_LENGTH, nullIndexLength);
+
+    INumEncoder valueEncoder = NumEncoderUtil.createEncoder(min, max);
+    valueEncoder.setDictionaryLoader(
         binary,
         META_LENGTH + nullIndexLength,
         rowCount,
         isNullArray,
         order,
-        allocator,
-        startIndex );
+        loader,
+        startIndex,
+        columnBinary.repetitions,
+        columnBinary.loadSize);
+  }
+
+  @Override
+  public void load(final ColumnBinary columnBinary, final ILoader loader) throws IOException {
+    if (columnBinary.isSetLoadSize) {
+      if (loader.getLoaderType() != LoadType.DICTIONARY) {
+        throw new IOException("Loader type is not DICTIONARY.");
+      }
+      loadFromExpandColumnBinary(columnBinary, (IDictionaryLoader) loader);
+    } else {
+      if (loader.getLoaderType() != LoadType.SEQUENTIAL) {
+        throw new IOException("Loader type is not SEQUENTIAL.");
+      }
+      loadFromColumnBinary(columnBinary, (ISequentialLoader) loader);
+    }
+    loader.finish();
   }
 
   @Override
@@ -315,89 +343,4 @@ public class OptimizedNullArrayDumpLongColumnBinaryMaker implements IColumnBinar
     BlockIndexNode currentNode = parentNode.getChildNode( columnBinary.columnName );
     currentNode.setBlockIndex( new LongRangeBlockIndex( min , max ) );
   }
-
-  public class ColumnManager implements IColumnManager {
-
-    private final long min;
-    private final long max;
-    private final ColumnBinary columnBinary;
-
-    private PrimitiveColumn column;
-    private boolean isCreate;
-
-    /**
-     * initialize.
-     */
-    public ColumnManager(
-        final long min,
-        final long max,
-        final ColumnBinary columnBinary ) {
-      this.min = min;
-      this.max = max;
-      this.columnBinary = columnBinary;
-    }
-
-    private void create() throws IOException {
-      if ( isCreate ) {
-        return;
-      }
-      int start = columnBinary.binaryStart + ( Long.BYTES * 2 );
-      int length = columnBinary.binaryLength - ( Long.BYTES * 2 );
-
-      ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-      byte[] binary = compressor.decompress( columnBinary.binary , start , length );
-
-      ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
-
-      ByteOrder order = wrapBuffer.get() == (byte)0
-          ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-      final int startIndex = wrapBuffer.getInt();
-      int rowCount = wrapBuffer.getInt();
-      int nullIndexLength = wrapBuffer.getInt();
-      int valueBinaryLength = binary.length - META_LENGTH - nullIndexLength;
-
-      boolean[] isNullArray =
-          NullBinaryEncoder.toIsNullArray( binary , META_LENGTH , nullIndexLength );
-
-      INumEncoder valueEncoder =
-          NumEncoderUtil.createEncoder( min , max );
-
-      PrimitiveObject[] valueArray = valueEncoder.getPrimitiveArray(
-          binary,
-          META_LENGTH + nullIndexLength,
-          rowCount,
-          isNullArray,
-          order );
-
-      column = new PrimitiveColumn( columnBinary.columnType , columnBinary.columnName );
-      column.setCellManager( new OptimizedNullArrayCellManager(
-          columnBinary.columnType , startIndex , valueArray ) );
-
-      isCreate = true;
-    }
-
-    @Override
-    public IColumn get() {
-      if ( ! isCreate ) {
-        try {
-          create();
-        } catch ( IOException ex ) {
-          throw new UncheckedIOException( ex );
-        }
-      }
-      return column;
-    }
-
-    @Override
-    public List<String> getColumnKeys() {
-      return new ArrayList<String>();
-    }
-
-    @Override
-    public int getColumnSize() {
-      return 0;
-    }
-
-  }
-
 }

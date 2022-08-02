@@ -19,7 +19,8 @@
 package jp.co.yahoo.yosegi.util.io.diffencoder;
 
 import jp.co.yahoo.yosegi.inmemory.IDictionary;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
+import jp.co.yahoo.yosegi.inmemory.IDictionaryLoader;
+import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 
 import java.io.IOException;
@@ -43,19 +44,6 @@ public interface INumEncoder {
       final int rows,
       final ByteOrder order ) throws IOException;
 
-  PrimitiveObject[] toPrimitiveArray(
-      final byte[] buffer,
-      final int start,
-      final int rows,
-      final ByteOrder order ) throws IOException;
-
-  PrimitiveObject[] getPrimitiveArray(
-      final byte[] buffer ,
-      final int start ,
-      final int rows ,
-      final boolean[] isNullArray ,
-      final ByteOrder order ) throws IOException;
-
   void setDictionary(
       final byte[] buffer ,
       final int start ,
@@ -63,13 +51,37 @@ public interface INumEncoder {
       final ByteOrder order ,
       final IDictionary dic ) throws IOException;
 
-  void loadInMemoryStorage(
-      final byte[] buffer ,
-      final int start ,
-      final int rows ,
-      final boolean[] isNullArray ,
-      final ByteOrder order ,
-      final IMemoryAllocator allocator ,
-      final int startIndex ) throws IOException; 
+  void setSequentialLoader(
+          final byte[] buffer,
+          final int start,
+          final int rows,
+          final boolean[] isNullArray,
+          final ByteOrder order,
+          final ISequentialLoader loader,
+          final int startIndex
+  ) throws IOException;
 
+  @Deprecated
+  void setDictionaryLoader(
+          final byte[] buffer,
+          final int start,
+          final int rows,
+          final boolean[] isNullArray,
+          final ByteOrder order,
+          final IDictionaryLoader loader,
+          final int startIndex,
+          final int[] loadIndexArray
+  ) throws IOException;
+
+  default void setDictionaryLoader(
+          final byte[] buffer,
+          final int start,
+          final int rows,
+          final boolean[] isNullArray,
+          final ByteOrder order,
+          final IDictionaryLoader loader,
+          final int startIndex,
+          final int[] repetitions,
+          final int loadSize
+  ) throws IOException {}
 }

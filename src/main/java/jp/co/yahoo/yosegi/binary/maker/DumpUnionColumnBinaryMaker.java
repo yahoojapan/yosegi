@@ -27,7 +27,10 @@ import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
+import jp.co.yahoo.yosegi.inmemory.ILoader;
+import jp.co.yahoo.yosegi.inmemory.IUnionLoader;
+import jp.co.yahoo.yosegi.inmemory.LoadType;
+import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 import jp.co.yahoo.yosegi.spread.analyzer.IColumnAnalizeResult;
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
 import jp.co.yahoo.yosegi.spread.column.ColumnTypeFactory;
@@ -189,28 +192,64 @@ public class DumpUnionColumnBinaryMaker implements IColumnBinaryMaker {
   }
 
   @Override
-  public IColumn toColumn( final ColumnBinary columnBinary ) throws IOException {
-    return new LazyColumn(
-        columnBinary.columnName ,
-        columnBinary.columnType ,
-        new UnionColumnManager( columnBinary ) );
+  public LoadType getLoadType( final ColumnBinary columnBinary , final int loadSize ) {
+    return LoadType.UNION;
   }
 
   @Override
-  public void loadInMemoryStorage(
-      final ColumnBinary columnBinary ,
-      final IMemoryAllocator allocator ) throws IOException {
-    int maxValueCount = 0;
-    for ( ColumnBinary childColumnBinary : columnBinary.columnBinaryList ) {
-      IColumnBinaryMaker maker = FindColumnBinaryMaker.get( childColumnBinary.makerClassName );
-      IMemoryAllocator childAllocator =
-          allocator.getChild( childColumnBinary.columnName , childColumnBinary.columnType );
-      maker.loadInMemoryStorage( childColumnBinary , childAllocator );
-      if ( maxValueCount < childAllocator.getValueCount() ) {
-        maxValueCount = childAllocator.getValueCount();
+  public void load(
+      final ColumnBinary columnBinary , final ILoader loader ) throws IOException {
+    if ( loader.getLoaderType() != LoadType.UNION ) {
+      throw new IOException( "Loader type is not UNION." );
+    }
+    IUnionLoader unionLoader = (IUnionLoader)loader;
+    for ( ColumnBinary child : columnBinary.columnBinaryList ) {
+      unionLoader.loadChild( child , loader.getLoadSize() );
+    }
+
+    ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
+    byte[] cellBinary = compressor.decompress(
+        columnBinary.binary , columnBinary.binaryStart , columnBinary.binaryLength );
+    ByteBuffer wrapBuffer = ByteBuffer.wrap( cellBinary );
+
+    if (columnBinary.isSetLoadSize) {
+      // NOTE: needless to check invalid repetitions number.
+      int currentIndex = 0;
+      for (int i = 0; i < columnBinary.repetitions.length; i++) {
+        if (columnBinary.repetitions[i] == 0) {
+          continue;
+        }
+        if (i < cellBinary.length) {
+          ColumnType columnType = ColumnTypeFactory.getColumnTypeFromByte(wrapBuffer.get(i));
+          if (columnType == ColumnType.NULL) {
+            for (int j = 0; j < columnBinary.repetitions[i]; j++) {
+              unionLoader.setNull(currentIndex);
+              currentIndex++;
+            }
+          } else {
+            for (int j = 0; j < columnBinary.repetitions[i]; j++) {
+              unionLoader.setIndexAndColumnType(currentIndex, columnType);
+              currentIndex++;
+            }
+          }
+        } else {
+          for (int j = 0; j < columnBinary.repetitions[i]; j++) {
+            unionLoader.setNull(currentIndex);
+            currentIndex++;
+          }
+        }
+      }
+    } else {
+      for (int i = 0; i < cellBinary.length; i++) {
+        ColumnType columnType = ColumnTypeFactory.getColumnTypeFromByte(wrapBuffer.get());
+        unionLoader.setIndexAndColumnType(i, columnType);
+      }
+      for (int i = cellBinary.length; i < loader.getLoadSize(); i++) {
+        unionLoader.setNull(i);
       }
     }
-    allocator.setValueCount( maxValueCount );
+
+    unionLoader.finish();
   }
 
   @Override
@@ -220,67 +259,4 @@ public class DumpUnionColumnBinaryMaker implements IColumnBinaryMaker {
       final int spreadIndex ) throws IOException {
     parentNode.getChildNode( columnBinary.columnName ).disable();
   }
-
-  public class UnionColumnManager implements IColumnManager {
-
-    private final ColumnBinary columnBinary;
-    private UnionColumn unionColumn;
-    private boolean isCreate;
-
-    public UnionColumnManager( final ColumnBinary columnBinary ) {
-      this.columnBinary = columnBinary;
-    }
-
-    private void create() throws IOException {
-      if ( isCreate ) {
-        return;
-      }
-
-      Map<ColumnType,IColumn> columnContainer = new EnumMap<>( ColumnType.class );
-      unionColumn = new UnionColumn( columnBinary.columnName , columnContainer );
-
-      for ( ColumnBinary childColumnBinary : columnBinary.columnBinaryList ) {
-        IColumnBinaryMaker maker = FindColumnBinaryMaker.get( childColumnBinary.makerClassName );
-        IColumn column = maker.toColumn( childColumnBinary );
-        column.setParentsColumn( unionColumn );
-        unionColumn.setColumn( column );
-        columnContainer.put( column.getColumnType() , column );
-      }
-
-
-      ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-      byte[] cellBinary = compressor.decompress(
-          columnBinary.binary , columnBinary.binaryStart , columnBinary.binaryLength );
-      ByteBuffer wrapBuffer = ByteBuffer.wrap( cellBinary );
-      for ( int i = 0 ; i < cellBinary.length ; i++ ) {
-        ColumnType columnType = ColumnTypeFactory.getColumnTypeFromByte( wrapBuffer.get() );
-        if ( columnContainer.containsKey( columnType ) ) {
-          unionColumn.addCell( columnType , columnContainer.get( columnType ).get( i ) , i );
-        }
-      }
-
-      isCreate = true;
-    }
-
-    @Override
-    public IColumn get() {
-      try {
-        create();
-      } catch ( IOException ex ) {
-        throw new UncheckedIOException( ex );
-      }
-      return unionColumn;
-    }
-
-    @Override
-    public List<String> getColumnKeys() {
-      return new ArrayList<>();
-    }
-
-    @Override
-    public int getColumnSize() {
-      return 0;
-    }
-  }
-
 }

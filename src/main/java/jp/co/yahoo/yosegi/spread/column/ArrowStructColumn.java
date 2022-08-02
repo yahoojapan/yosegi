@@ -18,14 +18,11 @@
 
 package jp.co.yahoo.yosegi.spread.column;
 
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.design.IField;
 import jp.co.yahoo.yosegi.message.design.StructContainerField;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
-import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 
 import org.apache.arrow.vector.FieldVector;
 import org.apache.arrow.vector.complex.StructVector;
@@ -168,37 +165,6 @@ public class ArrowStructColumn implements IColumn {
           }
         } );
     return schema;
-  }
-
-  @Override
-  public void setIndex( final ICellIndex index ) {
-    throw new UnsupportedOperationException( "This column is read only." );
-  }
-
-  @Override
-  public boolean[] filter( final IFilter filter , boolean[] filterArray ) throws IOException {
-    throw new UnsupportedOperationException( "This column is read only." );
-  }
-
-  @Override
-  public PrimitiveObject[] getPrimitiveObjectArray(
-      final IExpressionIndex indexList , final int start , final int length ) {
-    PrimitiveObject[] result = new PrimitiveObject[length];
-    return result;
-  }
-
-  @Override
-  public void setPrimitiveObjectArray(
-      final IExpressionIndex indexList ,
-      final int start ,
-      final int length ,
-      final IMemoryAllocator allocator ) throws IOException {
-    allocator.setValueCount( length );
-    for ( IColumn column : spread.getListColumn() ) {
-      IMemoryAllocator childAllocator =
-          allocator.getChild( column.getColumnName() , column.getColumnType() );
-      column.setPrimitiveObjectArray( indexList , start , length , childAllocator );
-    }
   }
 
   @Override

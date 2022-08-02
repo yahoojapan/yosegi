@@ -32,6 +32,7 @@ public class UnionField implements INamedContainerField  {
   private final Properties properties;
   private final List<String> keyList = new ArrayList<String>();
   private final Map<String,IField> fieldContainer = new HashMap<String,IField>();
+  private final Map<FieldType,IField> fieldTypeContainer = new HashMap<FieldType,IField>();
 
   public UnionField( final String name ) {
     this.name = name;
@@ -62,6 +63,7 @@ public class UnionField implements INamedContainerField  {
 
     keyList.add( fieldName );
     fieldContainer.put( fieldName , field );
+    fieldTypeContainer.put( field.getFieldType() , field );
   }
 
   @Override
@@ -69,9 +71,17 @@ public class UnionField implements INamedContainerField  {
     return fieldContainer.get( key );
   }
 
+  public IField getFromField( final FieldType type ) throws IOException {
+    return fieldTypeContainer.get( type );
+  }
+
   @Override
   public boolean containsKey( final String key ) throws IOException {
     return fieldContainer.containsKey( key );
+  }
+
+  public boolean containsField( final FieldType type ) throws IOException {
+    return fieldTypeContainer.containsKey( type );
   }
 
   @Override

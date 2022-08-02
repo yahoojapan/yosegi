@@ -18,11 +18,8 @@
 
 package jp.co.yahoo.yosegi.spread.column;
 
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
-import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 
 import java.io.IOException;
 
@@ -35,38 +32,5 @@ public interface ICellManager<T> {
   int size();
 
   void clear();
-
-  void setIndex( final ICellIndex index );
-
-  boolean[] filter( final IFilter filter , final boolean[] filterArray ) throws IOException;
-
-  PrimitiveObject[] getPrimitiveObjectArray(
-      final IExpressionIndex indexList , final int start , final int length );
-
-  void setPrimitiveObjectArray(
-      final IExpressionIndex indexList ,
-      final int start ,
-      final int length ,
-      final IMemoryAllocator allocator );
-
-  default boolean isDictionary() {
-    return false;
-  }
-
-  default int getDictionarySize() {
-    throw new UnsupportedOperationException( "This method only supports dictionary columns." );
-  }
-
-  default boolean[] getDictionaryIsNullArray() {
-    throw new UnsupportedOperationException( "This method only supports dictionary columns." );
-  }
-
-  default int[] getDictionaryIndexArray() {
-    throw new UnsupportedOperationException( "This method only supports dictionary columns." );
-  }
-
-  default PrimitiveObject[] getDictionaryArray() {
-    throw new UnsupportedOperationException( "This method only supports dictionary columns." );
-  }
 
 }

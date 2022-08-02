@@ -27,6 +27,7 @@ import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.GzipCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
 import jp.co.yahoo.yosegi.config.Configuration;
+import jp.co.yahoo.yosegi.inmemory.SpreadRawConverter;
 import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.expand.ExpandFunctionFactory;
 import jp.co.yahoo.yosegi.spread.expand.IExpandFunction;
@@ -244,27 +245,23 @@ public class PushdownSupportedBlockReader implements IBlockReader {
 
   @Override
   public Spread next() throws IOException {
-    Spread spread = new Spread();
-    int spreadSize = spreadSizeList.get( readCount ).intValue();
-    for ( ColumnBinary columnBinary : block.get( readCount ) ) {
-      if ( columnBinary != null ) {
-        IColumnBinaryMaker maker = FindColumnBinaryMaker.get( columnBinary.makerClassName );
-        spread.addColumn( maker.toColumn( columnBinary ) );
-        readSummaryStats.merge( columnBinary.toSummaryStats() );
-      }
-    }
-    spread.setRowCount( spreadSize );
+    SpreadRawConverter converter = new SpreadRawConverter();
 
-    readCount++;
-    Spread expandSpread = expandFunction.expand( spread );
-    return flattenFunction.flatten( expandSpread );
+    List<ColumnBinary> raw = nextRaw();
+    int loadSize = getCurrentSpreadSize();
+    return converter.convert( raw , loadSize );
   }
 
   @Override
   public List<ColumnBinary> nextRaw() throws IOException {
     List<ColumnBinary> columnBinaryList = block.get( readCount );
     readCount++;
-    return columnBinaryList;
+    int loadSize = expandFunction.expandFromColumnBinary(
+        columnBinaryList , getCurrentSpreadSize() );
+    if ( getCurrentSpreadSize() != loadSize ) {
+      spreadSizeList.set( readCount - 1 , loadSize );
+    }
+    return flattenFunction.flattenFromColumnBinary( columnBinaryList );
   }
 
   @Override

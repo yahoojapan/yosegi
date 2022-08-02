@@ -19,13 +19,10 @@
 package jp.co.yahoo.yosegi.spread.column;
 
 import jp.co.yahoo.yosegi.constants.PrimitiveByteLength;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.design.IField;
 import jp.co.yahoo.yosegi.message.design.UnionField;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
-import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -192,30 +189,6 @@ public class UnionColumn implements IColumn {
   @Override
   public IField getSchema() throws IOException {
     return getSchema( getColumnName() );
-  }
-
-  @Override
-  public void setIndex( final ICellIndex index ) {
-  }
-
-  @Override
-  public boolean[] filter( final IFilter filter , final boolean[] filterArray ) throws IOException {
-    return null;
-  }
-
-  @Override
-  public PrimitiveObject[] getPrimitiveObjectArray(
-      final IExpressionIndex indexList , final int start , final int length ) {
-    return cellManager.getPrimitiveObjectArray( indexList , start , length );
-  }
-
-  @Override
-  public void setPrimitiveObjectArray(
-      final IExpressionIndex indexList ,
-      final int start ,
-      final int length ,
-      final IMemoryAllocator allocator ) throws IOException {
-    cellManager.setPrimitiveObjectArray( indexList , start , length , allocator );
   }
 
   @Override

@@ -22,14 +22,15 @@ import jp.co.yahoo.yosegi.binary.ColumnBinary;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
-import jp.co.yahoo.yosegi.binary.maker.index.RangeStringIndex;
-import jp.co.yahoo.yosegi.binary.maker.index.SequentialStringCellIndex;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.blockindex.StringRangeBlockIndex;
 import jp.co.yahoo.yosegi.compressor.CompressResult;
 import jp.co.yahoo.yosegi.compressor.FindCompressor;
 import jp.co.yahoo.yosegi.compressor.ICompressor;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
+import jp.co.yahoo.yosegi.inmemory.ILoader;
+import jp.co.yahoo.yosegi.inmemory.ISequentialLoader;
+import jp.co.yahoo.yosegi.inmemory.LoadType;
+import jp.co.yahoo.yosegi.inmemory.YosegiLoaderFactory;
 import jp.co.yahoo.yosegi.message.objects.BooleanObj;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.analyzer.BooleanColumnAnalizeResult;
@@ -175,52 +176,110 @@ public class OptimizedNullArrayDumpBooleanColumnBinaryMaker implements IColumnBi
   }
 
   @Override
-  public IColumn toColumn( final ColumnBinary columnBinary ) throws IOException {
-    ByteBuffer wrapBuffer = ByteBuffer.wrap(
-        columnBinary.binary ,
-        columnBinary.binaryStart ,
-        columnBinary.binaryLength );
-    return new LazyColumn(
-      columnBinary.columnName ,
-      columnBinary.columnType ,
-      new BooleanColumnManager( columnBinary )
-    );
+  public LoadType getLoadType(final ColumnBinary columnBinary, final int loadSize) {
+    return LoadType.SEQUENTIAL;
   }
 
-  @Override
-  public void loadInMemoryStorage(
-      final ColumnBinary columnBinary ,
-      final IMemoryAllocator allocator ) throws IOException {
-    ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-    byte[] binary = compressor.decompress(
-        columnBinary.binary ,
-        columnBinary.binaryStart ,
-        columnBinary.binaryLength );
-    ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
+  private void loadFromColumnBinary(final ColumnBinary columnBinary, final ISequentialLoader loader)
+      throws IOException {
+    ICompressor compressor = FindCompressor.get(columnBinary.compressorClassName);
+    byte[] binary =
+        compressor.decompress(
+            columnBinary.binary, columnBinary.binaryStart, columnBinary.binaryLength);
+    ByteBuffer wrapBuffer = ByteBuffer.wrap(binary, 0, binary.length);
     int startIndex = wrapBuffer.getInt();
     int nullLength = wrapBuffer.getInt();
     int isTrueLength = binary.length - META_LENGTH - nullLength;
 
-    boolean[] isNullArray =
-        NullBinaryEncoder.toIsNullArray( binary , META_LENGTH , nullLength );
-
-    allocator.setValueCount( startIndex + isNullArray.length );
+    boolean[] isNullArray = NullBinaryEncoder.toIsNullArray(binary, META_LENGTH, nullLength);
 
     boolean[] isTrueArray =
-        NullBinaryEncoder.toIsNullArray( binary , META_LENGTH + nullLength , isTrueLength );
+        NullBinaryEncoder.toIsNullArray(binary, META_LENGTH + nullLength, isTrueLength);
 
-    for ( int i = 0 ; i < startIndex ; i++ ) {
-      allocator.setNull( i );
+    int index = 0;
+    for (; index < startIndex; index++) {
+      loader.setNull(index);
     }
     int isTrueIndex = 0;
-    for ( int i = 0 ; i < isNullArray.length ; i++ ) {
-      if ( isNullArray[i]  ) {
-        allocator.setNull( i + startIndex );
+    for (int i = 0; i < isNullArray.length; i++, index++) {
+      if (isNullArray[i]) {
+        loader.setNull(index);
       } else {
-        allocator.setBoolean( i + startIndex , isTrueArray[isTrueIndex] );
+        loader.setBoolean(index, isTrueArray[isTrueIndex]);
         isTrueIndex++;
       }
     }
+    // NOTE: null padding up to load size
+    for (int i = index; i < loader.getLoadSize(); i++) {
+      loader.setNull(i);
+    }
+  }
+
+  private void loadFromExpandColumnBinary(
+      final ColumnBinary columnBinary, final ISequentialLoader loader) throws IOException {
+    ICompressor compressor = FindCompressor.get(columnBinary.compressorClassName);
+    byte[] binary =
+        compressor.decompress(
+            columnBinary.binary, columnBinary.binaryStart, columnBinary.binaryLength);
+    ByteBuffer wrapBuffer = ByteBuffer.wrap(binary, 0, binary.length);
+    int startIndex = wrapBuffer.getInt();
+    int nullLength = wrapBuffer.getInt();
+    int isTrueLength = binary.length - META_LENGTH - nullLength;
+
+    boolean[] isNullArray = NullBinaryEncoder.toIsNullArray(binary, META_LENGTH, nullLength);
+
+    boolean[] isTrueArray =
+        NullBinaryEncoder.toIsNullArray(binary, META_LENGTH + nullLength, isTrueLength);
+
+    // NOTE: repetitions check
+    //   LoadSize is less than real size if repetitions include negative number.
+    //   It is possible to be thrown ArrayIndexOutOfBoundsException.
+    for (int i = 0; i < columnBinary.repetitions.length; i ++) {
+      if (columnBinary.repetitions[i] < 0) {
+        throw new IOException("Repetition must be equal to or greater than 0.");
+      }
+    }
+
+    // NOTE:
+    //   Set: currentIndex, value
+    int lastIndex = startIndex + isNullArray.length - 1;
+    int currentIndex = 0;
+    int isTrueIndex = 0;
+    for (int i = 0; i < columnBinary.repetitions.length; i++) {
+      if (columnBinary.repetitions[i] == 0) {
+        if (i >= startIndex && i <= lastIndex && !isNullArray[i - startIndex]) {
+          // NOTE: read skip
+          isTrueIndex++;
+        }
+        continue;
+      }
+      if (i > lastIndex || i < startIndex || isNullArray[i - startIndex]) {
+        for (int j = 0; j < columnBinary.repetitions[i]; j++) {
+          loader.setNull(currentIndex);
+          currentIndex++;
+        }
+      } else {
+        boolean value = isTrueArray[isTrueIndex];
+        for (int j = 0; j < columnBinary.repetitions[i]; j++) {
+          loader.setBoolean(currentIndex, value);
+          currentIndex++;
+        }
+        isTrueIndex++;
+      }
+    }
+  }
+
+  @Override
+  public void load(final ColumnBinary columnBinary, final ILoader loader) throws IOException {
+    if (loader.getLoaderType() != LoadType.SEQUENTIAL) {
+      throw new IOException("Loader type is not SEQUENTIAL.");
+    }
+    if (columnBinary.isSetLoadSize) {
+      loadFromExpandColumnBinary(columnBinary, (ISequentialLoader) loader);
+    } else {
+      loadFromColumnBinary(columnBinary, (ISequentialLoader) loader);
+    }
+    loader.finish();
   }
 
   @Override
@@ -230,75 +289,4 @@ public class OptimizedNullArrayDumpBooleanColumnBinaryMaker implements IColumnBi
       final int spreadIndex ) throws IOException {
     parentNode.getChildNode( columnBinary.columnName ).disable();
   }
-
-  public class BooleanColumnManager implements IColumnManager {
-
-    private final ColumnBinary columnBinary;
-    private PrimitiveColumn column;
-    private boolean isCreate;
-
-    public BooleanColumnManager(
-        final ColumnBinary columnBinary ) throws IOException {
-      this.columnBinary = columnBinary;
-    }
-
-    private void create() throws IOException {
-      if ( isCreate ) {
-        return;
-      }
-      ICompressor compressor = FindCompressor.get( columnBinary.compressorClassName );
-      byte[] binary = compressor.decompress(
-          columnBinary.binary ,
-          columnBinary.binaryStart ,
-          columnBinary.binaryLength );
-      ByteBuffer wrapBuffer = ByteBuffer.wrap( binary , 0 , binary.length );
-      int startIndex = wrapBuffer.getInt();
-      int nullLength = wrapBuffer.getInt();
-      int isTrueLength = binary.length - META_LENGTH - nullLength;
-
-      boolean[] isNullArray =
-          NullBinaryEncoder.toIsNullArray( binary , META_LENGTH , nullLength );
-
-      boolean[] isTrueArray =
-          NullBinaryEncoder.toIsNullArray( binary , META_LENGTH + nullLength , isTrueLength );
-
-      PrimitiveObject[] valueArray = new PrimitiveObject[ isNullArray.length ];
-
-      int isTrueIndex = 0;
-      for ( int i = 0 ; i < isNullArray.length ; i++ ) {
-        if ( ! isNullArray[i]  ) {
-          valueArray[i] = (isTrueArray[isTrueIndex]) ? TRUE : FALSE;
-          isTrueIndex++;
-        }
-      }
-
-      column = new PrimitiveColumn( columnBinary.columnType , columnBinary.columnName );
-      column.setCellManager( new OptimizedNullArrayCellManager(
-          columnBinary.columnType , startIndex , valueArray ) );
-
-      isCreate = true;
-    }
-
-    @Override
-    public IColumn get() {
-      try {
-        create();
-      } catch ( IOException ex ) {
-        throw new UncheckedIOException( ex );
-      }
-      return column;
-    }
-
-    @Override
-    public List<String> getColumnKeys() {
-      return new ArrayList<String>();
-    }
-
-    @Override
-    public int getColumnSize() {
-      return 0;
-    }
-
-  }
-
 }

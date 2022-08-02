@@ -23,7 +23,8 @@ import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerCustomConfigNode;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
+import jp.co.yahoo.yosegi.inmemory.ILoader;
+import jp.co.yahoo.yosegi.inmemory.LoadType;
 import jp.co.yahoo.yosegi.spread.analyzer.IColumnAnalizeResult;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
 
@@ -37,13 +38,23 @@ public interface IColumnBinaryMaker {
       final CompressResultNode compressResultNode ,
       final IColumn column ) throws IOException;
 
-  IColumn toColumn( final ColumnBinary columnBinary ) throws IOException;
+  @Deprecated
+  default IColumn toColumn(final ColumnBinary columnBinary) throws IOException {
+    return null;
+  }
 
   int calcBinarySize( final IColumnAnalizeResult analizeResult );
 
-  void loadInMemoryStorage(
+  // remove default
+  default LoadType getLoadType( final ColumnBinary columnBinary , final int loadSize ) {
+    return LoadType.SEQUENTIAL;
+  }
+
+  // remove default
+  default void load(
       final ColumnBinary columnBinary ,
-      final IMemoryAllocator allocator ) throws IOException;
+      final ILoader loader ) throws IOException {
+  }
 
   void setBlockIndexNode(
       final BlockIndexNode parentNode ,

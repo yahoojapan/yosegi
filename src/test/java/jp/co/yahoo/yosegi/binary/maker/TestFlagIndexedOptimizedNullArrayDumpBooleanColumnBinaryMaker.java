@@ -20,7 +20,6 @@ import jp.co.yahoo.yosegi.binary.ColumnBinaryMakerConfig;
 import jp.co.yahoo.yosegi.binary.CompressResultNode;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
 import jp.co.yahoo.yosegi.blockindex.BooleanBlockIndex;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.objects.BooleanObj;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.spread.analyzer.BooleanColumnAnalizeResult;
@@ -66,24 +65,6 @@ class TestFlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker {
     ColumnBinary columnBinary =
         maker.toBinary(defaultConfig, null, new CompressResultNode(), column);
     return columnBinary;
-  }
-
-  private class TestMemorayAllocator implements IMemoryAllocator {
-    public final Map<Integer, Boolean> map;
-
-    public TestMemorayAllocator() {
-      map = new HashMap<>();
-    }
-
-    @Override
-    public void setNull(final int index) {
-      map.put(index, null);
-    }
-
-    @Override
-    public void setBoolean(final int index, final boolean value) {
-      map.put(index, value);
-    }
   }
 
   public static Stream<Arguments> D_toBinary_1() {
@@ -136,78 +117,6 @@ class TestFlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker {
     assertEquals(expected, maker.calcBinarySize(analizeResult));
   }
 
-  public static Stream<Arguments> D_toColumn_1() {
-    return Stream.of(
-        // columnName, columnValues
-        arguments("TEST1", new Boolean[] {true}),
-        arguments("TEST1", new Boolean[] {false}),
-        arguments("TEST1", new Boolean[] {null, true}),
-        arguments("TEST1", new Boolean[] {null, false}),
-        arguments("TEST1", new Boolean[] {true, false}),
-        arguments("TEST1", new Boolean[] {false, true}),
-        arguments("TEST1", new Boolean[] {true, null, false}));
-  }
-
-  @ParameterizedTest
-  @MethodSource("D_toColumn_1")
-  public void T_toClumn_1(final String columnName, final Boolean[] columnValues)
-      throws IOException {
-    ColumnBinary columnBinary = makeColumnBinary(columnName, columnValues);
-    FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker maker =
-        new FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker();
-    IColumn newColumn = maker.toColumn(columnBinary);
-    assertEquals(ColumnType.BOOLEAN, newColumn.getColumnType());
-    assertEquals(columnName, newColumn.getColumnName());
-    assertEquals(columnValues.length, newColumn.size());
-    for (int i = 0; i < columnValues.length; i++) {
-      if (newColumn.get(i).getRow() == null) {
-        assertNull(newColumn.get(i).getRow());
-      } else {
-        assertEquals(columnValues[i], ((PrimitiveObject) newColumn.get(i).getRow()).getBoolean());
-      }
-    }
-  }
-
-  public static Stream<Arguments> D_columnFilter_1() {
-    return Stream.of(
-        // columnName, columnValues, filterFlag, expectedNull
-        arguments("TEST1", new Boolean[] {true}, true, true),
-        arguments("TEST1", new Boolean[] {true}, false, false),
-        arguments("TEST1", new Boolean[] {false}, true, false),
-        arguments("TEST1", new Boolean[] {false}, false, true),
-        arguments("TEST1", new Boolean[] {null, true}, true, true),
-        arguments("TEST1", new Boolean[] {null, true}, false, false),
-        arguments("TEST1", new Boolean[] {null, false}, true, false),
-        arguments("TEST1", new Boolean[] {null, false}, false, true),
-        arguments("TEST1", new Boolean[] {true, false}, true, true),
-        arguments("TEST1", new Boolean[] {true, false}, false, true),
-        arguments("TEST1", new Boolean[] {false, true}, true, true),
-        arguments("TEST1", new Boolean[] {false, true}, false, true),
-        arguments("TEST1", new Boolean[] {true, null, false}, true, true),
-        arguments("TEST1", new Boolean[] {true, null, false}, false, true));
-  }
-
-  @ParameterizedTest
-  @MethodSource("D_columnFilter_1")
-  public void T_columnFilter_1(
-      final String columnName,
-      final Boolean[] columnValues,
-      final boolean filterFlag,
-      final boolean expectedNull)
-      throws IOException {
-    ColumnBinary columnBinary = makeColumnBinary(columnName, columnValues);
-    FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker maker =
-        new FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker();
-    IColumn newColumn = maker.toColumn(columnBinary);
-    boolean[] bArray = new boolean[newColumn.size()];
-    if (expectedNull) {
-      assertNull(newColumn.filter(new BooleanFilter(filterFlag), bArray));
-    } else {
-      boolean[] expected = new boolean[newColumn.size()];
-      assertArrayEquals(expected, newColumn.filter(new BooleanFilter(filterFlag), bArray));
-    }
-  }
-
   public static Stream<Arguments> D_loadInMemoryStorage_1() {
     return Stream.of(
         // columnName, columnValues
@@ -218,20 +127,6 @@ class TestFlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker {
         arguments("TEST1", new Boolean[] {true, false}),
         arguments("TEST1", new Boolean[] {false, true}),
         arguments("TEST1", new Boolean[] {true, null, false}));
-  }
-
-  @ParameterizedTest
-  @MethodSource("D_loadInMemoryStorage_1")
-  public void T_loadInMemoryStorage_1(final String columnName, final Boolean[] columnValues)
-      throws IOException {
-    ColumnBinary columnBinary = makeColumnBinary(columnName, columnValues);
-    FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker maker =
-        new FlagIndexedOptimizedNullArrayDumpBooleanColumnBinaryMaker();
-    TestMemorayAllocator allocator = new TestMemorayAllocator();
-    maker.loadInMemoryStorage(columnBinary, allocator);
-    for (int i = 0; i < columnValues.length; i++) {
-      assertEquals(columnValues[i], allocator.map.get(i));
-    }
   }
 
   public static Stream<Arguments> D_setBlockIndexNode_1() {

@@ -18,15 +18,17 @@
 
 package jp.co.yahoo.yosegi.spread.expand;
 
+import jp.co.yahoo.yosegi.binary.ColumnBinary;
+import jp.co.yahoo.yosegi.binary.ColumnBinaryUtil;
+import jp.co.yahoo.yosegi.binary.RepetitionAndLoadSize;
 import jp.co.yahoo.yosegi.blockindex.BlockIndexNode;
-import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.column.ArrayCell;
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
 import jp.co.yahoo.yosegi.spread.column.ICell;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
-import jp.co.yahoo.yosegi.spread.column.NullColumn;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ExpandNode {
@@ -92,17 +94,6 @@ public class ExpandNode {
     return isArray;
   }
 
-  /**
-   * Get ExpandSpread from Spread.
-   */
-  public ExpandSpread get( final Spread spread ) throws IOException {
-    ExpandSpread expandSpread = new ExpandSpread();
-    int[] rootIndexArray = set( spread , expandSpread );
-    expandSpread.setOriginalSpread( spread , rootIndexArray );
-
-    return expandSpread;
-  }
-
   public void setIndexNode( final BlockIndexNode rootNode ) throws IOException {
     setIndexNode( rootNode , rootNode );
   }
@@ -120,64 +111,120 @@ public class ExpandNode {
     }
   }
 
-  public int[] set( final Spread original , final ExpandSpread expandSpread ) throws IOException {
-    IColumn currentColumn = original.getColumn( columnName );
-    return setExpandColumn( currentColumn , expandSpread );
-  }
-
-  public int[] set( final IColumn original , final ExpandSpread expandSpread )throws IOException {
-    IColumn currentColumn = original.getColumn( columnName );
-    return setExpandColumn( currentColumn , expandSpread );
+  private ColumnBinary getChildAndRemoveIfChildIsArray(
+        final ExpandNode node , final List<ColumnBinary> binaryList ) {
+    ColumnBinary result = null;
+    if ( binaryList == null ) {
+      return result;
+    }
+    for ( int i = 0 ; i < binaryList.size() ; i++ ) {
+      ColumnBinary child = binaryList.get(i);
+      if ( node.getNodeName().equals( child.columnName ) ) {
+        result = child;
+        if ( node.isArrayNode() ) {
+          binaryList.remove(i);
+        }
+        break;
+      }
+    }
+    return result;
   }
 
   /**
    * Set Column in Array expanded to Spread and Create index of parent Array.
+   * The structure of the entered list is changed.
    */
-  public int[] setExpandColumn(
-      final IColumn original , final ExpandSpread expandSpread ) throws IOException {
+  public int createExpandColumnBinary(
+      final List<ColumnBinary> root , ExpandColumnLink expandColumnLink ) throws IOException {
+    ColumnBinary current = getChildAndRemoveIfChildIsArray( this , root );
+    if ( current == null ) {
+      ColumnBinaryUtil.setRepetitions( root , new int[0] , 0 );
+      return 0;
+    }
+    List<ColumnBinary> linkColumnList = new ArrayList<ColumnBinary>();
+    RepetitionAndLoadSize rootRepetitionAndLoadSize = setExpandIndex( linkColumnList , current );
+    int[] rootRepetitions = rootRepetitionAndLoadSize.getRepetitions();
+    int rootLoadSize = rootRepetitionAndLoadSize.getLoadSize();
+    expandColumnLink.createLinkFromColumnBinary( root , linkColumnList );
+    ColumnBinaryUtil.setRepetitions( root , rootRepetitions , rootLoadSize );
+    root.addAll( linkColumnList );
+    return rootLoadSize;
+  }
+
+  private RepetitionAndLoadSize setExpandIndex(
+      final List<ColumnBinary> linkColumnList ,
+      final ColumnBinary currentColumnBinary ) throws IOException {
     if ( childNode == null ) {
-      IColumn arrayColumnTarget = original;
-      if ( original.getColumnType() == ColumnType.UNION ) {
-        arrayColumnTarget = original.getColumn( ColumnType.ARRAY );
+      ColumnBinary arrayTarget = null;
+      if ( currentColumnBinary.columnType == ColumnType.UNION ) {
+        for ( ColumnBinary child : currentColumnBinary.columnBinaryList ) {
+          if ( child.columnType == ColumnType.ARRAY ) {
+            arrayTarget = child;
+            break;
+          }
+        }
+      } else {
+        arrayTarget = currentColumnBinary;
       }
-      if ( arrayColumnTarget.getColumnType() != ColumnType.ARRAY ) {
-        expandSpread.addExpandColumn( linkColumnName , NullColumn.getInstance() , new int[0] );
-        return new int[0];
+      if ( arrayTarget == null || arrayTarget.columnType != ColumnType.ARRAY ) {
+        return new RepetitionAndLoadSize( new int[0] , 0 );
       }
-      IColumn innerColumn = arrayColumnTarget.getColumn(0);
-      int[] parentIndexArray = new int[innerColumn.size()];
-      int loopCount = arrayColumnTarget.size();
-      for ( int i = 0; i < loopCount ; i++ ) {
+      IColumn arrayColumnTarget = ColumnBinaryUtil.createArrayIndexColumn( arrayTarget );
+      int innerColumnLength = 0;
+      int[] parentRepetitions = new int[arrayColumnTarget.size()];
+      for ( int i = 0; i < arrayColumnTarget.size() ; i++ ) {
         ICell cell = arrayColumnTarget.get( i );
         if ( cell.getType() != ColumnType.ARRAY ) {
           continue;
         }
         ArrayCell arrayCell = (ArrayCell)( cell );
-        for ( int childIndex = arrayCell.getStart()
-            ; childIndex < arrayCell.getEnd() && childIndex < innerColumn.size() ; childIndex++ ) {
-          parentIndexArray[childIndex] = i;
-        }
+        innerColumnLength += arrayCell.getEnd() - arrayCell.getStart();
+        parentRepetitions[i] = arrayCell.getEnd() - arrayCell.getStart();
       }
 
-      expandSpread.addExpandLeafColumn( linkColumnName , innerColumn );
+      ColumnBinary arrayInnerColumnBinary = arrayTarget.columnBinaryList.get(0);
+      ColumnBinary linkColumnBinary =
+          arrayInnerColumnBinary.createRenameColumnBinary( linkColumnName );
+      linkColumnList.add( linkColumnBinary );
 
-      return parentIndexArray;
+      return new RepetitionAndLoadSize( parentRepetitions , innerColumnLength );
     } else if ( isArray ) {
-      IColumn arrayColumnTarget = original;
-      if ( original.getColumnType() == ColumnType.UNION ) {
-        arrayColumnTarget = original.getColumn( ColumnType.ARRAY );
+      ColumnBinary arrayTarget = null;
+      if ( currentColumnBinary.columnType == ColumnType.UNION ) {
+        for ( ColumnBinary child : currentColumnBinary.columnBinaryList ) {
+          if ( child.columnType == ColumnType.ARRAY ) {
+            arrayTarget = child;
+            break;
+          }
+        }
+      } else {
+        arrayTarget = currentColumnBinary;
       }
-      if ( arrayColumnTarget.getColumnType() != ColumnType.ARRAY ) {
-        expandSpread.addExpandColumn( linkColumnName , NullColumn.getInstance() , new int[0] );
-        return new int[0];
+      if ( arrayTarget == null || arrayTarget.columnType != ColumnType.ARRAY ) {
+        return new RepetitionAndLoadSize(  new int[0] , 0 );
       }
-      IColumn arrayColumn = arrayColumnTarget.getColumn(0);
+      ColumnBinary arrayInnerColumnBinary = arrayTarget.columnBinaryList.get(0);
+      ColumnBinary childColumnBinary =
+          getChildAndRemoveIfChildIsArray( childNode , arrayInnerColumnBinary.columnBinaryList );
+      if ( childColumnBinary == null
+          || ( childColumnBinary.columnType == ColumnType.ARRAY && ! childNode.isArrayNode() ) ) {
+        ColumnBinary linkColumnBinary =
+            arrayInnerColumnBinary.createRenameColumnBinary( linkColumnName );
+        linkColumnList.add( linkColumnBinary );
+        ColumnBinaryUtil.setRepetitions(
+            linkColumnBinary.columnBinaryList , new int[0] , 0 );
+        linkColumnBinary.setRepetitions( new int[0] , 0 );
+        return new RepetitionAndLoadSize( new int[0] , 0 );
+      }
+      RepetitionAndLoadSize childRepetitionAndIndex =
+          childNode.setExpandIndex( linkColumnList , childColumnBinary );
+      int[] childRepetitions = childRepetitionAndIndex.getRepetitions();
+      int childLoadSize = childRepetitionAndIndex.getLoadSize();
 
-      int[] childIndexArray = childNode.set( arrayColumn , expandSpread );
-      int[] parentIndexArray = new int[childIndexArray.length];
-      int parentCount = 0;
-      int loopCount = arrayColumnTarget.size();
-      for ( int i = 0 ; i < loopCount ; i++ ) {
+      IColumn arrayColumnTarget = ColumnBinaryUtil.createArrayIndexColumn( arrayTarget );
+      IColumn arrayColumn = arrayColumnTarget.getColumn(0);
+      int[] parentRepetitions = new int[arrayColumnTarget.size()];
+      for ( int i = 0 ; i < arrayColumnTarget.size() ; i++ ) {
         ICell cell = arrayColumnTarget.get( i );
         if ( cell.getType() != ColumnType.ARRAY ) {
           continue;
@@ -185,23 +232,38 @@ public class ExpandNode {
         ArrayCell arrayCell = (ArrayCell)( cell );
         for ( int childIndex = arrayCell.getStart()
             ; childIndex < arrayCell.getEnd() ; childIndex++ ) {
-          while ( parentCount < childIndexArray.length  
-              && childIndexArray[parentCount] == childIndex ) {
-            parentIndexArray[parentCount] = i;
-            parentCount++;
+          if ( childIndex < childRepetitions.length ) {
+            parentRepetitions[i] += childRepetitions[childIndex];
           }
         }
       }
 
-      expandSpread.addExpandColumn( linkColumnName , arrayColumn , childIndexArray );
+      ColumnBinary linkColumnBinary =
+          arrayInnerColumnBinary.createRenameColumnBinary( linkColumnName );
+      ColumnBinaryUtil.setRepetitions(
+          linkColumnBinary.columnBinaryList ,
+          childRepetitions ,
+          childLoadSize );
+      linkColumnBinary.setRepetitions( childRepetitions , childLoadSize );
+      linkColumnList.add( linkColumnBinary );
 
-      return parentIndexArray;
+      return new RepetitionAndLoadSize( parentRepetitions , childLoadSize );
     } else {
-      if ( original.getColumnType() == ColumnType.UNION ) {
-        return childNode.set( original.getColumn( ColumnType.SPREAD ) , expandSpread );
-      } else {
-        return childNode.set( original , expandSpread );
+      ColumnBinary current = currentColumnBinary;
+      if ( current != null && current.columnType == ColumnType.UNION ) {
+        ColumnBinary newCurrent = null;
+        ColumnType findTarget = ColumnType.SPREAD;
+        for ( ColumnBinary unionChild : current.columnBinaryList ) {
+          if ( unionChild.columnType == findTarget ) {
+            newCurrent = unionChild;
+            break;
+          }
+        }
+        current = newCurrent;
       }
+      ColumnBinary child =
+          getChildAndRemoveIfChildIsArray( childNode , current.columnBinaryList );
+      return childNode.setExpandIndex( linkColumnList , child );
     }
   }
 }

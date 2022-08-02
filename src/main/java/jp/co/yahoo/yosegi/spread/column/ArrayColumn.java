@@ -19,7 +19,6 @@
 package jp.co.yahoo.yosegi.spread.column;
 
 import jp.co.yahoo.yosegi.constants.PrimitiveByteLength;
-import jp.co.yahoo.yosegi.inmemory.IMemoryAllocator;
 import jp.co.yahoo.yosegi.message.design.ArrayContainerField;
 import jp.co.yahoo.yosegi.message.design.IField;
 import jp.co.yahoo.yosegi.message.design.NullField;
@@ -27,9 +26,6 @@ import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
 import jp.co.yahoo.yosegi.message.parser.IParser;
 import jp.co.yahoo.yosegi.spread.Spread;
 import jp.co.yahoo.yosegi.spread.column.filter.IFilter;
-import jp.co.yahoo.yosegi.spread.column.index.ICellIndex;
-import jp.co.yahoo.yosegi.spread.expression.IExpressionIndex;
-import jp.co.yahoo.yosegi.spread.expression.ListIndexExpressionIndex;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -198,50 +194,6 @@ public class ArrayColumn implements IColumn {
 
   public IColumn getChildColumn() {
     return spread.getColumn(0);
-  }
-
-  @Override
-  public void setIndex( final ICellIndex index ) {
-    cellManager.setIndex( index );
-  }
-
-  @Override
-  public boolean[] filter( final IFilter filter , final boolean[] filterArray ) throws IOException {
-    return cellManager.filter( filter , filterArray );
-  }
-
-  @Override
-  public PrimitiveObject[] getPrimitiveObjectArray(
-      final IExpressionIndex indexList , final int start , final int length ) {
-    PrimitiveObject[] result = new PrimitiveObject[length];
-    return result;
-  }
-
-  @Override
-  public void setPrimitiveObjectArray(
-      final IExpressionIndex indexList ,
-      final int start ,
-      final int length ,
-      final IMemoryAllocator allocator ) throws IOException {
-    allocator.setValueCount( length );
-    List<Integer> childIndexList = new ArrayList<Integer>();
-    for ( int i = start ; i < start + length ; i++ ) {
-      int index = indexList.get( i );
-      ICell cell = cellManager.get( index , EmptyArrayCell.getInstance() );
-      if ( cell.getType() == ColumnType.EMPTY_ARRAY ) {
-        allocator.setNull( index );
-        continue;
-      }
-      ArrayCell arrayCell = (ArrayCell)cell;
-      for ( int ii = arrayCell.getStart() ; ii < arrayCell.getEnd() ; ii++ ) {
-        childIndexList.add( Integer.valueOf( ii ) );
-      }
-    }
-    ListIndexExpressionIndex newIndexList = new ListIndexExpressionIndex( childIndexList );
-    IColumn column = spread.getColumn(0);
-    IMemoryAllocator childAllocator =
-        allocator.getArrayChild( newIndexList.size() , column.getColumnType() );
-    column.setPrimitiveObjectArray( newIndexList , 0 , newIndexList.size() , childAllocator );
   }
 
   @Override

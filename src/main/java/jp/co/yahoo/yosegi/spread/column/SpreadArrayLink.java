@@ -28,7 +28,6 @@ public class SpreadArrayLink {
 
   private final List<ICell> result;
   private final Spread spread;
-  private final IColumn arrayColumn;
   private final int parentIndex;
   private final int start;
   private final int end;
@@ -39,7 +38,6 @@ public class SpreadArrayLink {
   public SpreadArrayLink(
       final Spread spread , final int parentIndex , final int start , final int end ) {
     this.spread = spread;
-    arrayColumn = spread.getColumn(0);
     this.parentIndex = parentIndex;
     this.start = start;
     this.end = end;
@@ -65,7 +63,7 @@ public class SpreadArrayLink {
 
   public ICell getArrayRow( final int index ) {
     int target = start + index;
-    return arrayColumn.get( target );
+    return spread.getColumn(0).get( target );
   }
 
   /**
@@ -75,7 +73,7 @@ public class SpreadArrayLink {
     result.clear();
     if ( result.isEmpty() ) {
       IntStream.range( start , end )
-          .forEach( i -> result.add( arrayColumn.get( i ) ) );
+          .forEach( i -> result.add( spread.getColumn(0).get( i ) ) );
     }
     return result;
   }
