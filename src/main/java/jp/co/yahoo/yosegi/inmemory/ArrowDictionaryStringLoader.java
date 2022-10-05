@@ -18,7 +18,17 @@
 
 package jp.co.yahoo.yosegi.inmemory;
 
+import jp.co.yahoo.yosegi.message.objects.BooleanObj;
+import jp.co.yahoo.yosegi.message.objects.ByteObj;
+import jp.co.yahoo.yosegi.message.objects.DoubleObj;
+import jp.co.yahoo.yosegi.message.objects.FloatObj;
+import jp.co.yahoo.yosegi.message.objects.IntegerObj;
+import jp.co.yahoo.yosegi.message.objects.LongObj;
+import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
+import jp.co.yahoo.yosegi.message.objects.ShortObj;
+import jp.co.yahoo.yosegi.message.objects.StringObj;
 import jp.co.yahoo.yosegi.message.objects.Utf8BytesLinkObj;
+
 import org.apache.arrow.vector.ValueVector;
 import org.apache.arrow.vector.VarCharVector;
 
@@ -35,7 +45,8 @@ public class ArrowDictionaryStringLoader implements IDictionaryLoader<ValueVecto
    */
   public ArrowDictionaryStringLoader( final ValueVector vector , final int loadSize ) {
     this.vector = (VarCharVector)vector;
-    vector.allocateNew();
+    this.vector.allocateNew();
+    this.vector.setValueCount( loadSize );
     this.loadSize = loadSize;
   }
 
@@ -65,7 +76,7 @@ public class ArrowDictionaryStringLoader implements IDictionaryLoader<ValueVecto
 
   @Override
   public void setDictionaryIndex( final int index , final int dicIndex ) throws IOException {
-    if ( dic[index] == null ) {
+    if ( dic[dicIndex] == null ) {
       setNull( index );
     } else {
       vector.setSafe(
@@ -92,8 +103,42 @@ public class ArrowDictionaryStringLoader implements IDictionaryLoader<ValueVecto
 
   @Override
   public void setStringToDic( final int index , final String value ) throws IOException {
-    byte[] strBytes = value.getBytes( "UTF-8" );
-    setBytesToDic( index , strBytes );
+    setBytesToDic( index , new StringObj( value ).getBytes() );
+  }
+
+  @Override
+  public void setBooleanToDic( final int index , final boolean value ) throws IOException {
+    setBytesToDic( index , new BooleanObj( value ).getBytes() );
+  }
+
+  @Override
+  public void setByteToDic( final int index , final byte value ) throws IOException {
+    setBytesToDic( index , new ByteObj( value ).getBytes() );
+  }
+
+  @Override
+  public void setShortToDic( final int index , final short value ) throws IOException {
+    setBytesToDic( index , new ShortObj( value ).getBytes() );
+  }
+
+  @Override
+  public void setIntegerToDic( final int index , final int value ) throws IOException {
+    setBytesToDic( index , new IntegerObj( value ).getBytes() );
+  }
+
+  @Override
+  public void setLongToDic( final int index , final long value ) throws IOException {
+    setBytesToDic( index , new LongObj( value ).getBytes() );
+  }
+
+  @Override
+  public void setFloatToDic( final int index , final float value ) throws IOException {
+    setBytesToDic( index , new FloatObj( value ).getBytes() );
+  }
+
+  @Override
+  public void setDoubleToDic( final int index , final double value ) throws IOException {
+    setBytesToDic( index , new DoubleObj( value ).getBytes() );
   }
 
 }

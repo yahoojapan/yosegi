@@ -44,6 +44,11 @@ public class ArrowStructLoader implements ISpreadLoader<ValueVector> {
       final IField schema ,
       final int loadSize ) {
     this.vector = (StructVector)vector;
+    this.vector.allocateNew();
+    this.vector.setValueCount( loadSize );
+    for ( int i = 0 ; i < loadSize ; i++ ) {
+      this.vector.setIndexDefined(i);
+    }
     this.allocator = allocator;
     this.schema = (StructContainerField)schema;
     this.loadSize = loadSize;
@@ -70,11 +75,7 @@ public class ArrowStructLoader implements ISpreadLoader<ValueVector> {
   @Override
   public void loadChild(
       final ColumnBinary columnBinary , final int childLoadSize ) throws IOException {
-    if ( schema == null ) {
-      ILoaderFactory<ValueVector> factory = ArrowLoaderFactoryUtil.createLoaderFactory(
-          vector , allocator , columnBinary.columnName , null , columnBinary.columnType );
-      factory.create( columnBinary , childLoadSize );
-    } else if ( schema.containsKey( columnBinary.columnName ) ) {
+    if ( schema.containsKey( columnBinary.columnName ) ) {
       ILoaderFactory<ValueVector> factory = ArrowLoaderFactoryUtil.createLoaderFactory(
           vector , allocator , schema.get( columnBinary.columnName ) );
       factory.create( columnBinary , childLoadSize );

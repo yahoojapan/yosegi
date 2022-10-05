@@ -44,6 +44,11 @@ public class ArrowMapLoader implements ISpreadLoader<ValueVector> {
       final IField schema ,
       final int loadSize ) {
     this.vector = (StructVector)vector;
+    this.vector.allocateNew();
+    this.vector.setValueCount( loadSize );
+    for ( int i = 0 ; i < loadSize ; i++ ) {
+      this.vector.setIndexDefined(i);
+    }
     this.allocator = allocator;
     this.schema = (MapContainerField)schema;
     this.loadSize = loadSize;

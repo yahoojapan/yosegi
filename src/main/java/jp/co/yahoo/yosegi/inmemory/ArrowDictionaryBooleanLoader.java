@@ -18,6 +18,9 @@
 
 package jp.co.yahoo.yosegi.inmemory;
 
+import jp.co.yahoo.yosegi.message.objects.BytesObj;
+import jp.co.yahoo.yosegi.message.objects.StringObj;
+
 import org.apache.arrow.vector.BitVector;
 import org.apache.arrow.vector.ValueVector;
 
@@ -35,7 +38,8 @@ public class ArrowDictionaryBooleanLoader implements IDictionaryLoader<ValueVect
    */
   public ArrowDictionaryBooleanLoader( final ValueVector vector , final int loadSize ) {
     this.vector = (BitVector)vector;
-    vector.allocateNew();
+    this.vector.allocateNew( loadSize );
+    this.vector.setValueCount( loadSize );
     this.loadSize = loadSize;
   }
 
@@ -85,6 +89,24 @@ public class ArrowDictionaryBooleanLoader implements IDictionaryLoader<ValueVect
   @Override
   public void setBooleanToDic( final int index , final boolean value ) throws IOException {
     dic[index] = value;
+  }
+
+  @Override
+  public void setBytesToDic(int index, byte[] value, int start, int length) throws IOException {
+    try {
+      setBooleanToDic( index , new BytesObj( value , start , length ).getBoolean() );
+    } catch ( Exception ex ) {
+      setNullToDic( index );
+    }
+  }
+
+  @Override
+  public void setStringToDic(int index, String value) throws IOException {
+    try {
+      setBooleanToDic( index , new StringObj( value ).getBoolean() );
+    } catch ( Exception ex ) {
+      setNullToDic( index );
+    }
   }
 
 }

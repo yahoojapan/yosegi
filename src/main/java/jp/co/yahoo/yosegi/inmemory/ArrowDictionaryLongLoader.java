@@ -18,6 +18,15 @@
 
 package jp.co.yahoo.yosegi.inmemory;
 
+import jp.co.yahoo.yosegi.message.objects.BytesObj;
+import jp.co.yahoo.yosegi.message.objects.DoubleObj;
+import jp.co.yahoo.yosegi.message.objects.FloatObj;
+import jp.co.yahoo.yosegi.message.objects.IntegerObj;
+import jp.co.yahoo.yosegi.message.objects.LongObj;
+import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
+import jp.co.yahoo.yosegi.message.objects.ShortObj;
+import jp.co.yahoo.yosegi.message.objects.StringObj;
+
 import org.apache.arrow.vector.BigIntVector;
 import org.apache.arrow.vector.ValueVector;
 
@@ -35,7 +44,8 @@ public class ArrowDictionaryLongLoader implements IDictionaryLoader<ValueVector>
    */
   public ArrowDictionaryLongLoader( final ValueVector vector , final int loadSize ) {
     this.vector = (BigIntVector)vector;
-    vector.allocateNew();
+    this.vector.allocateNew( loadSize );
+    this.vector.setValueCount( loadSize );
     this.loadSize = loadSize;
   }
 
@@ -79,6 +89,16 @@ public class ArrowDictionaryLongLoader implements IDictionaryLoader<ValueVector>
   }
 
   @Override
+  public void setBytesToDic(int index, byte[] value, int start, int length) throws IOException {
+    setDownCastOrNull( index , new BytesObj( value , start , length ) );
+  }
+
+  @Override
+  public void setStringToDic(int index, String value) throws IOException {
+    setDownCastOrNull( index , new StringObj( value ) );
+  }
+
+  @Override
   public void setByteToDic( final int index , final byte value ) throws IOException {
     setLongToDic( index , value );
   }
@@ -96,6 +116,24 @@ public class ArrowDictionaryLongLoader implements IDictionaryLoader<ValueVector>
   @Override
   public void setLongToDic( final int index , final long value ) throws IOException {
     dic[index] = value;
+  }
+
+  @Override
+  public void setFloatToDic( final int index , final float value ) throws IOException {
+    setDownCastOrNull( index , new FloatObj( value ) );
+  }
+
+  @Override
+  public void setDoubleToDic( final int index , final double value ) throws IOException {
+    setDownCastOrNull( index , new DoubleObj( value ) );
+  }
+
+  private void setDownCastOrNull( final int index , final PrimitiveObject obj ) throws IOException {
+    try {
+      setLongToDic( index , obj.getLong() );
+    } catch ( NumberFormatException ex ) {
+      setNullToDic( index );
+    }
   }
 
 }

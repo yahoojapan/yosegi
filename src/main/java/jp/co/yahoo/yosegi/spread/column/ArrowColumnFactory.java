@@ -68,7 +68,7 @@ public final class ArrowColumnFactory {
    */
   public static IColumn convert( final String name , final ValueVector vector ) {
     if ( vector.getNullCount() == vector.getValueCount() ) {
-      return NullColumn.getInstance();
+      return NullColumn.getInstance( vector.getValueCount() );
     }
 
     ColumnFactory factory = dispatch.get( vector.getClass() );

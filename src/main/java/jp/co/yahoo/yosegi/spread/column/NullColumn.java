@@ -29,15 +29,22 @@ import java.util.stream.IntStream;
 
 public final class NullColumn implements IColumn {
 
-  private static final NullColumn NULL_COLUMN = new NullColumn();
+  private static final NullColumn NULL_COLUMN = new NullColumn( 0 );
 
+  private final int rowCount;
   private IColumn parentsColumn = NullColumn.getInstance();
   private ICell defaultCell = NullCell.getInstance();
 
-  private NullColumn() {}
+  private NullColumn( final int rowCount ) {
+    this.rowCount = rowCount;
+  }
 
   public static IColumn getInstance() {
     return NULL_COLUMN;
+  }
+
+  public static IColumn getInstance( final int rowCount ) {
+    return new NullColumn( rowCount );
   }
 
   @Override
@@ -124,7 +131,7 @@ public final class NullColumn implements IColumn {
 
   @Override
   public int size() {
-    return 0;
+    return rowCount;
   }
 
   @Override

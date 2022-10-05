@@ -230,6 +230,10 @@ public final class ArrowLoaderFactoryUtil {
           return new ArrowDictionaryBooleanLoader(
               createValueVector( vector , allocator , columnName , ColumnType.BOOLEAN ) ,
               loadSize );
+        case CONST :
+          return new ArrowConstBooleanLoader(
+              createValueVector( vector , allocator , columnName , ColumnType.BOOLEAN ) ,
+              loadSize );
         default :
           return new ArrowNullLoader(
               createValueVector( vector , allocator , columnName , ColumnType.BOOLEAN ) ,
@@ -265,6 +269,10 @@ public final class ArrowLoaderFactoryUtil {
               loadSize );
         case DICTIONARY :
           return new ArrowDictionaryDoubleLoader(
+              createValueVector( vector , allocator , columnName , ColumnType.DOUBLE ) ,
+              loadSize );
+        case CONST :
+          return new ArrowConstDoubleLoader(
               createValueVector( vector , allocator , columnName , ColumnType.DOUBLE ) ,
               loadSize );
         default :
@@ -304,6 +312,10 @@ public final class ArrowLoaderFactoryUtil {
           return new ArrowDictionaryFloatLoader(
               createValueVector( vector , allocator , columnName , ColumnType.FLOAT ) ,
               loadSize );
+        case CONST :
+          return new ArrowConstFloatLoader(
+              createValueVector( vector , allocator , columnName , ColumnType.FLOAT ) ,
+              loadSize );
         default :
           return new ArrowNullLoader(
               createValueVector( vector , allocator , columnName , ColumnType.FLOAT ) ,
@@ -338,7 +350,11 @@ public final class ArrowLoaderFactoryUtil {
               createValueVector( vector , allocator , columnName , ColumnType.BYTE ) ,
               loadSize );
         case DICTIONARY :
-          return new ArrowDictionaryShortLoader(
+          return new ArrowDictionaryByteLoader(
+              createValueVector( vector , allocator , columnName , ColumnType.BYTE ) ,
+              loadSize );
+        case CONST :
+          return new ArrowConstByteLoader(
               createValueVector( vector , allocator , columnName , ColumnType.BYTE ) ,
               loadSize );
         default :
@@ -378,6 +394,10 @@ public final class ArrowLoaderFactoryUtil {
           return new ArrowDictionaryShortLoader(
               createValueVector( vector , allocator , columnName , ColumnType.SHORT ) ,
               loadSize );
+        case CONST :
+          return new ArrowConstShortLoader(
+              createValueVector( vector , allocator , columnName , ColumnType.SHORT ) ,
+              loadSize );
         default :
           return new ArrowNullLoader(
               createValueVector( vector , allocator , columnName , ColumnType.SHORT ) ,
@@ -413,6 +433,10 @@ public final class ArrowLoaderFactoryUtil {
               loadSize );
         case DICTIONARY :
           return new ArrowDictionaryIntegerLoader(
+              createValueVector( vector , allocator , columnName , ColumnType.INTEGER ) ,
+              loadSize );
+        case CONST :
+          return new ArrowConstIntegerLoader(
               createValueVector( vector , allocator , columnName , ColumnType.INTEGER ) ,
               loadSize );
         default :
@@ -452,6 +476,10 @@ public final class ArrowLoaderFactoryUtil {
           return new ArrowDictionaryLongLoader(
               createValueVector( vector , allocator , columnName , ColumnType.LONG ) ,
               loadSize );
+        case CONST :
+          return new ArrowConstLongLoader(
+              createValueVector( vector , allocator , columnName , ColumnType.LONG ) ,
+              loadSize );
         default :
           return new ArrowNullLoader(
               createValueVector( vector , allocator , columnName , ColumnType.LONG ) ,
@@ -489,6 +517,10 @@ public final class ArrowLoaderFactoryUtil {
           return new ArrowDictionaryStringLoader(
               createValueVector( vector , allocator , columnName , ColumnType.STRING ) ,
               loadSize );
+        case CONST :
+          return new ArrowConstStringLoader(
+              createValueVector( vector , allocator , columnName , ColumnType.STRING ) ,
+              loadSize );
         default :
           return new ArrowNullLoader(
               createValueVector( vector , allocator , columnName , ColumnType.STRING ) ,
@@ -520,22 +552,29 @@ public final class ArrowLoaderFactoryUtil {
       switch ( getLoadType( columnBinary , loadSize ) ) {
         case SEQUENTIAL :
           return new ArrowSequentialBytesLoader(
-              createValueVector( vector , allocator , columnName , ColumnType.STRING ) ,
+              createValueVector( vector , allocator , columnName , ColumnType.BYTES ) ,
               loadSize );
         case DICTIONARY :
           return new ArrowDictionaryBytesLoader(
-              createValueVector( vector , allocator , columnName , ColumnType.STRING ) ,
+              createValueVector( vector , allocator , columnName , ColumnType.BYTES ) ,
+              loadSize );
+        case CONST :
+          return new ArrowConstBytesLoader(
+              createValueVector( vector , allocator , columnName , ColumnType.BYTES ) ,
               loadSize );
         default :
           return new ArrowNullLoader(
-              createValueVector( vector , allocator , columnName , ColumnType.STRING ) ,
+              createValueVector( vector , allocator , columnName , ColumnType.BYTES ) ,
               loadSize );
       }
     }
 
   }
 
-  private static ValueVector createValueVectorFromStructVector(
+  /**
+   * Create vector from StructVector.
+   */
+  public static ValueVector createValueVectorFromStructVector(
       final StructVector vector ,
       final BufferAllocator allocator ,
       final String columnName ,
@@ -617,7 +656,10 @@ public final class ArrowLoaderFactoryUtil {
     }
   }
 
-  private static ValueVector createValueVectorFromListVector(
+  /**
+   * Create vector from ListVector.
+   */
+  public static ValueVector createValueVectorFromListVector(
       final ListVector vector ,
       final BufferAllocator allocator ,
       final String columnName ,
@@ -676,7 +718,10 @@ public final class ArrowLoaderFactoryUtil {
     }
   }
 
-  private static ValueVector createValueVectorFromUnionVector(
+  /**
+   * Create vector from UnionVector.
+   */
+  public static ValueVector createValueVectorFromUnionVector(
       final UnionVector vector ,
       final BufferAllocator allocator ,
       final String columnName ,

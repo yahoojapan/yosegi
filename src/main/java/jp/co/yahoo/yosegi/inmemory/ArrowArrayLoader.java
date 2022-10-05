@@ -44,6 +44,8 @@ public class ArrowArrayLoader implements IArrayLoader<ValueVector> {
       final IField schema ,
       final int loadSize ) {
     this.vector = (ListVector)vector;
+    this.vector.allocateNew();
+    this.vector.setValueCount( loadSize );
     this.allocator = allocator;
     this.schema = (ArrayContainerField)schema;
     this.loadSize = loadSize;

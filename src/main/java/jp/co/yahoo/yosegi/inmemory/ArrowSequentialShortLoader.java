@@ -18,9 +18,13 @@
 
 package jp.co.yahoo.yosegi.inmemory;
 
+import jp.co.yahoo.yosegi.message.objects.BytesObj;
+import jp.co.yahoo.yosegi.message.objects.DoubleObj;
+import jp.co.yahoo.yosegi.message.objects.FloatObj;
 import jp.co.yahoo.yosegi.message.objects.IntegerObj;
 import jp.co.yahoo.yosegi.message.objects.LongObj;
 import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
+import jp.co.yahoo.yosegi.message.objects.StringObj;
 
 import org.apache.arrow.vector.SmallIntVector;
 import org.apache.arrow.vector.ValueVector;
@@ -37,7 +41,8 @@ public class ArrowSequentialShortLoader implements ISequentialLoader<ValueVector
    */
   public ArrowSequentialShortLoader( final ValueVector vector , final int loadSize ) {
     this.vector = (SmallIntVector)vector;
-    vector.allocateNew();
+    this.vector.allocateNew( loadSize );
+    this.vector.setValueCount( loadSize );
     this.loadSize = loadSize;
   }
 
@@ -61,6 +66,16 @@ public class ArrowSequentialShortLoader implements ISequentialLoader<ValueVector
   }
 
   @Override
+  public void setBytes(int index, byte[] value, int start, int length) throws IOException {
+    setDownCastOrNull( index , new BytesObj( value , start , length ) );
+  }
+
+  @Override
+  public void setString(int index, String value) throws IOException {
+    setDownCastOrNull( index , new StringObj( value ) );
+  }
+
+  @Override
   public void setByte( final int index , final byte value ) throws IOException {
     setShort( index , value );
   }
@@ -78,6 +93,16 @@ public class ArrowSequentialShortLoader implements ISequentialLoader<ValueVector
   @Override
   public void setLong( final int index , final long value ) throws IOException {
     setDownCastOrNull( index , new LongObj( value ) );
+  }
+
+  @Override
+  public void setFloat( final int index , final float value ) throws IOException {
+    setDownCastOrNull( index , new FloatObj( value ) );
+  }
+
+  @Override
+  public void setDouble( final int index , final double value ) throws IOException {
+    setDownCastOrNull( index , new DoubleObj( value ) );
   }
 
   private void setDownCastOrNull( final int index , final PrimitiveObject obj ) throws IOException {
