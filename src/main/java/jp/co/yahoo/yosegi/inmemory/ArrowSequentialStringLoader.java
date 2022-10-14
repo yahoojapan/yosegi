@@ -18,6 +18,17 @@
 
 package jp.co.yahoo.yosegi.inmemory;
 
+import jp.co.yahoo.yosegi.message.objects.BooleanObj;
+import jp.co.yahoo.yosegi.message.objects.ByteObj;
+import jp.co.yahoo.yosegi.message.objects.BytesObj;
+import jp.co.yahoo.yosegi.message.objects.DoubleObj;
+import jp.co.yahoo.yosegi.message.objects.FloatObj;
+import jp.co.yahoo.yosegi.message.objects.IntegerObj;
+import jp.co.yahoo.yosegi.message.objects.LongObj;
+import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
+import jp.co.yahoo.yosegi.message.objects.ShortObj;
+import jp.co.yahoo.yosegi.message.objects.StringObj;
+
 import org.apache.arrow.vector.ValueVector;
 import org.apache.arrow.vector.VarCharVector;
 
@@ -33,7 +44,8 @@ public class ArrowSequentialStringLoader implements ISequentialLoader<ValueVecto
    */
   public ArrowSequentialStringLoader( final ValueVector vector , final int loadSize ) {
     this.vector = (VarCharVector)vector;
-    vector.allocateNew();
+    this.vector.allocateNew();
+    this.vector.setValueCount( loadSize );
     this.loadSize = loadSize;
   }
 
@@ -67,8 +79,42 @@ public class ArrowSequentialStringLoader implements ISequentialLoader<ValueVecto
 
   @Override
   public void setString( final int index , final String value ) throws IOException {
-    byte[] strBytes = value.getBytes( "UTF-8" );
-    setBytes( index , strBytes );
+    setBytes( index , new StringObj( value ).getBytes() );
+  }
+
+  @Override
+  public void setBoolean( final int index , final boolean value ) throws IOException {
+    setBytes( index , new BooleanObj( value ).getBytes() );
+  }
+
+  @Override
+  public void setByte( final int index , final byte value ) throws IOException {
+    setBytes( index , new ByteObj( value ).getBytes() );
+  }
+
+  @Override
+  public void setShort( final int index , final short value ) throws IOException {
+    setBytes( index , new ShortObj( value ).getBytes() );
+  }
+
+  @Override
+  public void setInteger( final int index , final int value ) throws IOException {
+    setBytes( index , new IntegerObj( value ).getBytes() );
+  }
+
+  @Override
+  public void setLong( final int index , final long value ) throws IOException {
+    setBytes( index , new LongObj( value ).getBytes() );
+  }
+
+  @Override
+  public void setFloat( final int index , final float value ) throws IOException {
+    setBytes( index , new FloatObj( value ).getBytes() );
+  }
+
+  @Override
+  public void setDouble( final int index , final double value ) throws IOException {
+    setBytes( index , new DoubleObj( value ).getBytes() );
   }
 
 }

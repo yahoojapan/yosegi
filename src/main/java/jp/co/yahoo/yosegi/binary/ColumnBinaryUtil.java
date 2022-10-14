@@ -20,10 +20,15 @@ package jp.co.yahoo.yosegi.binary;
 
 import jp.co.yahoo.yosegi.binary.maker.IColumnBinaryMaker;
 import jp.co.yahoo.yosegi.inmemory.YosegiArrayIndexLoader;
+import jp.co.yahoo.yosegi.message.design.ArrayContainerField;
+import jp.co.yahoo.yosegi.message.design.IField;
+import jp.co.yahoo.yosegi.message.design.StructContainerField;
+import jp.co.yahoo.yosegi.message.design.UnionField;
 import jp.co.yahoo.yosegi.spread.column.ArrayCell;
 import jp.co.yahoo.yosegi.spread.column.ColumnType;
 import jp.co.yahoo.yosegi.spread.column.ICell;
 import jp.co.yahoo.yosegi.spread.column.IColumn;
+import jp.co.yahoo.yosegi.spread.column.PrimitiveSchemaFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -159,6 +164,59 @@ public final class ColumnBinaryUtil {
         setRepetitions( child.columnBinaryList , childRepetitions , childLoadSize );
         child.setRepetitions( repetitions , loadSize );
       }
+    }
+  }
+
+  /**
+   * Get schema from column binary list.
+   */
+  public static StructContainerField getSchemaFromColumnBinaryList(
+      final List<ColumnBinary> binaryList ,
+      final String rootName ) throws IOException {
+    StructContainerField rootSchema = new StructContainerField( rootName );
+    for ( ColumnBinary columnBinary : binaryList ) {
+      IField childSchema = getSchemaFromColumnBinary( columnBinary );
+      if ( childSchema != null ) {
+        rootSchema.set( childSchema );
+      }
+    }
+    return rootSchema;
+  }
+
+  private static IField getSchemaFromColumnBinary(
+      final ColumnBinary columnBinary ) throws IOException {
+    switch ( columnBinary.columnType ) {
+      case UNION:
+        UnionField unionSchema = new UnionField( columnBinary.columnName );
+        for ( ColumnBinary child : columnBinary.columnBinaryList ) {
+          unionSchema.set( getSchemaFromColumnBinary( child ) );
+        }
+        return unionSchema;
+      case ARRAY:
+        return new ArrayContainerField(
+            columnBinary.columnName ,
+            getSchemaFromColumnBinary(columnBinary.columnBinaryList.get(0) ) );
+      case SPREAD:
+        StructContainerField structSchema = new StructContainerField( columnBinary.columnName );
+        for ( ColumnBinary child : columnBinary.columnBinaryList ) {
+          structSchema.set( getSchemaFromColumnBinary( child ) );
+        }
+        return structSchema;
+
+      case BOOLEAN:
+      case BYTE:
+      case BYTES:
+      case DOUBLE:
+      case FLOAT:
+      case INTEGER:
+      case LONG:
+      case SHORT:
+      case STRING:
+        return PrimitiveSchemaFactory.getSchema(
+            columnBinary.columnType , columnBinary.columnName );
+      default:
+        throw new IOException(
+            "unknown column type. " + columnBinary.columnType + ":" + columnBinary.columnName );
     }
   }
 
