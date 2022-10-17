@@ -19,6 +19,7 @@
 package jp.co.yahoo.yosegi.inmemory;
 
 import jp.co.yahoo.yosegi.binary.ColumnBinary;
+import jp.co.yahoo.yosegi.binary.ColumnBinaryUtil;
 import jp.co.yahoo.yosegi.message.design.StructContainerField;
 
 import org.apache.arrow.memory.BufferAllocator;
@@ -53,7 +54,15 @@ public class ArrowValueVectorRawConverter implements IRawConverter<ValueVector> 
   @Override
   public ValueVector convert(
       final List<ColumnBinary> raw , final int loadSize ) throws IOException {
-    ArrowStructLoader loader = new ArrowStructLoader( root , allocator , schema , loadSize );
+    StructContainerField currentSchema = schema;
+    if ( currentSchema == null ) {
+      // create schema from column binary list.
+      currentSchema = ColumnBinaryUtil.getSchemaFromColumnBinaryList( raw , "root" );
+    }
+    root.clear();
+    root.allocateNew();
+    root.setValueCount( loadSize );
+    ArrowStructLoader loader = new ArrowStructLoader( root , allocator , currentSchema , loadSize );
     for ( ColumnBinary child : raw ) {
       loader.loadChild( child , loadSize );
     }

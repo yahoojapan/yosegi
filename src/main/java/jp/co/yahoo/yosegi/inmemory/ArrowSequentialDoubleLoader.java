@@ -18,6 +18,15 @@
 
 package jp.co.yahoo.yosegi.inmemory;
 
+import jp.co.yahoo.yosegi.message.objects.ByteObj;
+import jp.co.yahoo.yosegi.message.objects.BytesObj;
+import jp.co.yahoo.yosegi.message.objects.FloatObj;
+import jp.co.yahoo.yosegi.message.objects.IntegerObj;
+import jp.co.yahoo.yosegi.message.objects.LongObj;
+import jp.co.yahoo.yosegi.message.objects.PrimitiveObject;
+import jp.co.yahoo.yosegi.message.objects.ShortObj;
+import jp.co.yahoo.yosegi.message.objects.StringObj;
+
 import org.apache.arrow.vector.Float8Vector;
 import org.apache.arrow.vector.ValueVector;
 
@@ -33,7 +42,8 @@ public class ArrowSequentialDoubleLoader implements ISequentialLoader<ValueVecto
    */
   public ArrowSequentialDoubleLoader( final ValueVector vector , final int loadSize ) {
     this.vector = (Float8Vector)vector;
-    vector.allocateNew();
+    this.vector.allocateNew( loadSize );
+    this.vector.setValueCount( loadSize );
     this.loadSize = loadSize;
   }
 
@@ -57,8 +67,51 @@ public class ArrowSequentialDoubleLoader implements ISequentialLoader<ValueVecto
   }
 
   @Override
+  public void setBytes(int index, byte[] value, int start, int length) throws IOException {
+    setDownCastOrNull( index , new BytesObj( value , start , length ) );
+  }
+
+  @Override
+  public void setString(int index, String value) throws IOException {
+    setDownCastOrNull( index , new StringObj( value ) );
+  }
+
+  @Override
+  public void setByte( final int index , final byte value ) throws IOException {
+    setDownCastOrNull( index , new ByteObj( value ) );
+  }
+
+  @Override
+  public void setShort( final int index , final short value ) throws IOException {
+    setDownCastOrNull( index , new ShortObj( value ) );
+  }
+
+  @Override
+  public void setInteger( final int index , final int value ) throws IOException {
+    setDownCastOrNull( index , new IntegerObj( value ) );
+  }
+
+  @Override
+  public void setLong( final int index , final long value ) throws IOException {
+    setDownCastOrNull( index , new LongObj( value ) );
+  }
+
+  @Override
+  public void setFloat( final int index , final float value ) throws IOException {
+    setDownCastOrNull( index , new FloatObj( value ) );
+  }
+
+  @Override
   public void setDouble( final int index , final double value ) throws IOException {
     vector.setSafe( index , value );
+  }
+
+  private void setDownCastOrNull( final int index , final PrimitiveObject obj ) throws IOException {
+    try {
+      setDouble( index , obj.getDouble() );
+    } catch ( NumberFormatException ex ) {
+      setNull( index );
+    }
   }
 
 }

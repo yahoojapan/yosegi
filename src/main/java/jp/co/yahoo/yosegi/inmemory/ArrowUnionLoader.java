@@ -45,6 +45,8 @@ public class ArrowUnionLoader implements IUnionLoader<ValueVector> {
       final IField schema ,
       final int loadSize ) {
     this.vector = (UnionVector)vector;
+    this.vector.allocateNew();
+    this.vector.setValueCount( loadSize );
     this.allocator = allocator;
     this.schema = (UnionField)schema;
     this.loadSize = loadSize;

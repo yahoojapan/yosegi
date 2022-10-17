@@ -18,6 +18,9 @@
 
 package jp.co.yahoo.yosegi.inmemory;
 
+import jp.co.yahoo.yosegi.message.objects.BytesObj;
+import jp.co.yahoo.yosegi.message.objects.StringObj;
+
 import org.apache.arrow.vector.BitVector;
 import org.apache.arrow.vector.ValueVector;
 
@@ -33,7 +36,8 @@ public class ArrowSequentialBooleanLoader implements ISequentialLoader<ValueVect
    */
   public ArrowSequentialBooleanLoader( final ValueVector vector , final int loadSize ) {
     this.vector = (BitVector)vector;
-    vector.allocateNew();
+    this.vector.allocateNew( loadSize );
+    this.vector.setValueCount( loadSize );
     this.loadSize = loadSize;
   }
 
@@ -54,6 +58,24 @@ public class ArrowSequentialBooleanLoader implements ISequentialLoader<ValueVect
   @Override
   public void setNull( final int index ) throws IOException {
     vector.setNull( index );
+  }
+
+  @Override
+  public void setBytes(int index, byte[] value, int start, int length) throws IOException {
+    try {
+      setBoolean( index , new BytesObj( value , start , length ).getBoolean() );
+    } catch ( Exception ex ) {
+      setNull( index );
+    }
+  }
+
+  @Override
+  public void setString(int index, String value) throws IOException {
+    try {
+      setBoolean( index , new StringObj( value ).getBoolean() );
+    } catch ( Exception ex ) {
+      setNull( index );
+    }
   }
 
   @Override

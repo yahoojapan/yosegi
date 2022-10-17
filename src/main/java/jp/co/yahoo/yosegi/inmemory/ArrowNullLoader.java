@@ -31,8 +31,9 @@ public class ArrowNullLoader implements ILoader<ValueVector> {
    * Null type loader.
    */
   public ArrowNullLoader( final ValueVector vector , final int loadSize ) {
-    vector.allocateNew();
     this.vector = vector;
+    this.vector.allocateNew();
+    this.vector.setValueCount( loadSize );
     this.loadSize = loadSize;
   }
 
