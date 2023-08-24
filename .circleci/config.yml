@@ -57,6 +57,9 @@ jobs:
           command: |
             cp -r ./target/site ~/site
 
+      - store_artifacts:
+          path: ~/site
+
 custom_filters:
   master_only: &master_only
     filters:
