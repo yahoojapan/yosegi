@@ -53,6 +53,10 @@ jobs:
       # run site
       - run: mvn site
 
+      - run:
+          command: |
+            cp -r ./target/site ~/site
+
 custom_filters:
   master_only: &master_only
     filters:
