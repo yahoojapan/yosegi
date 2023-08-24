@@ -50,6 +50,9 @@ jobs:
       - store_artifacts:
           path: target/surefire-reports
 
+      # run site
+      - run: mvn site
+
 custom_filters:
   master_only: &master_only
     filters:
