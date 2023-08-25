@@ -15,7 +15,7 @@
 
   <groupId>jp.co.yahoo.yosegi</groupId>
   <artifactId>yosegi</artifactId>
-  <version>2.0.4</version>
+  <version>2.0.5-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Yosegi</name>
   <description>Yosegi package.</description>
@@ -32,7 +32,7 @@
     <connection>scm:git:git@github.com:yahoojapan/yosegi</connection>
     <developerConnection>scm:git:git@github.com:yahoojapan/yosegi</developerConnection>
     <url>scm:git:https://github.com/yahoojapan/yosegi</url>
-    <tag>yosegi-2.0.4</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <organization>
