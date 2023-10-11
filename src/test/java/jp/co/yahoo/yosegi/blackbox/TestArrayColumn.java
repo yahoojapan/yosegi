@@ -102,6 +102,16 @@ public class TestArrayColumn {
     };
   }
 
+  private String[] getJsonStringsWithNull() {
+    return new String[] {
+      "[\"a\",\"b\",\"c\"]",
+      "null",
+      "null",
+      "null",
+      "[\"dd\"]"
+    };
+  }
+
   private String[] getExpectedValues(final int[] repetitions) {
     String[][] values = {
       {"a", "b", "c"},
@@ -119,9 +129,7 @@ public class TestArrayColumn {
         for (int j = 0; j < values[i].length; j++) {
           expectedValues.add(values[i][j]);
         }
-      } else {
-        expectedValues.add(null);
-      }
+      } 
     }
     return expectedValues.toArray(new String[expectedValues.size()]);
   }
@@ -143,12 +151,98 @@ public class TestArrayColumn {
       if (i < values.length) {
         childLength += values[i].length;
         isNull = false;
-      } else {
-        childLength++;
       }
     }
     // NOTE: If all are null, child.size() is 0 be.
     return isNull ? 0 : childLength;
+  }
+
+  private String[][] getExpandValues(final int[] repetitions) {
+    String[][] values = {
+        {"a", "b", "c"},
+        {"aa", "bb", "cc", "dd"},
+        {"bb", "cc", "dd"},
+        {"cc", "dd"},
+        {"dd"}
+    };
+    List<String[]> expectedValues = new ArrayList<>();
+    for (int i = 0; i < repetitions.length; i++) {
+      if (repetitions[i] == 0) {
+        continue;
+      }
+      if (i < values.length) {
+        for ( int j = 0; j < repetitions[i]; j++ ){
+          expectedValues.add(values[i]);
+        }
+      } else {
+        for ( int j = 0; j < repetitions[i]; j++ ){
+          expectedValues.add(null);
+        }
+      }
+    }
+    return expectedValues.toArray(new String[expectedValues.size()][]);
+  }
+
+  private String[][] getExpandValuesWithNull(final int[] repetitions) {
+    String[][] values = {
+        {"a", "b", "c"},
+        null,
+        null,
+        null,
+        {"dd"}
+    };
+    List<String[]> expectedValues = new ArrayList<>();
+    for (int i = 0; i < repetitions.length; i++) {
+      if (repetitions[i] == 0) {
+        continue;
+      }
+      if (i < values.length) {
+        for ( int j = 0; j < repetitions[i]; j++ ){
+          expectedValues.add(values[i]);
+        }
+      } else {
+        for ( int j = 0; j < repetitions[i]; j++ ){
+          expectedValues.add(null);
+        }
+      }
+    }
+    return expectedValues.toArray(new String[expectedValues.size()][]);
+  }
+
+  private void checkExpandArray(final ArrayColumn column, final int[] repetitions) throws IOException {
+    String[][] values = getExpandValues(repetitions);
+    column.setDefaultCell(NullCell.getInstance());
+    assertEquals(column.size(), values.length);
+    for (int i = 0; i < column.size(); i++) {
+      if (column.get(i).getRow() == null) {
+        assertNull(values[i]);
+      } else {
+        assertNotNull(values[i]);
+        List<ICell> columnValue = ((ArrayCell)(column.get(i))).getRow();
+        assertEquals(columnValue.size(), values[i].length );
+        for (int j = 0; j < columnValue.size(); j++) {
+          assertEquals(((PrimitiveObject)(columnValue.get(j).getRow())).getString(), values[i][j]);
+        }
+      }
+    }
+  }
+
+  private void checkExpandArrayWithNull(final ArrayColumn column, final int[] repetitions) throws IOException {
+    String[][] values = getExpandValuesWithNull(repetitions);
+    column.setDefaultCell(NullCell.getInstance());
+    assertEquals(column.size(), values.length);
+    for (int i = 0; i < column.size(); i++) {
+      if (column.get(i).getRow() == null) {
+        assertNull(values[i]);
+      } else {
+        assertNotNull(values[i]);
+        List<ICell> columnValue = ((ArrayCell)(column.get(i))).getRow();
+        assertEquals(columnValue.size(), values[i].length );
+        for (int j = 0; j < columnValue.size(); j++) {
+          assertEquals(((PrimitiveObject)(columnValue.get(j).getRow())).getString(), values[i][j]);
+        }
+      }
+    }
   }
 
   @ParameterizedTest
@@ -239,13 +333,36 @@ public class TestArrayColumn {
     String[] expectedValues = getExpectedValues(repetitions);
     int index = 0;
     for (String expected : expectedValues) {
-      if (expected == null) {
-        assertEquals(ColumnType.NULL, child.get(index).getType());
-      } else {
-        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
-      }
+      assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
       index++;
     }
+    checkExpandArray((ArrayColumn)column, repetitions);
+  }
+
+  @ParameterizedTest
+  @MethodSource("data1")
+  public void T_load_withAllIndexWithNull(final String targetClassName) throws IOException {
+    int[] repetitions = new int[] {1, 1, 1, 1, 1};
+    int loadSize = getLoadSize(repetitions);
+    IColumn column = createArrayColumnFromJsonString(
+        targetClassName, getJsonStringsWithNull(), repetitions, loadSize);
+    IColumn child = column.getColumn(0);
+
+    assertEquals(ColumnType.ARRAY, column.getColumnType());
+    // loadSize: 5
+    assertEquals(loadSize, column.size());
+
+    assertEquals(ColumnType.STRING, child.getColumnType());
+    // childLength: 4
+    assertEquals(4, child.size());
+    // expected: ["a","b","c","dd"]
+    String[] expectedValues = getExpectedValues(repetitions);
+    int index = 0;
+    for (String expected : new String[]{"a", "b", "c", "dd"}) {
+      assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
+      index++;
+    }
+    checkExpandArrayWithNull((ArrayColumn)column, repetitions);
   }
 
   @ParameterizedTest
@@ -268,13 +385,10 @@ public class TestArrayColumn {
     String[] expectedValues = getExpectedValues(repetitions);
     int index = 0;
     for (String expected : expectedValues) {
-      if (expected == null) {
-        assertEquals(ColumnType.NULL, child.get(index).getType());
-      } else {
-        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
-      }
+      assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
       index++;
     }
+    checkExpandArray((ArrayColumn)column, repetitions);
   }
 
   @ParameterizedTest
@@ -297,13 +411,10 @@ public class TestArrayColumn {
     String[] expectedValues = getExpectedValues(repetitions);
     int index = 0;
     for (String expected : expectedValues) {
-      if (expected == null) {
-        assertEquals(ColumnType.NULL, child.get(index).getType());
-      } else {
-        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
-      }
+      assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
       index++;
     }
+    checkExpandArray((ArrayColumn)column, repetitions);
   }
 
   @ParameterizedTest
@@ -320,19 +431,16 @@ public class TestArrayColumn {
     assertEquals(loadSize, column.size());
 
     assertEquals(ColumnType.STRING, child.getColumnType());
-    // childLength: 14
+    // childLength: 13
     assertEquals(getChildLength(repetitions), child.size());
-    // expected: ["a","b","c","aa","bb","cc","dd","bb","cc","dd","cc","dd","dd",null]
+    // expected: ["a","b","c","aa","bb","cc","dd","bb","cc","dd","cc","dd","dd"]
     String[] expectedValues = getExpectedValues(repetitions);
     int index = 0;
     for (String expected : expectedValues) {
-      if (expected == null) {
-        assertEquals(ColumnType.NULL, child.get(index).getType());
-      } else {
-        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
-      }
+      assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
       index++;
     }
+    checkExpandArray((ArrayColumn)column, repetitions);
   }
 
   @ParameterizedTest
@@ -355,13 +463,10 @@ public class TestArrayColumn {
     String[] expectedValues = getExpectedValues(repetitions);
     int index = 0;
     for (String expected : expectedValues) {
-      if (expected == null) {
-        assertEquals(ColumnType.NULL, child.get(index).getType());
-      } else {
-        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
-      }
+      assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
       index++;
     }
+    checkExpandArray((ArrayColumn)column, repetitions);
   }
 
   @ParameterizedTest
@@ -381,17 +486,14 @@ public class TestArrayColumn {
     // NOTE: If all are null, child.size() is 0 be.
     // childLength: 0
     assertEquals(getChildLength(repetitions), child.size());
-    // expected: [null]
+    // expected: []
     String[] expectedValues = getExpectedValues(repetitions);
     int index = 0;
     for (String expected : expectedValues) {
-      if (expected == null) {
-        assertEquals(ColumnType.NULL, child.get(index).getType());
-      } else {
-        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
-      }
+      assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
       index++;
     }
+    checkExpandArray((ArrayColumn)column, repetitions);
   }
 
   @ParameterizedTest
@@ -415,13 +517,10 @@ public class TestArrayColumn {
     String[] expectedValues = getExpectedValues(repetitions);
     int index = 0;
     for (String expected : expectedValues) {
-      if (expected == null) {
-        assertEquals(ColumnType.NULL, child.get(index).getType());
-      } else {
-        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
-      }
+      assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
       index++;
     }
+    checkExpandArray((ArrayColumn)column, repetitions);
   }
 
   @ParameterizedTest
@@ -445,13 +544,10 @@ public class TestArrayColumn {
     String[] expectedValues = getExpectedValues(repetitions);
     int index = 0;
     for (String expected : expectedValues) {
-      if (expected == null) {
-        assertEquals(ColumnType.NULL, child.get(index).getType());
-      } else {
-        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
-      }
+      assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
       index++;
     }
+    checkExpandArray((ArrayColumn)column, repetitions);
   }
 
   @ParameterizedTest
@@ -475,13 +571,10 @@ public class TestArrayColumn {
     String[] expectedValues = getExpectedValues(repetitions);
     int index = 0;
     for (String expected : expectedValues) {
-      if (expected == null) {
-        assertEquals(ColumnType.NULL, child.get(index).getType());
-      } else {
-        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
-      }
+      assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
       index++;
     }
+    checkExpandArray((ArrayColumn)column, repetitions);
   }
 
   @ParameterizedTest
@@ -498,19 +591,16 @@ public class TestArrayColumn {
     assertEquals(loadSize, column.size());
 
     assertEquals(ColumnType.STRING, child.getColumnType());
-    // childLength: 14
+    // childLength: 13
     assertEquals(getChildLength(repetitions), child.size());
-    // expected: ["a","b","c","aa","bb","cc","dd","bb","cc","dd","cc","dd","dd",null]
+    // expected: ["a","b","c","aa","bb","cc","dd","bb","cc","dd","cc","dd","dd"]
     String[] expectedValues = getExpectedValues(repetitions);
     int index = 0;
     for (String expected : expectedValues) {
-      if (expected == null) {
-        assertEquals(ColumnType.NULL, child.get(index).getType());
-      } else {
-        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
-      }
+      assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
       index++;
     }
+    checkExpandArray((ArrayColumn)column, repetitions);
   }
 
   @ParameterizedTest
@@ -533,13 +623,10 @@ public class TestArrayColumn {
     String[] expectedValues = getExpectedValues(repetitions);
     int index = 0;
     for (String expected : expectedValues) {
-      if (expected == null) {
-        assertEquals(ColumnType.NULL, child.get(index).getType());
-      } else {
-        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
-      }
+      assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
       index++;
     }
+    checkExpandArray((ArrayColumn)column, repetitions);
   }
 
   @ParameterizedTest
@@ -559,16 +646,13 @@ public class TestArrayColumn {
     // NOTE: If all are null, child.size() is 0 be.
     // childLength: 0
     assertEquals(getChildLength(repetitions), child.size());
-    // expected: [null,null]
+    // expected: []
     String[] expectedValues = getExpectedValues(repetitions);
     int index = 0;
     for (String expected : expectedValues) {
-      if (expected == null) {
-        assertEquals(ColumnType.NULL, child.get(index).getType());
-      } else {
-        assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
-      }
+      assertEquals(expected, ((PrimitiveObject) child.get(index).getRow()).getString());
       index++;
     }
+    checkExpandArray((ArrayColumn)column, repetitions);
   }
 }

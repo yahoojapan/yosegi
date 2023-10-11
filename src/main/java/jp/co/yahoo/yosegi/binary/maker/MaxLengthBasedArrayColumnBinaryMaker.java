@@ -238,12 +238,11 @@ public class MaxLengthBasedArrayColumnBinaryMaker implements IColumnBinaryMaker 
     int loadOffset = 0;
     int childLength = 0;
     int rowGourpCount = 0;
+    int startArrayOffset = 0;
     List<Integer> childRepetitions = new ArrayList<>();
     for (int i = 0; i < columnBinary.repetitions.length; i++) {
       if (columnBinary.repetitions[i] == 0) {
-        if (i >= columnBinary.rowCount || isNullArray[i]) {
-          childRepetitions.add(0);
-        } else {
+        if (i < columnBinary.rowCount && ! isNullArray[i]) {
           for (int j = 0; j < lengthArray[i]; j++) {
             childRepetitions.add(0);
           }
@@ -252,12 +251,13 @@ public class MaxLengthBasedArrayColumnBinaryMaker implements IColumnBinaryMaker 
       }
       if (i >= columnBinary.rowCount || isNullArray[i]) {
         loader.setNullAndRepetitions(loadOffset, columnBinary.repetitions[i], rowGourpCount);
-        // NOTE: child does not inherit parent's repetitions.
-        childLength++;
-        childRepetitions.add(1);
       } else {
         loader.setRowGourpIndexAndRepetitions(
-            loadOffset, columnBinary.repetitions[i], rowGourpCount, startArray[i], lengthArray[i]);
+            loadOffset,
+            columnBinary.repetitions[i],
+            rowGourpCount,
+            startArrayOffset, lengthArray[i] );
+        startArrayOffset += lengthArray[i];
         // NOTE: child does not inherit parent's repetitions.
         childLength += lengthArray[i];
         for (int j = 0; j < lengthArray[i]; j++) {
