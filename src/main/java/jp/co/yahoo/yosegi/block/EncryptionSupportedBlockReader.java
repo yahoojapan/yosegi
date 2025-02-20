@@ -127,7 +127,8 @@ public class EncryptionSupportedBlockReader implements IBlockReader {
         currentColumnNameNode = columnNameNode;
       }
     }
-    if ( columnFilterNode.isChildEmpty() ) {
+    if ( config.get( YosegiConfiguration.PROP_READ_COLUMN_NAME ) == null 
+        && columnFilterNode.isChildEmpty() ) {
       columnFilterNode.setNeedAllChild( true );
     } else {
       List<String[]> expandNeedColumnList = expandFunction.getExpandColumnName();
