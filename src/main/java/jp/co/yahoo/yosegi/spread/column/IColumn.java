@@ -66,6 +66,10 @@ public interface IColumn {
 
   IField getSchema( final String schemaName ) throws IOException;
 
+  default int getChildColumnIndex( final String columnName ) {
+    throw new UnsupportedOperationException( "This method only supports spread columns." );
+  }
+
   default boolean isExpandColumn() {
     return false;
   }

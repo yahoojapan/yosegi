@@ -175,6 +175,11 @@ public class SpreadColumn implements IColumn {
   }
 
   @Override
+  public int getChildColumnIndex( final String columnName ) {
+    return spread.getColumnIndex( columnName );
+  }
+
+  @Override
   public String toString() {
     StringBuffer result = new StringBuffer();
     result.append( String.format( "Column name : %s\n" , getColumnName() ) );
