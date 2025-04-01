@@ -150,7 +150,7 @@
           <useSystemClassLoader>false</useSystemClassLoader>
           <forkCount>2</forkCount>
           <reuseForks>true</reuseForks>
-          <argLine>@{surefireArgLine} -Xmx1536m -XX:MaxPermSize=512m</argLine>
+          <argLine>@{surefireArgLine} -Xmx1024m -XX:MaxPermSize=512m</argLine>
         </configuration>
         <dependencies>
           <dependency>
