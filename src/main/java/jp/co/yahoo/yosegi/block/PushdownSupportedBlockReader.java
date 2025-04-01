@@ -110,7 +110,8 @@ public class PushdownSupportedBlockReader implements IBlockReader {
         currentColumnNameNode = columnNameNode;
       }
     }
-    if ( columnFilterNode.isChildEmpty() ) {
+    if ( config.get( "spread.reader.read.column.names" ) == null
+        && columnFilterNode.isChildEmpty() ) {
       columnFilterNode.setNeedAllChild( true );
     } else {
       List<String[]> expandNeedColumnList = expandFunction.getExpandColumnName();
