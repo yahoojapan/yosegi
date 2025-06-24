@@ -1,8 +1,8 @@
 version: 2.1
 
 orbs:
-  sonatype: sonatype-nexus-community/circleci-maven-release-orb@0.0.16
-  sonatype-dryrun: sonatype-nexus-community/circleci-maven-release-orb@0.0.16
+  sonatype: sonatype-nexus-community/circleci-maven-release-orb@0.0.20
+  sonatype-dryrun: sonatype-nexus-community/circleci-maven-release-orb@0.0.20
 
 jobs:
   build:
