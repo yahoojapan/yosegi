@@ -142,10 +142,11 @@ public class PushdownSupportedBlockReader implements IBlockReader {
   public void setStream( final InputStream in , final int blockSize ) throws IOException {
     clear();
     byte[] compressorClassLengthBytes = new byte[Integer.BYTES];
-    InputStreamUtils.read( in , compressorClassLengthBytes , 0 , Integer.BYTES );
+    readBytes += InputStreamUtils.read( in , compressorClassLengthBytes , 0 , Integer.BYTES );
     int compressorClassLength = ByteBuffer.wrap( compressorClassLengthBytes ).getInt();
     byte[] compressorClassBytes = new byte[ compressorClassLength ];
-    InputStreamUtils.read( in , compressorClassBytes , 0 , compressorClassBytes.length );
+    readBytes +=
+            InputStreamUtils.read( in , compressorClassBytes , 0 , compressorClassBytes.length );
     compressor = FindCompressor.get(
         CompressorNameShortCut.getClassName( new String( compressorClassBytes , "UTF-8" ) ) );
 

@@ -54,6 +54,11 @@ public class YosegiReader implements AutoCloseable {
   private int blockSize;
   private long inReadOffset;
 
+  private int blockReadCount;
+  private int blockCount;
+  private SummaryStats readStats = new SummaryStats();
+  private long readBytes;
+
   private class FileHeaderMeta {
     public final int blockSize;
     public final int headerSize;
@@ -78,24 +83,24 @@ public class YosegiReader implements AutoCloseable {
 
   private FileHeaderMeta readFileHeader( final InputStream in ) throws IOException {
     byte[] magic = new byte[MAGIC.length];
-    InputStreamUtils.read( in , magic , 0 , MAGIC.length );
+    readBytes += InputStreamUtils.read( in , magic , 0 , MAGIC.length );
 
     if ( ! Arrays.equals( magic , MAGIC) ) {
       throw new IOException( "Invalid binary." );
     }
 
     byte[] blockSizeBytes = new byte[Integer.BYTES];
-    InputStreamUtils.read( in , blockSizeBytes , 0 , Integer.BYTES );
+    readBytes += InputStreamUtils.read( in , blockSizeBytes , 0 , Integer.BYTES );
     ByteBuffer wrapBuffer = ByteBuffer.wrap( blockSizeBytes );
     final int readBlockSize = wrapBuffer.getInt( 0 );
 
     byte[] blockClassLength = new byte[Integer.BYTES];
     ByteBuffer wrapLengthBuffer = ByteBuffer.wrap( blockClassLength );
-    InputStreamUtils.read( in , blockClassLength , 0 , Integer.BYTES );
+    readBytes += InputStreamUtils.read( in , blockClassLength , 0 , Integer.BYTES );
     int classNameSize = wrapLengthBuffer.getInt( 0 );
 
     byte[] blockClass = new byte[classNameSize];
-    InputStreamUtils.read( in , blockClass , 0 , classNameSize );
+    readBytes += InputStreamUtils.read( in , blockClass , 0 , classNameSize );
     ByteBuffer classNameBuffer = ByteBuffer.wrap( blockClass );
     CharBuffer viewCharBuffer = classNameBuffer.asCharBuffer();
     char[] classNameChars = new char[ classNameSize / Character.BYTES ];
@@ -175,9 +180,15 @@ public class YosegiReader implements AutoCloseable {
       if ( readTargetList.isEmpty() ) {
         return false;
       }
+      // blockReadCount is incremented in IBlockReader.nextRaw method
+      blockReadCount += currentBlockReader.getBlockReadCount();
       ReadBlockOffset readOffset = readTargetList.remove(0);
       inReadOffset += InputStreamUtils.skip( in , readOffset.start - inReadOffset );
       currentBlockReader.setStream( in , readOffset.length );
+      blockCount += currentBlockReader.getBlockCount();
+      readBytes += currentBlockReader.getReadBytes();
+      // IBlockReader.getReadStats method returns an empty result
+      readStats.merge( currentBlockReader.getReadStats() );
       inReadOffset += readOffset.length;
     }
     return true;
@@ -220,12 +231,19 @@ public class YosegiReader implements AutoCloseable {
     return localSpredPushdown( currentBlockReader.nextRaw() );
   }
 
+  /**
+   * Get total block read count.
+   */
   public int getBlockReadCount() {
-    return currentBlockReader.getBlockReadCount();
+    // blockReadCount is incremented in IBlockReader.nextRaw method
+    if ( currentBlockReader == null ) {
+      return blockReadCount;
+    }
+    return blockReadCount + currentBlockReader.getBlockReadCount();
   }
 
   public int getBlockCount() {
-    return currentBlockReader.getBlockCount();
+    return blockCount;
   }
 
   public long getReadPos() {
@@ -233,15 +251,17 @@ public class YosegiReader implements AutoCloseable {
   }
 
   public Integer getCurrentSpreadSize() {
+    // currentBlockReader can be null
     return currentBlockReader.getCurrentSpreadSize();
   }
 
   public SummaryStats getReadStats() {
-    return currentBlockReader.getReadStats();
+    // IBlockReader.getReadStats method returns an empty result
+    return readStats;
   }
 
   public long getReadBytes() {
-    return currentBlockReader.getReadBytes();
+    return readBytes;
   }
 
   /**
@@ -253,6 +273,10 @@ public class YosegiReader implements AutoCloseable {
       in = null;
     }
     inReadOffset = 0;
+    blockReadCount = 0;
+    blockCount = 0;
+    readStats.clear();
+    readBytes = 0;
     readTargetList.clear();
     currentBlockReader.close();
   }
